@@ -1,14 +1,5 @@
-runtime: nodejs18
-build:
-  commands:
-    - npm ci
-    - npm run build
-deploy:
-  package:
-    include:
-      - dist/**
-      - server.js
-      - package.json
-      - package-lock.json
-  start:
-    command: npm start
+meta:
+  environment: node
+  toolchain:
+    name: browser
+    version: 18

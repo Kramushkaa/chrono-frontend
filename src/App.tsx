@@ -379,7 +379,7 @@ function App() {
     };
 
     fetchData();
-  }, [filters]); // Перезагружаем данные при изменении фильтров
+  }, [filters, allCategories.length, allCountries.length]); // Перезагружаем данные при изменении фильтров
 
     // Функция для получения приоритета категории
   const getCategoryPriority = (category: string) => {

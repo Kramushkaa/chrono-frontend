@@ -4,34 +4,48 @@
 
 ## Установка
 
-\\\ash
+```bash
 npm install
-\\\
+```
 
 ## Разработка
 
-\\\ash
-npm run dev
-\\\
+```bash
+npm start
+```
 
 ## Сборка
 
-\\\ash
+```bash
 npm run build
-\\\
+```
+
+## Production сервер
+
+```bash
+npm run serve
+```
 
 ## Переменные окружения
 
-Создайте файл \.env\:
+Создайте файл `.env`:
 
-\\\
-VITE_API_URL=https://chronoline-backend.amvera.io/api
-\\\
+```env
+REACT_APP_API_URL=https://chronoline-backend.amvera.io
+```
 
 ## Деплой
 
-Frontend можно развернуть на любом статическом хостинге:
-- Netlify
-- Vercel
-- GitHub Pages
-- Amvera (статический хостинг)
+Frontend развернут на Amvera с использованием Node.js сервера.
+
+### Структура проекта
+
+```
+chronoline-frontend/
+├── src/                    # Исходный код React
+├── public/                 # Статические файлы
+├── package.json           # Зависимости
+├── server.js              # Production сервер
+├── amvera.yml             # Конфигурация Amvera
+└── tsconfig.json          # Конфигурация TypeScript
+```
