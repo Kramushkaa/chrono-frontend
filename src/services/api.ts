@@ -11,6 +11,7 @@ const safeDecode = (str: string): string => {
   }
 };
 
+
 // Types for API responses
 interface Person {
   id: string;
