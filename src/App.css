@@ -409,4 +409,299 @@ body {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Анимация для панели фильтров */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Адаптивные стили для мобильных устройств */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0.5rem !important;
+  }
+  
+  .app-header h1 {
+    font-size: 1.2rem !important;
+  }
+  
+  /* Компактные элементы управления */
+  .app-header > div > div:last-child {
+    gap: 0.3rem !important;
+  }
+  
+  /* Скрываем текст в кнопках на мобильных */
+  .app-header button span {
+    display: none;
+  }
+  
+  /* Компактные фильтры на мобильных */
+  .app-header input[type="number"] {
+    width: 40px !important;
+    font-size: 0.5rem !important;
+    padding: 0.1rem 0.2rem !important;
+  }
+  
+  /* Скрываем иконки фильтров на мобильных */
+  .filter-icon {
+    display: none !important;
+  }
+  
+  /* Компактные кнопки фильтров на мобильных */
+  .filter-btn {
+    padding: 0.2rem 0.4rem !important;
+    font-size: 0.6rem !important;
+    gap: 0.2rem !important;
+  }
+  
+  /* На маленьких экранах переносим элементы управления на новые строки */
+  .app-header > div > div:last-child {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+  }
+  
+  .app-header > div > div:last-child > div {
+    justify-content: center !important;
+  }
+  
+  /* Скрываем текст в группировке на мобильных */
+  .grouping-label {
+    display: none;
+  }
+  
+  /* Уменьшаем переключатель группировки на мобильных */
+  .grouping-toggle > div:last-child {
+    width: 56px !important;
+    height: 18px !important;
+  }
+  
+  .grouping-toggle > div:last-child > div:first-child {
+    width: 16px !important;
+    height: 16px !important;
+    top: 1px !important;
+  }
+  
+  .grouping-toggle > div:last-child > div:first-child {
+    left: 1px !important;
+  }
+  
+  .grouping-toggle > div:last-child > div:first-child[style*="left: 23px"] {
+    left: 20px !important;
+  }
+  
+  .grouping-toggle > div:last-child > div:first-child[style*="left: 43px"] {
+    left: 39px !important;
+  }
+  
+  /* Уменьшаем иконки над переключателем на мобильных */
+  .grouping-toggle > div:first-child > div {
+    width: 12px !important;
+    height: 12px !important;
+    font-size: 7px !important;
+  }
+  
+  /* Улучшаем кликабельность иконок на мобильных */
+  .grouping-toggle > div:first-child > div {
+    min-width: 12px !important;
+    min-height: 12px !important;
+  }
+  
+  /* Уменьшаем размеры фильтров */
+  .filter-dropdown-content {
+    max-width: 250px;
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    padding: 0.3rem !important;
+  }
+  
+  .app-header h1 {
+    font-size: 1rem !important;
+  }
+  
+  /* Еще более компактные элементы */
+  .app-header > div > div:last-child {
+    gap: 0.2rem !important;
+  }
+  
+  .app-header > div > div:last-child > div,
+  .app-header > div > div:last-child > button {
+    padding: 0.2rem 0.4rem !important;
+  }
+  
+  /* На очень маленьких экранах показываем только текст */
+  .filter-text {
+    font-size: 0.5rem !important;
+  }
+  
+  /* Еще более компактные кнопки фильтров */
+  .filter-btn {
+    padding: 0.15rem 0.3rem !important;
+    font-size: 0.5rem !important;
+    gap: 0.15rem !important;
+  }
+  
+  /* На очень маленьких экранах делаем элементы еще компактнее */
+  .app-header > div > div:last-child {
+    gap: 0.3rem !important;
+  }
+  
+  .app-header > div > div:last-child > div {
+    gap: 0.2rem !important;
+  }
+} 
+
+.header-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header-title {
+  flex-shrink: 0;
+}
+
+.filters-toggle-btn {
+  display: none;
+}
+
+/* Фильтры для десктопа - в одной строке с заголовком */
+.header-controls-desktop {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.header-controls-inner {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.header-filters-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* Убедись, что textLabel всегда видим */
+.filter-text {
+  display: inline !important;
+  white-space: nowrap;
+}
+
+/* Скрытие спиннеров в полях ввода */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Фильтры для мобильных - скрыты по умолчанию */
+.header-controls-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .header-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  
+  .filters-toggle-btn {
+    display: inline-block;
+  }
+  
+  /* Скрываем десктопные фильтры на мобильных */
+  .header-controls-desktop {
+    display: none !important;
+  }
+  
+  /* Показываем мобильные фильтры */
+  .header-controls-mobile {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-top: 0.5rem;
+  }
+  
+  .header-controls-mobile.visible {
+    display: flex;
+  }
+  
+  .header-controls-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  .header-filters-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  /* На мобильных текст кнопок должен быть виден */
+  .filter-text {
+    display: inline !important;
+    font-size: 0.7rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .filters-toggle-btn {
+    display: none !important;
+  }
+  
+  .header-controls-desktop {
+    display: flex !important;
+    flex-direction: row;
+    width: auto;
+  }
+  
+  .header-controls-mobile {
+    display: none !important;
+  }
+  
+  .header-controls-inner {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .header-filters-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.3rem;
+  }
 } 

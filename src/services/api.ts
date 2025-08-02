@@ -75,7 +75,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
     console.log('Persons data received:', data);
     
     // Преобразуем данные в правильный формат с безопасной декодировкой
-    const transformedData = data.map((person: any) => ({
+    let transformedData = data.map((person: any) => ({
       id: person.id,
       name: safeDecode(person.name || ''),
       birthYear: person.birthYear,
@@ -91,6 +91,17 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       achievementYear3: person.achievementYear3,
       achievements: Array.isArray(person.achievements) ? person.achievements.map((a: any) => safeDecode(a || '')) : []
     }));
+    
+    // Дополнительная фильтрация на клиенте для множественных стран
+    if (filters.country) {
+      const selectedCountries = filters.country.split(',').map((c: string) => c.trim());
+      transformedData = transformedData.filter((person: Person) => {
+        const personCountries = person.country.includes('/') 
+          ? person.country.split('/').map((c: string) => c.trim())
+          : [person.country];
+        return selectedCountries.some((selected: string) => personCountries.includes(selected));
+      });
+    }
     
     return transformedData;
   } catch (error) {
@@ -141,8 +152,24 @@ export const getCountries = async (): Promise<string[]> => {
     const data = await response.json();
     console.log('Countries data received:', data);
     
-    // Безопасная декодировка стран
-    return data.map((country: string) => safeDecode(country || ''));
+    // Безопасная декодировка стран и разбивка множественных стран
+    const allCountries = new Set<string>();
+    
+    data.forEach((country: string) => {
+      const decodedCountry = safeDecode(country || '');
+      if (decodedCountry.includes('/')) {
+        // Разбиваем множественные страны на отдельные
+        const countries = decodedCountry.split('/').map(c => c.trim());
+        countries.forEach(c => {
+          if (c) allCountries.add(c);
+        });
+      } else {
+        allCountries.add(decodedCountry);
+      }
+    });
+    
+    // Сортируем страны по алфавиту
+    return Array.from(allCountries).sort();
   } catch (error) {
     console.error('Error fetching countries:', error);
     // Return default countries as fallback
