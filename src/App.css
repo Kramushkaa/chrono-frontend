@@ -149,18 +149,45 @@ body {
 .filter-dropdown-content {
   display: none;
   position: absolute;
-  background: rgba(44, 24, 16, 0.98);
-  min-width: 250px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  border: 2px solid #8b4513;
-  border-radius: 8px;
-  z-index: 9999;
+  background: rgba(44, 24, 16, 0.95);
+  border: 1px solid rgba(139, 69, 19, 0.4);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
-  max-height: 400px;
-  overflow-y: auto;
+  min-width: 200px;
+  max-width: 300px;
+  z-index: 1000;
 }
 
-.filter-dropdown:hover .filter-dropdown-content {
+/* Hover эффект только для десктопа */
+@media (min-width: 769px) {
+  .filter-dropdown:hover .filter-dropdown-content {
+    display: block;
+  }
+}
+
+/* Специальные стили для мобильных устройств */
+@media (max-width: 768px) {
+  .filter-dropdown {
+    position: relative;
+  }
+  
+  .filter-dropdown-content {
+    position: absolute;
+    background: rgba(44, 24, 16, 0.98);
+    border: 1px solid rgba(139, 69, 19, 0.4);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    min-width: 200px;
+    max-width: 250px;
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+}
+
+.filter-dropdown:focus-within .filter-dropdown-content {
   display: block;
 }
 
