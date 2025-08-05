@@ -9,6 +9,7 @@ interface AppHeaderProps {
   setShowControls: (show: boolean) => void
   filters: {
     showAchievements: boolean
+    hideEmptyCenturies: boolean
     categories: string[]
     countries: string[]
   }
@@ -23,6 +24,7 @@ interface AppHeaderProps {
   handleYearKeyPress: (field: 'start' | 'end', e: React.KeyboardEvent<HTMLInputElement>) => void
   resetAllFilters: () => void
   getCategoryColor: (category: string) => string
+  sortedData: any[]
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
@@ -40,12 +42,40 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   applyYearFilter,
   handleYearKeyPress,
   resetAllFilters,
-  getCategoryColor
+  getCategoryColor,
+  sortedData
 }) => {
   // Вспомогательная функция для корректной обработки значений годов
   const parseYearValue = (value: string, defaultValue: number): number => {
     const parsed = parseInt(value);
     return isNaN(parsed) ? defaultValue : parsed;
+  };
+
+  // Функция для определения пустых веков на основе отфильтрованных данных
+  const getEmptyCenturies = () => {
+    if (!sortedData || sortedData.length === 0) return new Set();
+    
+    // Используем отфильтрованные данные для определения диапазона
+    const minYear = Math.min(...sortedData.map(p => p.birthYear));
+    const maxYear = Math.max(...sortedData.map(p => p.deathYear));
+    
+    const startCentury = Math.floor(minYear / 100) * 100;
+    const endCentury = Math.ceil(maxYear / 100) * 100;
+    
+    const emptyCenturies = new Set<number>();
+    
+    for (let centuryStart = startCentury; centuryStart <= endCentury; centuryStart += 100) {
+      const centuryEnd = centuryStart + 99;
+      const hasDataInCentury = sortedData.some(person => 
+        (person.birthYear <= centuryEnd && person.deathYear >= centuryStart)
+      );
+      
+      if (!hasDataInCentury) {
+        emptyCenturies.add(centuryStart);
+      }
+    }
+    
+    return emptyCenturies;
   };
 
   return (
@@ -93,8 +123,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             <div className="header-marker-toggle" style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '0.3rem',
-              padding: '0.3rem 0.6rem',
+              justifyContent: 'center',
+              width: '32px',
+              height: '32px',
               borderRadius: '6px',
               background: filters.showAchievements ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
               border: `1px solid ${filters.showAchievements ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
@@ -119,10 +150,46 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             >
               <AchievementMarker isActive={filters.showAchievements} />
             </div>
+            
+            {/* Кнопка "Скрывать века" */}
+            <div className="header-century-toggle" style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              width: '40px',
+              height: '32px',
+              borderRadius: '6px',
+              background: filters.hideEmptyCenturies ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
+              border: `1px solid ${filters.hideEmptyCenturies ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
+              transition: 'all 0.3s ease',
+              cursor: 'pointer',
+              opacity: filters.hideEmptyCenturies ? 1 : 0.6
+            }}
+            onClick={() => setFilters((prev: any) => ({ ...prev, hideEmptyCenturies: !prev.hideEmptyCenturies }))}
+            title={filters.hideEmptyCenturies ? 'Показать все века' : 'Скрыть пустые века'}
+            onMouseEnter={(e) => {
+              if (!filters.hideEmptyCenturies) {
+                e.currentTarget.style.background = 'rgba(205, 133, 63, 0.4)';
+                e.currentTarget.style.opacity = '0.8';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!filters.hideEmptyCenturies) {
+                e.currentTarget.style.background = 'rgba(244, 228, 193, 0.2)';
+                e.currentTarget.style.opacity = '0.6';
+              }
+            }}
+            >
+              <span style={{ fontSize: '0.7rem', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
+                {filters.hideEmptyCenturies ? '<||>' : '>|<'}
+              </span>
+            </div>
+            
             <GroupingToggle 
               groupingType={groupingType}
               onGroupingChange={setGroupingType}
             />
+            
             <div className="header-filters-group" style={{ display: 'flex', gap: '0.3rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <FilterDropdown
                 title="🎭"
@@ -237,8 +304,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             <div className="header-marker-toggle" style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '0.3rem',
-              padding: '0.3rem 0.6rem',
+              justifyContent: 'center',
+              width: '32px',
+              height: '32px',
               borderRadius: '6px',
               background: filters.showAchievements ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
               border: `1px solid ${filters.showAchievements ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
@@ -263,10 +331,46 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             >
               <AchievementMarker isActive={filters.showAchievements} />
             </div>
+            
+            {/* Кнопка "Скрывать века" для мобильных */}
+            <div className="header-century-toggle" style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              width: '40px',
+              height: '32px',
+              borderRadius: '6px',
+              background: filters.hideEmptyCenturies ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
+              border: `1px solid ${filters.hideEmptyCenturies ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
+              transition: 'all 0.3s ease',
+              cursor: 'pointer',
+              opacity: filters.hideEmptyCenturies ? 1 : 0.6
+            }}
+            onClick={() => setFilters((prev: any) => ({ ...prev, hideEmptyCenturies: !prev.hideEmptyCenturies }))}
+            title={filters.hideEmptyCenturies ? 'Показать все века' : 'Скрыть пустые века'}
+            onMouseEnter={(e) => {
+              if (!filters.hideEmptyCenturies) {
+                e.currentTarget.style.background = 'rgba(205, 133, 63, 0.4)';
+                e.currentTarget.style.opacity = '0.8';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!filters.hideEmptyCenturies) {
+                e.currentTarget.style.background = 'rgba(244, 228, 193, 0.2)';
+                e.currentTarget.style.opacity = '0.6';
+              }
+            }}
+            >
+              <span style={{ fontSize: '0.7rem', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
+                {filters.hideEmptyCenturies ? '<||>' : '>|<'}
+              </span>
+            </div>
+            
             <GroupingToggle 
               groupingType={groupingType}
               onGroupingChange={setGroupingType}
             />
+            
             <FilterDropdown
               title="🎭"
               items={allCategories}

@@ -30,14 +30,16 @@ function App() {
         categories: parsed.categories || [],
         countries: parsed.countries || [],
         timeRange: parsed.timeRange || { start: -800, end: 2000 },
-        showAchievements: parsed.showAchievements !== undefined ? parsed.showAchievements : true
+        showAchievements: parsed.showAchievements !== undefined ? parsed.showAchievements : true,
+        hideEmptyCenturies: parsed.hideEmptyCenturies !== undefined ? parsed.hideEmptyCenturies : false
       };
     }
     return {
       categories: [] as string[],
       countries: [] as string[],
       timeRange: { start: -800, end: 2000 },
-      showAchievements: true
+      showAchievements: true,
+      hideEmptyCenturies: false
     };
   })
 
@@ -75,6 +77,8 @@ function App() {
     end: filters.timeRange.end.toString()
   })
 
+
+
   // Функция для применения фильтра по году
   const applyYearFilter = (field: 'start' | 'end', value: string) => {
     const parsed = parseInt(value);
@@ -107,7 +111,8 @@ function App() {
       categories: [],
       countries: [],
       timeRange: { start: -800, end: 2000 },
-      showAchievements: true
+      showAchievements: true,
+      hideEmptyCenturies: false
     })
     setYearInputs({
       start: '-800',
@@ -200,6 +205,46 @@ function App() {
     return a.birthYear - b.birthYear
   })
 
+  // Автоматически обновляем диапазон дат при изменении настройки скрытия пустых веков
+  useEffect(() => {
+    if (filters.hideEmptyCenturies && sortedData.length > 0) {
+      // Вычисляем эффективный диапазон на основе отфильтрованных данных
+      const effectiveMinYear = Math.min(...sortedData.map(p => p.birthYear));
+      const effectiveMaxYear = Math.max(...sortedData.map(p => p.deathYear));
+      
+      // Проверяем, есть ли активные фильтры (категории или страны)
+      const hasActiveFilters = filters.categories.length > 0 || filters.countries.length > 0;
+      
+      let newTimeRange = { ...filters.timeRange };
+      
+      if (hasActiveFilters) {
+        // Если есть активные фильтры, сужаем диапазон до отфильтрованных данных
+        newTimeRange = {
+          start: Math.max(filters.timeRange.start, effectiveMinYear),
+          end: Math.min(filters.timeRange.end, effectiveMaxYear)
+        };
+      } else {
+        // Если нет активных фильтров, НЕ сужаем диапазон
+        // Пользователь может хотеть видеть данные за пределами текущего диапазона
+        newTimeRange = filters.timeRange;
+      }
+      
+      // Обновляем только если диапазон изменился
+      if (newTimeRange.start !== filters.timeRange.start || newTimeRange.end !== filters.timeRange.end) {
+        setFilters(prev => ({
+          ...prev,
+          timeRange: newTimeRange
+        }));
+        
+        // Обновляем поля ввода
+        setYearInputs({
+          start: newTimeRange.start.toString(),
+          end: newTimeRange.end.toString()
+        });
+      }
+    }
+  }, [filters.hideEmptyCenturies, sortedData, filters.categories, filters.countries]);
+
   // Отслеживаем скролл
   useEffect(() => {
     const handleScroll = () => {
@@ -222,7 +267,15 @@ function App() {
   const timelineWidth = totalYears * pixelsPerYear + LEFT_PADDING_PX
 
   // Генерируем границы веков
-  const centuryBoundaries = generateCenturyBoundaries(minYear, maxYear)
+  // Если включена настройка скрытия пустых веков, используем только отфильтрованные данные
+  const effectiveMinYear = filters.hideEmptyCenturies 
+    ? Math.min(...sortedData.map(p => p.birthYear))
+    : minYear
+  const effectiveMaxYear = filters.hideEmptyCenturies 
+    ? Math.max(...sortedData.map(p => p.deathYear))
+    : maxYear
+  
+  const centuryBoundaries = generateCenturyBoundaries(effectiveMinYear, effectiveMaxYear)
 
   // Алгоритм размещения полосок на строках с полной группировкой по категориям
   const calculateRowPlacement = (people: Person[]) => {
@@ -432,6 +485,7 @@ function App() {
         handleYearKeyPress={handleYearKeyPress}
         resetAllFilters={resetAllFilters}
         getCategoryColor={getCategoryColor}
+        sortedData={sortedData}
       />
       
       <Timeline
@@ -444,7 +498,7 @@ function App() {
         LEFT_PADDING_PX={LEFT_PADDING_PX}
         rowPlacement={rowPlacement}
         filters={filters}
-              groupingType={groupingType}
+        groupingType={groupingType}
         categoryDividers={categoryDividers}
         getGroupColor={getGroupColor}
         getGroupColorDark={getGroupColorDark}
@@ -465,6 +519,7 @@ function App() {
         showAchievementTooltip={showAchievementTooltip}
         setShowAchievementTooltip={setShowAchievementTooltip}
         hoverTimerRef={hoverTimerRef}
+        sortedData={sortedData}
       />
 
       <Tooltips
