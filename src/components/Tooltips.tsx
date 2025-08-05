@@ -1,4 +1,5 @@
 import React from 'react'
+import { useMobile } from '../hooks/useMobile'
 import { Person } from '../types'
 
 interface TooltipsProps {
@@ -24,6 +25,13 @@ export const Tooltips: React.FC<TooltipsProps> = ({
   getPersonGroup,
   getCategoryColor
 }) => {
+  const isMobile = useMobile()
+
+  // На мобильных устройствах не показываем tooltip
+  if (isMobile) {
+    return null
+  }
+
   return (
     <>
       {/* Всплывающее окно с информацией */}

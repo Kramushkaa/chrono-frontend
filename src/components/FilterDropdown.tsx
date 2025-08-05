@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react'
+import { useMobile } from '../hooks/useMobile'
 
 interface FilterDropdownProps {
   title: string
@@ -25,20 +26,11 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   const [dropdownPosition, setDropdownPosition] = useState<'bottom' | 'top'>('bottom')
   const [horizontalPosition, setHorizontalPosition] = useState<'left' | 'right' | 'center'>('left')
   const [isOpen, setIsOpen] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const isMobile = useMobile()
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isMouseOverRef = useRef(false)
   
-  // Определяем, является ли устройство мобильным
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768)
-    }
-    
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+
   
   // Обновляем позицию dropdown при изменении размера окна
   useEffect(() => {
@@ -224,7 +216,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
         className={`filter-btn ${isActive ? 'active' : ''}`}
         style={{ 
           minWidth: 'auto',
-          padding: '0.3rem 0.6rem',
+          padding: isMobile ? '0.5rem 0.8rem' : '0.3rem 0.6rem',
           display: 'flex', 
           alignItems: 'center', 
           gap: '0.3rem',
@@ -232,7 +224,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
           border: `1px solid ${isActive ? 'rgba(139, 69, 19, 0.3)' : 'rgba(139, 69, 19, 0.2)'}`,
           borderRadius: '4px',
           color: '#f4e4c1',
-          fontSize: '0.7rem',
+          fontSize: isMobile ? '0.9rem' : '0.7rem',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
           whiteSpace: 'nowrap'

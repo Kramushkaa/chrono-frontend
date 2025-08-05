@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useMobile } from '../hooks/useMobile'
 
 interface GroupingToggleProps {
   groupingType: 'category' | 'country' | 'none'
@@ -9,32 +10,57 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
   groupingType, 
   onGroupingChange 
 }) => {
+  const isMobile = useMobile()
+
+  // Отладочная информация
+  console.log('GroupingToggle render:', { isMobile, groupingType })
+
+  // Принудительное обновление стилей ползунка
+  useEffect(() => {
+    const slider = document.querySelector('.grouping-toggle .slider') as HTMLElement
+    if (slider) {
+      const offset = isMobile
+        ? groupingType === 'category'
+          ? '0px'
+          : groupingType === 'country'
+            ? '19px'
+            : '38px'
+        : groupingType === 'category'
+          ? '3px'
+          : groupingType === 'country'
+            ? '23px'
+            : '43px'
+      console.log('Forcing slider transform:', offset)
+      slider.style.transform = `translateX(${offset})`
+    }
+  }, [groupingType, isMobile])
+
   return (
     <div className="grouping-toggle" style={{
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: '0.4rem',
-      padding: '0.4rem 0.8rem'
+      gap: isMobile ? '0.6rem' : '0.4rem',
+      padding: isMobile ? '0.6rem 1rem' : '0.4rem 0.8rem'
     }}>
       {/* Изображения над переключателем */}
       <div style={{
         display: 'flex',
-        gap: '0.3rem',
+        gap: isMobile ? '0.4rem' : '0.3rem',
         alignItems: 'center',
-        height: '14px'
+        height: isMobile ? '18px' : '14px'
       }}>
         {/* Иконка категорий */}
         <div 
           style={{
-            width: '14px',
-            height: '14px',
+            width: isMobile ? '24px' : '14px',
+            height: isMobile ? '24px' : '14px',
             background: groupingType === 'category' ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
             borderRadius: '3px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '9px',
+            fontSize: isMobile ? '16px' : '9px',
             color: groupingType === 'category' ? '#2c1810' : 'rgba(44, 24, 16, 0.4)',
             transition: 'all 0.3s ease',
             opacity: groupingType === 'category' ? 1 : 0.6,
@@ -61,14 +87,14 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
         {/* Иконка стран */}
         <div 
           style={{
-            width: '14px',
-            height: '14px',
+            width: isMobile ? '24px' : '14px',
+            height: isMobile ? '24px' : '14px',
             background: groupingType === 'country' ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
             borderRadius: '3px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '9px',
+            fontSize: isMobile ? '16px' : '9px',
             color: groupingType === 'country' ? '#2c1810' : 'rgba(44, 24, 16, 0.4)',
             transition: 'all 0.3s ease',
             opacity: groupingType === 'country' ? 1 : 0.6,
@@ -95,14 +121,14 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
         {/* Иконка без группировки */}
         <div 
           style={{
-            width: '14px',
-            height: '14px',
+            width: isMobile ? '24px' : '14px',
+            height: isMobile ? '24px' : '14px',
             background: groupingType === 'none' ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
             borderRadius: '3px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '9px',
+            fontSize: isMobile ? '16px' : '9px',
             color: groupingType === 'none' ? '#2c1810' : 'rgba(44, 24, 16, 0.4)',
             transition: 'all 0.3s ease',
             opacity: groupingType === 'none' ? 1 : 0.6,
@@ -128,68 +154,61 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
       </div>
       
       {/* Переключатель в виде слайдера */}
-      <div style={{
-        position: 'relative',
-        width: '64px',
-        height: '22px',
-        background: 'rgba(44, 24, 16, 0.9)',
-        borderRadius: '11px',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.3)'
-      }}
-      onClick={() => {
-        const options: ('category' | 'country' | 'none')[] = ['category', 'country', 'none']
-        const currentIndex = options.indexOf(groupingType)
-        const nextIndex = (currentIndex + 1) % options.length
-        onGroupingChange(options[nextIndex])
-      }}
+      <div 
+        key={`toggle-${groupingType}-${isMobile}`} // Принудительный перерендер
+        style={{
+          position: 'relative',
+          width: isMobile ? '90px' : '64px',
+          height: isMobile ? '28px' : '22px',
+          background: 'rgba(44, 24, 16, 0.9)',
+          borderRadius: isMobile ? '14px' : '11px',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.3)'
+        }}
+        onClick={() => {
+          const options: ('category' | 'country' | 'none')[] = ['category', 'country', 'none']
+          const currentIndex = options.indexOf(groupingType)
+          const nextIndex = (currentIndex + 1) % options.length
+          console.log('Clicking toggle:', { current: groupingType, next: options[nextIndex] })
+          onGroupingChange(options[nextIndex])
+        }}
       >
         {/* Ползунок */}
-        <div style={{
-          position: 'absolute',
-          top: '3px',
-          left: groupingType === 'category' ? '3px' : groupingType === 'country' ? '23px' : '43px',
-          width: '18px',
-          height: '18px',
-          background: 'linear-gradient(135deg, #cd853f 0%, #daa520 100%)',
-          borderRadius: '50%',
-          transition: 'left 0.3s ease',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2)'
-        }} />
+        <div 
+          className="slider"
+          key={`slider-${groupingType}-${isMobile}`} // Принудительное обновление при изменении
+          style={{
+            position: 'absolute',
+            top: isMobile ? '2px' : '3px',
+            left: '0px', // Фиксированная позиция слева
+            width: isMobile ? '24px' : '18px',
+            height: isMobile ? '24px' : '18px',
+            background: 'linear-gradient(135deg, #cd853f 0%, #daa520 100%)',
+            borderRadius: '50%',
+            transition: 'transform 0.3s ease', // Переход для transform
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2)',
+            // Отладочная информация
+            border: 'none',
+            // Позиционирование через transform
+            transform: `translateX(${(() => {
+              const offset = isMobile
+                ? groupingType === 'category'
+                  ? '0px'
+                  : groupingType === 'country'
+                    ? '33px'
+                    : '66px'
+                : groupingType === 'category'
+                  ? '3px'
+                  : groupingType === 'country'
+                    ? '23px'
+                    : '43px'
+              return offset
+            })()})`
+          }} 
+        />
         
-        {/* Индикаторы позиций */}
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          display: 'flex',
-          gap: '10px',
-          pointerEvents: 'none'
-        }}>
-          <div style={{
-            width: '3px',
-            height: '3px',
-            borderRadius: '50%',
-            background: groupingType === 'category' ? '#f4e4c1' : 'rgba(244, 228, 193, 0.2)',
-            transition: 'background 0.3s ease'
-          }} />
-          <div style={{
-            width: '3px',
-            height: '3px',
-            borderRadius: '50%',
-            background: groupingType === 'country' ? '#f4e4c1' : 'rgba(244, 228, 193, 0.2)',
-            transition: 'background 0.3s ease'
-          }} />
-          <div style={{
-            width: '3px',
-            height: '3px',
-            borderRadius: '50%',
-            background: groupingType === 'none' ? '#f4e4c1' : 'rgba(244, 228, 193, 0.2)',
-            transition: 'background 0.3s ease'
-          }} />
-        </div>
+
       </div>
     </div>
   )

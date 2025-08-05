@@ -1,4 +1,5 @@
 import React from 'react'
+import { useMobile } from '../hooks/useMobile'
 import { Person } from '../types'
 import { 
   getPosition, 
@@ -43,6 +44,8 @@ interface TimelineProps {
   setShowAchievementTooltip: (show: boolean) => void
   hoverTimerRef: React.MutableRefObject<NodeJS.Timeout | null>
   sortedData: any[]
+  selectedPerson: Person | null
+  setSelectedPerson: (person: Person | null) => void
 }
 
 // Типы для элементов временной линии
@@ -81,8 +84,12 @@ export const Timeline: React.FC<TimelineProps> = ({
   showAchievementTooltip,
   setShowAchievementTooltip,
   hoverTimerRef,
-  sortedData
+  sortedData,
+  selectedPerson,
+  setSelectedPerson
 }) => {
+  const isMobile = useMobile()
+
   // Функция для определения пустых веков на основе отфильтрованных данных
   const getEmptyCenturies = () => {
     if (!sortedData || sortedData.length === 0) return new Set();
@@ -233,7 +240,7 @@ export const Timeline: React.FC<TimelineProps> = ({
         position: 'relative', 
         height: 'calc(100vh - 100px)',
         overflow: 'auto',
-        padding: '1rem 0 2rem 0'
+        padding: isMobile ? '0' : '1rem 0 2rem 0'
       }}>
                  {/* Разноцветная заливка веков */}
          <div style={{
@@ -590,26 +597,39 @@ export const Timeline: React.FC<TimelineProps> = ({
                        minWidth: '60px',
                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                        border: '1.5px solid #a8926a',
-                       opacity: 1,
-                       zIndex: 5
+                       opacity: selectedPerson?.id === person.id ? 0.8 : 1,
+                       zIndex: 5,
+                       transform: selectedPerson?.id === person.id ? 'scale(1.05)' : 'scale(1)',
+                       transition: 'all 0.2s ease'
                      }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'
-                      e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.4)'
-                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)'
-                      setHoveredPerson(person)
-                      setMousePosition({ x: e.clientX, y: e.clientY })
-                      setTimeout(() => setShowTooltip(true), 300)
+                      if (!isMobile) {
+                        e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'
+                        e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.4)'
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)'
+                        setHoveredPerson(person)
+                        setMousePosition({ x: e.clientX, y: e.clientY })
+                        setTimeout(() => setShowTooltip(true), 300)
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0) scale(1)'
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)'
-                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
-                      setHoveredPerson(null)
-                      setShowTooltip(false)
+                      if (!isMobile) {
+                        e.currentTarget.style.transform = selectedPerson?.id === person.id ? 'scale(1.05)' : 'translateY(0) scale(1)'
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)'
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
+                        setHoveredPerson(null)
+                        setShowTooltip(false)
+                      }
                     }}
                     onMouseMove={(e) => {
-                      setMousePosition({ x: e.clientX, y: e.clientY })
+                      if (!isMobile) {
+                        setMousePosition({ x: e.clientX, y: e.clientY })
+                      }
+                    }}
+                    onClick={() => {
+                      if (isMobile) {
+                        setSelectedPerson(person)
+                      }
                     }}
                   >
                     <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>

@@ -4,6 +4,7 @@ import { getCategoryColor, getCategoryColorDark, getCategoryColorMuted } from '.
 import { AppHeader } from './components/AppHeader'
 import { Timeline } from './components/Timeline'
 import { Tooltips } from './components/Tooltips'
+import { MobilePersonPanel } from './components/MobilePersonPanel'
 import { useTimelineData } from './hooks/useTimelineData'
 import { 
   generateCenturyBoundaries,
@@ -20,6 +21,7 @@ function App() {
   const [showAchievementTooltip, setShowAchievementTooltip] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeAchievementMarker, setActiveAchievementMarker] = useState<{ personId: string; index: number } | null>(null)
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
   const hoverTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [showControls, setShowControls] = useState(true)
   const [filters, setFilters] = useState(() => {
@@ -520,6 +522,8 @@ function App() {
         setShowAchievementTooltip={setShowAchievementTooltip}
         hoverTimerRef={hoverTimerRef}
         sortedData={sortedData}
+        selectedPerson={selectedPerson}
+        setSelectedPerson={setSelectedPerson}
       />
 
       <Tooltips
@@ -529,6 +533,15 @@ function App() {
         hoveredAchievement={hoveredAchievement}
         showAchievementTooltip={showAchievementTooltip}
         achievementTooltipPosition={achievementTooltipPosition}
+        getGroupColor={getGroupColor}
+        getPersonGroup={getPersonGroup}
+        getCategoryColor={getCategoryColor}
+      />
+      
+      {/* Мобильная панель с информацией о человеке */}
+      <MobilePersonPanel
+        selectedPerson={selectedPerson}
+        onClose={() => setSelectedPerson(null)}
         getGroupColor={getGroupColor}
         getPersonGroup={getPersonGroup}
         getCategoryColor={getCategoryColor}

@@ -104,13 +104,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           onClick={() => setShowControls(!showControls)}
           style={{
             padding: '0.3rem 0.6rem',
-            background: 'rgba(139, 69, 19, 0.1)',
-            border: '1px solid rgba(139, 69, 19, 0.3)',
+            background: showControls ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
+            border: `1px solid ${showControls ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
             borderRadius: '4px',
             color: '#f4e4c1',
             fontSize: '0.7rem',
             cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            opacity: showControls ? 1 : 0.6
           }}
           title={showControls ? 'Скрыть фильтры' : 'Показать фильтры'}
         >
@@ -300,13 +301,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       <div className={`header-controls-mobile${showControls ? ' visible' : ''}`}>
         <div className="header-controls-inner">
           {/* Группа кнопок - в одной строке */}
-          <div className="header-filters-group" style={{ display: 'flex', gap: '0.3rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="header-filters-group" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <div className="header-marker-toggle" style={{ 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
-              width: '32px',
-              height: '32px',
+              width: '44px',
+              height: '44px',
               borderRadius: '6px',
               background: filters.showAchievements ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
               border: `1px solid ${filters.showAchievements ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
@@ -337,8 +338,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
-              width: '40px',
-              height: '32px',
+              width: '52px',
+              height: '44px',
               borderRadius: '6px',
               background: filters.hideEmptyCenturies ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
               border: `1px solid ${filters.hideEmptyCenturies ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
@@ -370,7 +371,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               groupingType={groupingType}
               onGroupingChange={setGroupingType}
             />
-            
+          </div>
+          
+          {/* Фильтры на отдельной строке для мобильных */}
+          <div className="header-filters-row" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', marginTop: '0.5rem' }}>
             <FilterDropdown
               title="🎭"
               items={allCategories}
@@ -389,8 +393,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           </div>
           
           {/* Временной промежуток - на отдельной строке */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
-            <div style={{ display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}>
+            <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
               <input
                 type="number"
                 value={yearInputs.start}
@@ -399,19 +403,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 onKeyPress={(e) => handleYearKeyPress('start', e)}
                 placeholder="От"
                 style={{
-                  width: '50px',
-                  padding: '0.2rem 0.3rem',
+                  width: '60px',
+                  padding: '0.4rem 0.5rem',
                   border: '1px solid rgba(139, 69, 19, 0.3)',
-                  borderRadius: '3px',
+                  borderRadius: '4px',
                   background: 'rgba(44, 24, 16, 0.8)',
                   color: '#f4e4c1',
-                  fontSize: '0.6rem',
+                  fontSize: '0.7rem',
                   textAlign: 'center',
                   WebkitAppearance: 'none',
                   MozAppearance: 'textfield'
                 }}
               />
-              <span style={{ fontSize: '0.6rem', color: '#f4e4c1' }}>-</span>
+              <span style={{ fontSize: '0.7rem', color: '#f4e4c1' }}>-</span>
               <input
                 type="number"
                 value={yearInputs.end}
@@ -420,13 +424,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 onKeyPress={(e) => handleYearKeyPress('end', e)}
                 placeholder="До"
                 style={{
-                  width: '50px',
-                  padding: '0.2rem 0.3rem',
+                  width: '60px',
+                  padding: '0.4rem 0.5rem',
                   border: '1px solid rgba(139, 69, 19, 0.3)',
-                  borderRadius: '3px',
+                  borderRadius: '4px',
                   background: 'rgba(44, 24, 16, 0.8)',
                   color: '#f4e4c1',
-                  fontSize: '0.6rem',
+                  fontSize: '0.7rem',
                   textAlign: 'center',
                   WebkitAppearance: 'none',
                   MozAppearance: 'textfield'
@@ -436,10 +440,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             
             {/* Визуальное отображение выбранного диапазона */}
             <div style={{ 
-              width: '120px', 
-              height: '4px', 
+              width: '140px', 
+              height: '6px', 
               background: 'rgba(244, 228, 193, 0.2)', 
-              borderRadius: '2px', 
+              borderRadius: '3px', 
               position: 'relative'
             }}>
               <div 
@@ -462,12 +466,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <button
                 onClick={resetAllFilters}
                 style={{
-                  padding: '0.2rem 0.4rem',
+                  padding: '0.4rem 0.6rem',
                   background: 'rgba(231, 76, 60, 0.2)',
                   border: '1px solid rgba(231, 76, 60, 0.4)',
-                  borderRadius: '3px',
+                  borderRadius: '4px',
                   color: '#e74c3c',
-                  fontSize: '0.6rem',
+                  fontSize: '0.7rem',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease'
                 }}
