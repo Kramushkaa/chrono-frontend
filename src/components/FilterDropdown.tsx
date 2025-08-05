@@ -26,6 +26,8 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   const [horizontalPosition, setHorizontalPosition] = useState<'left' | 'right' | 'center'>('left')
   const [isOpen, setIsOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const isMouseOverRef = useRef(false)
   
   // Определяем, является ли устройство мобильным
   useEffect(() => {
@@ -74,6 +76,15 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
     }
   }, [isMobile, isOpen])
   
+  // Очистка таймера при размонтировании
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current)
+      }
+    }
+  }, [])
+  
   // Функция для определения позиции dropdown
   const updateDropdownPosition = () => {
     if (!dropdownRef.current || !contentRef.current) return
@@ -120,9 +131,16 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
     }
   }
   
-  // Обработчики для разных устройств
+  // Улучшенные обработчики для разных устройств
   const handleMouseEnter = () => {
     if (!isMobile) {
+      // Очищаем таймер закрытия
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current)
+        closeTimeoutRef.current = null
+      }
+      
+      isMouseOverRef.current = true
       setIsOpen(true)
       // Небольшая задержка для корректного расчета позиции
       setTimeout(updateDropdownPosition, 0)
@@ -131,7 +149,15 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   
   const handleMouseLeave = () => {
     if (!isMobile) {
-      setIsOpen(false)
+      isMouseOverRef.current = false
+      
+      // Добавляем задержку перед закрытием, чтобы избежать преждевременного закрытия
+      // при быстром движении курсора
+      closeTimeoutRef.current = setTimeout(() => {
+        if (!isMouseOverRef.current) {
+          setIsOpen(false)
+        }
+      }, 150) // Увеличиваем задержку до 150ms
     }
   }
   
@@ -161,6 +187,31 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [isMobile, isOpen])
+  
+  // Обработчики для контента dropdown
+  const handleContentMouseEnter = () => {
+    if (!isMobile) {
+      isMouseOverRef.current = true
+      // Очищаем таймер закрытия при наведении на контент
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current)
+        closeTimeoutRef.current = null
+      }
+    }
+  }
+  
+  const handleContentMouseLeave = () => {
+    if (!isMobile) {
+      isMouseOverRef.current = false
+      
+      // Добавляем задержку перед закрытием контента
+      closeTimeoutRef.current = setTimeout(() => {
+        if (!isMouseOverRef.current) {
+          setIsOpen(false)
+        }
+      }, 150)
+    }
+  }
   
   return (
     <div 
@@ -196,6 +247,8 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
         <div 
           className="filter-dropdown-content"
           ref={contentRef}
+          onMouseEnter={handleContentMouseEnter}
+          onMouseLeave={handleContentMouseLeave}
           style={{
             position: 'absolute',
             top: dropdownPosition === 'bottom' ? '100%' : 'auto',
