@@ -1,4 +1,4 @@
-﻿# Chronoline Frontend
+﻿# Chrono Ninja Frontend
 
 Интерактивная временная шкала исторических личностей.
 
@@ -31,7 +31,7 @@ npm run serve
 Создайте файл `.env`:
 
 ```env
-REACT_APP_API_URL=https://chronoline-backend.amvera.io
+REACT_APP_API_URL=https://chrononinja-backend.amvera.io
 ```
 
 ## Деплой
@@ -41,7 +41,7 @@ Frontend развернут на Amvera с использованием Node.js 
 ### Структура проекта
 
 ```
-chronoline-frontend/
+chrononinja-frontend/
 ├── src/                    # Исходный код React
 ├── public/                 # Статические файлы
 ├── package.json           # Зависимости

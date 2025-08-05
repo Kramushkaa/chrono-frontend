@@ -1,7 +1,7 @@
 {
-  "name": "chronoline-frontend",
+  "name": "chrononinja-frontend",
   "version": "1.0.0",
-  "description": "Frontend for Chronoline historical timeline",
+  "description": "Frontend for Chrono Ninja historical timeline",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",

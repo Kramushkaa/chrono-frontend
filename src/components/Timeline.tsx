@@ -227,7 +227,7 @@ export const Timeline: React.FC<TimelineProps> = ({
   };
 
   return (
-    <main className="app-main" id="timeline-main" role="main" aria-label="Временная линия исторических личностей">
+    <>
       {isLoading && (
         <div className="loading-overlay" role="status" aria-live="polite">
           <div className="spinner" aria-hidden="true"></div>
@@ -237,14 +237,14 @@ export const Timeline: React.FC<TimelineProps> = ({
       
       {/* Временная линия на весь экран */}
       <div 
-        className="timeline-container" 
-        id="timeline-viewport"
-        role="region" 
-        aria-label="Область просмотра временной линии"
+        className="timeline-content" 
+        id="timeline-content"
+        role="presentation" 
+        aria-hidden="true"
         style={{ 
           position: 'relative', 
-          height: 'calc(100vh - 100px)',
-          overflow: 'auto',
+          height: '100%',
+          overflow: 'visible',
           padding: isMobile ? '0' : '1rem 0 2rem 0'
         }}
       >
@@ -767,6 +767,6 @@ export const Timeline: React.FC<TimelineProps> = ({
           ))}
         </div>
       </div>
-    </main>
+    </>
   )
 } 

@@ -25,7 +25,7 @@ function App() {
   const hoverTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [showControls, setShowControls] = useState(true)
   const [filters, setFilters] = useState(() => {
-    const savedFilters = localStorage.getItem('chronoline-filters');
+    const savedFilters = localStorage.getItem('chrononinja-filters');
     if (savedFilters) {
       const parsed = JSON.parse(savedFilters);
       return {
@@ -47,18 +47,18 @@ function App() {
 
   // Состояние для типа группировки
   const [groupingType, setGroupingType] = useState<'category' | 'country' | 'none'>(() => {
-    const savedGrouping = localStorage.getItem('chronoline-grouping');
+    const savedGrouping = localStorage.getItem('chrononinja-grouping');
     return savedGrouping as 'category' | 'country' | 'none' || 'category';
   })
 
   // Сохраняем фильтры в localStorage при изменении
   useEffect(() => {
-    localStorage.setItem('chronoline-filters', JSON.stringify(filters));
+    localStorage.setItem('chrononinja-filters', JSON.stringify(filters));
   }, [filters]);
 
   // Сохраняем тип группировки в localStorage при изменении
   useEffect(() => {
-    localStorage.setItem('chronoline-grouping', groupingType);
+    localStorage.setItem('chrononinja-grouping', groupingType);
   }, [groupingType]);
 
   // Очищаем таймер при размонтировании компонента
@@ -544,7 +544,7 @@ function App() {
   const categoryDividers = createCategoryDividers();
 
   return (
-    <div className="app" id="chronoline-app" role="main" aria-label="Chronoline - Интерактивная временная линия исторических личностей">
+    <div className="app" id="chrononinja-app" role="main" aria-label="Chrono Ninja - Интерактивная временная линия исторических личностей">
       <AppHeader
         isScrolled={isScrolled}
         showControls={showControls}
@@ -566,8 +566,9 @@ function App() {
         isDraggingSlider={isDraggingSlider}
       />
       
-      <main className="timeline-container" id="timeline-main" role="region" aria-label="Временная линия исторических личностей">
-        <Timeline
+      <div className="timeline-wrapper">
+        <main className="timeline-container" id="timeline-viewport" role="region" aria-label="Область просмотра временной линии">
+          <Timeline
           isLoading={isLoading}
           timelineWidth={timelineWidth}
           totalHeight={totalHeight}
@@ -602,9 +603,10 @@ function App() {
           selectedPerson={selectedPerson}
           setSelectedPerson={setSelectedPerson}
         />
-      </main>
+        </main>
+      </div>
 
-              <aside className="tooltips-container" id="tooltips-aside" aria-label="Информационные подсказки">
+      <aside className="tooltips-container" id="tooltips-aside" aria-label="Информационные подсказки">
         <Tooltips
           hoveredPerson={hoveredPerson}
           showTooltip={showTooltip}

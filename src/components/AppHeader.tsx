@@ -2,6 +2,7 @@ import React from 'react'
 import { AchievementMarker } from './AchievementMarker'
 import { FilterDropdown } from './FilterDropdown'
 import { GroupingToggle } from './GroupingToggle'
+import { Logo } from './Logo'
 
 interface AppHeaderProps {
   isScrolled: boolean
@@ -62,7 +63,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       className={`app-header ${isScrolled ? 'scrolled' : ''}`}
       id="app-header"
       role="banner"
-      aria-label="Заголовок приложения Chronoline"
+              aria-label="Заголовок приложения Chrono Ninja"
       style={{
         padding: isScrolled ? '0.5rem 1rem' : '0.75rem 1rem',
         transition: 'all 0.3s ease'
@@ -77,7 +78,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           color: '#f4e4c1',
           flexShrink: 0
         }}>
-          Chronoline
+          <Logo />
         </h1>
         
         {/* Кнопка-шестерёнка только на мобильных */}
