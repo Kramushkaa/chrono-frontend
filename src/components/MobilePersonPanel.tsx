@@ -21,6 +21,10 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
   return (
     <div 
       className="mobile-person-panel"
+      id="mobile-person-panel"
+      role="dialog"
+      aria-label={`Информация о ${selectedPerson.name}`}
+      aria-modal="true"
       style={{
         position: 'fixed',
         bottom: 0,
@@ -39,24 +43,43 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
       }}
     >
       {/* Заголовок с кнопкой закрытия */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '1rem',
-        borderBottom: '1px solid rgba(139, 69, 19, 0.3)',
-        background: `linear-gradient(135deg, ${getGroupColor(getPersonGroup(selectedPerson))}20 0%, rgba(139, 69, 19, 0.1) 100%)`
-      }}>
-        <h2 style={{
-          margin: 0,
-          color: '#f4e4c1',
-          fontSize: '1.2rem',
-          fontWeight: 'bold'
-        }}>
+      <div 
+        className="mobile-panel-header"
+        id="mobile-panel-header"
+        role="banner"
+        aria-label="Заголовок панели"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '1rem',
+          borderBottom: '1px solid rgba(139, 69, 19, 0.3)',
+          background: `linear-gradient(135deg, ${getGroupColor(getPersonGroup(selectedPerson))}20 0%, rgba(139, 69, 19, 0.1) 100%)`
+        }}
+      >
+        <h2 
+          className="mobile-panel-title"
+          id="mobile-panel-title"
+          style={{
+            margin: 0,
+            color: '#f4e4c1',
+            fontSize: '1.2rem',
+            fontWeight: 'bold'
+          }}
+        >
           {selectedPerson.name}
         </h2>
         <button
+          className="mobile-panel-close-btn"
+          id="mobile-panel-close"
           onClick={onClose}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              onClose();
+            }
+          }}
+          aria-label="Закрыть панель"
           style={{
             background: 'rgba(231, 76, 60, 0.2)',
             border: '1px solid rgba(231, 76, 60, 0.4)',
@@ -78,33 +101,52 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
       </div>
 
       {/* Основной контент */}
-      <div style={{
-        flex: 1,
-        overflow: 'auto',
-        padding: '1rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem'
-      }}>
-        {/* Фотография и основная информация */}
-        <div style={{
+      <div 
+        className="mobile-panel-content"
+        id="mobile-panel-content"
+        role="main"
+        aria-label="Основная информация"
+        style={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '1rem',
           display: 'flex',
-          gap: '1rem',
-          alignItems: 'flex-start'
-        }}>
+          flexDirection: 'column',
+          gap: '1rem'
+        }}
+      >
+        {/* Фотография и основная информация */}
+        <div 
+          className="mobile-panel-person-info"
+          id="mobile-panel-person-info"
+          role="region"
+          aria-label="Информация о личности"
+          style={{
+            display: 'flex',
+            gap: '1rem',
+            alignItems: 'flex-start'
+          }}
+        >
           {selectedPerson.imageUrl && (
-            <div style={{
-              flexShrink: 0,
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
-              overflow: 'hidden',
-              border: `3px solid ${getGroupColor(getPersonGroup(selectedPerson))}`,
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-            }}>
+            <div 
+              className="mobile-panel-person-image"
+              id="mobile-panel-person-image"
+              aria-label={`Портрет ${selectedPerson.name}`}
+              style={{
+                flexShrink: 0,
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                overflow: 'hidden',
+                border: `3px solid ${getGroupColor(getPersonGroup(selectedPerson))}`,
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+              }}
+            >
               <img
                 src={selectedPerson.imageUrl}
-                alt={selectedPerson.name}
+                alt={`Портрет ${selectedPerson.name}`}
+                className="mobile-panel-person-photo"
+                id="mobile-panel-person-photo"
                 style={{
                   width: '100%',
                   height: '100%',
@@ -117,39 +159,69 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
             </div>
           )}
           
-          <div style={{ flex: 1 }}>
-            <div style={{
-              fontSize: '1.1rem',
-              fontWeight: 'bold',
-              color: getGroupColor(getPersonGroup(selectedPerson)),
-              marginBottom: '0.5rem'
-            }}>
+          <div 
+            className="mobile-panel-person-details"
+            id="mobile-panel-person-details"
+            role="region"
+            aria-label="Детали личности"
+            style={{ flex: 1 }}
+          >
+            <div 
+              className="mobile-panel-person-years"
+              id="mobile-panel-person-years"
+              aria-label={`Годы жизни: ${selectedPerson.birthYear} - ${selectedPerson.deathYear}`}
+              style={{
+                fontSize: '1.1rem',
+                fontWeight: 'bold',
+                color: getGroupColor(getPersonGroup(selectedPerson)),
+                marginBottom: '0.5rem'
+              }}
+            >
               {selectedPerson.birthYear} - {selectedPerson.deathYear}
             </div>
             
-            <div style={{
-              fontSize: '0.9rem',
-              color: '#f4e4c1',
-              marginBottom: '0.5rem'
-            }}>
-              <span style={{ 
-                color: getCategoryColor(selectedPerson.category), 
-                fontWeight: 'bold' 
-              }}>
+            <div 
+              className="mobile-panel-person-category"
+              id="mobile-panel-person-category"
+              aria-label={`Категория: ${selectedPerson.category}, Страна: ${selectedPerson.country}`}
+              style={{
+                fontSize: '0.9rem',
+                color: '#f4e4c1',
+                marginBottom: '0.5rem'
+              }}
+            >
+              <span 
+                className="mobile-panel-person-category-name"
+                id="mobile-panel-person-category-name"
+                style={{ 
+                  color: getCategoryColor(selectedPerson.category), 
+                  fontWeight: 'bold' 
+                }}
+              >
                 {selectedPerson.category}
               </span>
               {' • '}
-              <span>{selectedPerson.country}</span>
+              <span 
+                className="mobile-panel-person-country"
+                id="mobile-panel-person-country"
+              >
+                {selectedPerson.country}
+              </span>
             </div>
 
             {/* Информация о правлении */}
             {selectedPerson.reignStart && selectedPerson.reignEnd && (
-              <div style={{
-                fontSize: '0.9rem',
-                color: '#E57373',
-                fontWeight: 'bold',
-                marginBottom: '0.5rem'
-              }}>
+              <div 
+                className="mobile-panel-person-reign"
+                id="mobile-panel-person-reign"
+                aria-label={`Период правления: ${selectedPerson.reignStart} - ${selectedPerson.reignEnd}`}
+                style={{
+                  fontSize: '0.9rem',
+                  color: '#E57373',
+                  fontWeight: 'bold',
+                  marginBottom: '0.5rem'
+                }}
+              >
                 👑 Правление: {selectedPerson.reignStart} - {selectedPerson.reignEnd}
               </div>
             )}
@@ -157,35 +229,56 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
         </div>
 
         {/* Описание */}
-        <div style={{
-          fontSize: '0.9rem',
-          lineHeight: '1.5',
-          color: '#f4e4c1',
-          fontStyle: 'italic',
-          padding: '0.5rem',
-          background: 'rgba(139, 69, 19, 0.1)',
-          borderRadius: '6px',
-          border: '1px solid rgba(139, 69, 19, 0.2)'
-        }}>
+        <div 
+          className="mobile-panel-person-description"
+          id="mobile-panel-person-description"
+          role="region"
+          aria-label="Описание личности"
+          style={{
+            fontSize: '0.9rem',
+            lineHeight: '1.5',
+            color: '#f4e4c1',
+            fontStyle: 'italic',
+            padding: '0.5rem',
+            background: 'rgba(139, 69, 19, 0.1)',
+            borderRadius: '6px',
+            border: '1px solid rgba(139, 69, 19, 0.2)'
+          }}
+        >
           {selectedPerson.description}
         </div>
 
         {/* Достижения */}
         {selectedPerson.achievements && selectedPerson.achievements.length > 0 && (
-          <div>
-            <h3 style={{
-              fontSize: '1rem',
-              color: getGroupColor(getPersonGroup(selectedPerson)),
-              margin: '0 0 0.5rem 0',
-              fontWeight: 'bold'
-            }}>
+          <div 
+            className="mobile-panel-achievements"
+            id="mobile-panel-achievements"
+            role="region"
+            aria-label="Ключевые достижения"
+          >
+            <h3 
+              className="mobile-panel-achievements-title"
+              id="mobile-panel-achievements-title"
+              style={{
+                fontSize: '1rem',
+                color: getGroupColor(getPersonGroup(selectedPerson)),
+                margin: '0 0 0.5rem 0',
+                fontWeight: 'bold'
+              }}
+            >
               🎯 Ключевые достижения:
             </h3>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem'
-            }}>
+            <div 
+              className="mobile-panel-achievements-list"
+              id="mobile-panel-achievements-list"
+              role="list"
+              aria-label="Список достижений"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem'
+              }}
+            >
               {selectedPerson.achievements.map((achievement, index) => {
                 const achievementYear = [
                   selectedPerson.achievementYear1,
@@ -194,24 +287,41 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
                 ][index]
                 
                 return (
-                  <div key={index} style={{
-                    padding: '0.5rem',
-                    background: 'rgba(139, 69, 19, 0.1)',
-                    borderRadius: '4px',
-                    border: `1px solid ${getGroupColor(getPersonGroup(selectedPerson))}40`
-                  }}>
-                    <div style={{
-                      fontSize: '0.8rem',
-                      color: getGroupColor(getPersonGroup(selectedPerson)),
-                      fontWeight: 'bold',
-                      marginBottom: '0.25rem'
-                    }}>
+                  <div 
+                    key={index}
+                    className="mobile-panel-achievement-item"
+                    id={`mobile-panel-achievement-${index}`}
+                    role="listitem"
+                    aria-label={`Достижение ${index + 1}: ${achievementYear} год`}
+                    style={{
+                      padding: '0.5rem',
+                      background: 'rgba(139, 69, 19, 0.1)',
+                      borderRadius: '4px',
+                      border: `1px solid ${getGroupColor(getPersonGroup(selectedPerson))}40`
+                    }}
+                  >
+                    <div 
+                      className="mobile-panel-achievement-year"
+                      id={`mobile-panel-achievement-year-${index}`}
+                      aria-label={`Год: ${achievementYear}`}
+                      style={{
+                        fontSize: '0.8rem',
+                        color: getGroupColor(getPersonGroup(selectedPerson)),
+                        fontWeight: 'bold',
+                        marginBottom: '0.25rem'
+                      }}
+                    >
                       {achievementYear} г.
                     </div>
-                    <div style={{
-                      fontSize: '0.85rem',
-                      color: '#f4e4c1'
-                    }}>
+                    <div 
+                      className="mobile-panel-achievement-text"
+                      id={`mobile-panel-achievement-text-${index}`}
+                      aria-label={`Достижение: ${achievement}`}
+                      style={{
+                        fontSize: '0.85rem',
+                        color: '#f4e4c1'
+                      }}
+                    >
                       {achievement}
                     </div>
                   </div>

@@ -36,29 +36,40 @@ export const Tooltips: React.FC<TooltipsProps> = ({
     <>
       {/* Всплывающее окно с информацией */}
       {hoveredPerson && showTooltip && (
-        <div className="tooltip" style={{ 
-          position: 'fixed',
-          left: `${mousePosition.x + 15}px`,
-          top: `${mousePosition.y - 10}px`,
-          padding: '1rem',
-          zIndex: 1000,
-          maxWidth: '300px',
-          minWidth: '250px',
-          color: '#f4e4c1',
-          pointerEvents: 'none',
-          opacity: 0,
-          transform: 'translateY(10px) scale(0.95)',
-          animation: 'tooltipFadeIn 0.2s ease-out forwards'
-        }}>
+        <div 
+          className="tooltip" 
+          id="person-tooltip"
+          role="tooltip"
+          aria-label={`Информация о ${hoveredPerson.name}`}
+          style={{ 
+            position: 'fixed',
+            left: `${mousePosition.x + 15}px`,
+            top: `${mousePosition.y - 10}px`,
+            padding: '1rem',
+            zIndex: 1000,
+            maxWidth: '300px',
+            minWidth: '250px',
+            color: '#f4e4c1',
+            pointerEvents: 'none',
+            opacity: 0,
+            transform: 'translateY(10px) scale(0.95)',
+            animation: 'tooltipFadeIn 0.2s ease-out forwards'
+          }}
+        >
           {/* Фотография человека, если есть */}
           {hoveredPerson.imageUrl && (
-            <div style={{ 
-              marginBottom: '0.75rem',
-              textAlign: 'center'
-            }}>
+            <div 
+              className="person-image-container"
+              style={{ 
+                marginBottom: '0.75rem',
+                textAlign: 'center'
+              }}
+            >
               <img 
                 src={hoveredPerson.imageUrl} 
-                alt={hoveredPerson.name}
+                alt={`Портрет ${hoveredPerson.name}`}
+                className="person-image"
+                id={`person-image-${hoveredPerson.id}`}
                 style={{
                   width: '80px',
                   height: '80px',
@@ -75,12 +86,16 @@ export const Tooltips: React.FC<TooltipsProps> = ({
             </div>
           )}
           
-          <h3 style={{ 
-            margin: '0 0 0.5rem 0', 
-            color: getGroupColor(getPersonGroup(hoveredPerson)),
-            fontSize: '1.1rem',
-            fontWeight: 'bold'
-          }}>
+          <h3 
+            className="person-name"
+            id={`person-name-${hoveredPerson.id}`}
+            style={{ 
+              margin: '0 0 0.5rem 0', 
+              color: getGroupColor(getPersonGroup(hoveredPerson)),
+              fontSize: '1.1rem',
+              fontWeight: 'bold'
+            }}
+          >
             {hoveredPerson.name}
           </h3>
           
@@ -102,24 +117,30 @@ export const Tooltips: React.FC<TooltipsProps> = ({
 
       {/* Всплывающее окно для достижений */}
       {hoveredAchievement && showAchievementTooltip && (
-        <div className="achievement-tooltip" style={{ 
-          position: 'fixed',
-          left: `${achievementTooltipPosition.x + 15}px`,
-          top: `${achievementTooltipPosition.y - 10}px`,
-          padding: '0.75rem',
-          zIndex: 1001,
-          maxWidth: '250px',
-          minWidth: '200px',
-          color: '#f4e4c1',
-          pointerEvents: 'none',
-          opacity: 0,
-          transform: 'translateY(10px) scale(0.95)',
-          animation: 'tooltipFadeIn 0.2s ease-out forwards',
-          backgroundColor: 'rgba(44, 24, 16, 0.95)',
-          borderRadius: '6px',
-          border: `2px solid ${getGroupColor(getPersonGroup(hoveredAchievement.person))}`,
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-        }}>
+        <div 
+          className="achievement-tooltip" 
+          id="achievement-tooltip"
+          role="tooltip"
+          aria-label={`Достижение ${hoveredAchievement.person.name} в ${hoveredAchievement.year} году`}
+          style={{ 
+            position: 'fixed',
+            left: `${achievementTooltipPosition.x + 15}px`,
+            top: `${achievementTooltipPosition.y - 10}px`,
+            padding: '0.75rem',
+            zIndex: 1001,
+            maxWidth: '250px',
+            minWidth: '200px',
+            color: '#f4e4c1',
+            pointerEvents: 'none',
+            opacity: 0,
+            transform: 'translateY(10px) scale(0.95)',
+            animation: 'tooltipFadeIn 0.2s ease-out forwards',
+            backgroundColor: 'rgba(44, 24, 16, 0.95)',
+            borderRadius: '6px',
+            border: `2px solid ${getGroupColor(getPersonGroup(hoveredAchievement.person))}`,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+          }}
+        >
           <div style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
             {/* Фотография человека, если есть */}
             {hoveredAchievement.person.imageUrl && (

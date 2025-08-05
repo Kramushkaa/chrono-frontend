@@ -227,31 +227,43 @@ export const Timeline: React.FC<TimelineProps> = ({
   };
 
   return (
-    <main className="app-main">
+    <main className="app-main" id="timeline-main" role="main" aria-label="Временная линия исторических личностей">
       {isLoading && (
-        <div className="loading-overlay">
-          <div className="spinner"></div>
+        <div className="loading-overlay" role="status" aria-live="polite">
+          <div className="spinner" aria-hidden="true"></div>
           <span>Загрузка данных...</span>
         </div>
       )}
       
       {/* Временная линия на весь экран */}
-      <div className="timeline-container" style={{ 
-        position: 'relative', 
-        height: 'calc(100vh - 100px)',
-        overflow: 'auto',
-        padding: isMobile ? '0' : '1rem 0 2rem 0'
-      }}>
-                 {/* Разноцветная заливка веков */}
-         <div style={{
-           position: 'absolute',
-           top: '0',
-           left: '0',
-           width: `${getAdjustedTimelineWidth()}px`,
-           height: `${totalHeight + 200}px`,
-           pointerEvents: 'none',
-           zIndex: 1
-         }}>
+      <div 
+        className="timeline-container" 
+        id="timeline-viewport"
+        role="region" 
+        aria-label="Область просмотра временной линии"
+        style={{ 
+          position: 'relative', 
+          height: 'calc(100vh - 100px)',
+          overflow: 'auto',
+          padding: isMobile ? '0' : '1rem 0 2rem 0'
+        }}
+      >
+        {/* Разноцветная заливка веков */}
+        <div 
+          className="timeline-background"
+          id="timeline-background"
+          role="presentation"
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            width: `${getAdjustedTimelineWidth()}px`,
+            height: `${totalHeight + 200}px`,
+            pointerEvents: 'none',
+            zIndex: 1
+          }}
+        >
           {timelineElements.map((element, index) => {
                          if (element.type === 'century') {
                const year = element.year;
@@ -269,29 +281,41 @@ export const Timeline: React.FC<TimelineProps> = ({
               const romanNumeral = isNegativeCentury ? `-${toRomanNumeral(Math.abs(centuryNumber))}` : toRomanNumeral(centuryNumber)
               
               return (
-                <div key={`century-bg-${year}`} style={{
-                  position: 'absolute',
-                  left: `${startPos}px`,
-                  width: `${width}px`,
-                  height: '100%',
-                  background: getCenturyColor(year, minYear),
-                  opacity: 0.3,
-                  zIndex: 1
-                }}>
-                  {/* Римская цифра века в центре */}
-                  <div className="century-label" style={{
+                <div 
+                  key={`century-bg-${year}`} 
+                  className="century-background"
+                  id={`century-${year}`}
+                  role="presentation"
+                  aria-label={`Век ${romanNumeral}`}
+                  style={{
                     position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    fontSize: '2rem',
-                    fontWeight: 'bold',
-                    color: 'rgba(244, 228, 193, 0.6)',
-                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)',
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                    fontFamily: 'serif'
-                  }}>
+                    left: `${startPos}px`,
+                    width: `${width}px`,
+                    height: '100%',
+                    background: getCenturyColor(year, minYear),
+                    opacity: 0.3,
+                    zIndex: 1
+                  }}
+                >
+                  {/* Римская цифра века в центре */}
+                  <div 
+                    className="century-label" 
+                    id={`century-label-${year}`}
+                    aria-label={`Век ${romanNumeral}`}
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      fontSize: '2rem',
+                      fontWeight: 'bold',
+                      color: 'rgba(244, 228, 193, 0.6)',
+                      textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)',
+                      pointerEvents: 'none',
+                      zIndex: 2,
+                      fontFamily: 'serif'
+                    }}
+                  >
                     {romanNumeral}
                   </div>
                 </div>
@@ -380,40 +404,58 @@ export const Timeline: React.FC<TimelineProps> = ({
          </div>
 
                  {/* Разделители групп */}
-         <div style={{
-           position: 'absolute',
-           top: '0',
-           left: '0',
-           width: `${getAdjustedTimelineWidth()}px`,
-           height: `${totalHeight + 200}px`,
-           pointerEvents: 'none',
-           zIndex: 8
-         }}>
+         <div 
+           className="category-dividers"
+           id="category-dividers"
+           role="presentation"
+           aria-hidden="true"
+           style={{
+             position: 'absolute',
+             top: '0',
+             left: '0',
+             width: `${getAdjustedTimelineWidth()}px`,
+             height: `${totalHeight + 200}px`,
+             pointerEvents: 'none',
+             zIndex: 8
+           }}
+         >
           {categoryDividers.map((divider) => (
-            <div key={`category-divider-${divider.category}`} style={{
-              position: 'absolute',
-              top: `${divider.top}px`,
-              left: '0',
-              width: '100%',
-              height: '10px',
-              background: `linear-gradient(to right, transparent 0%, ${getGroupColor(divider.category)} 20%, ${getGroupColor(divider.category)} 80%, transparent 100%)`,
-              opacity: 0.6,
-              zIndex: 8
-            }}>
-              <div className="category-label" style={{
+            <div 
+              key={`category-divider-${divider.category}`} 
+              className="category-divider"
+              id={`divider-${divider.category}`}
+              role="separator"
+              aria-label={`Разделитель группы: ${divider.category}`}
+              style={{
                 position: 'absolute',
-                left: '20px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: getGroupColor(divider.category),
-                color: 'white',
-                padding: '2px 8px',
-                borderRadius: '4px',
-                fontSize: '0.7rem',
-                fontWeight: 'bold',
-                whiteSpace: 'nowrap',
-                zIndex: 9
-              }}>
+                top: `${divider.top}px`,
+                left: '0',
+                width: '100%',
+                height: '10px',
+                background: `linear-gradient(to right, transparent 0%, ${getGroupColor(divider.category)} 20%, ${getGroupColor(divider.category)} 80%, transparent 100%)`,
+                opacity: 0.6,
+                zIndex: 8
+              }}
+            >
+              <div 
+                className="category-label" 
+                id={`category-label-${divider.category}`}
+                aria-label={`Группа: ${divider.category}`}
+                style={{
+                  position: 'absolute',
+                  left: '20px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: getGroupColor(divider.category),
+                  color: 'white',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  fontSize: '0.7rem',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap',
+                  zIndex: 9
+                }}
+              >
                 {divider.category}
               </div>
             </div>
@@ -421,86 +463,134 @@ export const Timeline: React.FC<TimelineProps> = ({
         </div>
 
                  {/* Полоски жизни */}
-         <div style={{ 
-           position: 'relative',
-           width: `${getAdjustedTimelineWidth()}px`,
-           height: `${totalHeight + 60}px`,
-           zIndex: 10
-         }}>
+         <div 
+           className="person-timeline"
+           id="person-timeline"
+           role="list"
+           aria-label="Временные линии исторических личностей"
+           style={{ 
+             position: 'relative',
+             width: `${getAdjustedTimelineWidth()}px`,
+             height: `${totalHeight + 60}px`,
+             zIndex: 10
+           }}
+         >
           {rowPlacement.map((row, rowIndex) => (
-            <div key={rowIndex} style={{
-              position: 'relative',
-              height: row.length === 0 ? '20px' : '60px',
-              marginBottom: row.length === 0 ? '0px' : '10px'
-            }}>
+            <div 
+              key={rowIndex} 
+              className="timeline-row"
+              id={`timeline-row-${rowIndex}`}
+              role="listitem"
+              aria-label={`Строка ${rowIndex + 1} временной линии`}
+              style={{
+                position: 'relative',
+                height: row.length === 0 ? '20px' : '60px',
+                marginBottom: row.length === 0 ? '0px' : '10px'
+              }}
+            >
               {row.map((person) => (
                 <React.Fragment key={person.id}>
                   {/* Годы жизни и правления над полоской */}
-                                     <span style={{
-                     position: 'absolute',
-                     left: `${getAdjustedPosition(person.birthYear)}px`,
-                     top: 0,
-                     fontSize: '11px',
-                     color: 'rgba(244, 228, 193, 0.6)',
-                     fontStyle: 'italic',
-                     fontWeight: 400,
-                     transform: 'translateX(-100%) translateY(-10px)'
-                   }}>{person.birthYear}</span>
+                  <span 
+                    className="birth-year-label"
+                    id={`birth-year-${person.id}`}
+                    aria-label={`Год рождения: ${person.birthYear}`}
+                    style={{
+                      position: 'absolute',
+                      left: `${getAdjustedPosition(person.birthYear)}px`,
+                      top: 0,
+                      fontSize: '11px',
+                      color: 'rgba(244, 228, 193, 0.6)',
+                      fontStyle: 'italic',
+                      fontWeight: 400,
+                      transform: 'translateX(-100%) translateY(-10px)'
+                    }}
+                  >
+                    {person.birthYear}
+                  </span>
 
                                      {person.reignStart && (
-                     <span className="reign-label" style={{
-                       position: 'absolute',
-                       left: `${getAdjustedPosition(person.reignStart)}px`,
-                       top: 0,
-                       fontSize: '11px',
-                       color: '#E57373', // Темно-красный
-                       fontStyle: 'italic',
-                       fontWeight: 'bold',
-                       transform: 'translateX(-100%) translateY(-22px)'
-                     }}>👑 {person.reignStart}</span>
+                     <span 
+                       className="reign-label" 
+                       id={`reign-start-${person.id}`}
+                       aria-label={`Начало правления: ${person.reignStart}`}
+                       style={{
+                         position: 'absolute',
+                         left: `${getAdjustedPosition(person.reignStart)}px`,
+                         top: 0,
+                         fontSize: '11px',
+                         color: '#E57373', // Темно-красный
+                         fontStyle: 'italic',
+                         fontWeight: 'bold',
+                         transform: 'translateX(-100%) translateY(-22px)'
+                       }}
+                     >
+                       👑 {person.reignStart}
+                     </span>
                    )}
 
                                      {person.reignEnd && (
-                     <span className="reign-label" style={{
-                       position: 'absolute',
-                       left: `${getAdjustedPosition(person.reignEnd)}px`,
-                       top: 0,
-                       fontSize: '11px',
-                       color: '#E57373', // Темно-красный
-                       fontStyle: 'italic',
-                       fontWeight: 'bold',
-                       transform: 'translateY(-22px)'
-                     }}>{person.reignEnd}</span>
+                     <span 
+                       className="reign-label" 
+                       id={`reign-end-${person.id}`}
+                       aria-label={`Конец правления: ${person.reignEnd}`}
+                       style={{
+                         position: 'absolute',
+                         left: `${getAdjustedPosition(person.reignEnd)}px`,
+                         top: 0,
+                         fontSize: '11px',
+                         color: '#E57373', // Темно-красный
+                         fontStyle: 'italic',
+                         fontWeight: 'bold',
+                         transform: 'translateY(-22px)'
+                       }}
+                     >
+                       {person.reignEnd}
+                     </span>
                    )}
                   
-                                     <span style={{
-                     position: 'absolute',
-                     left: `${getAdjustedPosition(person.deathYear)}px`,
-                     top: 0,
-                     fontSize: '11px',
-                     color: 'rgba(244, 228, 193, 0.6)',
-                     fontStyle: 'italic',
-                     fontWeight: 400,
-                     transform: 'translateY(-10px)'
-                   }}>{person.deathYear}</span>
+                                     <span 
+                                       className="death-year-label"
+                                       id={`death-year-${person.id}`}
+                                       aria-label={`Год смерти: ${person.deathYear}`}
+                                       style={{
+                                         position: 'absolute',
+                                         left: `${getAdjustedPosition(person.deathYear)}px`,
+                                         top: 0,
+                                         fontSize: '11px',
+                                         color: 'rgba(244, 228, 193, 0.6)',
+                                         fontStyle: 'italic',
+                                         fontWeight: 400,
+                                         transform: 'translateY(-10px)'
+                                       }}
+                                     >
+                                       {person.deathYear}
+                                     </span>
 
                   {/* Маркеры ключевых достижений */}
                   {filters.showAchievements && [person.achievementYear1, person.achievementYear2, person.achievementYear3]
                     .filter(year => year !== undefined && year !== null)
                     .map((year, index) => {
                       return (
-                                                 <div key={index} style={{
-                           position: 'absolute',
-                           left: `${getAdjustedPosition(year as number)}px`,
-                           top: '-4px',
-                           width: '2px',
-                           height: '15px',
-                           backgroundColor: getGroupColorDark(getPersonGroup(person)),
-                           zIndex: activeAchievementMarker?.personId === person.id && activeAchievementMarker?.index === index ? 10 : 3,
-                           transform: 'translateX(-50%)',
-                           cursor: 'pointer',
-                           transition: 'all 0.2s ease'
-                         }}
+                        <div 
+                          key={index} 
+                          className="achievement-marker"
+                          id={`achievement-${person.id}-${index}`}
+                          role="button"
+                          aria-label={`Достижение ${index + 1} в ${year} году`}
+                          tabIndex={0}
+                          style={{
+                            position: 'absolute',
+                            left: `${getAdjustedPosition(year as number)}px`,
+                            top: '-4px',
+                            width: '2px',
+                            height: '15px',
+                            backgroundColor: getGroupColorDark(getPersonGroup(person)),
+                            zIndex: activeAchievementMarker?.personId === person.id && activeAchievementMarker?.index === index ? 10 : 3,
+                            transform: 'translateX(-50%)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = getGroupColor(getPersonGroup(person));
                           e.currentTarget.style.boxShadow = `0 0 3px ${getGroupColor(getPersonGroup(person))}`;
@@ -538,6 +628,20 @@ export const Timeline: React.FC<TimelineProps> = ({
                         onMouseMove={(e) => {
                           setAchievementTooltipPosition({ x: e.clientX, y: e.clientY });
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            // Показываем tooltip при нажатии Enter или Space
+                            setHoveredAchievement({ person, year: year as number, index });
+                            // Используем позицию элемента для tooltip при нажатии клавиши
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setAchievementTooltipPosition({ 
+                              x: rect.left + rect.width / 2, 
+                              y: rect.top - 10 
+                            });
+                            setShowAchievementTooltip(true);
+                          }
+                        }}
                         >
                           <span style={{
                             position: 'absolute',
@@ -562,23 +666,33 @@ export const Timeline: React.FC<TimelineProps> = ({
 
                                      {/* полоса правления */}
                    {person.reignStart && person.reignEnd && (
-                     <div style={{
-                       position: 'absolute',
-                       top: '-15px',
-                       left: `${getAdjustedPosition(person.reignStart)}px`,
-                       width: `${getAdjustedWidth(person.reignStart, person.reignEnd)}px`,
-                       height: '65px',
-                       backgroundColor: 'rgba(211, 47, 47, 0.25)',
-                       pointerEvents: 'none',
-                       borderLeft: '2px solid #D32F2F',
-                       borderRight: '2px solid #D32F2F',
-                       borderRadius: '3px',
-                       zIndex: 1
-                     }} />
+                     <div 
+                       className="reign-bar"
+                       id={`reign-bar-${person.id}`}
+                       role="presentation"
+                       aria-label={`Период правления: ${person.reignStart} - ${person.reignEnd}`}
+                       style={{
+                         position: 'absolute',
+                         top: '-15px',
+                         left: `${getAdjustedPosition(person.reignStart)}px`,
+                         width: `${getAdjustedWidth(person.reignStart, person.reignEnd)}px`,
+                         height: '65px',
+                         backgroundColor: 'rgba(211, 47, 47, 0.25)',
+                         pointerEvents: 'none',
+                         borderLeft: '2px solid #D32F2F',
+                         borderRight: '2px solid #D32F2F',
+                         borderRadius: '3px',
+                         zIndex: 1
+                       }} 
+                     />
                    )}
 
                                      <div
                      className="life-bar"
+                     id={`life-bar-${person.id}`}
+                     role="button"
+                     aria-label={`${person.name}, ${person.birthYear} - ${person.deathYear}, ${person.category}`}
+                     tabIndex={0}
                      style={{
                        position: 'absolute',
                        top: '10px',
@@ -624,6 +738,17 @@ export const Timeline: React.FC<TimelineProps> = ({
                     onMouseMove={(e) => {
                       if (!isMobile) {
                         setMousePosition({ x: e.clientX, y: e.clientY })
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        if (isMobile) {
+                          setSelectedPerson(person);
+                        } else {
+                          setHoveredPerson(person);
+                          setShowTooltip(true);
+                        }
                       }
                     }}
                     onClick={() => {

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, useCallback } from 'react'
 import { useMobile } from '../hooks/useMobile'
 
 interface FilterDropdownProps {
@@ -32,53 +32,8 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   
 
   
-  // Обновляем позицию dropdown при изменении размера окна
-  useEffect(() => {
-    const handleResize = () => {
-      if (isOpen) {
-        updateDropdownPosition()
-      }
-    }
-    
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [isOpen])
-  
-  // Дополнительная проверка для мобильных устройств
-  useEffect(() => {
-    if (isMobile && isOpen) {
-      const checkPosition = () => {
-        if (contentRef.current) {
-          const rect = contentRef.current.getBoundingClientRect()
-          const viewportWidth = window.innerWidth
-          
-          // Если dropdown выходит за пределы экрана, пересчитываем позицию
-          if (rect.left < 0 || rect.right > viewportWidth) {
-            updateDropdownPosition()
-          }
-          // Если dropdown слишком высокий, пересчитываем вертикальную позицию
-          if (rect.bottom > window.innerHeight) {
-            setDropdownPosition('top')
-          }
-        }
-      }
-      
-      // Проверяем позицию после рендера
-      setTimeout(checkPosition, 100)
-    }
-  }, [isMobile, isOpen])
-  
-  // Очистка таймера при размонтировании
-  useEffect(() => {
-    return () => {
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current)
-      }
-    }
-  }, [])
-  
   // Функция для определения позиции dropdown
-  const updateDropdownPosition = () => {
+  const updateDropdownPosition = useCallback(() => {
     if (!dropdownRef.current || !contentRef.current) return
     
     const dropdownRect = dropdownRef.current.getBoundingClientRect()
@@ -121,7 +76,52 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
         setHorizontalPosition('left')
       }
     }
-  }
+  }, [items.length, isMobile])
+
+  // Обновляем позицию dropdown при изменении размера окна
+  useEffect(() => {
+    const handleResize = () => {
+      if (isOpen) {
+        updateDropdownPosition()
+      }
+    }
+    
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [isOpen, updateDropdownPosition])
+  
+  // Дополнительная проверка для мобильных устройств
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      const checkPosition = () => {
+        if (contentRef.current) {
+          const rect = contentRef.current.getBoundingClientRect()
+          const viewportWidth = window.innerWidth
+          
+          // Если dropdown выходит за пределы экрана, пересчитываем позицию
+          if (rect.left < 0 || rect.right > viewportWidth) {
+            updateDropdownPosition()
+          }
+          // Если dropdown слишком высокий, пересчитываем вертикальную позицию
+          if (rect.bottom > window.innerHeight) {
+            setDropdownPosition('top')
+          }
+        }
+      }
+      
+      // Проверяем позицию после рендера
+      setTimeout(checkPosition, 100)
+    }
+  }, [isMobile, isOpen, updateDropdownPosition])
+  
+  // Очистка таймера при размонтировании
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current)
+      }
+    }
+  }, [])
   
   // Улучшенные обработчики для разных устройств
   const handleMouseEnter = () => {
@@ -230,6 +230,9 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
           whiteSpace: 'nowrap'
         }}
         onClick={handleClick}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-label={`${title} - ${selectedItems.length} выбрано из ${items.length}`}
       >
         {icon && <span className="filter-icon">{icon}</span>}
         <span className="filter-text">{textLabel || title}</span>
@@ -241,6 +244,9 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
           ref={contentRef}
           onMouseEnter={handleContentMouseEnter}
           onMouseLeave={handleContentMouseLeave}
+          role="listbox"
+          aria-label={`Список ${title}`}
+          aria-multiselectable="true"
           style={{
             position: 'absolute',
             top: dropdownPosition === 'bottom' ? '100%' : 'auto',
@@ -274,6 +280,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
                 e.stopPropagation()
                 onSelectionChange(items)
               }}
+              aria-label={`Выбрать все ${title}`}
               style={{
                 padding: isMobile ? '0.5rem 0.8rem' : '0.25rem 0.5rem',
                 background: '#27ae60',
@@ -293,6 +300,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
                 e.stopPropagation()
                 onSelectionChange([])
               }}
+              aria-label={`Снять все ${title}`}
               style={{
                 padding: isMobile ? '0.5rem 0.8rem' : '0.25rem 0.5rem',
                 background: '#e74c3c',
@@ -313,6 +321,8 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
               key={item} 
               className="filter-checkbox" 
               onClick={(e) => e.stopPropagation()}
+              role="option"
+              aria-selected={selectedItems.includes(item)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -346,6 +356,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
                     onSelectionChange(selectedItems.filter(i => i !== item))
                   }
                 }}
+                aria-label={`Выбрать ${item}`}
                 style={{
                   margin: 0,
                   cursor: 'pointer'

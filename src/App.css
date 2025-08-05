@@ -13,43 +13,657 @@ body {
   color: #e0e0e0;
 }
 
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
-  position: relative;
+/* Скрытые лейблы для скринридеров */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-/* Фоновые декоративные элементы */
-.app::before {
-  content: '';
+/* Семантические классы для улучшения SEO */
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #2c1810 0%, #1a0f0a 100%);
+  color: #f4e4c1;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.timeline-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 120px);
+  overflow: auto;
+}
+
+.tooltips-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.05) 0%, transparent 50%);
   pointer-events: none;
-  z-index: 0;
+  z-index: 1000;
 }
 
-/* Шапка сайта */
+/* Улучшенные стили для заголовка */
 .app-header {
-  background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 50%, #2c1810 100%);
-  color: #f4e4c1;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  flex-shrink: 0;
   position: sticky;
   top: 0;
-  z-index: 10000;
-  border-bottom: 2px solid #8b4513;
-  position: relative;
-  overflow: visible;
+  z-index: 100;
+  background: rgba(44, 24, 16, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(244, 228, 193, 0.1);
+  transition: all 0.3s ease;
 }
+
+.app-header.scrolled {
+  background: rgba(44, 24, 16, 0.98);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Стили для кнопок управления */
+.filters-toggle-btn,
+.reset-filters-btn,
+.header-marker-toggle,
+.header-century-toggle {
+  transition: all 0.2s ease;
+}
+
+.filters-toggle-btn:hover,
+.reset-filters-btn:hover,
+.header-marker-toggle:hover,
+.header-century-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.filters-toggle-btn:focus,
+.reset-filters-btn:focus,
+.header-marker-toggle:focus,
+.header-century-toggle:focus {
+  outline: 2px solid #cd853f;
+  outline-offset: 2px;
+}
+
+/* Стили для полей ввода */
+.year-inputs input:focus {
+  outline: 2px solid #cd853f;
+  outline-offset: 1px;
+}
+
+/* Улучшенные стили для мобильных элементов */
+.header-controls-mobile {
+  transition: all 0.3s ease;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+}
+
+.header-controls-mobile.visible {
+  opacity: 1;
+  max-height: 300px;
+}
+
+/* Семантические классы для групп элементов */
+.header-filters-group,
+.header-filters-group-mobile {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.year-range-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+/* Улучшенные стили для временной линии */
+.timeline-main {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Стили для подсказок */
+.tooltip {
+  position: absolute;
+  background: rgba(44, 24, 16, 0.95);
+  border: 1px solid rgba(244, 228, 193, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  color: #f4e4c1;
+  font-size: 0.9rem;
+  max-width: 300px;
+  z-index: 1001;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Стили для мобильной панели */
+.mobile-person-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(44, 24, 16, 0.98);
+  border-top: 1px solid rgba(244, 228, 193, 0.2);
+  padding: 20px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.mobile-person-panel.visible {
+  transform: translateY(0);
+}
+
+/* Семантические классы для мобильной панели */
+.mobile-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(139, 69, 19, 0.3);
+}
+
+.mobile-panel-title {
+  margin: 0;
+  color: #f4e4c1;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.mobile-panel-close-btn {
+  background: rgba(231, 76, 60, 0.2);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  color: #e74c3c;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.mobile-panel-close-btn:hover {
+  background: rgba(231, 76, 60, 0.3);
+  transform: scale(1.1);
+}
+
+.mobile-panel-close-btn:focus {
+  outline: 2px solid #e74c3c;
+  outline-offset: 2px;
+}
+
+.mobile-panel-content {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mobile-panel-person-info {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.mobile-panel-person-image {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-panel-person-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mobile-panel-person-details {
+  flex: 1;
+}
+
+.mobile-panel-person-years {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-panel-person-category {
+  font-size: 0.9rem;
+  color: #f4e4c1;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-panel-person-category-name {
+  font-weight: bold;
+}
+
+.mobile-panel-person-country {
+  color: #f4e4c1;
+}
+
+.mobile-panel-person-reign {
+  font-size: 0.9rem;
+  color: #E57373;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-panel-person-description {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #f4e4c1;
+  font-style: italic;
+  padding: 0.5rem;
+  background: rgba(139, 69, 19, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(139, 69, 19, 0.2);
+}
+
+.mobile-panel-achievements {
+  margin-top: 1rem;
+}
+
+.mobile-panel-achievements-title {
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: bold;
+}
+
+.mobile-panel-achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-panel-achievement-item {
+  padding: 0.5rem;
+  background: rgba(139, 69, 19, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(205, 133, 63, 0.4);
+}
+
+.mobile-panel-achievement-year {
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.mobile-panel-achievement-text {
+  font-size: 0.85rem;
+  color: #f4e4c1;
+}
+
+/* Стили для интерактивной полоски диапазона */
+.year-range-slider {
+  position: relative;
+  user-select: none;
+  touch-action: none;
+}
+
+.year-range-slider-track {
+  pointer-events: none;
+}
+
+.year-range-slider-handle {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.year-range-slider-handle:hover {
+  transform: translateX(-50%) scale(1.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.year-range-slider-handle:focus {
+  outline: 2px solid #cd853f;
+  outline-offset: 2px;
+  transform: translateX(-50%) scale(1.1);
+}
+
+.year-range-slider-handle:active {
+  cursor: grabbing;
+  transform: translateX(-50%) scale(1.1);
+}
+
+.year-range-slider-handle-start:focus {
+  outline-color: #cd853f;
+}
+
+.year-range-slider-handle-end:focus {
+  outline-color: #daa520;
+}
+
+/* Анимация при перетаскивании */
+.year-range-slider.dragging .year-range-slider-handle {
+  transition: none;
+}
+
+.year-range-slider.dragging .year-range-slider-track {
+  transition: none;
+}
+
+/* Подсказка при наведении */
+.year-range-slider-handle::after {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(44, 24, 16, 0.95);
+  color: #f4e4c1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+}
+
+.year-range-slider-handle:hover::after {
+  opacity: 1;
+}
+
+/* Стили для мобильной версии полоски */
+.year-range-slider-mobile {
+  touch-action: none;
+}
+
+.year-range-slider-mobile .year-range-slider-handle {
+  width: 12px;
+  height: 12px;
+  top: -2px;
+}
+
+.year-range-slider-mobile .year-range-slider-handle:hover {
+  transform: translateX(-50%) scale(1.2);
+}
+
+.year-range-slider-mobile .year-range-slider-handle:active {
+  transform: translateX(-50%) scale(1.1);
+}
+
+/* Невидимые touch области для мобильных устройств */
+.year-range-slider-touch-area {
+  position: absolute;
+  background: transparent;
+  border-radius: 50%;
+  z-index: 3; /* Выше ручек для приоритета */
+  pointer-events: auto;
+  /* Скрываем touch области на десктопе */
+  display: none;
+}
+
+/* Показываем touch области только на мобильных устройствах */
+@media (max-width: 768px) {
+  .year-range-slider-touch-area {
+    display: block;
+  }
+  
+  .year-range-slider-handle {
+    /* Убираем min-width/min-height, так как теперь у нас отдельные touch области */
+    /* Оставляем события на ручках для надежности */
+  }
+  
+  .year-range-slider-handle::after {
+    display: none;
+  }
+}
+
+/* Улучшенные стили для загрузки */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #f4e4c1;
+  font-size: 1.2rem;
+}
+
+/* Системные элементы */
+.system-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.system-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(44, 24, 16, 0.98);
+  border: 1px solid rgba(244, 228, 193, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  z-index: 10000;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.system-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  color: #f4e4c1;
+  font-size: 0.9rem;
+  z-index: 10001;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.system-notification.success {
+  background: rgba(46, 204, 113, 0.9);
+  border: 1px solid #27ae60;
+}
+
+.system-notification.error {
+  background: rgba(231, 76, 60, 0.9);
+  border: 1px solid #c0392b;
+}
+
+.system-notification.warning {
+  background: rgba(241, 196, 15, 0.9);
+  border: 1px solid #f39c12;
+}
+
+.system-tooltip {
+  position: absolute;
+  background: rgba(44, 24, 16, 0.95);
+  border: 1px solid rgba(244, 228, 193, 0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #f4e4c1;
+  font-size: 0.8rem;
+  z-index: 10002;
+  pointer-events: none;
+  max-width: 200px;
+  word-wrap: break-word;
+}
+
+.system-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(244, 228, 193, 0.3);
+  border-radius: 50%;
+  border-top-color: #f4e4c1;
+  animation: spin 1s ease-in-out infinite;
+}
+
+.system-progress {
+  width: 100%;
+  height: 4px;
+  background: rgba(244, 228, 193, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.system-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #cd853f 0%, #daa520 100%);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Анимации для системных элементов */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Системные состояния */
+.system-hidden {
+  display: none !important;
+}
+
+.system-visible {
+  display: block !important;
+}
+
+.system-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.system-active {
+  background: rgba(205, 133, 63, 0.3) !important;
+  border-color: #cd853f !important;
+}
+
+/* Стили для доступности */
+[role="button"]:focus,
+[role="tab"]:focus,
+[role="menuitem"]:focus,
+[role="option"]:focus {
+  outline: 2px solid #cd853f;
+  outline-offset: 2px;
+}
+
+/* Улучшенные стили для кнопок */
+button:focus,
+[role="button"]:focus {
+  outline: 2px solid #cd853f;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(205, 133, 63, 0.3);
+}
+
+/* Стили для listbox */
+[role="listbox"]:focus {
+  outline: 2px solid #cd853f;
+  outline-offset: 1px;
+}
+
+/* Стили для опций в listbox */
+[role="option"]:focus {
+  background-color: rgba(205, 133, 63, 0.2);
+  outline: 1px solid #cd853f;
+}
+
+/* Стили для slider */
+[role="slider"]:focus {
+  outline: 2px solid #cd853f;
+  outline-offset: 2px;
+}
+
+/* Стили для скринридеров */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  /* Убираем hover эффекты при уменьшенном движении */
+  .filter-btn:hover,
+  [role="button"]:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Убираем анимации tooltip */
+  .tooltip {
+    animation: none !important;
+  }
+}
+
+/* Высокий контраст для доступности */
+@media (prefers-contrast: high) {
+  .app-header {
+    background: #000;
+    border-bottom: 2px solid #fff;
+  }
+  
+  .tooltip {
+    background: #000;
+    border: 2px solid #fff;
+    color: #fff;
+  }
+  
+  /* Улучшенные стили для высокого контраста */
+  [role="button"]:focus,
+  button:focus {
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+  }
+  
+  [role="listbox"] {
+    border: 2px solid #fff;
+  }
+  
+  [role="option"]:focus {
+    background-color: #fff;
+    color: #000;
+  }
+  
+
+}
+
+
 
 /* Текстура пергамента для шапки */
 .app-header::before {
@@ -63,11 +677,6 @@ body {
     url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.1'/%3E%3C/svg%3E");
   opacity: 0.3;
   pointer-events: none;
-}
-
-.app-header.scrolled {
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
-  background: linear-gradient(135deg, #1a0f08 0%, #2c1810 50%, #1a0f08 100%);
 }
 
 .app-header h1 {

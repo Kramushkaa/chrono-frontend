@@ -52,6 +52,10 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
       }}>
         {/* Иконка категорий */}
         <div 
+          role="button"
+          tabIndex={0}
+          aria-label="Группировать по роду деятельности"
+          aria-pressed={groupingType === 'category'}
           style={{
             width: isMobile ? '24px' : '14px',
             height: isMobile ? '24px' : '14px',
@@ -67,6 +71,12 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
             cursor: 'pointer'
           }}
           onClick={() => onGroupingChange('category')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onGroupingChange('category');
+            }
+          }}
           title="Группировать по роду деятельности"
           onMouseEnter={(e) => {
             if (groupingType !== 'category') {
@@ -86,6 +96,10 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
         
         {/* Иконка стран */}
         <div 
+          role="button"
+          tabIndex={0}
+          aria-label="Группировать по странам"
+          aria-pressed={groupingType === 'country'}
           style={{
             width: isMobile ? '24px' : '14px',
             height: isMobile ? '24px' : '14px',
@@ -101,6 +115,12 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
             cursor: 'pointer'
           }}
           onClick={() => onGroupingChange('country')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onGroupingChange('country');
+            }
+          }}
           title="Группировать по странам"
           onMouseEnter={(e) => {
             if (groupingType !== 'country') {
@@ -120,6 +140,10 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
         
         {/* Иконка без группировки */}
         <div 
+          role="button"
+          tabIndex={0}
+          aria-label="Без группировки"
+          aria-pressed={groupingType === 'none'}
           style={{
             width: isMobile ? '24px' : '14px',
             height: isMobile ? '24px' : '14px',
@@ -135,6 +159,12 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
             cursor: 'pointer'
           }}
           onClick={() => onGroupingChange('none')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onGroupingChange('none');
+            }
+          }}
           title="Без группировки"
           onMouseEnter={(e) => {
             if (groupingType !== 'none') {
