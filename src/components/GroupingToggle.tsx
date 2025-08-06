@@ -12,8 +12,7 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
 }) => {
   const isMobile = useMobile()
 
-  // Отладочная информация
-  console.log('GroupingToggle render:', { isMobile, groupingType })
+  // Component state tracking
 
   // Принудительное обновление стилей ползунка
   useEffect(() => {
@@ -30,7 +29,6 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
           : groupingType === 'country'
             ? '23px'
             : '43px'
-      console.log('Forcing slider transform:', offset)
       slider.style.transform = `translateX(${offset})`
     }
   }, [groupingType, isMobile])
@@ -200,7 +198,6 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
           const options: ('category' | 'country' | 'none')[] = ['category', 'country', 'none']
           const currentIndex = options.indexOf(groupingType)
           const nextIndex = (currentIndex + 1) % options.length
-          console.log('Clicking toggle:', { current: groupingType, next: options[nextIndex] })
           onGroupingChange(options[nextIndex])
         }}
       >

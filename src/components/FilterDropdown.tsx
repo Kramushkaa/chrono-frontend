@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useMobile } from '../hooks/useMobile'
 
 interface FilterDropdownProps {
@@ -26,11 +27,42 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   const [dropdownPosition, setDropdownPosition] = useState<'bottom' | 'top'>('bottom')
   const [horizontalPosition, setHorizontalPosition] = useState<'left' | 'right' | 'center'>('left')
   const [isOpen, setIsOpen] = useState(false)
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
   const isMobile = useMobile()
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isMouseOverRef = useRef(false)
   
-
+  // Create portal container for mobile popups
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      const container = document.createElement('div')
+      container.style.position = 'fixed'
+      container.style.top = '0'
+      container.style.left = '0'
+      container.style.width = '100%'
+      container.style.height = '100%'
+      container.style.zIndex = '10003'
+      container.style.pointerEvents = 'auto'
+      container.style.backgroundColor = 'rgba(0, 0, 0, 0.3)' // Semi-transparent overlay
+      
+      // Add click handler to close dropdown when clicking overlay
+      container.addEventListener('click', (e) => {
+        if (e.target === container) {
+          setIsOpen(false)
+        }
+      })
+      
+      document.body.appendChild(container)
+      setPortalContainer(container)
+      
+      return () => {
+        if (container.parentNode) {
+          container.parentNode.removeChild(container)
+        }
+        setPortalContainer(null)
+      }
+    }
+  }, [isMobile, isOpen])
   
   // Функция для определения позиции dropdown
   const updateDropdownPosition = useCallback(() => {
@@ -166,8 +198,14 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   // Обработка клика вне dropdown для мобильных устройств
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isMobile && dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+      if (isMobile && isOpen) {
+        const target = event.target as Node
+        const isClickInsideDropdown = dropdownRef.current?.contains(target)
+        const isClickInsideContent = contentRef.current?.contains(target)
+        
+        if (!isClickInsideDropdown && !isClickInsideContent) {
+          setIsOpen(false)
+        }
       }
     }
     
@@ -204,6 +242,189 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
       }, 150)
     }
   }
+
+  // Calculate popup position for mobile
+  const getMobilePopupPosition = () => {
+    if (!dropdownRef.current) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
+    
+    const buttonRect = dropdownRef.current.getBoundingClientRect()
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    
+    // Position dropdown below the button
+    let top = buttonRect.bottom + 8 // 8px gap below button
+    let left = buttonRect.left
+    
+    // Ensure dropdown doesn't go off-screen
+    const estimatedDropdownWidth = Math.min(250, viewportWidth - 20)
+    const estimatedDropdownHeight = Math.min(300, viewportHeight * 0.6)
+    
+    // Adjust horizontal position if dropdown would go off-screen
+    if (left + estimatedDropdownWidth > viewportWidth - 10) {
+      left = viewportWidth - estimatedDropdownWidth - 10
+    }
+    if (left < 10) {
+      left = 10
+    }
+    
+    // If dropdown would go off-screen at the bottom, position it above the button
+    if (top + estimatedDropdownHeight > viewportHeight - 10) {
+      top = buttonRect.top - estimatedDropdownHeight - 8
+    }
+    
+    // Ensure dropdown doesn't go off-screen at the top
+    if (top < 10) {
+      top = 10
+    }
+    
+    return {
+      top: `${top}px`,
+      left: `${left}px`,
+      transform: 'none'
+    }
+  }
+
+  // Render dropdown content
+  const renderDropdownContent = () => {
+    const mobilePopupStyle = isMobile ? getMobilePopupPosition() : { top: '', left: '', transform: '' }
+    
+    return (
+      <div 
+        className="filter-dropdown-content"
+        ref={contentRef}
+        onMouseEnter={handleContentMouseEnter}
+        onMouseLeave={handleContentMouseLeave}
+        role="listbox"
+        aria-label={`Список ${title}`}
+        aria-multiselectable="true"
+        style={{
+          position: isMobile ? 'fixed' : 'absolute',
+          top: isMobile ? mobilePopupStyle.top : (dropdownPosition === 'bottom' ? '100%' : 'auto'),
+          bottom: isMobile ? 'auto' : (dropdownPosition === 'top' ? '100%' : 'auto'),
+          left: isMobile ? mobilePopupStyle.left : (horizontalPosition === 'left' ? '0' : horizontalPosition === 'center' ? '50%' : 'auto'),
+          right: isMobile ? 'auto' : (horizontalPosition === 'right' ? '0' : 'auto'),
+          transform: isMobile ? mobilePopupStyle.transform : (horizontalPosition === 'center' ? 'translateX(-50%)' : 'none'),
+          zIndex: isMobile ? 10003 : 1000,
+          maxHeight: isMobile ? '50vh' : '300px',
+          overflowY: 'auto',
+          display: 'block',
+          minWidth: isMobile ? '200px' : '250px',
+          maxWidth: isMobile ? '280px' : '300px',
+          width: isMobile ? 'auto' : (isMobile && horizontalPosition === 'center' ? 'calc(100vw - 40px)' : 'auto'),
+          background: 'rgba(44, 24, 16, 0.98)',
+          border: '2px solid rgba(244, 228, 193, 0.3)',
+          borderRadius: isMobile ? '12px' : '6px',
+          boxShadow: isMobile ? '0 8px 32px rgba(0, 0, 0, 0.5)' : '0 4px 12px rgba(0, 0, 0, 0.3)',
+          backdropFilter: 'blur(10px)',
+          pointerEvents: isMobile ? 'auto' : 'auto'
+        }}
+      >
+        <div style={{ 
+          padding: isMobile ? '0.8rem' : '0.5rem', 
+          borderBottom: '1px solid rgba(139, 69, 19, 0.3)',
+          display: 'flex',
+          gap: '0.5rem',
+          flexWrap: 'wrap'
+        }}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onSelectionChange(items)
+            }}
+            aria-label={`Выбрать все ${title}`}
+            style={{
+              padding: isMobile ? '0.5rem 0.8rem' : '0.25rem 0.5rem',
+              background: '#27ae60',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: isMobile ? '0.8rem' : '0.7rem',
+              flex: isMobile ? '1' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto'
+            }}
+          >
+            Выбрать все
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onSelectionChange([])
+            }}
+            aria-label={`Снять все ${title}`}
+            style={{
+              padding: isMobile ? '0.5rem 0.8rem' : '0.25rem 0.5rem',
+              background: '#e74c3c',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: isMobile ? '0.8rem' : '0.7rem',
+              flex: isMobile ? '1' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto'
+            }}
+          >
+            Снять все
+          </button>
+        </div>
+        {items.map(item => (
+          <label 
+            key={item} 
+            className="filter-checkbox" 
+            onClick={(e) => e.stopPropagation()}
+            role="option"
+            aria-selected={selectedItems.includes(item)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: isMobile ? '0.6rem 0.5rem' : '0.4rem 0.5rem',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s ease',
+              borderRadius: '3px',
+              margin: '0.1rem 0',
+              minHeight: isMobile ? '44px' : 'auto' // Минимальная высота для мобильных устройств
+            }}
+            onMouseEnter={(e) => {
+              if (!isMobile) {
+                e.currentTarget.style.backgroundColor = 'rgba(139, 69, 19, 0.1)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isMobile) {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={selectedItems.includes(item)}
+              onChange={(e) => {
+                e.stopPropagation()
+                if (e.target.checked) {
+                  onSelectionChange([...selectedItems, item])
+                } else {
+                  onSelectionChange(selectedItems.filter(i => i !== item))
+                }
+              }}
+              aria-label={`Выбрать ${item}`}
+              style={{
+                margin: 0,
+                cursor: 'pointer'
+              }}
+            />
+            <span style={{ 
+              color: getItemColor ? getItemColor(item) : '#f4e4c1',
+              fontWeight: getItemColor ? 'bold' : 'normal',
+              fontSize: '0.8rem'
+            }}>
+              {item}
+            </span>
+          </label>
+        ))}
+      </div>
+    )
+  }
   
   return (
     <div 
@@ -239,139 +460,11 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
         {isActive && <span className="filter-count">({selectedItems.length})</span>}
       </button>
       {isOpen && (
-        <div 
-          className="filter-dropdown-content"
-          ref={contentRef}
-          onMouseEnter={handleContentMouseEnter}
-          onMouseLeave={handleContentMouseLeave}
-          role="listbox"
-          aria-label={`Список ${title}`}
-          aria-multiselectable="true"
-          style={{
-            position: 'absolute',
-            top: dropdownPosition === 'bottom' ? '100%' : 'auto',
-            bottom: dropdownPosition === 'top' ? '100%' : 'auto',
-            left: horizontalPosition === 'left' ? '0' : horizontalPosition === 'center' ? '50%' : 'auto',
-            right: horizontalPosition === 'right' ? '0' : 'auto',
-            transform: horizontalPosition === 'center' ? 'translateX(-50%)' : 'none',
-            zIndex: 1000,
-            maxHeight: '300px',
-            overflowY: 'auto',
-            display: 'block',
-            minWidth: isMobile ? '200px' : '250px',
-            maxWidth: isMobile ? '250px' : '300px',
-            width: isMobile && horizontalPosition === 'center' ? 'calc(100vw - 40px)' : 'auto',
-            background: 'rgba(44, 24, 16, 0.95)',
-            border: '1px solid rgba(139, 69, 19, 0.3)',
-            borderRadius: '6px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-            backdropFilter: 'blur(10px)'
-          }}
-        >
-          <div style={{ 
-            padding: isMobile ? '0.8rem' : '0.5rem', 
-            borderBottom: '1px solid rgba(139, 69, 19, 0.3)',
-            display: 'flex',
-            gap: '0.5rem',
-            flexWrap: 'wrap'
-          }}>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onSelectionChange(items)
-              }}
-              aria-label={`Выбрать все ${title}`}
-              style={{
-                padding: isMobile ? '0.5rem 0.8rem' : '0.25rem 0.5rem',
-                background: '#27ae60',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: isMobile ? '0.8rem' : '0.7rem',
-                flex: isMobile ? '1' : 'auto',
-                minHeight: isMobile ? '44px' : 'auto'
-              }}
-            >
-              Выбрать все
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onSelectionChange([])
-              }}
-              aria-label={`Снять все ${title}`}
-              style={{
-                padding: isMobile ? '0.5rem 0.8rem' : '0.25rem 0.5rem',
-                background: '#e74c3c',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: isMobile ? '0.8rem' : '0.7rem',
-                flex: isMobile ? '1' : 'auto',
-                minHeight: isMobile ? '44px' : 'auto'
-              }}
-            >
-              Снять все
-            </button>
-          </div>
-          {items.map(item => (
-            <label 
-              key={item} 
-              className="filter-checkbox" 
-              onClick={(e) => e.stopPropagation()}
-              role="option"
-              aria-selected={selectedItems.includes(item)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: isMobile ? '0.6rem 0.5rem' : '0.4rem 0.5rem',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s ease',
-                borderRadius: '3px',
-                margin: '0.1rem 0',
-                minHeight: isMobile ? '44px' : 'auto' // Минимальная высота для мобильных устройств
-              }}
-              onMouseEnter={(e) => {
-                if (!isMobile) {
-                  e.currentTarget.style.backgroundColor = 'rgba(139, 69, 19, 0.1)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isMobile) {
-                  e.currentTarget.style.backgroundColor = 'transparent'
-                }
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={selectedItems.includes(item)}
-                onChange={(e) => {
-                  e.stopPropagation()
-                  if (e.target.checked) {
-                    onSelectionChange([...selectedItems, item])
-                  } else {
-                    onSelectionChange(selectedItems.filter(i => i !== item))
-                  }
-                }}
-                aria-label={`Выбрать ${item}`}
-                style={{
-                  margin: 0,
-                  cursor: 'pointer'
-                }}
-              />
-              <span style={{ 
-                color: getItemColor ? getItemColor(item) : '#f4e4c1',
-                fontWeight: getItemColor ? 'bold' : 'normal',
-                fontSize: '0.8rem'
-              }}>
-                {item}
-              </span>
-            </label>
-          ))}
-        </div>
+        isMobile && portalContainer ? (
+          createPortal(renderDropdownContent(), portalContainer)
+        ) : (
+          renderDropdownContent()
+        )
       )}
     </div>
   )

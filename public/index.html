@@ -42,6 +42,32 @@
       }
     }
     </script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              // Service Worker успешно зарегистрирован
+            })
+            .catch((registrationError) => {
+              console.error('Service Worker registration failed:', registrationError);
+            });
+        });
+      }
+    </script>
+    
+    <!-- Google Analytics (замените GA_MEASUREMENT_ID на ваш ID) -->
+    <!--
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    -->
   </head>
   <body>
     <noscript>

@@ -1,0 +1,186 @@
+/* Панель фильтров */
+.filters-panel {
+  background: rgba(44, 24, 16, 0.95);
+  border-bottom: 2px solid #8b4513;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 10001;
+}
+
+.filters-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Выпадающие фильтры */
+.filter-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.filter-dropdown-content {
+  display: none;
+  position: absolute;
+  background: rgba(44, 24, 16, 0.95);
+  border: 1px solid rgba(139, 69, 19, 0.4);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  min-width: 200px;
+  max-width: 300px;
+  z-index: 1000;
+}
+
+/* Hover эффект только для десктопа */
+@media (min-width: 769px) {
+  .filter-dropdown:hover .filter-dropdown-content {
+    display: block;
+  }
+}
+
+.filter-dropdown:focus-within .filter-dropdown-content {
+  display: block;
+}
+
+.filter-dropdown-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.filter-dropdown-content::-webkit-scrollbar-track {
+  background: rgba(139, 69, 19, 0.2);
+  border-radius: 4px;
+}
+
+.filter-dropdown-content::-webkit-scrollbar-thumb {
+  background: #8b4513;
+  border-radius: 4px;
+}
+
+.filter-dropdown-content::-webkit-scrollbar-thumb:hover {
+  background: #a0522d;
+}
+
+/* Кнопки фильтров */
+.filter-btn {
+  background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+  color: #f4e4c1;
+  border: 2px solid #8b4513;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.filter-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.filter-btn:hover::before {
+  left: 100%;
+}
+
+.filter-btn:hover {
+  background: linear-gradient(135deg, #a0522d 0%, #cd853f 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.4);
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #cd853f 0%, #daa520 100%);
+  box-shadow: 0 0 20px rgba(205, 133, 63, 0.5);
+}
+
+/* Чекбоксы в фильтрах */
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid rgba(139, 69, 19, 0.3);
+}
+
+.filter-checkbox:hover {
+  background: rgba(139, 69, 19, 0.2);
+}
+
+.filter-checkbox:last-child {
+  border-bottom: none;
+}
+
+.filter-checkbox input[type="checkbox"] {
+  margin-right: 0.75rem;
+  transform: scale(1.2);
+  accent-color: #cd853f;
+}
+
+/* Анимация для панели фильтров */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  /* Remove conflicting CSS rules for mobile dropdowns since we're using JavaScript positioning */
+  .filter-dropdown-content {
+    /* Let JavaScript handle positioning for mobile */
+  }
+  
+  /* Fallback: if dropdown would go off-screen, position it above the button */
+  .filter-dropdown-content.bottom-overflow {
+    top: auto !important;
+    bottom: 100% !important;
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
+  }
+  
+  /* Увеличиваем размеры фильтров на мобильных */
+  .filter-btn {
+    padding: 0.5rem 0.8rem !important;
+    font-size: 0.9rem !important;
+    min-height: 44px !important;
+  }
+  
+  /* Увеличиваем размеры input полей на мобильных */
+  .app-header input[type="number"] {
+    width: 50px !important;
+    font-size: 0.9rem !important;
+    padding: 0.3rem 0.4rem !important;
+    min-height: 44px !important;
+  }
+  
+  .filter-checkbox {
+    padding: 0.6rem 0.5rem !important;
+    min-height: 44px !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .filter-checkbox input[type="checkbox"] {
+    transform: scale(1.2) !important;
+  }
+} 

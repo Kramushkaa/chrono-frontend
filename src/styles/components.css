@@ -1,0 +1,392 @@
+/* Стили для подсказок */
+.tooltip {
+  position: absolute;
+  background: rgba(44, 24, 16, 0.95);
+  border: 1px solid rgba(244, 228, 193, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  color: #f4e4c1;
+  font-size: 0.9rem;
+  max-width: 300px;
+  z-index: 1001;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tooltips-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* Стили для мобильной панели */
+.mobile-person-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(44, 24, 16, 0.98);
+  border-top: 1px solid rgba(244, 228, 193, 0.2);
+  padding: 20px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  animation: slideUp 0.3s ease-out;
+}
+
+.mobile-person-panel.visible {
+  transform: translateY(0);
+}
+
+/* Семантические классы для мобильной панели */
+.mobile-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(139, 69, 19, 0.3);
+}
+
+.mobile-panel-title {
+  margin: 0;
+  color: #f4e4c1;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.mobile-panel-close-btn {
+  background: rgba(231, 76, 60, 0.2);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  color: #e74c3c;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.mobile-panel-close-btn:hover {
+  background: rgba(231, 76, 60, 0.3);
+  transform: scale(1.1);
+}
+
+.mobile-panel-close-btn:focus {
+  outline: 2px solid #e74c3c;
+  outline-offset: 2px;
+}
+
+.mobile-panel-content {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Стили для скроллбаров в мобильной панели */
+.mobile-panel-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mobile-panel-content::-webkit-scrollbar-track {
+  background: rgba(139, 69, 19, 0.15);
+  border-radius: 4px;
+}
+
+.mobile-panel-content::-webkit-scrollbar-thumb {
+  background: rgba(139, 69, 19, 0.6);
+  border-radius: 4px;
+  border: 1px solid rgba(139, 69, 19, 0.2);
+}
+
+.mobile-panel-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 69, 19, 0.8);
+}
+
+.mobile-panel-person-info {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.mobile-panel-person-image {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-panel-person-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mobile-panel-person-details {
+  flex: 1;
+}
+
+.mobile-panel-person-years {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-panel-person-category {
+  font-size: 0.9rem;
+  color: #f4e4c1;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-panel-person-category-name {
+  font-weight: bold;
+}
+
+.mobile-panel-person-country {
+  color: #f4e4c1;
+}
+
+.mobile-panel-person-reign {
+  font-size: 0.9rem;
+  color: #E57373;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-panel-person-description {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #f4e4c1;
+  font-style: italic;
+  padding: 0.5rem;
+  background: rgba(139, 69, 19, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(139, 69, 19, 0.2);
+}
+
+.mobile-panel-achievements {
+  margin-top: 1rem;
+}
+
+.mobile-panel-achievements-title {
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: bold;
+}
+
+.mobile-panel-achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-panel-achievement-item {
+  padding: 0.5rem;
+  background: rgba(139, 69, 19, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(205, 133, 63, 0.4);
+}
+
+.mobile-panel-achievement-year {
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.mobile-panel-achievement-text {
+  font-size: 0.85rem;
+  color: #f4e4c1;
+}
+
+/* Стили для интерактивной полоски диапазона */
+.year-range-slider {
+  position: relative;
+  user-select: none;
+  touch-action: none;
+}
+
+.year-range-slider-track {
+  pointer-events: none;
+}
+
+.year-range-slider-handle {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.year-range-slider-handle:hover {
+  transform: translateX(-50%) scale(1.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.year-range-slider-handle:focus {
+  outline: 2px solid #cd853f;
+  outline-offset: 2px;
+  transform: translateX(-50%) scale(1.1);
+}
+
+.year-range-slider-handle:active {
+  cursor: grabbing;
+  transform: translateX(-50%) scale(1.1);
+}
+
+.year-range-slider-handle-start:focus {
+  outline-color: #cd853f;
+}
+
+.year-range-slider-handle-end:focus {
+  outline-color: #daa520;
+}
+
+/* Анимация при перетаскивании */
+.year-range-slider.dragging .year-range-slider-handle {
+  transition: none;
+}
+
+.year-range-slider.dragging .year-range-slider-track {
+  transition: none;
+}
+
+/* Подсказка при наведении */
+.year-range-slider-handle::after {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(44, 24, 16, 0.95);
+  color: #f4e4c1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+}
+
+.year-range-slider-handle:hover::after {
+  opacity: 1;
+}
+
+/* Стили для мобильной версии полоски */
+.year-range-slider-mobile {
+  touch-action: none;
+}
+
+.year-range-slider-mobile .year-range-slider-handle {
+  width: 12px;
+  height: 12px;
+  top: -2px;
+}
+
+.year-range-slider-mobile .year-range-slider-handle:hover {
+  transform: translateX(-50%) scale(1.2);
+}
+
+.year-range-slider-mobile .year-range-slider-handle:active {
+  transform: translateX(-50%) scale(1.1);
+}
+
+/* Невидимые touch области для мобильных устройств */
+.year-range-slider-touch-area {
+  position: absolute;
+  background: transparent;
+  border-radius: 50%;
+  z-index: 3; /* Выше ручек для приоритета */
+  pointer-events: auto;
+  /* Скрываем touch области на десктопе */
+  display: none;
+}
+
+/* Показываем touch области только на мобильных устройствах */
+@media (max-width: 768px) {
+  .year-range-slider-touch-area {
+    display: block;
+  }
+  
+  .year-range-slider-handle {
+    /* Убираем min-width/min-height, так как теперь у нас отдельные touch области */
+    /* Оставляем события на ручках для надежности */
+  }
+  
+  .year-range-slider-handle::after {
+    display: none;
+  }
+  
+  /* Скрываем person tooltip на мобильных устройствах */
+  .tooltip {
+    display: none !important;
+  }
+  
+  /* Показываем achievement tooltip на мобильных с лучшим позиционированием */
+  .achievement-tooltip {
+    display: block !important;
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    max-width: 90vw !important;
+    z-index: 1002 !important;
+    background: rgba(44, 24, 16, 0.98) !important;
+    border: 2px solid rgba(244, 228, 193, 0.3) !important;
+    border-radius: 12px !important;
+    padding: 1rem !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+  }
+}
+
+/* Анимации */
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+} 

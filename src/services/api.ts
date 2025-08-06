@@ -63,19 +63,38 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
     const queryString = buildQueryString(filters);
     const url = `${API_BASE_URL}/api/persons${queryString ? `?${queryString}` : ''}`;
     
-    console.log('Fetching persons from:', url);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 секунд таймаут
     
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     const data = await response.json();
-    console.log('Persons data received:', data);
     
     // Преобразуем данные в правильный формат с безопасной декодировкой
-    let transformedData = data.map((person: any) => ({
+    let transformedData = data.map((person: {
+      id: string;
+      name?: string;
+      birthYear: number;
+      deathYear: number;
+      category?: string;
+      country?: string;
+      description?: string;
+      imageUrl?: string;
+      reignStart?: number;
+      reignEnd?: number;
+      achievementYear1?: number;
+      achievementYear2?: number;
+      achievementYear3?: number;
+      achievements?: string[];
+    }) => ({
       id: person.id,
       name: safeDecode(person.name || ''),
       birthYear: person.birthYear,
@@ -89,7 +108,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       achievementYear1: person.achievementYear1,
       achievementYear2: person.achievementYear2,
       achievementYear3: person.achievementYear3,
-      achievements: Array.isArray(person.achievements) ? person.achievements.map((a: any) => safeDecode(a || '')) : []
+      achievements: Array.isArray(person.achievements) ? person.achievements.map((a: string) => safeDecode(a || '')) : []
     }));
     
     // Дополнительная фильтрация на клиенте для множественных стран
@@ -105,7 +124,11 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
     
     return transformedData;
   } catch (error) {
-    console.error('Error fetching persons:', error);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Request timeout:', error);
+    } else {
+      console.error('Error fetching persons:', error);
+    }
     // Return empty array as fallback
     return [];
   }
@@ -116,21 +139,29 @@ export const getCategories = async (): Promise<string[]> => {
   try {
     const url = `${API_BASE_URL}/api/categories`;
     
-    console.log('Fetching categories from:', url);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     const data = await response.json();
-    console.log('Categories data received:', data);
     
     // Безопасная декодировка категорий
     return data.map((category: string) => safeDecode(category || ''));
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Categories request timeout:', error);
+    } else {
+      console.error('Error fetching categories:', error);
+    }
     // Return default categories as fallback
     return ['Политик', 'Ученый', 'Художник', 'Писатель', 'Военачальник'];
   }
@@ -141,21 +172,25 @@ export const getCountries = async (): Promise<string[]> => {
   try {
     const url = `${API_BASE_URL}/api/countries`;
     
-    console.log('Fetching countries from:', url);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     const data = await response.json();
-    console.log('Countries data received:', data);
     
     // Безопасная декодировка стран и разбивка множественных стран
     const allCountries = new Set<string>();
     
-    data.forEach((country: string) => {
+    data.forEach((country: string | null) => {
       const decodedCountry = safeDecode(country || '');
       if (decodedCountry.includes('/')) {
         // Разбиваем множественные страны на отдельные
@@ -171,7 +206,11 @@ export const getCountries = async (): Promise<string[]> => {
     // Сортируем страны по алфавиту
     return Array.from(allCountries).sort();
   } catch (error) {
-    console.error('Error fetching countries:', error);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Countries request timeout:', error);
+    } else {
+      console.error('Error fetching countries:', error);
+    }
     // Return default countries as fallback
     return ['Древний Рим', 'Древняя Греция', 'Древний Египет', 'Китай', 'Индия'];
   }

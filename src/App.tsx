@@ -1,285 +1,96 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Person } from './types'
-import { getCategoryColor, getCategoryColorDark, getCategoryColorMuted } from './utils/categoryColors'
 import { AppHeader } from './components/AppHeader'
 import { Timeline } from './components/Timeline'
 import { Tooltips } from './components/Tooltips'
 import { MobilePersonPanel } from './components/MobilePersonPanel'
 import { useTimelineData } from './hooks/useTimelineData'
+import { useFilters } from './hooks/useFilters'
+import { useSlider } from './hooks/useSlider'
+import { useTooltip } from './hooks/useTooltip'
 import { 
   generateCenturyBoundaries,
   getFirstCountry
 } from './utils/timelineUtils'
+import { 
+  getGroupColor, 
+  getGroupColorDark, 
+  getGroupColorMuted, 
+  getPersonGroup,
+  sortGroupedData
+} from './utils/groupingUtils'
 import './App.css'
 
 function App() {
-  const [hoveredPerson, setHoveredPerson] = useState<Person | null>(null)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [showTooltip, setShowTooltip] = useState(false)
-  const [hoveredAchievement, setHoveredAchievement] = useState<{ person: Person; year: number; index: number } | null>(null)
-  const [achievementTooltipPosition, setAchievementTooltipPosition] = useState({ x: 0, y: 0 })
-  const [showAchievementTooltip, setShowAchievementTooltip] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeAchievementMarker, setActiveAchievementMarker] = useState<{ personId: string; index: number } | null>(null)
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
-  const hoverTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [showControls, setShowControls] = useState(true)
-  const [filters, setFilters] = useState(() => {
-    const savedFilters = localStorage.getItem('chrononinja-filters');
-    if (savedFilters) {
-      const parsed = JSON.parse(savedFilters);
-      return {
-        categories: parsed.categories || [],
-        countries: parsed.countries || [],
-        timeRange: parsed.timeRange || { start: -800, end: 2000 },
-        showAchievements: parsed.showAchievements !== undefined ? parsed.showAchievements : true,
-        hideEmptyCenturies: parsed.hideEmptyCenturies !== undefined ? parsed.hideEmptyCenturies : false
-      };
-    }
-    return {
-      categories: [] as string[],
-      countries: [] as string[],
-      timeRange: { start: -800, end: 2000 },
-      showAchievements: true,
-      hideEmptyCenturies: false
-    };
-  })
 
-  // Состояние для типа группировки
-  const [groupingType, setGroupingType] = useState<'category' | 'country' | 'none'>(() => {
-    const savedGrouping = localStorage.getItem('chrononinja-grouping');
-    return savedGrouping as 'category' | 'country' | 'none' || 'category';
-  })
-
-  // Сохраняем фильтры в localStorage при изменении
-  useEffect(() => {
-    localStorage.setItem('chrononinja-filters', JSON.stringify(filters));
-  }, [filters]);
-
-  // Сохраняем тип группировки в localStorage при изменении
-  useEffect(() => {
-    localStorage.setItem('chrononinja-grouping', groupingType);
-  }, [groupingType]);
-
-  // Очищаем таймер при размонтировании компонента
-  useEffect(() => {
-    return () => {
-      const timer = hoverTimerRef.current;
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Используем кастомный хук для загрузки данных
+  // Используем кастомные хуки
+  const { 
+    filters, 
+    setFilters, 
+    groupingType, 
+    setGroupingType, 
+    yearInputs, 
+    setYearInputs, 
+    applyYearFilter, 
+    handleYearKeyPress, 
+    resetAllFilters 
+  } = useFilters()
+  
   const { persons, allCategories, allCountries, isLoading } = useTimelineData(filters)
 
-  // Состояние для полей ввода годов
-  const [yearInputs, setYearInputs] = useState({
-    start: filters.timeRange.start.toString(),
-    end: filters.timeRange.end.toString()
-  })
+  const { 
+    isDraggingSlider, 
+    handleSliderMouseDown, 
+    handleSliderMouseMove, 
+    handleSliderMouseUp 
+  } = useSlider()
+  
+  const { 
+    hoveredPerson, 
+    mousePosition, 
+    showTooltip, 
+    hoveredAchievement, 
+    achievementTooltipPosition, 
+    showAchievementTooltip, 
+    hoverTimerRef, 
+    handlePersonHover, 
+    handleAchievementHover 
+  } = useTooltip()
 
-  // Состояния для интерактивной полоски диапазона
-  const [isDraggingSlider, setIsDraggingSlider] = useState(false)
-  const [draggedHandle, setDraggedHandle] = useState<'start' | 'end' | null>(null)
-  const [sliderRect, setSliderRect] = useState<DOMRect | null>(null)
 
 
 
-  // Функция для применения фильтра по году
-  const applyYearFilter = useCallback((field: 'start' | 'end', value: string) => {
-    const parsed = parseInt(value);
-    const numValue = isNaN(parsed) ? (field === 'start' ? -800 : 2000) : parsed;
-    setFilters(prev => ({
-      ...prev,
-      timeRange: { ...prev.timeRange, [field]: numValue }
-    }))
-  }, [])
-
-  // Функция для обработки нажатия Enter
-  const handleYearKeyPress = (field: 'start' | 'end', e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      applyYearFilter(field, e.currentTarget.value)
-      // Переводим фокус на следующий элемент
-      const inputs = e.currentTarget.parentElement?.parentElement?.querySelectorAll('input')
-      if (inputs) {
-        const currentIndex = Array.from(inputs).indexOf(e.currentTarget)
-        const nextInput = inputs[currentIndex + 1] as HTMLInputElement
-        if (nextInput) {
-          nextInput.focus()
-        }
-      }
-    }
-  }
-
-  // Функции для интерактивной полоски диапазона
-  const handleSliderMouseDown = (e: React.MouseEvent | React.TouchEvent, handle: 'start' | 'end') => {
-    e.preventDefault()
-    setIsDraggingSlider(true)
-    setDraggedHandle(handle)
-    const sliderElement = e.currentTarget.parentElement?.parentElement
-    if (sliderElement) {
-      setSliderRect(sliderElement.getBoundingClientRect())
-    }
-  }
-
-  const handleSliderMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
-    if (!isDraggingSlider || !draggedHandle || !sliderRect) return
-
-    const rect = sliderRect
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    const x = clientX - rect.left
-    const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100))
-    
-    // Преобразуем процент в год (от -800 до 2000)
-    const totalRange = 2800 // 2000 - (-800)
-    const year = Math.round(-800 + (percentage / 100) * totalRange)
-    
-    // Ограничиваем значения
-    const startYear = parseYearValue(yearInputs.start, -800)
-    const endYear = parseYearValue(yearInputs.end, 2000)
-    
-    let newYear = year
-    if (draggedHandle === 'start') {
-      newYear = Math.max(-800, Math.min(endYear - 100, year))
-      setYearInputs(prev => ({ ...prev, start: newYear.toString() }))
-      applyYearFilter('start', newYear.toString())
-    } else {
-      newYear = Math.max(startYear + 100, Math.min(2000, year))
-      setYearInputs(prev => ({ ...prev, end: newYear.toString() }))
-      applyYearFilter('end', newYear.toString())
-    }
-  }, [isDraggingSlider, draggedHandle, sliderRect, yearInputs, applyYearFilter])
-
-  const handleSliderMouseUp = useCallback(() => {
-    setIsDraggingSlider(false)
-    setDraggedHandle(null)
-    setSliderRect(null)
-  }, [])
-
-  const parseYearValue = (value: string, defaultValue: number): number => {
-    const parsed = parseInt(value)
-    return isNaN(parsed) ? defaultValue : parsed
-  }
 
   // Добавляем обработчики событий мыши и touch
   useEffect(() => {
     if (isDraggingSlider) {
-      document.addEventListener('mousemove', handleSliderMouseMove)
-      document.addEventListener('mouseup', handleSliderMouseUp)
-      document.addEventListener('touchmove', handleSliderMouseMove)
-      document.addEventListener('touchend', handleSliderMouseUp)
+      const handleMouseMove = (e: MouseEvent | TouchEvent) => 
+        handleSliderMouseMove(e, yearInputs, applyYearFilter, setYearInputs)
+      
+      const handleMouseUp = () => handleSliderMouseUp()
+      
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      document.addEventListener('touchmove', handleMouseMove)
+      document.addEventListener('touchend', handleMouseUp)
       
       return () => {
-        document.removeEventListener('mousemove', handleSliderMouseMove)
-        document.removeEventListener('mouseup', handleSliderMouseUp)
-        document.removeEventListener('touchmove', handleSliderMouseMove)
-        document.removeEventListener('touchend', handleSliderMouseUp)
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+        document.removeEventListener('touchmove', handleMouseMove)
+        document.removeEventListener('touchend', handleMouseUp)
       }
     }
-  }, [isDraggingSlider, handleSliderMouseMove, handleSliderMouseUp])
+  }, [isDraggingSlider, handleSliderMouseMove, handleSliderMouseUp, yearInputs, applyYearFilter, setYearInputs, setFilters])
 
-  // Функция для сброса всех фильтров
-  const resetAllFilters = () => {
-    setFilters({
-      categories: [],
-      countries: [],
-      timeRange: { start: -800, end: 2000 },
-      showAchievements: true,
-      hideEmptyCenturies: false
-    })
-    setYearInputs({
-      start: '-800',
-      end: '2000'
-    })
-  }
 
-    // Функция для получения приоритета категории
-  const getCategoryPriority = (category: string) => {
-    return allCategories.indexOf(category)
-  }
-
-  // Функция для получения цвета группы в зависимости от типа группировки
-  const getGroupColor = (groupName: string) => {
-    if (groupingType === 'category') {
-      return getCategoryColor(groupName)
-    } else if (groupingType === 'country') {
-      // Для стран используем другой набор цветов
-      const countryColors = [
-        '#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6',
-        '#1abc9c', '#e67e22', '#34495e', '#16a085', '#8e44ad',
-        '#27ae60', '#2980b9', '#f1c40f', '#e74c3c', '#95a5a6'
-      ]
-      const index = allCountries.indexOf(groupName)
-      return countryColors[index % countryColors.length]
-    }
-    return '#95a5a6' // серый цвет по умолчанию
-  }
-
-  // Функция для получения цвета группы (темный вариант)
-  const getGroupColorDark = (groupName: string) => {
-    if (groupingType === 'category') {
-      return getCategoryColorDark(groupName)
-    } else if (groupingType === 'country') {
-      // Для стран используем темные варианты цветов
-      const countryColorsDark = [
-        '#c0392b', '#2980b9', '#27ae60', '#d68910', '#8e44ad',
-        '#16a085', '#d35400', '#2c3e50', '#138d75', '#7d3c98',
-        '#229954', '#1f618d', '#d4ac0f', '#c0392b', '#7f8c8d'
-      ]
-      const index = allCountries.indexOf(groupName)
-      return countryColorsDark[index % countryColorsDark.length]
-    }
-    return '#7f8c8d' // темно-серый цвет по умолчанию
-  }
-
-  // Функция для получения цвета группы (приглушенный вариант)
-  const getGroupColorMuted = (groupName: string) => {
-    if (groupingType === 'category') {
-      return getCategoryColorMuted(groupName)
-    } else if (groupingType === 'country') {
-      // Для стран используем приглушенные варианты цветов
-      const countryColorsMuted = [
-        '#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6',
-        '#1abc9c', '#e67e22', '#34495e', '#16a085', '#8e44ad',
-        '#27ae60', '#2980b9', '#f1c40f', '#e74c3c', '#95a5a6'
-      ]
-      const index = allCountries.indexOf(groupName)
-      return countryColorsMuted[index % countryColorsMuted.length]
-    }
-    return '#95a5a6' // серый цвет по умолчанию
-  }
-
-  // Функция для получения значения группы для персонажа
-  const getPersonGroup = (person: Person) => {
-    if (groupingType === 'category') {
-      return person.category
-    } else if (groupingType === 'country') {
-      return getFirstCountry(person.country)
-    }
-    return person.category // по умолчанию
-  }
 
   // Функция фильтрации данных (теперь данные фильтруются на бэкенде, но сортировка остается)
-  const sortedData = [...persons].sort((a, b) => {
-    if (groupingType === 'category') {
-      // Сначала сортируем по категориям
-      const categoryDiff = getCategoryPriority(a.category) - getCategoryPriority(b.category)
-      if (categoryDiff !== 0) {
-        return categoryDiff
-      }
-    } else if (groupingType === 'country') {
-      // Сначала сортируем по странам (берем первую страну из списка)
-      const countryDiff = allCountries.indexOf(getFirstCountry(a.country)) - allCountries.indexOf(getFirstCountry(b.country))
-      if (countryDiff !== 0) {
-        return countryDiff
-      }
-    }
-    // Затем по году рождения
-    return a.birthYear - b.birthYear
-  })
+  const sortedData = sortGroupedData(persons, groupingType)
 
   // Автоматически обновляем диапазон дат при изменении настройки скрытия пустых веков
   useEffect(() => {
@@ -319,7 +130,7 @@ function App() {
         });
       }
     }
-  }, [filters.hideEmptyCenturies, sortedData, filters.categories, filters.countries, filters.timeRange]);
+  }, [filters.hideEmptyCenturies, sortedData, filters.categories, filters.countries, filters.timeRange, setFilters, setYearInputs]);
 
   // Отслеживаем скролл
   useEffect(() => {
@@ -332,29 +143,71 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Вычисляем реальный диапазон лет из отфильтрованных данных
-  const minYear = Math.min(...sortedData.map(p => p.birthYear), filters.timeRange.start)
-  const maxYear = Math.max(...sortedData.map(p => p.deathYear), filters.timeRange.end)
-  const totalYears = maxYear - minYear
+  // Обработчик для закрытия achievement tooltip на мобильных
+  useEffect(() => {
+    const handleCloseAchievementTooltip = () => {
+      handleAchievementHover(null, 0, 0);
+    };
+
+    const handleClickOutside = (event: Event) => {
+      // Проверяем, что клик был вне tooltip'а и вне маркеров достижений
+      const target = event.target as Element;
+      const tooltip = document.getElementById('achievement-tooltip');
+      const isClickInsideTooltip = tooltip?.contains(target);
+      const isClickOnMarker = target.closest('.achievement-marker');
+      
+      // Добавляем небольшую задержку для touch событий, чтобы избежать случайного закрытия
+      if (!isClickInsideTooltip && !isClickOnMarker && showAchievementTooltip) {
+        if (event.type === 'touchstart') {
+          setTimeout(() => {
+            handleAchievementHover(null, 0, 0);
+          }, 100);
+        } else {
+          handleAchievementHover(null, 0, 0);
+        }
+      }
+    };
+
+    window.addEventListener('closeAchievementTooltip', handleCloseAchievementTooltip);
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    
+    return () => {
+      window.removeEventListener('closeAchievementTooltip', handleCloseAchievementTooltip);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [handleAchievementHover, showAchievementTooltip]);
+
+  // Мемоизируем вычисления диапазона лет
+  const { minYear, totalYears, effectiveMinYear, effectiveMaxYear } = useMemo(() => {
+    const minYear = Math.min(...sortedData.map(p => p.birthYear), filters.timeRange.start)
+    const maxYear = Math.max(...sortedData.map(p => p.deathYear), filters.timeRange.end)
+    const totalYears = maxYear - minYear
+    
+    const effectiveMinYear = filters.hideEmptyCenturies 
+      ? Math.min(...sortedData.map(p => p.birthYear))
+      : minYear
+    const effectiveMaxYear = filters.hideEmptyCenturies 
+      ? Math.max(...sortedData.map(p => p.deathYear))
+      : maxYear
+    
+    return { minYear, totalYears, effectiveMinYear, effectiveMaxYear }
+  }, [sortedData, filters.timeRange.start, filters.timeRange.end, filters.hideEmptyCenturies])
 
   // Настройки масштаба
   const pixelsPerYear = 3 // 3 пикселя на год
   const LEFT_PADDING_PX = 30 // отступ слева, чтобы крайняя левая подпись не упиралась в край
   const timelineWidth = totalYears * pixelsPerYear + LEFT_PADDING_PX
 
-  // Генерируем границы веков
-  // Если включена настройка скрытия пустых веков, используем только отфильтрованные данные
-  const effectiveMinYear = filters.hideEmptyCenturies 
-    ? Math.min(...sortedData.map(p => p.birthYear))
-    : minYear
-  const effectiveMaxYear = filters.hideEmptyCenturies 
-    ? Math.max(...sortedData.map(p => p.deathYear))
-    : maxYear
-  
-  const centuryBoundaries = generateCenturyBoundaries(effectiveMinYear, effectiveMaxYear)
+  // Мемоизируем границы веков
+  const centuryBoundaries = useMemo(() => 
+    generateCenturyBoundaries(effectiveMinYear, effectiveMaxYear),
+    [effectiveMinYear, effectiveMaxYear]
+  )
 
-  // Алгоритм размещения полосок на строках с полной группировкой по категориям
-  const calculateRowPlacement = (people: Person[]) => {
+  // Мемоизируем алгоритм размещения полосок на строках
+  const calculateRowPlacement = useCallback((people: Person[]) => {
     const rows: Person[][] = []
     
     if (groupingType === 'none') {
@@ -471,15 +324,21 @@ function App() {
     })
     
     return rows
-  }
+  }, [groupingType, allCategories, allCountries])
 
-  // Получаем размещение по строкам
-  const rowPlacement = calculateRowPlacement(sortedData)
+  // Мемоизируем размещение по строкам
+  const rowPlacement = useMemo(() => 
+    calculateRowPlacement(sortedData),
+    [calculateRowPlacement, sortedData]
+  )
 
-  // Вычисляем общую высоту с учетом пустых строк
-  const totalHeight = rowPlacement.reduce((height, row) => {
-    return height + (row.length === 0 ? 20 : 70) // 20px для пустых строк, 70px для обычных (60px + 10px margin)
-  }, 0)
+  // Мемоизируем общую высоту
+  const totalHeight = useMemo(() => 
+    rowPlacement.reduce((height, row) => {
+      return height + (row.length === 0 ? 20 : 70) // 20px для пустых строк, 70px для обычных (60px + 10px margin)
+    }, 0),
+    [rowPlacement]
+  )
 
   // Функция для создания разделителей категорий
     // Высота строки и отступ вниз для непустой строки
@@ -487,21 +346,22 @@ function App() {
   const ROW_MARGIN = 10; // margin-bottom, используется только для непустых строк
   const EMPTY_ROW_HEIGHT = 20;
 
-  // Подсчитываем абсолютный top каждой строки, чтобы точно позиционировать разделители
-  const rowTops: number[] = [];
-  (() => {
+  // Мемоизируем вычисление позиций строк
+  const rowTops = useMemo(() => {
+    const tops: number[] = [];
     let acc = 0;
     rowPlacement.forEach(row => {
-      rowTops.push(acc);
+      tops.push(acc);
       if (row.length === 0) {
         acc += EMPTY_ROW_HEIGHT;
       } else {
         acc += ROW_HEIGHT + ROW_MARGIN;
       }
     });
-  })();
+    return tops;
+  }, [rowPlacement]);
 
-  const createCategoryDividers = () => {
+  const createCategoryDividers = useCallback(() => {
     if (groupingType === 'none') {
       return []; // Без группировки нет разделителей
     }
@@ -539,9 +399,9 @@ function App() {
     }
 
     return dividers;
-  };
+  }, [groupingType, rowPlacement, rowTops]);
 
-  const categoryDividers = createCategoryDividers();
+  const categoryDividers = useMemo(() => createCategoryDividers(), [createCategoryDividers]);
 
   return (
     <div className="app" id="chrononinja-app" role="main" aria-label="Chrono Ninja - Интерактивная временная линия исторических личностей">
@@ -560,16 +420,26 @@ function App() {
         applyYearFilter={applyYearFilter}
         handleYearKeyPress={handleYearKeyPress}
         resetAllFilters={resetAllFilters}
-        getCategoryColor={getCategoryColor}
+        getCategoryColor={getGroupColor}
         sortedData={sortedData}
         handleSliderMouseDown={handleSliderMouseDown}
+        handleSliderMouseMove={handleSliderMouseMove}
+        handleSliderMouseUp={handleSliderMouseUp}
         isDraggingSlider={isDraggingSlider}
       />
       
       <div className="timeline-wrapper">
+        {/* Загрузка только для области timeline */}
+        {isLoading && (
+          <div className="loading-overlay" role="status" aria-live="polite">
+            <div className="spinner" aria-hidden="true"></div>
+            <span>Загрузка данных...</span>
+          </div>
+        )}
+        
         <main className="timeline-container" id="timeline-viewport" role="region" aria-label="Область просмотра временной линии">
           <Timeline
-          isLoading={isLoading}
+          isLoading={false}
           timelineWidth={timelineWidth}
           totalHeight={totalHeight}
           centuryBoundaries={centuryBoundaries}
@@ -583,21 +453,53 @@ function App() {
           getGroupColor={getGroupColor}
           getGroupColorDark={getGroupColorDark}
           getGroupColorMuted={getGroupColorMuted}
-          getPersonGroup={getPersonGroup}
+          getPersonGroup={(person) => getPersonGroup(person, groupingType)}
           hoveredPerson={hoveredPerson}
-          setHoveredPerson={setHoveredPerson}
+          setHoveredPerson={(person) => {
+            if (person) {
+              // Используем текущую позицию мыши из состояния
+              handlePersonHover(person, mousePosition.x, mousePosition.y);
+            } else {
+              handlePersonHover(null, 0, 0);
+            }
+          }}
           mousePosition={mousePosition}
-          setMousePosition={setMousePosition}
+          setMousePosition={(position) => {
+            // Обновляем позицию мыши
+            if (hoveredPerson) {
+              handlePersonHover(hoveredPerson, position.x, position.y);
+            }
+          }}
           showTooltip={showTooltip}
-          setShowTooltip={setShowTooltip}
+          setShowTooltip={(show) => {
+            if (!show && hoveredPerson) {
+              handlePersonHover(null, 0, 0);
+            }
+          }}
           activeAchievementMarker={activeAchievementMarker}
           setActiveAchievementMarker={setActiveAchievementMarker}
           hoveredAchievement={hoveredAchievement}
-          setHoveredAchievement={setHoveredAchievement}
+          setHoveredAchievement={(achievement) => {
+            if (achievement) {
+              // Используем текущую позицию мыши из состояния
+              handleAchievementHover(achievement, achievementTooltipPosition.x, achievementTooltipPosition.y);
+            } else {
+              handleAchievementHover(null, 0, 0);
+            }
+          }}
           achievementTooltipPosition={achievementTooltipPosition}
-          setAchievementTooltipPosition={setAchievementTooltipPosition}
+          setAchievementTooltipPosition={(position) => {
+            if (hoveredAchievement) {
+              handleAchievementHover(hoveredAchievement, position.x, position.y);
+            }
+          }}
           showAchievementTooltip={showAchievementTooltip}
-          setShowAchievementTooltip={setShowAchievementTooltip}
+                  setShowAchievementTooltip={(show) => {
+          if (!show && hoveredAchievement) {
+            handleAchievementHover(null, 0, 0);
+          }
+        }}
+        handlePersonHover={handlePersonHover}
           hoverTimerRef={hoverTimerRef}
           sortedData={sortedData}
           selectedPerson={selectedPerson}
@@ -615,8 +517,8 @@ function App() {
           showAchievementTooltip={showAchievementTooltip}
           achievementTooltipPosition={achievementTooltipPosition}
           getGroupColor={getGroupColor}
-          getPersonGroup={getPersonGroup}
-          getCategoryColor={getCategoryColor}
+          getPersonGroup={(person) => getPersonGroup(person, groupingType)}
+          getCategoryColor={getGroupColor}
         />
       </aside>
       
@@ -625,8 +527,8 @@ function App() {
         selectedPerson={selectedPerson}
         onClose={() => setSelectedPerson(null)}
         getGroupColor={getGroupColor}
-        getPersonGroup={getPersonGroup}
-        getCategoryColor={getCategoryColor}
+        getPersonGroup={(person) => getPersonGroup(person, groupingType)}
+        getCategoryColor={getGroupColor}
       />
     </div>
   )

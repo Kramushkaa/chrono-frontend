@@ -34,6 +34,7 @@ interface TimelineProps {
   setMousePosition: (position: { x: number; y: number }) => void
   showTooltip: boolean
   setShowTooltip: (show: boolean) => void
+  handlePersonHover: (person: Person | null, x: number, y: number) => void
   activeAchievementMarker: { personId: string; index: number } | null
   setActiveAchievementMarker: (marker: { personId: string; index: number } | null) => void
   hoveredAchievement: { person: Person; year: number; index: number } | null
@@ -43,7 +44,7 @@ interface TimelineProps {
   showAchievementTooltip: boolean
   setShowAchievementTooltip: (show: boolean) => void
   hoverTimerRef: React.MutableRefObject<NodeJS.Timeout | null>
-  sortedData: any[]
+  sortedData: Person[]
   selectedPerson: Person | null
   setSelectedPerson: (person: Person | null) => void
 }
@@ -75,6 +76,7 @@ export const Timeline: React.FC<TimelineProps> = ({
   setMousePosition,
   showTooltip,
   setShowTooltip,
+  handlePersonHover,
   activeAchievementMarker,
   setActiveAchievementMarker,
   hoveredAchievement,
@@ -226,15 +228,72 @@ export const Timeline: React.FC<TimelineProps> = ({
     return totalWidth + LEFT_PADDING_PX + 50; // Добавляем отступы
   };
 
+  // Функция для создания повторяющихся меток веков через каждые 90vh
+  const createRepeatingCenturyLabels = () => {
+    const viewportHeight = window.innerHeight;
+    const labels: Array<{
+      id: string;
+      year: number;
+      romanNumeral: string;
+      left: number;
+      top: number;
+      type: 'century' | 'gap';
+    }> = [];
+    
+    // Создаем метки для каждого века
+    timelineElements.forEach((element) => {
+      if (element.type === 'century') {
+        const year = element.year;
+        const centerYear = year + 50;
+        const centuryNumber = getCenturyNumber(centerYear);
+        const isNegativeCentury = year < 0;
+        const romanNumeral = isNegativeCentury ? `${toRomanNumeral(Math.abs(centuryNumber))} в. до н.э` : `${toRomanNumeral(centuryNumber)} в.`;
+        const startPos = getAdjustedPosition(year);
+        const nextYear = year + 100;
+        const endPos = getAdjustedPosition(nextYear);
+        const centerPos = startPos + (endPos - startPos) / 2; // Центр века
+        
+        // Создаем метки через каждые 90vh
+        for (let top = 0; top < totalHeight; top += viewportHeight * 0.9) {
+          labels.push({
+            id: `century-label-${year}-${top}`,
+            year,
+            romanNumeral,
+            left: centerPos,
+            top: top + viewportHeight / 2, // Центрируем по вертикали в каждом экране
+            type: 'century'
+          });
+        }
+      } else if (element.type === 'gap') {
+        const startPos = getAdjustedPosition(element.startYear);
+        const gapWidth = pixelsPerYear * 10; // 10 лет = 1/10 века
+        const centerPos = startPos + gapWidth / 2; // Центр промежутка
+        const hiddenCenturiesText = element.hiddenCenturies?.map(year => {
+          const centuryNumber = getCenturyNumber(year + 50);
+          const isNegativeCentury = year < 0;
+          const romanNumeral = isNegativeCentury ? `${toRomanNumeral(Math.abs(centuryNumber))} в. до н.э` : `${toRomanNumeral(centuryNumber)} в.`;
+          return romanNumeral;
+        }).join(', ') || '';
+        
+        // Создаем метки для промежутков через каждые 90vh
+        for (let top = 0; top < totalHeight; top += viewportHeight * 0.9) {
+          labels.push({
+            id: `gap-label-${element.startYear}-${top}`,
+            year: element.startYear,
+            romanNumeral: hiddenCenturiesText,
+            left: centerPos,
+            top: top + viewportHeight / 2,
+            type: 'gap'
+          });
+        }
+      }
+    });
+    
+    return labels;
+  };
+
   return (
     <>
-      {isLoading && (
-        <div className="loading-overlay" role="status" aria-live="polite">
-          <div className="spinner" aria-hidden="true"></div>
-          <span>Загрузка данных...</span>
-        </div>
-      )}
-      
       {/* Временная линия на весь экран */}
       <div 
         className="timeline-content" 
@@ -297,27 +356,6 @@ export const Timeline: React.FC<TimelineProps> = ({
                     zIndex: 1
                   }}
                 >
-                  {/* Римская цифра века в центре */}
-                  <div 
-                    className="century-label" 
-                    id={`century-label-${year}`}
-                    aria-label={`Век ${romanNumeral}`}
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      fontSize: '2rem',
-                      fontWeight: 'bold',
-                      color: 'rgba(244, 228, 193, 0.6)',
-                      textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)',
-                      pointerEvents: 'none',
-                      zIndex: 2,
-                      fontFamily: 'serif'
-                    }}
-                  >
-                    {romanNumeral}
-                  </div>
                 </div>
               )
                                                    } else if (element.type === 'gap') {
@@ -335,29 +373,6 @@ export const Timeline: React.FC<TimelineProps> = ({
                    border: '1px dashed rgba(139, 69, 19, 0.3)',
                    zIndex: 1
                  }}>
-                  {/* Информация о скрытых веках */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    fontSize: '0.8rem',
-                    color: 'rgba(139, 69, 19, 0.7)',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                    fontWeight: 'bold'
-                  }}>
-                                         <div>Скрыто:</div>
-                     <div style={{ fontSize: '0.7rem', marginTop: '2px' }}>
-                       {element.hiddenCenturies?.map(year => {
-                         const centuryNumber = getCenturyNumber(year + 50);
-                         const isNegativeCentury = year < 0;
-                         const romanNumeral = isNegativeCentury ? `-${toRomanNumeral(Math.abs(centuryNumber))}` : toRomanNumeral(centuryNumber);
-                         return romanNumeral;
-                       }).join(', ') || ''}
-                     </div>
-                  </div>
                 </div>
               )
             }
@@ -403,7 +418,52 @@ export const Timeline: React.FC<TimelineProps> = ({
             })}
          </div>
 
-                 {/* Разделители групп */}
+         {/* Повторяющиеся метки веков через каждые 90vh */}
+         <div style={{
+           position: 'absolute',
+           top: '0',
+           left: '0',
+           width: `${getAdjustedTimelineWidth()}px`,
+           height: `${totalHeight + 200}px`,
+           pointerEvents: 'none',
+           zIndex: 6
+         }}>
+           {createRepeatingCenturyLabels().map((label) => (
+             <div
+               key={label.id}
+               style={{
+                 position: 'absolute',
+                 left: `${label.left}px`,
+                 top: `${label.top}px`,
+                 transform: 'translate(-50%, -50%)',
+                 fontSize: label.type === 'century' ? '1.5rem' : '0.8rem',
+                 fontWeight: 'bold',
+                 color: label.type === 'century' 
+                   ? 'rgba(244, 228, 193, 0.4)' 
+                   : 'rgba(139, 69, 19, 0.5)',
+                 textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
+                 pointerEvents: 'none',
+                 fontFamily: label.type === 'century' ? 'serif' : 'sans-serif',
+                 textAlign: 'center',
+                 maxWidth: '200px',
+                 wordWrap: 'break-word'
+               }}
+             >
+               {label.type === 'century' ? (
+                 label.romanNumeral
+               ) : (
+                 <>
+                   <div>Скрыто:</div>
+                   <div style={{ fontSize: '0.7rem', marginTop: '2px' }}>
+                     {label.romanNumeral}
+                   </div>
+                 </>
+               )}
+             </div>
+           ))}
+         </div>
+
+         {/* Разделители групп */}
          <div 
            className="category-dividers"
            id="category-dividers"
@@ -583,50 +643,104 @@ export const Timeline: React.FC<TimelineProps> = ({
                             position: 'absolute',
                             left: `${getAdjustedPosition(year as number)}px`,
                             top: '-4px',
-                            width: '2px',
-                            height: '15px',
+                            width: '2px', // Возвращаем стандартную ширину
+                            height: '15px', // Возвращаем стандартную высоту
                             backgroundColor: getGroupColorDark(getPersonGroup(person)),
                             zIndex: activeAchievementMarker?.personId === person.id && activeAchievementMarker?.index === index ? 10 : 3,
                             transform: 'translateX(-50%)',
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease'
+                            transition: 'all 0.2s ease',
+                            // Убираем псевдоэлементы, так как они не работают в inline стилях
                           }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = getGroupColor(getPersonGroup(person));
-                          e.currentTarget.style.boxShadow = `0 0 3px ${getGroupColor(getPersonGroup(person))}`;
-                          
-                          // Устанавливаем активный маркер
-                          setActiveAchievementMarker({ personId: person.id, index });
-                          
-                          // Очищаем предыдущий таймер если он есть
-                          if (hoverTimerRef.current) {
-                            clearTimeout(hoverTimerRef.current);
+                          if (!isMobile) {
+                            e.currentTarget.style.backgroundColor = getGroupColor(getPersonGroup(person));
+                            e.currentTarget.style.boxShadow = `0 0 3px ${getGroupColor(getPersonGroup(person))}`;
+                            
+                            // Устанавливаем активный маркер
+                            setActiveAchievementMarker({ personId: person.id, index });
+                            
+                            // Скрываем tooltip человека при наведении на маркер достижения
+                            if (hoveredPerson?.id === person.id) {
+                              handlePersonHover(null, 0, 0);
+                            }
+                            
+                            // Очищаем предыдущий таймер если он есть
+                            if (hoverTimerRef.current) {
+                              clearTimeout(hoverTimerRef.current);
+                            }
+                            
+                            // Запускаем таймер для показа tooltip
+                            hoverTimerRef.current = setTimeout(() => {
+                              setAchievementTooltipPosition({ x: e.clientX, y: e.clientY });
+                              setHoveredAchievement({ person, year: year as number, index });
+                              setShowAchievementTooltip(true);
+                            }, 500);
                           }
-                          
-                          // Запускаем таймер для показа tooltip
-                          hoverTimerRef.current = setTimeout(() => {
-                            setHoveredAchievement({ person, year: year as number, index });
-                            setAchievementTooltipPosition({ x: e.clientX, y: e.clientY });
-                            setShowAchievementTooltip(true);
-                          }, 500);
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = getGroupColorDark(getPersonGroup(person));
-                          e.currentTarget.style.boxShadow = 'none';
-                          
-                          // Сбрасываем активный маркер
-                          setActiveAchievementMarker(null);
-                          
-                          // Очищаем таймер и скрываем tooltip
-                          if (hoverTimerRef.current) {
-                            clearTimeout(hoverTimerRef.current);
-                            hoverTimerRef.current = null;
+                          if (!isMobile) {
+                            e.currentTarget.style.backgroundColor = getGroupColorDark(getPersonGroup(person));
+                            e.currentTarget.style.boxShadow = 'none';
+                            
+                            // Сбрасываем активный маркер
+                            setActiveAchievementMarker(null);
+                            
+                            // Очищаем таймер и скрываем tooltip достижения
+                            if (hoverTimerRef.current) {
+                              clearTimeout(hoverTimerRef.current);
+                              hoverTimerRef.current = null;
+                            }
+                            setShowAchievementTooltip(false);
+                            setHoveredAchievement(null);
+                            
+                            // Также скрываем tooltip человека, если он был показан
+                            if (hoveredPerson?.id === person.id) {
+                              handlePersonHover(null, 0, 0);
+                            }
                           }
-                          setShowAchievementTooltip(false);
-                          setHoveredAchievement(null);
                         }}
                         onMouseMove={(e) => {
-                          setAchievementTooltipPosition({ x: e.clientX, y: e.clientY });
+                          if (!isMobile && hoveredAchievement && hoveredAchievement.person.id === person.id && hoveredAchievement.index === index) {
+                            setAchievementTooltipPosition({ x: e.clientX, y: e.clientY });
+                          }
+                        }}
+                        onTouchStart={(e) => {
+                          if (isMobile) {
+                            e.preventDefault();
+                            e.currentTarget.style.backgroundColor = getGroupColor(getPersonGroup(person));
+                            e.currentTarget.style.boxShadow = `0 0 3px ${getGroupColor(getPersonGroup(person))}`;
+                            
+                            // Устанавливаем активный маркер
+                            setActiveAchievementMarker({ personId: person.id, index });
+                            
+                            // Скрываем tooltip человека при касании маркера достижения
+                            if (hoveredPerson?.id === person.id) {
+                              handlePersonHover(null, 0, 0);
+                            }
+                            
+                            // Показываем tooltip сразу на мобильных
+                            const touch = e.touches[0];
+                            setAchievementTooltipPosition({ x: touch.clientX, y: touch.clientY });
+                            setHoveredAchievement({ person, year: year as number, index });
+                            setShowAchievementTooltip(true);
+                          }
+                        }}
+                        onTouchEnd={(e) => {
+                          if (isMobile) {
+                            // Убираем визуальные эффекты при отпускании, но НЕ скрываем tooltip
+                            e.currentTarget.style.backgroundColor = getGroupColorDark(getPersonGroup(person));
+                            e.currentTarget.style.boxShadow = 'none';
+                            
+                            // Сбрасываем активный маркер
+                            setActiveAchievementMarker(null);
+                            
+                            // НЕ скрываем tooltip достижения - он будет скрыт только по клику вне или по кнопке закрытия
+                            // Но скрываем tooltip человека, если он был показан
+                            if (hoveredPerson?.id === person.id) {
+                              handlePersonHover(null, 0, 0);
+                            }
+                          }
                         }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
@@ -721,9 +835,16 @@ export const Timeline: React.FC<TimelineProps> = ({
                         e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'
                         e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.4)'
                         e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)'
-                        setHoveredPerson(person)
-                        setMousePosition({ x: e.clientX, y: e.clientY })
-                        setTimeout(() => setShowTooltip(true), 300)
+                        
+                        // Скрываем tooltip достижения при наведении на lifebar
+                        if (hoveredAchievement?.person.id === person.id) {
+                          setShowAchievementTooltip(false);
+                          setHoveredAchievement(null);
+                          setActiveAchievementMarker(null);
+                        }
+                        
+                        // Используем handlePersonHover для правильной обработки
+                        handlePersonHover(person, e.clientX, e.clientY)
                       }
                     }}
                     onMouseLeave={(e) => {
@@ -731,12 +852,12 @@ export const Timeline: React.FC<TimelineProps> = ({
                         e.currentTarget.style.transform = selectedPerson?.id === person.id ? 'scale(1.05)' : 'translateY(0) scale(1)'
                         e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)'
                         e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
-                        setHoveredPerson(null)
-                        setShowTooltip(false)
+                        // Используем handlePersonHover для правильной обработки с задержкой
+                        handlePersonHover(null, 0, 0)
                       }
                     }}
                     onMouseMove={(e) => {
-                      if (!isMobile) {
+                      if (!isMobile && hoveredPerson?.id === person.id) {
                         setMousePosition({ x: e.clientX, y: e.clientY })
                       }
                     }}
@@ -748,6 +869,16 @@ export const Timeline: React.FC<TimelineProps> = ({
                         } else {
                           setHoveredPerson(person);
                           setShowTooltip(true);
+                        }
+                      }
+                    }}
+                    onTouchStart={(e) => {
+                      if (isMobile) {
+                        // Скрываем tooltip достижения при касании lifebar
+                        if (hoveredAchievement?.person.id === person.id) {
+                          setShowAchievementTooltip(false);
+                          setHoveredAchievement(null);
+                          setActiveAchievementMarker(null);
                         }
                       }
                     }}
