@@ -5,6 +5,7 @@ import { Timeline } from './components/Timeline'
 import { Tooltips } from './components/Tooltips'
 import { MobilePersonPanel } from './components/MobilePersonPanel'
 import { MainMenu } from './components/MainMenu'
+import { BackendInfo } from './components/BackendInfo'
 import { useTimelineData } from './hooks/useTimelineData'
 import { useFilters } from './hooks/useFilters'
 import { useSlider } from './hooks/useSlider'
@@ -403,6 +404,7 @@ function App() {
   // Рендерим таймлайн
   return (
     <div className="app" id="chrononinja-app" role="main" aria-label="Хроно ниндзя - Интерактивная временная линия исторических личностей">
+      <BackendInfo />
       <AppHeader
         isScrolled={isScrolled}
         showControls={showControls}

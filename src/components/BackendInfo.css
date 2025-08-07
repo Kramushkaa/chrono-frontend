@@ -1,0 +1,148 @@
+.backend-info {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-size: 12px;
+  z-index: 1000;
+  max-width: 300px;
+  backdrop-filter: blur(10px);
+}
+
+.backend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.backend-header:hover {
+  background-color: #f5f5f5;
+}
+
+.backend-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.status-icon {
+  font-size: 14px;
+}
+
+.status-text {
+  font-weight: 500;
+  color: #333;
+}
+
+.backend-type {
+  font-weight: 600;
+  margin: 0 8px;
+}
+
+.test-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.test-button:hover {
+  background-color: #e0e0e0;
+}
+
+.test-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.backend-details {
+  padding: 12px;
+  background-color: #fafafa;
+}
+
+.detail-item {
+  margin-bottom: 6px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.detail-item strong {
+  color: #555;
+}
+
+.backend-tips {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.backend-tips h4 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  color: #333;
+}
+
+.backend-tips ul {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #666;
+}
+
+.backend-tips li {
+  margin-bottom: 4px;
+}
+
+.backend-tips code {
+  background-color: #f0f0f0;
+  padding: 1px 3px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+}
+
+/* Анимации */
+.backend-info {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .backend-info {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+  
+  .backend-header {
+    padding: 10px 12px;
+  }
+  
+  .backend-details {
+    padding: 15px;
+  }
+} 

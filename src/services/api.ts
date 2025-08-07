@@ -1,5 +1,33 @@
-// API functions for connecting to backend
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://chrono-back-kramushka.amvera.io';
+// API configuration
+const getApiConfig = () => {
+  // Определяем окружение
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isLocalBackend = process.env.REACT_APP_USE_LOCAL_BACKEND === 'true';
+  
+  // URL для разных окружений
+  const LOCAL_BACKEND_URL = 'http://localhost:3001';
+  const REMOTE_BACKEND_URL = 'https://chrono-back-kramushka.amvera.io';
+  
+  // Выбираем URL в зависимости от настроек
+  let apiUrl: string;
+  
+  if (isDevelopment && isLocalBackend) {
+    apiUrl = LOCAL_BACKEND_URL;
+    console.log('🔧 Используется локальный backend:', apiUrl);
+  } else {
+    apiUrl = process.env.REACT_APP_API_URL || REMOTE_BACKEND_URL;
+    console.log('🌐 Используется удаленный backend:', apiUrl);
+  }
+  
+  return {
+    baseUrl: apiUrl,
+    timeout: 10000, // 10 секунд
+    retries: 2
+  };
+};
+
+const API_CONFIG = getApiConfig();
+const API_BASE_URL = API_CONFIG.baseUrl;
 
 // Safe decode function
 const safeDecode = (str: string): string => {
@@ -11,6 +39,35 @@ const safeDecode = (str: string): string => {
   }
 };
 
+// Helper function for API requests with retry logic
+const apiRequest = async (url: string, options: RequestInit = {}): Promise<Response> => {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt <= API_CONFIG.retries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
+      
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(`API request attempt ${attempt + 1} failed:`, error);
+      
+      if (attempt < API_CONFIG.retries) {
+        // Ждем перед повторной попыткой (экспоненциальная задержка)
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+      }
+    }
+  }
+  
+  throw lastError || new Error('API request failed after all retries');
+};
 
 // Types for API responses
 interface Person {
@@ -63,14 +120,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
     const queryString = buildQueryString(filters);
     const url = `${API_BASE_URL}/api/persons${queryString ? `?${queryString}` : ''}`;
     
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 секунд таймаут
-    
-    const response = await fetch(url, {
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
+    const response = await apiRequest(url);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -124,11 +174,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
     
     return transformedData;
   } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.error('Request timeout:', error);
-    } else {
-      console.error('Error fetching persons:', error);
-    }
+    console.error('Error fetching persons:', error);
     // Return empty array as fallback
     return [];
   }
@@ -138,15 +184,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
 export const getCategories = async (): Promise<string[]> => {
   try {
     const url = `${API_BASE_URL}/api/categories`;
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-    
-    const response = await fetch(url, {
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
+    const response = await apiRequest(url);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -157,11 +195,7 @@ export const getCategories = async (): Promise<string[]> => {
     // Безопасная декодировка категорий
     return data.map((category: string) => safeDecode(category || ''));
   } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.error('Categories request timeout:', error);
-    } else {
-      console.error('Error fetching categories:', error);
-    }
+    console.error('Error fetching categories:', error);
     // Return default categories as fallback
     return ['Политик', 'Ученый', 'Художник', 'Писатель', 'Военачальник'];
   }
@@ -171,15 +205,7 @@ export const getCategories = async (): Promise<string[]> => {
 export const getCountries = async (): Promise<string[]> => {
   try {
     const url = `${API_BASE_URL}/api/countries`;
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-    
-    const response = await fetch(url, {
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
+    const response = await apiRequest(url);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -206,11 +232,7 @@ export const getCountries = async (): Promise<string[]> => {
     // Сортируем страны по алфавиту
     return Array.from(allCountries).sort();
   } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.error('Countries request timeout:', error);
-    } else {
-      console.error('Error fetching countries:', error);
-    }
+    console.error('Error fetching countries:', error);
     // Return default countries as fallback
     return ['Древний Рим', 'Древняя Греция', 'Древний Египет', 'Китай', 'Индия'];
   }
@@ -219,10 +241,19 @@ export const getCountries = async (): Promise<string[]> => {
 // Test connection to backend
 export const testBackendConnection = async (): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/health`);
+    const response = await apiRequest(`${API_BASE_URL}/api/health`);
     return response.ok;
   } catch (error) {
     console.error('Backend connection test failed:', error);
     return false;
   }
+};
+
+// Get backend info
+export const getBackendInfo = () => {
+  return {
+    baseUrl: API_BASE_URL,
+    isLocal: API_BASE_URL.includes('localhost'),
+    config: API_CONFIG
+  };
 }; 
