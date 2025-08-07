@@ -4,6 +4,7 @@ import { AppHeader } from './components/AppHeader'
 import { Timeline } from './components/Timeline'
 import { Tooltips } from './components/Tooltips'
 import { MobilePersonPanel } from './components/MobilePersonPanel'
+import { MainMenu } from './components/MainMenu'
 import { useTimelineData } from './hooks/useTimelineData'
 import { useFilters } from './hooks/useFilters'
 import { useSlider } from './hooks/useSlider'
@@ -23,12 +24,12 @@ import {
 import './App.css'
 
 function App() {
+  const [currentPage, setCurrentPage] = useState<'menu' | 'timeline'>('menu')
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeAchievementMarker, setActiveAchievementMarker] = useState<{ personId: string; index: number } | null>(null)
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
   const [showControls, setShowControls] = useState(true)
 
-  // Используем кастомные хуки
   const { 
     filters, 
     setFilters, 
@@ -70,63 +71,54 @@ function App() {
 
   // Добавляем обработчики событий мыши и touch
   useEffect(() => {
-    if (isDraggingSlider) {
-      const handleMouseMove = (e: MouseEvent | TouchEvent) => 
-        handleSliderMouseMove(e, yearInputs, applyYearFilter, setYearInputs)
-      
-      const handleMouseUp = () => handleSliderMouseUp()
-      
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
-      document.addEventListener('touchmove', handleMouseMove)
-      document.addEventListener('touchend', handleMouseUp)
-      
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove)
-        document.removeEventListener('mouseup', handleMouseUp)
-        document.removeEventListener('touchmove', handleMouseMove)
-        document.removeEventListener('touchend', handleMouseUp)
-      }
+    if (!isDraggingSlider) return
+
+    const handleMouseMove = (e: MouseEvent | TouchEvent) => 
+      handleSliderMouseMove(e, yearInputs, applyYearFilter, setYearInputs)
+    
+    const handleMouseUp = () => handleSliderMouseUp()
+    
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+    document.addEventListener('touchmove', handleMouseMove)
+    document.addEventListener('touchend', handleMouseUp)
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('touchmove', handleMouseMove)
+      document.removeEventListener('touchend', handleMouseUp)
     }
-  }, [isDraggingSlider, handleSliderMouseMove, handleSliderMouseUp, yearInputs, applyYearFilter, setYearInputs, setFilters])
+  }, [isDraggingSlider, handleSliderMouseMove, handleSliderMouseUp, yearInputs, applyYearFilter, setYearInputs])
 
 
 
-  // Функция фильтрации данных (теперь данные фильтруются на бэкенде, но сортировка остается)
   const sortedData = sortGroupedData(persons, groupingType)
 
-  // Автоматически обновляем диапазон дат при изменении настройки скрытия пустых веков
   useEffect(() => {
     if (filters.hideEmptyCenturies && sortedData.length > 0) {
-      // Вычисляем эффективный диапазон на основе отфильтрованных данных
       const effectiveMinYear = Math.min(...sortedData.map(p => p.birthYear));
       const effectiveMaxYear = Math.max(...sortedData.map(p => p.deathYear));
       
-      // Проверяем, есть ли активные фильтры (категории или страны)
       const hasActiveFilters = filters.categories.length > 0 || filters.countries.length > 0;
       
       let newTimeRange = { ...filters.timeRange };
       
       if (hasActiveFilters) {
-        // Если есть активные фильтры, сужаем диапазон до отфильтрованных данных
         newTimeRange = {
           start: Math.max(filters.timeRange.start, effectiveMinYear),
           end: Math.min(filters.timeRange.end, effectiveMaxYear)
         };
       } else {
-        // Если нет активных фильтров, НЕ сужаем диапазон
-        // Пользователь может хотеть видеть данные за пределами текущего диапазона
         newTimeRange = filters.timeRange;
       }
       
-      // Обновляем только если диапазон изменился
       if (newTimeRange.start !== filters.timeRange.start || newTimeRange.end !== filters.timeRange.end) {
         setFilters(prev => ({
           ...prev,
           timeRange: newTimeRange
         }));
         
-        // Обновляем поля ввода
         setYearInputs({
           start: newTimeRange.start.toString(),
           end: newTimeRange.end.toString()
@@ -135,7 +127,6 @@ function App() {
     }
   }, [filters.hideEmptyCenturies, sortedData, filters.categories, filters.countries, filters.timeRange, setFilters, setYearInputs]);
 
-  // Отслеживаем скролл
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop
@@ -146,20 +137,17 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Обработчик для закрытия achievement tooltip на мобильных
   useEffect(() => {
     const handleCloseAchievementTooltip = () => {
       handleAchievementHover(null, 0, 0);
     };
 
     const handleClickOutside = (event: Event) => {
-      // Проверяем, что клик был вне tooltip'а и вне маркеров достижений
       const target = event.target as Element;
       const tooltip = document.getElementById('achievement-tooltip');
       const isClickInsideTooltip = tooltip?.contains(target);
       const isClickOnMarker = target.closest('.achievement-marker');
       
-      // Добавляем небольшую задержку для touch событий, чтобы избежать случайного закрытия
       if (!isClickInsideTooltip && !isClickOnMarker && showAchievementTooltip) {
         if (event.type === 'touchstart') {
           setTimeout(() => {
@@ -182,7 +170,6 @@ function App() {
     };
   }, [handleAchievementHover, showAchievementTooltip]);
 
-  // Мемоизируем вычисления диапазона лет
   const { minYear, totalYears, effectiveMinYear, effectiveMaxYear } = useMemo(() => {
     const minYear = Math.min(...sortedData.map(p => p.birthYear), filters.timeRange.start)
     const maxYear = Math.max(...sortedData.map(p => p.deathYear), filters.timeRange.end)
@@ -198,12 +185,10 @@ function App() {
     return { minYear, totalYears, effectiveMinYear, effectiveMaxYear }
   }, [sortedData, filters.timeRange.start, filters.timeRange.end, filters.hideEmptyCenturies])
 
-  // Настройки масштаба
-  const pixelsPerYear = 3 // 3 пикселя на год
-  const LEFT_PADDING_PX = 30 // отступ слева, чтобы крайняя левая подпись не упиралась в край
+  const pixelsPerYear = 3
+  const LEFT_PADDING_PX = 30
   const timelineWidth = totalYears * pixelsPerYear + LEFT_PADDING_PX
 
-  // Хук для перетаскивания timeline
   const {
     timelineRef,
     isDragging,
@@ -219,31 +204,26 @@ function App() {
     containerWidth: window.innerWidth
   })
 
-  // Мемоизируем границы веков
   const centuryBoundaries = useMemo(() => 
     generateCenturyBoundaries(effectiveMinYear, effectiveMaxYear),
     [effectiveMinYear, effectiveMaxYear]
   )
 
-  // Мемоизируем алгоритм размещения полосок на строках
   const calculateRowPlacement = useCallback((people: Person[]) => {
     const rows: Person[][] = []
     
     if (groupingType === 'none') {
-      // Без группировки - просто размещаем всех в строки
       const allRows: Person[][] = []
       
       people.forEach(person => {
         let placed = false
         
-        // Проверяем каждую существующую строку
         for (let rowIndex = 0; rowIndex < allRows.length; rowIndex++) {
           const row = allRows[rowIndex]
           let canPlaceInRow = true
           
-          // Проверяем, не пересекается ли с кем-то в этой строке
           for (const existingPerson of row) {
-            const BUFFER = 20; // минимальный зазор между персонами
+            const BUFFER = 20;
             if (
               person.birthYear - BUFFER <= existingPerson.deathYear &&
               person.deathYear + BUFFER >= existingPerson.birthYear
@@ -253,7 +233,6 @@ function App() {
             }
           }
           
-          // Если можно разместить в этой строке
           if (canPlaceInRow) {
             allRows[rowIndex].push(person)
             placed = true
@@ -261,7 +240,6 @@ function App() {
           }
         }
         
-        // Если не удалось разместить в существующих строках, создаем новую
         if (!placed) {
           allRows.push([person])
         }
@@ -270,16 +248,13 @@ function App() {
       return allRows
     }
     
-    // Группировка по категориям или странам
     const groupField = groupingType === 'category' ? 'category' : 'country'
     const allGroups = groupingType === 'category' ? allCategories : allCountries
     const groups: { [key: string]: Person[] } = {}
     
-    // Группируем людей по выбранному полю
     people.forEach(person => {
       let groupValue: string
       if (groupField === 'country') {
-        // Для стран берем первую из списка, если есть несколько через "/"
         groupValue = getFirstCountry(person.country)
       } else {
         groupValue = person[groupField]
@@ -291,24 +266,20 @@ function App() {
       groups[groupValue].push(person)
     })
     
-    // Обрабатываем каждую группу в заданном порядке
     allGroups.forEach(groupValue => {
       if (groups[groupValue]) {
         const groupPeople = groups[groupValue]
         const groupRows: Person[][] = []
         
-        // Размещаем людей данной группы в отдельные строки
         groupPeople.forEach(person => {
           let placed = false
           
-          // Проверяем каждую существующую строку для этой группы
           for (let rowIndex = 0; rowIndex < groupRows.length; rowIndex++) {
             const row = groupRows[rowIndex]
             let canPlaceInRow = true
             
-            // Проверяем, не пересекается ли с кем-то в этой строке
             for (const existingPerson of row) {
-              const BUFFER = 20; // минимальный зазор между персонами
+              const BUFFER = 20;
               if (
                 person.birthYear - BUFFER <= existingPerson.deathYear &&
                 person.deathYear + BUFFER >= existingPerson.birthYear
@@ -318,7 +289,6 @@ function App() {
               }
             }
             
-            // Если можно разместить в этой строке
             if (canPlaceInRow) {
               groupRows[rowIndex].push(person)
               placed = true
@@ -326,16 +296,13 @@ function App() {
             }
           }
           
-          // Если не удалось разместить в существующих строках, создаем новую
           if (!placed) {
             groupRows.push([person])
           }
         })
         
-        // Добавляем строки данной группы к общему списку
         rows.push(...groupRows)
         
-        // Добавляем пустую строку для визуального разделения (кроме последней группы)
         if (groupValue !== allGroups[allGroups.length - 1]) {
           rows.push([])
         }
@@ -345,27 +312,22 @@ function App() {
     return rows
   }, [groupingType, allCategories, allCountries])
 
-  // Мемоизируем размещение по строкам
   const rowPlacement = useMemo(() => 
     calculateRowPlacement(sortedData),
     [calculateRowPlacement, sortedData]
   )
 
-  // Мемоизируем общую высоту
   const totalHeight = useMemo(() => 
     rowPlacement.reduce((height, row) => {
-      return height + (row.length === 0 ? 20 : 70) // 20px для пустых строк, 70px для обычных (60px + 10px margin)
+      return height + (row.length === 0 ? 20 : 70)
     }, 0),
     [rowPlacement]
   )
 
-  // Функция для создания разделителей категорий
-    // Высота строки и отступ вниз для непустой строки
   const ROW_HEIGHT = 60;
-  const ROW_MARGIN = 10; // margin-bottom, используется только для непустых строк
+  const ROW_MARGIN = 10;
   const EMPTY_ROW_HEIGHT = 20;
 
-  // Мемоизируем вычисление позиций строк
   const rowTops = useMemo(() => {
     const tops: number[] = [];
     let acc = 0;
@@ -382,7 +344,7 @@ function App() {
 
   const createCategoryDividers = useCallback(() => {
     if (groupingType === 'none') {
-      return []; // Без группировки нет разделителей
+      return [];
     }
 
     const dividers: { category: string; top: number }[] = [];
@@ -396,7 +358,6 @@ function App() {
         if (groupingType === 'category') {
           currentGroupValue = firstPersonInRow.category;
         } else if (groupingType === 'country') {
-          // Для стран берем первую из списка
           currentGroupValue = getFirstCountry(firstPersonInRow.country);
         } else {
           currentGroupValue = firstPersonInRow.category;
@@ -404,7 +365,6 @@ function App() {
         
         if (currentGroupValue !== currentGroup) {
           if (currentGroup !== '') {
-            // закрываем предыдущую группу
             dividers.push({ category: currentGroup, top: rowTops[rowIndex] - 5 });
           }
           currentGroup = currentGroupValue;
@@ -412,7 +372,6 @@ function App() {
       }
     });
 
-    // Добавляем разделитель для последней группы
     if (currentGroup !== '') {
       dividers.push({ category: currentGroup, top: rowTops[rowPlacement.length - 1] - 5 });
     }
@@ -422,6 +381,26 @@ function App() {
 
   const categoryDividers = useMemo(() => createCategoryDividers(), [createCategoryDividers]);
 
+  // Обработчик для открытия таймлайна
+  const handleOpenTimeline = () => {
+    setCurrentPage('timeline')
+  }
+
+  // Обработчик для возврата в меню
+  const handleBackToMenu = () => {
+    setCurrentPage('menu')
+  }
+
+  // Рендерим главное меню
+  if (currentPage === 'menu') {
+    return (
+      <div className="app" id="chrononinja-app" role="main" aria-label="Chrono Ninja - Главное меню">
+        <MainMenu onOpenTimeline={handleOpenTimeline} />
+      </div>
+    )
+  }
+
+  // Рендерим таймлайн
   return (
     <div className="app" id="chrononinja-app" role="main" aria-label="Chrono Ninja - Интерактивная временная линия исторических личностей">
       <AppHeader
@@ -445,31 +424,23 @@ function App() {
         handleSliderMouseMove={handleSliderMouseMove}
         handleSliderMouseUp={handleSliderMouseUp}
         isDraggingSlider={isDraggingSlider}
+        onBackToMenu={handleBackToMenu}
       />
       
       <div className="timeline-wrapper">
-        {/* Загрузка только для области timeline */}
-        {isLoading && (
-          <div className="loading-overlay" role="status" aria-live="polite">
-            <div className="spinner" aria-hidden="true"></div>
-            <span>Загрузка данных...</span>
-          </div>
-        )}
-        
         <main 
           ref={timelineRef}
           className={`timeline-container ${isDragging ? 'dragging' : ''}`}
           id="timeline-viewport" 
           role="region" 
           aria-label="Область просмотра временной линии"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
         >
+          {isLoading && (
+            <div className="loading-overlay" role="status" aria-live="polite">
+              <div className="spinner" aria-hidden="true"></div>
+              <span>Загрузка данных...</span>
+            </div>
+          )}
           <Timeline
           isLoading={false}
           timelineWidth={timelineWidth}
@@ -489,7 +460,6 @@ function App() {
           hoveredPerson={hoveredPerson}
           setHoveredPerson={(person) => {
             if (person) {
-              // Используем текущую позицию мыши из состояния
               handlePersonHover(person, mousePosition.x, mousePosition.y);
             } else {
               handlePersonHover(null, 0, 0);
@@ -497,7 +467,6 @@ function App() {
           }}
           mousePosition={mousePosition}
           setMousePosition={(position) => {
-            // Обновляем позицию мыши
             if (hoveredPerson) {
               handlePersonHover(hoveredPerson, position.x, position.y);
             }
@@ -513,7 +482,6 @@ function App() {
           hoveredAchievement={hoveredAchievement}
           setHoveredAchievement={(achievement) => {
             if (achievement) {
-              // Используем текущую позицию мыши из состояния
               handleAchievementHover(achievement, achievementTooltipPosition.x, achievementTooltipPosition.y);
             } else {
               handleAchievementHover(null, 0, 0);
@@ -526,16 +494,25 @@ function App() {
             }
           }}
           showAchievementTooltip={showAchievementTooltip}
-                  setShowAchievementTooltip={(show) => {
-          if (!show && hoveredAchievement) {
-            handleAchievementHover(null, 0, 0);
-          }
-        }}
-        handlePersonHover={handlePersonHover}
+          setShowAchievementTooltip={(show) => {
+            if (!show && hoveredAchievement) {
+              handleAchievementHover(null, 0, 0);
+            }
+          }}
+          handlePersonHover={handlePersonHover}
           hoverTimerRef={hoverTimerRef}
           sortedData={sortedData}
           selectedPerson={selectedPerson}
           setSelectedPerson={setSelectedPerson}
+          timelineRef={timelineRef}
+          isDragging={isDragging}
+          isDraggingTimeline={isDraggingTimeline}
+          handleMouseDown={handleMouseDown}
+          handleMouseMove={handleMouseMove}
+          handleMouseUp={handleMouseUp}
+          handleTouchStart={handleTouchStart}
+          handleTouchMove={handleTouchMove}
+          handleTouchEnd={handleTouchEnd}
         />
         </main>
       </div>
@@ -554,7 +531,6 @@ function App() {
         />
       </aside>
       
-      {/* Мобильная панель с информацией о человеке */}
       <MobilePersonPanel
         selectedPerson={selectedPerson}
         onClose={() => setSelectedPerson(null)}

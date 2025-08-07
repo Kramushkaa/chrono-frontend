@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { AchievementMarker } from './AchievementMarker'
 import { FilterDropdown } from './FilterDropdown'
 import { GroupingToggle } from './GroupingToggle'
@@ -40,9 +40,10 @@ interface AppHeaderProps {
   handleSliderMouseMove: (e: MouseEvent | TouchEvent, yearInputs: { start: string; end: string }, applyYearFilter: (field: 'start' | 'end', value: string) => void, setYearInputs: (inputs: { start: string; end: string } | ((prev: { start: string; end: string }) => { start: string; end: string })) => void) => void
   handleSliderMouseUp: () => void
   isDraggingSlider: boolean
+  onBackToMenu?: () => void
 }
 
-export const AppHeader: React.FC<AppHeaderProps> = ({
+export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
   isScrolled,
   showControls,
   setShowControls,
@@ -62,12 +63,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   handleSliderMouseDown,
   handleSliderMouseMove,
   handleSliderMouseUp,
-  isDraggingSlider
+  isDraggingSlider,
+  onBackToMenu
 }) => {
 
 
   // Функция для переключения фильтра "Показать все века" с сбросом дат
-  const handleHideEmptyCenturiesToggle = () => {
+  const handleHideEmptyCenturiesToggle = useCallback(() => {
     const newHideEmptyCenturies = !filters.hideEmptyCenturies;
     
     // Если включаем "Показать все века" (hideEmptyCenturies = false), сбрасываем диапазон дат
@@ -78,7 +80,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     }
     
     setFilters((prev: FiltersState) => ({ ...prev, hideEmptyCenturies: newHideEmptyCenturies }));
-  };
+  }, [filters.hideEmptyCenturies, setFilters, setYearInputs, applyYearFilter]);
+
+
 
 
 
@@ -104,6 +108,40 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         }}>
           <Logo />
         </h1>
+        
+        {/* Кнопка "Назад в меню" */}
+        {onBackToMenu && (
+          <button
+            onClick={onBackToMenu}
+            style={{
+              padding: '0.4rem 0.8rem',
+              background: 'rgba(205, 133, 63, 0.2)',
+              border: '1px solid rgba(205, 133, 63, 0.4)',
+              borderRadius: '6px',
+              color: '#cd853f',
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              marginLeft: '1rem',
+              fontWeight: 'bold'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(205, 133, 63, 0.3)'
+              e.currentTarget.style.borderColor = 'rgba(205, 133, 63, 0.6)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(205, 133, 63, 0.2)'
+              e.currentTarget.style.borderColor = 'rgba(205, 133, 63, 0.4)'
+            }}
+            title="Вернуться в главное меню"
+            aria-label="Вернуться в главное меню"
+          >
+            ← Меню
+          </button>
+        )}
         
         {/* Кнопки "Поделиться" - временно скрыты */}
         <div className="share-buttons" style={{
@@ -534,4 +572,4 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       </div>
     </header>
   )
-} 
+})
