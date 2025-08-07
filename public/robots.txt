@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://chronoline.app/sitemap.xml
+Sitemap: https://chrononinja.app/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1
