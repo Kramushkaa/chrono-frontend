@@ -8,6 +8,7 @@ import { useTimelineData } from './hooks/useTimelineData'
 import { useFilters } from './hooks/useFilters'
 import { useSlider } from './hooks/useSlider'
 import { useTooltip } from './hooks/useTooltip'
+import { useTimelineDrag } from './hooks/useTimelineDrag'
 import { 
   generateCenturyBoundaries,
   getFirstCountry
@@ -60,6 +61,8 @@ function App() {
     handlePersonHover, 
     handleAchievementHover 
   } = useTooltip()
+
+
 
 
 
@@ -199,6 +202,22 @@ function App() {
   const pixelsPerYear = 3 // 3 пикселя на год
   const LEFT_PADDING_PX = 30 // отступ слева, чтобы крайняя левая подпись не упиралась в край
   const timelineWidth = totalYears * pixelsPerYear + LEFT_PADDING_PX
+
+  // Хук для перетаскивания timeline
+  const {
+    timelineRef,
+    isDragging,
+    isDraggingTimeline,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd
+  } = useTimelineDrag({
+    timelineWidth,
+    containerWidth: window.innerWidth
+  })
 
   // Мемоизируем границы веков
   const centuryBoundaries = useMemo(() => 
@@ -437,7 +456,20 @@ function App() {
           </div>
         )}
         
-        <main className="timeline-container" id="timeline-viewport" role="region" aria-label="Область просмотра временной линии">
+        <main 
+          ref={timelineRef}
+          className={`timeline-container ${isDragging ? 'dragging' : ''}`}
+          id="timeline-viewport" 
+          role="region" 
+          aria-label="Область просмотра временной линии"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <Timeline
           isLoading={false}
           timelineWidth={timelineWidth}

@@ -1,5 +1,6 @@
 import React from 'react'
 import { useMobile } from '../hooks/useMobile'
+import { useTimelineDrag } from '../hooks/useTimelineDrag'
 import { Person } from '../types'
 import { 
   getPosition, 
@@ -91,6 +92,22 @@ export const Timeline: React.FC<TimelineProps> = ({
   setSelectedPerson
 }) => {
   const isMobile = useMobile()
+
+  // Хук для перетаскивания timeline
+  const {
+    timelineRef,
+    isDragging,
+    isDraggingTimeline,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd
+  } = useTimelineDrag({
+    timelineWidth,
+    containerWidth: window.innerWidth
+  })
 
   // Функция для определения пустых веков на основе отфильтрованных данных
   const getEmptyCenturies = () => {
