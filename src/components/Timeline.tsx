@@ -1,6 +1,5 @@
 import React from 'react'
 import { useMobile } from '../hooks/useMobile'
-import { useTimelineDrag } from '../hooks/useTimelineDrag'
 import { Person } from '../types'
 import { 
   getPosition, 
@@ -48,6 +47,15 @@ interface TimelineProps {
   sortedData: Person[]
   selectedPerson: Person | null
   setSelectedPerson: (person: Person | null) => void
+  timelineRef: React.RefObject<HTMLDivElement>
+  isDragging: boolean
+  isDraggingTimeline: boolean
+  handleMouseDown: (e: React.MouseEvent) => void
+  handleMouseMove: (e: React.MouseEvent) => void
+  handleMouseUp: (e: React.MouseEvent) => void
+  handleTouchStart: (e: React.TouchEvent) => void
+  handleTouchMove: (e: React.TouchEvent) => void
+  handleTouchEnd: (e: React.TouchEvent) => void
 }
 
 // Типы для элементов временной линии
@@ -89,25 +97,20 @@ export const Timeline: React.FC<TimelineProps> = ({
   hoverTimerRef,
   sortedData,
   selectedPerson,
-  setSelectedPerson
+  setSelectedPerson,
+  timelineRef,
+  isDragging,
+  isDraggingTimeline,
+  handleMouseDown,
+  handleMouseMove,
+  handleMouseUp,
+  handleTouchStart,
+  handleTouchMove,
+  handleTouchEnd
 }) => {
   const isMobile = useMobile()
 
-  // Хук для перетаскивания timeline
-  const {
-    timelineRef,
-    isDragging,
-    isDraggingTimeline,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd
-  } = useTimelineDrag({
-    timelineWidth,
-    containerWidth: window.innerWidth
-  })
+
 
   // Функция для определения пустых веков на основе отфильтрованных данных
   const getEmptyCenturies = () => {
@@ -541,6 +544,7 @@ export const Timeline: React.FC<TimelineProps> = ({
 
                  {/* Полоски жизни */}
          <div 
+           ref={timelineRef}
            className="person-timeline"
            id="person-timeline"
            role="list"
@@ -551,6 +555,13 @@ export const Timeline: React.FC<TimelineProps> = ({
              height: `${totalHeight + 60}px`,
              zIndex: 10
            }}
+           onMouseDown={!isMobile ? handleMouseDown : undefined}
+           onMouseMove={!isMobile ? handleMouseMove : undefined}
+           onMouseUp={!isMobile ? handleMouseUp : undefined}
+           onMouseLeave={!isMobile ? handleMouseUp : undefined}
+           onTouchStart={!isMobile ? handleTouchStart : undefined}
+           onTouchMove={!isMobile ? handleTouchMove : undefined}
+           onTouchEnd={!isMobile ? handleTouchEnd : undefined}
          >
           {rowPlacement.map((row, rowIndex) => (
             <div 
