@@ -14,7 +14,11 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
       <div className="main-menu-container">
         {/* Заголовок */}
         <div className="main-menu-header">
-          <h1 className="main-menu-title">Chronoline</h1>
+          <h1 className="main-menu-title">
+            <span>Хр</span>
+            <img src="/logo.png" alt="логотип" style={{ width: '1em', height: '1em', verticalAlign: 'middle', margin: '0 0.1em' }} />
+            <span> ниндзя</span>
+          </h1>
           <p className="main-menu-subtitle">Историческая временная линия</p>
         </div>
 

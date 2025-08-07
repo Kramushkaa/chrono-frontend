@@ -19,7 +19,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10002;
+  z-index: 999; /* Снижаем z-index, чтобы спиннер был под выпадающими списками */
   flex-direction: column;
   color: #f4e4c1;
   backdrop-filter: blur(2px);
@@ -111,7 +111,7 @@
   padding: 8px 12px;
   color: #f4e4c1;
   font-size: 0.8rem;
-  z-index: 10002;
+  z-index: 998; /* Снижаем z-index, чтобы tooltip был под выпадающими списками */
   pointer-events: none;
   max-width: 200px;
   word-wrap: break-word;

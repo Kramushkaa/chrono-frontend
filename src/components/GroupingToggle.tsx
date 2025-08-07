@@ -6,7 +6,7 @@ interface GroupingToggleProps {
   onGroupingChange: (type: 'category' | 'country' | 'none') => void
 }
 
-export const GroupingToggle: React.FC<GroupingToggleProps> = ({ 
+export const GroupingToggle: React.FC<GroupingToggleProps> = React.memo(({ 
   groupingType, 
   onGroupingChange 
 }) => {
@@ -239,4 +239,4 @@ export const GroupingToggle: React.FC<GroupingToggleProps> = ({
       </div>
     </div>
   )
-} 
+})

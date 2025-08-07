@@ -10,17 +10,17 @@ export const Logo: React.FC = () => {
       fontWeight: 'inherit',
       color: 'inherit'
     }}>
-      <span>Chron</span>
+      <span>Хр</span>
       <img 
         src="/logo.png" 
-        alt="Chrono Ninja Icon" 
+        alt="Хроно ниндзя" 
         style={{ 
           width: '1em', 
           height: '1em',
           verticalAlign: 'middle'
         }} 
       />
-      <span> Ninja</span>
+      <span> ниндзя</span>
     </div>
   )
 } 

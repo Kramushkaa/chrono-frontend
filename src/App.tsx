@@ -394,7 +394,7 @@ function App() {
   // Рендерим главное меню
   if (currentPage === 'menu') {
     return (
-      <div className="app" id="chrononinja-app" role="main" aria-label="Chrono Ninja - Главное меню">
+      <div className="app" id="chrononinja-app" role="main" aria-label="Хроно ниндзя - Главное меню">
         <MainMenu onOpenTimeline={handleOpenTimeline} />
       </div>
     )
@@ -402,7 +402,7 @@ function App() {
 
   // Рендерим таймлайн
   return (
-    <div className="app" id="chrononinja-app" role="main" aria-label="Chrono Ninja - Интерактивная временная линия исторических личностей">
+    <div className="app" id="chrononinja-app" role="main" aria-label="Хроно ниндзя - Интерактивная временная линия исторических личностей">
       <AppHeader
         isScrolled={isScrolled}
         showControls={showControls}

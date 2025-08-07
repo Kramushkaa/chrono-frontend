@@ -12,7 +12,7 @@ interface FilterDropdownProps {
   textLabel?: string
 }
 
-export const FilterDropdown: React.FC<FilterDropdownProps> = ({ 
+export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({ 
   title, 
   items, 
   selectedItems, 
@@ -26,43 +26,10 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   const contentRef = useRef<HTMLDivElement>(null)
   const [dropdownPosition, setDropdownPosition] = useState<'bottom' | 'top'>('bottom')
   const [horizontalPosition, setHorizontalPosition] = useState<'left' | 'right' | 'center'>('left')
-  const [isOpen, setIsOpen] = useState(false)
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
   const isMobile = useMobile()
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const isMouseOverRef = useRef(false)
-  
-  // Create portal container for mobile popups
-  useEffect(() => {
-    if (isMobile && isOpen) {
-      const container = document.createElement('div')
-      container.style.position = 'fixed'
-      container.style.top = '0'
-      container.style.left = '0'
-      container.style.width = '100%'
-      container.style.height = '100%'
-      container.style.zIndex = '10003'
-      container.style.pointerEvents = 'auto'
-      container.style.backgroundColor = 'rgba(0, 0, 0, 0.3)' // Semi-transparent overlay
-      
-      // Add click handler to close dropdown when clicking overlay
-      container.addEventListener('click', (e) => {
-        if (e.target === container) {
-          setIsOpen(false)
-        }
-      })
-      
-      document.body.appendChild(container)
-      setPortalContainer(container)
-      
-      return () => {
-        if (container.parentNode) {
-          container.parentNode.removeChild(container)
-        }
-        setPortalContainer(null)
-      }
-    }
-  }, [isMobile, isOpen])
+  const [isOpen, setIsOpen] = useState(false)
   
   // Функция для определения позиции dropdown
   const updateDropdownPosition = useCallback(() => {
@@ -109,42 +76,55 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
       }
     }
   }, [items.length, isMobile])
+  
 
-  // Обновляем позицию dropdown при изменении размера окна
+  
+  // Create portal container for mobile popups
   useEffect(() => {
-    const handleResize = () => {
-      if (isOpen) {
-        updateDropdownPosition()
+    if (isMobile && isOpen) {
+      const container = document.createElement('div')
+      container.style.position = 'fixed'
+      container.style.top = '0'
+      container.style.left = '0'
+      container.style.width = '100%'
+      container.style.height = '100%'
+      container.style.zIndex = '10003'
+      container.style.pointerEvents = 'auto'
+      container.style.backgroundColor = 'rgba(0, 0, 0, 0.3)' // Semi-transparent overlay
+      
+      // Add click handler to close dropdown when clicking overlay
+      container.addEventListener('click', (e) => {
+        if (e.target === container) {
+          setIsOpen(false)
+        }
+      })
+      
+      document.body.appendChild(container)
+      setPortalContainer(container)
+      
+      return () => {
+        if (container.parentNode) {
+          container.parentNode.removeChild(container)
+        }
+        setPortalContainer(null)
       }
     }
+  }, [isMobile, isOpen])
+
+  // Обновляем позицию dropdown при изменении размера окна или открытии
+  useEffect(() => {
+    if (!isOpen) return
+    
+    const handleResize = () => {
+      updateDropdownPosition()
+    }
+    
+    // Обновляем позицию при открытии
+    setTimeout(updateDropdownPosition, 0)
     
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [isOpen, updateDropdownPosition])
-  
-  // Дополнительная проверка для мобильных устройств
-  useEffect(() => {
-    if (isMobile && isOpen) {
-      const checkPosition = () => {
-        if (contentRef.current) {
-          const rect = contentRef.current.getBoundingClientRect()
-          const viewportWidth = window.innerWidth
-          
-          // Если dropdown выходит за пределы экрана, пересчитываем позицию
-          if (rect.left < 0 || rect.right > viewportWidth) {
-            updateDropdownPosition()
-          }
-          // Если dropdown слишком высокий, пересчитываем вертикальную позицию
-          if (rect.bottom > window.innerHeight) {
-            setDropdownPosition('top')
-          }
-        }
-      }
-      
-      // Проверяем позицию после рендера
-      setTimeout(checkPosition, 100)
-    }
-  }, [isMobile, isOpen, updateDropdownPosition])
   
   // Очистка таймера при размонтировании
   useEffect(() => {
@@ -157,30 +137,23 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   
   // Улучшенные обработчики для разных устройств
   const handleMouseEnter = () => {
-    if (!isMobile) {
+    if (!isMobile && !isOpen) {
       // Очищаем таймер закрытия
       if (closeTimeoutRef.current) {
         clearTimeout(closeTimeoutRef.current)
         closeTimeoutRef.current = null
       }
       
-      isMouseOverRef.current = true
       setIsOpen(true)
-      // Небольшая задержка для корректного расчета позиции
-      setTimeout(updateDropdownPosition, 0)
     }
   }
   
   const handleMouseLeave = () => {
     if (!isMobile) {
-      isMouseOverRef.current = false
-      
       // Добавляем задержку перед закрытием, чтобы избежать преждевременного закрытия
       // при быстром движении курсора
       closeTimeoutRef.current = setTimeout(() => {
-        if (!isMouseOverRef.current) {
-          setIsOpen(false)
-        }
+        setIsOpen(false)
       }, 150) // Увеличиваем задержку до 150ms
     }
   }
@@ -188,10 +161,6 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   const handleClick = () => {
     if (isMobile) {
       setIsOpen(!isOpen)
-      if (!isOpen) {
-        // На мобильных устройствах добавляем дополнительную задержку
-        setTimeout(updateDropdownPosition, 50)
-      }
     }
   }
   
@@ -218,10 +187,11 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
     }
   }, [isMobile, isOpen])
   
+
+  
   // Обработчики для контента dropdown
   const handleContentMouseEnter = () => {
     if (!isMobile) {
-      isMouseOverRef.current = true
       // Очищаем таймер закрытия при наведении на контент
       if (closeTimeoutRef.current) {
         clearTimeout(closeTimeoutRef.current)
@@ -232,13 +202,9 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   
   const handleContentMouseLeave = () => {
     if (!isMobile) {
-      isMouseOverRef.current = false
-      
       // Добавляем задержку перед закрытием контента
       closeTimeoutRef.current = setTimeout(() => {
-        if (!isMouseOverRef.current) {
-          setIsOpen(false)
-        }
+        setIsOpen(false)
       }, 150)
     }
   }
@@ -435,37 +401,54 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
     >
       <button 
         className={`filter-btn ${isActive ? 'active' : ''}`}
-        style={{ 
-          minWidth: 'auto',
-          padding: isMobile ? '0.5rem 0.8rem' : '0.3rem 0.6rem',
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '0.3rem',
-          background: isActive ? 'rgba(139, 69, 19, 0.15)' : 'rgba(139, 69, 19, 0.08)',
-          border: `1px solid ${isActive ? 'rgba(139, 69, 19, 0.3)' : 'rgba(139, 69, 19, 0.2)'}`,
-          borderRadius: '4px',
-          color: '#f4e4c1',
-          fontSize: isMobile ? '0.9rem' : '0.7rem',
-          cursor: 'pointer',
-          transition: 'all 0.2s ease',
-          whiteSpace: 'nowrap'
-        }}
+                 style={{ 
+           minWidth: isMobile ? '140px' : '120px',
+           width: isMobile ? '140px' : '120px',
+           padding: isMobile ? '0.5rem 0.8rem' : '0.3rem 0.6rem',
+           display: 'flex', 
+           alignItems: 'center', 
+           gap: '0.3rem',
+           background: isActive ? 'rgba(139, 69, 19, 0.15)' : 'rgba(139, 69, 19, 0.08)',
+           border: `1px solid ${isActive ? 'rgba(139, 69, 19, 0.3)' : 'rgba(139, 69, 19, 0.2)'}`,
+           borderRadius: '4px',
+           color: '#f4e4c1',
+           fontSize: isMobile ? '0.9rem' : '0.7rem',
+           cursor: 'pointer',
+           transition: 'all 0.2s ease',
+           whiteSpace: 'nowrap',
+           justifyContent: 'center'
+         }}
         onClick={handleClick}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={`${title} - ${selectedItems.length} выбрано из ${items.length}`}
       >
-        {icon && <span className="filter-icon">{icon}</span>}
-        <span className="filter-text">{textLabel || title}</span>
-        {isActive && <span className="filter-count">({selectedItems.length})</span>}
+                 {icon && <span className="filter-icon">{icon}</span>}
+         <span className="filter-text" style={{ 
+           fontSize: isMobile ? '0.8rem' : '0.7rem',
+           textAlign: 'center',
+           flex: 1,
+           overflow: 'hidden',
+           textOverflow: 'ellipsis'
+         }}>
+           {textLabel || title}
+         </span>
+         {isActive && (
+           <span className="filter-count" style={{ 
+             fontSize: isMobile ? '0.7rem' : '0.6rem',
+             marginLeft: 'auto'
+           }}>
+             ({selectedItems.length})
+           </span>
+         )}
       </button>
-      {isOpen && (
-        isMobile && portalContainer ? (
-          createPortal(renderDropdownContent(), portalContainer)
-        ) : (
-          renderDropdownContent()
-        )
-      )}
+             {isOpen && (
+         isMobile && portalContainer ? (
+           createPortal(renderDropdownContent(), portalContainer)
+         ) : (
+           renderDropdownContent()
+         )
+       )}
     </div>
   )
-} 
+})
