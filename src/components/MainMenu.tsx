@@ -1,5 +1,4 @@
 import React from 'react'
-import { useMobile } from '../hooks/useMobile'
 import './MainMenu.css'
 
 interface MainMenuProps {
@@ -7,7 +6,6 @@ interface MainMenuProps {
 }
 
 export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
-  const isMobile = useMobile()
 
   return (
     <div className="main-menu">

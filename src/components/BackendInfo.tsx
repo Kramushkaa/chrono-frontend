@@ -7,7 +7,7 @@ interface BackendInfoProps {
 }
 
 export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
-  const [backendInfo, setBackendInfo] = useState(getBackendInfo());
+  const backendInfo = getBackendInfo();
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [showDetails, setShowDetails] = useState(false);

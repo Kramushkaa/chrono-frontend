@@ -1,10 +1,16 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { Person } from './types'
 import { AppHeader } from './components/AppHeader'
 import { Timeline } from './components/Timeline'
 import { Tooltips } from './components/Tooltips'
 import { MobilePersonPanel } from './components/MobilePersonPanel'
 import { MainMenu } from './components/MainMenu'
+import { AuthProvider, useAuth } from './context'
+import { LoginForm } from './components/Auth/LoginForm'
+import { RegisterForm } from './components/Auth/RegisterForm'
+import { Profile } from './components/Profile'
+import { DevAdminLogin } from './components/Auth/DevAdminLogin'
 import { BackendInfo } from './components/BackendInfo'
 import { useTimelineData } from './hooks/useTimelineData'
 import { useFilters } from './hooks/useFilters'
@@ -24,8 +30,12 @@ import {
 } from './utils/groupingUtils'
 import './App.css'
 
-function App() {
-  const [currentPage, setCurrentPage] = useState<'menu' | 'timeline'>('menu')
+function AppInner() {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isMenu = location.pathname === '/' || location.pathname === '/menu';
+  const isTimeline = location.pathname === '/timeline';
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeAchievementMarker, setActiveAchievementMarker] = useState<{ personId: string; index: number } | null>(null)
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
@@ -43,7 +53,7 @@ function App() {
     resetAllFilters 
   } = useFilters()
   
-  const { persons, allCategories, allCountries, isLoading } = useTimelineData(filters)
+  const { persons, allCategories, allCountries, isLoading } = useTimelineData(filters, isTimeline)
 
   const { 
     isDraggingSlider, 
@@ -383,20 +393,27 @@ function App() {
   const categoryDividers = useMemo(() => createCategoryDividers(), [createCategoryDividers]);
 
   // Обработчик для открытия таймлайна
-  const handleOpenTimeline = () => {
-    setCurrentPage('timeline')
-  }
+  const handleOpenTimeline = () => navigate('/timeline')
 
   // Обработчик для возврата в меню
-  const handleBackToMenu = () => {
-    setCurrentPage('menu')
-  }
+  const handleBackToMenu = () => navigate('/menu')
 
   // Рендерим главное меню
-  if (currentPage === 'menu') {
+  if (isMenu) {
     return (
       <div className="app" id="chrononinja-app" role="main" aria-label="Хроно ниндзя - Главное меню">
         <MainMenu onOpenTimeline={handleOpenTimeline} />
+        {isAuthenticated ? (
+          <div style={{ position: 'fixed', top: 20, left: 20 }}>
+            <Profile />
+          </div>
+        ) : (
+          <div style={{ position: 'fixed', top: 20, left: 20, display: 'flex', gap: 16 }}>
+            <LoginForm />
+            <RegisterForm />
+            <DevAdminLogin />
+          </div>
+        )}
       </div>
     )
   }
@@ -544,4 +561,15 @@ function App() {
   )
 }
 
-export default App 
+export default function App() {
+  return (
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<Navigate to="/menu" replace />} />
+        <Route path="/menu" element={<AppInner />} />
+        <Route path="/timeline" element={<AppInner />} />
+        <Route path="*" element={<Navigate to="/menu" replace />} />
+      </Routes>
+    </AuthProvider>
+  );
+}

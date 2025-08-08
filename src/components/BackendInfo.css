@@ -1,7 +1,7 @@
 .backend-info {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  bottom: 20px;
+  left: 20px;
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -132,9 +132,9 @@
 /* Адаптивность */
 @media (max-width: 768px) {
   .backend-info {
-    top: 10px;
-    right: 10px;
+    bottom: 10px;
     left: 10px;
+    right: 10px;
     max-width: none;
   }
   

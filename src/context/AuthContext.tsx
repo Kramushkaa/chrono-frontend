@@ -1,0 +1,54 @@
+import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
+import type { AuthState, AuthUser } from '../services/auth';
+import * as authApi from '../services/auth';
+
+type AuthContextValue = {
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  state: AuthState;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+};
+
+const defaultState: AuthState = { user: null, accessToken: null, refreshToken: null };
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = useState<AuthState>(() => authApi.authStorage.load());
+
+  const login = useCallback(async (email: string, password: string) => {
+    const newState = await authApi.login({ email, password });
+    setState(newState);
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout(state);
+    } finally {
+      setState(defaultState);
+    }
+  }, [state]);
+
+  const value: AuthContextValue = useMemo(() => ({
+    user: state.user,
+    isAuthenticated: Boolean(state.user && state.accessToken),
+    state,
+    login,
+    logout,
+  }), [state, login, logout]);
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+}
+
+

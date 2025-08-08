@@ -257,3 +257,9 @@ export const getBackendInfo = () => {
     config: API_CONFIG
   };
 }; 
+
+// Minimal fetch wrapper used by auth service
+export async function apiFetch(path: string, init?: RequestInit) {
+  const url = `${API_BASE_URL}${path}`;
+  return apiRequest(url, init);
+}

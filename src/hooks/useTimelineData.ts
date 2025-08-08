@@ -9,11 +9,11 @@ interface Filters {
   showAchievements: boolean
 }
 
-export const useTimelineData = (filters: Filters) => {
+export const useTimelineData = (filters: Filters, enabled: boolean = true) => {
   const [persons, setPersons] = useState<Person[]>([])
   const [allCategories, setAllCategories] = useState<string[]>([])
   const [allCountries, setAllCountries] = useState<string[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(enabled)
 
   // Мемоизируем параметры фильтров для предотвращения лишних запросов
   const filtersToApply = useMemo(() => {
@@ -39,6 +39,10 @@ export const useTimelineData = (filters: Filters) => {
 
   // Мемоизируем функцию загрузки данных
   const fetchData = useCallback(async () => {
+    if (!enabled) {
+      setIsLoading(false)
+      return
+    }
     try {
       setIsLoading(true)
 
@@ -60,7 +64,7 @@ export const useTimelineData = (filters: Filters) => {
     } finally {
       setIsLoading(false)
     }
-  }, [filtersToApply, allCategories.length, allCountries.length])
+  }, [enabled, filtersToApply, allCategories.length, allCountries.length])
 
   useEffect(() => {
     fetchData()
