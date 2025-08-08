@@ -19,6 +19,11 @@ export default function ProfilePage() {
             <RegisterForm />
           </div>
         )}
+        {!isAuthenticated && (
+          <div style={{ marginTop: 12, fontSize: 12, opacity: 0.8 }}>
+            Для регистрации используется подтверждение почты — письмо придёт с адреса profiles@chrono.ninja
+          </div>
+        )}
       </div>
     </div>
   );
