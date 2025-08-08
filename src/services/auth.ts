@@ -98,3 +98,25 @@ export async function logout(accessState: AuthState) {
   authStorage.clear();
 }
 
+export async function updateProfile(accessToken: string, payload: { username?: string; full_name?: string; avatar_url?: string; }) {
+  const res = await apiFetch('/api/auth/profile', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Profile update failed');
+  return data;
+}
+
+export async function changePassword(accessToken: string, payload: { current_password: string; new_password: string; }) {
+  const res = await apiFetch('/api/auth/change-password', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Password change failed');
+  return data;
+}
+

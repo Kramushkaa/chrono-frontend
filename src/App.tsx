@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
+import ProfilePage from './pages/ProfilePage'
+import { ProtectedRoute } from './components/ProtectedRoute'
 import { Person } from './types'
 import { AppHeader } from './components/AppHeader'
 import { Timeline } from './components/Timeline'
@@ -568,6 +570,8 @@ export default function App() {
         <Route path="/" element={<Navigate to="/menu" replace />} />
         <Route path="/menu" element={<AppInner />} />
         <Route path="/timeline" element={<AppInner />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/account" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/menu" replace />} />
       </Routes>
     </AuthProvider>
