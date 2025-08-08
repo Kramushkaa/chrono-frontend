@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /account
 Disallow: /profile
+Disallow: /register
 Allow: /
 
 # Sitemap

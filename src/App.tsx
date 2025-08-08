@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import ProfilePage from './pages/ProfilePage'
 import RegisterPage from './pages/RegisterPage'
-import { ProtectedRoute } from './components/ProtectedRoute'
+// import { ProtectedRoute } from './components/ProtectedRoute'
 import { Person } from './types'
 import { AppHeader } from './components/AppHeader'
 import { Timeline } from './components/Timeline'
@@ -569,7 +569,6 @@ export default function App() {
           <Route path="/timeline" element={<AppInner />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/account" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/menu" replace />} />
         </Routes>
         <BackendInfo />
