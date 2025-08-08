@@ -413,7 +413,6 @@ function AppInner() {
   // Рендерим таймлайн
   return (
     <div className="app" id="chrononinja-app" role="main" aria-label="Хроно ниндзя - Интерактивная временная линия исторических личностей">
-      <BackendInfo />
       <AppHeader
         isScrolled={isScrolled}
         showControls={showControls}
@@ -566,6 +565,7 @@ export default function App() {
           <Route path="/account" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/menu" replace />} />
         </Routes>
+        <BackendInfo />
         <Toasts />
       </ToastProvider>
     </AuthProvider>
