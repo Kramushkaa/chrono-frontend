@@ -1,4 +1,19 @@
-﻿# Хроно ниндзя Frontend
+﻿## Backend URL configuration
+
+Use env vars at build time:
+
+```
+REACT_APP_USE_LOCAL_BACKEND=false
+REACT_APP_API_URL=
+REACT_APP_LOCAL_BACKEND_URL=http://localhost:3001
+REACT_APP_REMOTE_BACKEND_URL=https://chrono-back-kramushka.amvera.io
+REACT_APP_SERVER_BACKEND_URL=http://amvera-kramushka-run-chrono-back
+# Optional overrides
+# REACT_APP_FORCE_API_URL=https://example.com
+# REACT_APP_ENV=server
+```
+
+# Хроно ниндзя Frontend
 
 Интерактивная временная линия исторических личностей с современным React/TypeScript стеком.
 

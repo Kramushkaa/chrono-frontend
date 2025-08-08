@@ -4,15 +4,23 @@ const getApiConfig = () => {
   // Определяем окружение
   const isDevelopment = process.env.NODE_ENV === 'development';
   const isLocalBackend = process.env.REACT_APP_USE_LOCAL_BACKEND === 'true';
+  const forcedApiUrl = process.env.REACT_APP_FORCE_API_URL;
+  const serverEnv = process.env.REACT_APP_ENV === 'server';
   
   // URL для разных окружений
-  const LOCAL_BACKEND_URL = 'http://localhost:3001';
-  const REMOTE_BACKEND_URL = 'https://chrono-back-kramushka.amvera.io';
+  const LOCAL_BACKEND_URL = process.env.REACT_APP_LOCAL_BACKEND_URL || 'http://localhost:3001';
+  const REMOTE_BACKEND_URL = process.env.REACT_APP_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io';
+  const SERVER_DEFAULT_BACKEND_URL = process.env.REACT_APP_SERVER_BACKEND_URL || 'http://amvera-kramushka-run-chrono-back';
   
   // Выбираем URL в зависимости от настроек
   let apiUrl: string;
-  
-  if (isDevelopment && isLocalBackend) {
+  if (forcedApiUrl) {
+    apiUrl = forcedApiUrl;
+    console.log('🚩 Принудительно задан backend:', apiUrl);
+  } else if (serverEnv) {
+    apiUrl = process.env.REACT_APP_API_URL || SERVER_DEFAULT_BACKEND_URL;
+    console.log('🏷️ Режим сервера: backend =', apiUrl);
+  } else if (isDevelopment && isLocalBackend) {
     apiUrl = LOCAL_BACKEND_URL;
     console.log('🔧 Используется локальный backend:', apiUrl);
   } else {
