@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
+import NotFoundPage from './pages/NotFoundPage'
 import ProfilePage from './pages/ProfilePage'
 import RegisterPage from './pages/RegisterPage'
 // import { ProtectedRoute } from './components/ProtectedRoute'
@@ -569,7 +570,7 @@ export default function App() {
           <Route path="/timeline" element={<AppInner />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="*" element={<Navigate to="/menu" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
         <BackendInfo />
         <Toasts />

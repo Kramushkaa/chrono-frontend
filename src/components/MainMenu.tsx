@@ -18,6 +18,16 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
         canonical={typeof window !== 'undefined' ? window.location.origin + '/menu' : undefined}
         image={typeof window !== 'undefined' ? window.location.origin + '/og-image.jpg' : undefined}
       />
+      {/* JSON-LD Organization */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: 'Хронониндзя',
+          url: typeof window !== 'undefined' ? window.location.origin : undefined,
+          logo: typeof window !== 'undefined' ? window.location.origin + '/logo.png' : undefined
+        })}
+      </script>
       <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 100 }}>
         <UserMenu />
       </div>
