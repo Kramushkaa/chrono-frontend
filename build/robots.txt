@@ -1,8 +1,10 @@
 User-agent: *
+Disallow: /account
+Disallow: /profile
 Allow: /
 
 # Sitemap
-Sitemap: https://chrononinja.app/sitemap.xml
+Sitemap: https://chrono.ninja/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1
@@ -14,4 +16,4 @@ Disallow: /api/
 # Allow important resources
 Allow: /static/
 Allow: /images/
-Allow: /favicon.ico 
+Allow: /favicon.ico

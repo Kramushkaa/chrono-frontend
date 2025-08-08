@@ -2,6 +2,7 @@ import React from 'react'
 import './MainMenu.css'
 import { UserMenu } from './UserMenu'
 import { BrandTitle } from './BrandTitle'
+import { SEO } from './SEO'
 
 interface MainMenuProps {
   onOpenTimeline: () => void
@@ -11,6 +12,12 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
 
   return (
     <div className="main-menu">
+      <SEO
+        title="Хронониндзя — Историческая временная линия"
+        description="Интерактивная временная линия: личности, события, достижения. Исследуйте историю с Хронониндзя."
+        canonical={typeof window !== 'undefined' ? window.location.origin + '/menu' : undefined}
+        image={typeof window !== 'undefined' ? window.location.origin + '/og-image.jpg' : undefined}
+      />
       <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 100 }}>
         <UserMenu />
       </div>

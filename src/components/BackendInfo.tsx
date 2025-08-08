@@ -8,17 +8,24 @@ interface BackendInfoProps {
 
 export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
   const backendInfo = getBackendInfo();
-  const isAmvera = typeof process !== 'undefined' && (process as any).env && (process as any).env.AMVERA === '1';
-  const isLocalEnv = typeof process !== 'undefined' && (process as any).env && ((process as any).env.NODE_ENV === 'development' || (process as any).env.REACT_APP_USE_LOCAL_BACKEND === 'true');
-  if (!isLocalEnv && !backendInfo.isLocal && isAmvera) return null;
+  const env = (typeof process !== 'undefined' && (process as any).env) || {};
+  const isDev = env.NODE_ENV === 'development';
+  const useLocal = env.REACT_APP_USE_LOCAL_BACKEND === 'true';
+  const showOverride = env.REACT_APP_SHOW_BACKEND_INFO === 'true';
+  const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+  // Показываем только в деве/локале/override
+  const shouldHide = !showOverride && !(isDev || useLocal || backendInfo.isLocal || isLocalHost);
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
   // Тестируем подключение при загрузке
   useEffect(() => {
-    testConnection();
-  }, [backendInfo.baseUrl]);
+    if (!shouldHide) {
+      testConnection();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [backendInfo.baseUrl, shouldHide]);
 
   const testConnection = async () => {
     setIsTesting(true);
@@ -32,6 +39,8 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
       setIsTesting(false);
     }
   };
+
+  if (shouldHide) return null;
 
   const getStatusIcon = () => {
     if (isTesting) return '🔄';

@@ -31,6 +31,7 @@ import {
 import './App.css'
 import { ToastProvider } from './context/ToastContext'
 import { Toasts } from './components/Toasts'
+import { SEO } from './components/SEO'
 
 function AppInner() {
   // auth state not needed here since forms removed from menu
@@ -413,6 +414,12 @@ function AppInner() {
   // Рендерим таймлайн
   return (
     <div className="app" id="chrononinja-app" role="main" aria-label="Хроно ниндзя - Интерактивная временная линия исторических личностей">
+      <SEO
+        title="Хронониндзя — Временная линия исторических личностей"
+        description="Исследуйте биографии и достижения исторических личностей на интерактивной линии времени. Фильтры по странам и категориям."
+        canonical={typeof window !== 'undefined' ? window.location.origin + '/timeline' : undefined}
+        image={typeof window !== 'undefined' ? window.location.origin + '/og-image.jpg' : undefined}
+      />
       <AppHeader
         isScrolled={isScrolled}
         showControls={showControls}
