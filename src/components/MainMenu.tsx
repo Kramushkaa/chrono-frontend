@@ -1,5 +1,6 @@
 import React from 'react'
 import './MainMenu.css'
+import { UserMenu } from './UserMenu'
 
 interface MainMenuProps {
   onOpenTimeline: () => void
@@ -9,6 +10,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
 
   return (
     <div className="main-menu">
+      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 100 }}>
+        <UserMenu />
+      </div>
       <div className="main-menu-container">
         {/* Заголовок */}
         <div className="main-menu-header">

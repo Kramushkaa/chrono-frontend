@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import ProfilePage from './pages/ProfilePage'
+import RegisterPage from './pages/RegisterPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { Person } from './types'
 import { AppHeader } from './components/AppHeader'
@@ -9,10 +10,7 @@ import { Tooltips } from './components/Tooltips'
 import { MobilePersonPanel } from './components/MobilePersonPanel'
 import { MainMenu } from './components/MainMenu'
 import { AuthProvider, useAuth } from './context'
-import { LoginForm } from './components/Auth/LoginForm'
-import { RegisterForm } from './components/Auth/RegisterForm'
-import { Profile } from './components/Profile'
-import { DevAdminLogin } from './components/Auth/DevAdminLogin'
+// removed inline auth forms from menu; keep imports minimal
 import { BackendInfo } from './components/BackendInfo'
 import { useTimelineData } from './hooks/useTimelineData'
 import { useFilters } from './hooks/useFilters'
@@ -33,7 +31,7 @@ import {
 import './App.css'
 
 function AppInner() {
-  const { isAuthenticated } = useAuth();
+  // auth state not needed here since forms removed from menu
   const navigate = useNavigate();
   const location = useLocation();
   const isMenu = location.pathname === '/' || location.pathname === '/menu';
@@ -405,17 +403,7 @@ function AppInner() {
     return (
       <div className="app" id="chrononinja-app" role="main" aria-label="Хроно ниндзя - Главное меню">
         <MainMenu onOpenTimeline={handleOpenTimeline} />
-        {isAuthenticated ? (
-          <div style={{ position: 'fixed', top: 20, left: 20 }}>
-            <Profile />
-          </div>
-        ) : (
-          <div style={{ position: 'fixed', top: 20, left: 20, display: 'flex', gap: 16 }}>
-            <LoginForm />
-            <RegisterForm />
-            <DevAdminLogin />
-          </div>
-        )}
+        {/* Убрали прямые формы с меню – используем dropdown UserMenu */}
       </div>
     )
   }
@@ -571,6 +559,7 @@ export default function App() {
         <Route path="/menu" element={<AppInner />} />
         <Route path="/timeline" element={<AppInner />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/account" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/menu" replace />} />
       </Routes>

@@ -5,6 +5,7 @@ import { GroupingToggle } from './GroupingToggle'
 import { Logo } from './Logo'
 import { YearRangeSlider } from './YearRangeSlider'
 import { Person } from '../types'
+import { UserMenu } from './UserMenu'
 
 interface FiltersState {
   showAchievements: boolean
@@ -142,6 +143,10 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
             ← Меню
           </button>
         )}
+
+        <div style={{ marginLeft: 'auto' }}>
+          <UserMenu />
+        </div>
         
         {/* Кнопки "Поделиться" - временно скрыты */}
         <div className="share-buttons" style={{

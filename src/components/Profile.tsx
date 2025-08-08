@@ -1,26 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context';
 import { getProfile, updateProfile, changePassword } from '../services/auth';
 
 export function Profile() {
   const { state, logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [pwdSaving, setPwdSaving] = useState(false);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      setError(null);
+      setLoadError(null);
       try {
         const token = state.accessToken;
         if (!token) throw new Error('Нет токена доступа');
         const data = await getProfile(token);
         setProfile(data?.data?.user || null);
       } catch (e) {
-        setError('Не удалось загрузить профиль');
+        setLoadError('Не удалось загрузить профиль');
       } finally {
         setLoading(false);
       }
@@ -28,10 +32,12 @@ export function Profile() {
   }, [state.accessToken]);
 
   if (loading) return <div>Загрузка профиля...</div>;
-  if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
   return (
     <div style={{ display: 'grid', gap: 16 }}>
+      {loadError && (
+        <div style={{ color: 'red' }}>{loadError}</div>
+      )}
       <section>
         <h3 style={{ marginBottom: 8 }}>Личный кабинет</h3>
         {profile ? (
@@ -60,13 +66,15 @@ export function Profile() {
               avatar_url: String(formData.get('avatar_url') || ''),
             };
             setSaving(true);
-            setError(null);
+            setUpdateError(null);
+            setUpdateSuccess(null);
             try {
               await updateProfile(state.accessToken, payload);
               const data = await getProfile(state.accessToken);
               setProfile(data?.data?.user || null);
+              setUpdateSuccess('Профиль сохранён');
             } catch (e: any) {
-              setError(e?.message || 'Не удалось сохранить профиль');
+              setUpdateError(e?.message || 'Не удалось сохранить профиль');
             } finally {
               setSaving(false);
             }
@@ -78,6 +86,11 @@ export function Profile() {
           <input name="avatar_url" placeholder="URL аватара" defaultValue={profile?.avatar_url || ''} />
           <button type="submit" disabled={saving}>{saving ? 'Сохраняем…' : 'Сохранить'}</button>
         </form>
+        {(updateError || updateSuccess) && (
+          <div style={{ fontSize: 12, marginTop: 4, color: updateError ? 'red' as const : 'green' as const }}>
+            {updateError || updateSuccess}
+          </div>
+        )}
       </section>
 
       <section style={{ display: 'grid', gap: 8 }}>
@@ -92,17 +105,18 @@ export function Profile() {
             const new_password = String(formData.get('new_password') || '');
             const new_password2 = String(formData.get('new_password2') || '');
             if (new_password !== new_password2) {
-              setError('Новые пароли не совпадают');
+              setPasswordError('Новые пароли не совпадают');
               return;
             }
             setPwdSaving(true);
-            setError(null);
+            setPasswordError(null);
+            setPasswordSuccess(null);
             try {
               await changePassword(state.accessToken, { current_password, new_password });
-              alert('Пароль изменён');
+              setPasswordSuccess('Пароль изменён');
               form.reset();
             } catch (e: any) {
-              setError(e?.message || 'Не удалось изменить пароль');
+              setPasswordError(e?.message || 'Не удалось изменить пароль');
             } finally {
               setPwdSaving(false);
             }
@@ -114,6 +128,11 @@ export function Profile() {
           <input name="new_password2" type="password" placeholder="Повтор нового пароля" />
           <button type="submit" disabled={pwdSaving}>{pwdSaving ? 'Изменяем…' : 'Изменить пароль'}</button>
         </form>
+        {(passwordError || passwordSuccess) && (
+          <div style={{ fontSize: 12, marginTop: 4, color: passwordError ? 'red' as const : 'green' as const }}>
+            {passwordError || passwordSuccess}
+          </div>
+        )}
       </section>
 
       <div>
