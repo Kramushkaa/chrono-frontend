@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { register as apiRegister } from '../../services/auth';
+import { useAuth } from '../../context';
 
 export function RegisterForm({ onSuccess }: { onSuccess?: () => void }) {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -36,6 +38,12 @@ export function RegisterForm({ onSuccess }: { onSuccess?: () => void }) {
     setLoading(true);
     try {
       await apiRegister({ email, password, username, full_name: fullName });
+      // Автовход после успешной регистрации
+      try {
+        await login(email, password);
+      } catch (_) {
+        // если автологин не удался — просто идём дальше по потоку
+      }
       onSuccess?.();
     } catch (err: any) {
       setError(err?.message || 'Ошибка регистрации');
