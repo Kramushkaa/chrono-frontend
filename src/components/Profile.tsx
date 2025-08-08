@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, updateProfile, changePassword } from '../services/auth';
+import { apiFetch } from '../services/api';
 import { useToast } from '../context/ToastContext';
 
 export function Profile() {
   const { state, logout } = useAuth();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -55,6 +58,40 @@ export function Profile() {
           <div>Нет данных профиля</div>
         )}
       </section>
+
+      {!profile?.email_verified && (
+        <section style={{ display: 'grid', gap: 8 }}>
+          <h4>Подтверждение почты</h4>
+          <div>Ваш email не подтвержден. Пожалуйста, перейдите по ссылке из письма.</div>
+          <div>
+            <button
+              onClick={async () => {
+                setResendError(null);
+                setResendLoading(true);
+                try {
+                  const token = state.accessToken;
+                  if (!token) throw new Error('Нет токена доступа');
+                  const res = await apiFetch('/api/auth/resend-verification', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                  });
+                  if (!res.ok) throw new Error('Не удалось отправить письмо');
+                  showToast('Письмо отправлено повторно', 'success');
+                } catch (err: any) {
+                  setResendError(err?.message || 'Ошибка отправки');
+                  showToast('Ошибка отправки письма', 'error');
+                } finally {
+                  setResendLoading(false);
+                }
+              }}
+              disabled={resendLoading}
+            >
+              {resendLoading ? 'Отправляем...' : 'Отправить письмо повторно'}
+            </button>
+          </div>
+          {resendError && <div style={{ color: 'red', fontSize: 12 }}>{resendError}</div>}
+        </section>
+      )}
 
       <section style={{ display: 'grid', gap: 8 }}>
         <h4>Редактирование профиля</h4>

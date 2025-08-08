@@ -1,11 +1,37 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../context';
 import { Profile } from '../components/Profile';
+import { apiFetch } from '../services/api';
+import { useToast } from '../context/ToastContext';
 import { LoginForm } from '../components/Auth/LoginForm';
 import { RegisterForm } from '../components/Auth/RegisterForm';
 
 export default function ProfilePage() {
   const { isAuthenticated } = useAuth();
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('verify_token');
+    if (!token) return;
+    (async () => {
+      try {
+        const res = await apiFetch('/api/auth/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json().catch(() => null);
+        if (res.ok) {
+          showToast('Email подтвержден', 'success');
+        } else {
+          showToast(data?.message || 'Не удалось подтвердить email', 'error');
+        }
+      } catch {
+        showToast('Ошибка подтверждения', 'error');
+      }
+    })();
+  }, [showToast]);
 
   return (
     <div className="app" id="chrononinja-app" role="main" aria-label="Хроно ниндзя - Личный кабинет">
