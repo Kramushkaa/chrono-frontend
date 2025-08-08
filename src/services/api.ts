@@ -1,3 +1,4 @@
+import { authStorage } from './auth';
 // API configuration
 const getApiConfig = () => {
   // Определяем окружение
@@ -259,7 +260,6 @@ export const getBackendInfo = () => {
 }; 
 
 // --- Auth-aware fetch with 401 handling and token refresh ---
-import { authStorage } from './auth';
 
 let isRefreshing = false;
 let pendingRequests: Array<() => void> = [];
