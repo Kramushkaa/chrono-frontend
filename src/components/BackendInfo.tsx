@@ -8,6 +8,9 @@ interface BackendInfoProps {
 
 export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
   const backendInfo = getBackendInfo();
+  const isAmvera = typeof process !== 'undefined' && (process as any).env && (process as any).env.AMVERA === '1';
+  const isLocalEnv = typeof process !== 'undefined' && (process as any).env && ((process as any).env.NODE_ENV === 'development' || (process as any).env.REACT_APP_USE_LOCAL_BACKEND === 'true');
+  if (!isLocalEnv && !backendInfo.isLocal && isAmvera) return null;
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [showDetails, setShowDetails] = useState(false);

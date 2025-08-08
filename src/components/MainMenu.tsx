@@ -1,6 +1,7 @@
 import React from 'react'
 import './MainMenu.css'
 import { UserMenu } from './UserMenu'
+import { BrandTitle } from './BrandTitle'
 
 interface MainMenuProps {
   onOpenTimeline: () => void
@@ -17,9 +18,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
         {/* Заголовок */}
         <div className="main-menu-header">
           <h1 className="main-menu-title">
-            <span>Хр</span>
-            <img src="/logo.png" alt="логотип" style={{ width: '1em', height: '1em', verticalAlign: 'middle', margin: '0 0.1em' }} />
-            <span> ниндзя</span>
+            <BrandTitle />
           </h1>
           <p className="main-menu-subtitle">Историческая временная линия</p>
         </div>

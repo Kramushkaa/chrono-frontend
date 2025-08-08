@@ -3,6 +3,7 @@ import { AchievementMarker } from './AchievementMarker'
 import { FilterDropdown } from './FilterDropdown'
 import { GroupingToggle } from './GroupingToggle'
 import { Logo } from './Logo'
+import { BrandTitle } from './BrandTitle'
 import { YearRangeSlider } from './YearRangeSlider'
 import { Person } from '../types'
 import { UserMenu } from './UserMenu'
@@ -107,7 +108,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
           color: '#f4e4c1',
           flexShrink: 0
         }}>
-          <Logo />
+          <BrandTitle asLink />
         </h1>
         
         {/* Кнопка "Назад в меню" и профиль рядом с ней на странице таймлайна */}
