@@ -258,8 +258,58 @@ export const getBackendInfo = () => {
   };
 }; 
 
-// Minimal fetch wrapper used by auth service
-export async function apiFetch(path: string, init?: RequestInit) {
+// --- Auth-aware fetch with 401 handling and token refresh ---
+import { authStorage } from './auth';
+
+let isRefreshing = false;
+let pendingRequests: Array<() => void> = [];
+
+async function refreshTokenIfNeeded(): Promise<void> {
+  if (isRefreshing) {
+    await new Promise<void>((resolve) => pendingRequests.push(resolve));
+    return;
+  }
+  isRefreshing = true;
+  try {
+    const state = authStorage.load();
+    if (!state.refreshToken) throw new Error('No refresh token');
+    const res = await apiRequest(`${API_BASE_URL}/api/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: state.refreshToken })
+    });
+    if (!res.ok) throw new Error('Refresh failed');
+    const data = await res.json();
+    const newState = {
+      user: data?.data?.user || state.user,
+      accessToken: data?.data?.access_token || null,
+      refreshToken: data?.data?.refresh_token || state.refreshToken
+    };
+    authStorage.save(newState);
+  } finally {
+    isRefreshing = false;
+    pendingRequests.forEach((resolve) => resolve());
+    pendingRequests = [];
+  }
+}
+
+export async function apiFetch(path: string, init: RequestInit = {}) {
   const url = `${API_BASE_URL}${path}`;
-  return apiRequest(url, init);
+  const state = authStorage.load();
+  const headers = new Headers(init.headers || {});
+  if (state.accessToken && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${state.accessToken}`);
+  }
+  try {
+    const res = await apiRequest(url, { ...init, headers });
+    if (res.status !== 401) return res;
+    // Try refresh and retry once
+    await refreshTokenIfNeeded();
+    const refreshed = authStorage.load();
+    const retryHeaders = new Headers(init.headers || {});
+    if (refreshed.accessToken) retryHeaders.set('Authorization', `Bearer ${refreshed.accessToken}`);
+    return apiRequest(url, { ...init, headers: retryHeaders });
+  } catch (e) {
+    throw e;
+  }
 }

@@ -9,7 +9,7 @@ import { Timeline } from './components/Timeline'
 import { Tooltips } from './components/Tooltips'
 import { MobilePersonPanel } from './components/MobilePersonPanel'
 import { MainMenu } from './components/MainMenu'
-import { AuthProvider, useAuth } from './context'
+import { AuthProvider } from './context'
 // removed inline auth forms from menu; keep imports minimal
 import { BackendInfo } from './components/BackendInfo'
 import { useTimelineData } from './hooks/useTimelineData'

@@ -8,6 +8,7 @@ type AuthContextValue = {
   state: AuthState;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refresh: () => Promise<void>;
 };
 
 const defaultState: AuthState = { user: null, accessToken: null, refreshToken: null };
@@ -30,13 +31,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state]);
 
+  const refresh = useCallback(async () => {
+    const newState = await authApi.refresh(state);
+    setState(newState);
+  }, [state]);
+
   const value: AuthContextValue = useMemo(() => ({
     user: state.user,
     isAuthenticated: Boolean(state.user && state.accessToken),
     state,
     login,
     logout,
-  }), [state, login, logout]);
+    refresh,
+  }), [state, login, logout, refresh]);
 
   return (
     <AuthContext.Provider value={value}>
