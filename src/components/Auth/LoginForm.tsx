@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context';
+import { useToast } from '../../context/ToastContext';
 
 export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
   const { login } = useAuth();
+  const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -14,9 +16,11 @@ export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
     setLoading(true);
     try {
       await login(email, password);
+      showToast('Вход выполнен', 'success');
       onSuccess?.();
     } catch (err) {
       setError('Неверный email или пароль');
+      showToast('Ошибка входа', 'error');
     } finally {
       setLoading(false);
     }

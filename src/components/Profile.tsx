@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context';
+import { useNavigate } from 'react-router-dom';
 import { getProfile, updateProfile, changePassword } from '../services/auth';
+import { useToast } from '../context/ToastContext';
 
 export function Profile() {
   const { state, logout } = useAuth();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -73,6 +77,7 @@ export function Profile() {
               const data = await getProfile(state.accessToken);
               setProfile(data?.data?.user || null);
               setUpdateSuccess('Профиль сохранён');
+              showToast('Профиль сохранён', 'success');
             } catch (e: any) {
               setUpdateError(e?.message || 'Не удалось сохранить профиль');
             } finally {
@@ -114,6 +119,7 @@ export function Profile() {
             try {
               await changePassword(state.accessToken, { current_password, new_password });
               setPasswordSuccess('Пароль изменён');
+              showToast('Пароль изменён', 'success');
               form.reset();
             } catch (e: any) {
               setPasswordError(e?.message || 'Не удалось изменить пароль');
@@ -136,7 +142,10 @@ export function Profile() {
       </section>
 
       <div>
-        <button onClick={logout}>Выйти</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() => navigate('/menu')}>В меню</button>
+          <button onClick={logout}>Выйти</button>
+        </div>
       </div>
     </div>
   );

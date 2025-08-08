@@ -29,6 +29,8 @@ import {
   sortGroupedData
 } from './utils/groupingUtils'
 import './App.css'
+import { ToastProvider } from './context/ToastContext'
+import { Toasts } from './components/Toasts'
 
 function AppInner() {
   // auth state not needed here since forms removed from menu
@@ -554,15 +556,18 @@ function AppInner() {
 export default function App() {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Navigate to="/menu" replace />} />
-        <Route path="/menu" element={<AppInner />} />
-        <Route path="/timeline" element={<AppInner />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/account" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path="*" element={<Navigate to="/menu" replace />} />
-      </Routes>
+      <ToastProvider>
+        <Routes>
+          <Route path="/" element={<Navigate to="/menu" replace />} />
+          <Route path="/menu" element={<AppInner />} />
+          <Route path="/timeline" element={<AppInner />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/account" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/menu" replace />} />
+        </Routes>
+        <Toasts />
+      </ToastProvider>
     </AuthProvider>
   );
 }

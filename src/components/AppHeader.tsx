@@ -110,43 +110,51 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
           <Logo />
         </h1>
         
-        {/* Кнопка "Назад в меню" */}
+        {/* Кнопка "Назад в меню" и профиль рядом с ней на странице таймлайна */}
         {onBackToMenu && (
-          <button
-            onClick={onBackToMenu}
-            style={{
-              padding: '0.4rem 0.8rem',
-              background: 'rgba(205, 133, 63, 0.2)',
-              border: '1px solid rgba(205, 133, 63, 0.4)',
-              borderRadius: '6px',
-              color: '#cd853f',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              marginLeft: '1rem',
-              fontWeight: 'bold'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(205, 133, 63, 0.3)'
-              e.currentTarget.style.borderColor = 'rgba(205, 133, 63, 0.6)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(205, 133, 63, 0.2)'
-              e.currentTarget.style.borderColor = 'rgba(205, 133, 63, 0.4)'
-            }}
-            title="Вернуться в главное меню"
-            aria-label="Вернуться в главное меню"
-          >
-            ← Меню
-          </button>
+          <>
+            <button
+              onClick={onBackToMenu}
+              style={{
+                padding: '0.4rem 0.8rem',
+                background: 'rgba(205, 133, 63, 0.2)',
+                border: '1px solid rgba(205, 133, 63, 0.4)',
+                borderRadius: '6px',
+                color: '#cd853f',
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                marginLeft: '1rem',
+                fontWeight: 'bold'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(205, 133, 63, 0.3)'
+                e.currentTarget.style.borderColor = 'rgba(205, 133, 63, 0.6)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(205, 133, 63, 0.2)'
+                e.currentTarget.style.borderColor = 'rgba(205, 133, 63, 0.4)'
+              }}
+              title="Вернуться в главное меню"
+              aria-label="Вернуться в главное меню"
+            >
+              ← Меню
+            </button>
+            <div style={{ marginLeft: '0.5rem' }}>
+              <UserMenu />
+            </div>
+          </>
         )}
 
-        <div style={{ marginLeft: 'auto' }}>
-          <UserMenu />
-        </div>
+        {/* В остальных местах (без onBackToMenu) — оставить справа */}
+        {!onBackToMenu && (
+          <div style={{ marginLeft: 'auto' }}>
+            <UserMenu />
+          </div>
+        )}
         
         {/* Кнопки "Поделиться" - временно скрыты */}
         <div className="share-buttons" style={{

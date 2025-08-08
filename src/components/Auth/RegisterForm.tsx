@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { register as apiRegister } from '../../services/auth';
 import { useAuth } from '../../context';
+import { useToast } from '../../context/ToastContext';
 
 export function RegisterForm({ onSuccess }: { onSuccess?: () => void }) {
   const { login } = useAuth();
+  const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -38,15 +40,19 @@ export function RegisterForm({ onSuccess }: { onSuccess?: () => void }) {
     setLoading(true);
     try {
       await apiRegister({ email, password, username, full_name: fullName });
+      showToast('Регистрация успешна', 'success');
       // Автовход после успешной регистрации
       try {
         await login(email, password);
+        showToast('Вход выполнен', 'success');
       } catch (_) {
         // если автологин не удался — просто идём дальше по потоку
+        showToast('Не удалось автоматически войти', 'info');
       }
       onSuccess?.();
     } catch (err: any) {
       setError(err?.message || 'Ошибка регистрации');
+      showToast(err?.message || 'Ошибка регистрации', 'error');
     } finally {
       setLoading(false);
     }
