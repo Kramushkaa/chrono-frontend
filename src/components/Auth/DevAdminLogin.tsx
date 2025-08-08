@@ -19,7 +19,7 @@ export function DevAdminLogin() {
     setError(null);
     setLoading(true);
     try {
-      await login('admin@chrononinja.app', 'admin123');
+      await login('admin@chrono.ninja', 'admin123');
     } catch (e) {
       setError('Не удалось войти админом');
     } finally {
