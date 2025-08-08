@@ -112,7 +112,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
         
         {/* Кнопка "Назад в меню" и профиль рядом с ней на странице таймлайна */}
         {onBackToMenu && (
-          <>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginLeft: '0.25rem' }}>
             <button
               onClick={onBackToMenu}
               style={{
@@ -127,7 +127,6 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.3rem',
-                marginLeft: '1rem',
                 fontWeight: 'bold'
               }}
               onMouseEnter={(e) => {
@@ -143,10 +142,8 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
             >
               ← Меню
             </button>
-            <div style={{ marginLeft: '0.5rem' }}>
-              <UserMenu />
-            </div>
-          </>
+            <UserMenu />
+          </div>
         )}
 
         {/* В остальных местах (без onBackToMenu) — оставить справа */}
