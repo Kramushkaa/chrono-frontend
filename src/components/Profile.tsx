@@ -50,7 +50,8 @@ export function Profile() {
         {profile ? (
           <div style={{ display: 'grid', gap: 6 }}>
             <div><strong>Email:</strong> {profile.email}</div>
-            <div><strong>Имя пользователя:</strong> {profile.username || '—'}</div>
+            <div><strong>Логин:</strong> {profile.username || '—'}</div>
+            <div><strong>Имя пользователя:</strong> {profile.full_name || '—'}</div>
             <div><strong>Роль:</strong> {profile.role}</div>
             <div><strong>Email подтвержден:</strong> {profile.email_verified ? 'да' : 'нет'}</div>
           </div>
@@ -123,8 +124,8 @@ export function Profile() {
           }}
           style={{ display: 'grid', gap: 8, maxWidth: 420 }}
         >
-          <input name="username" placeholder="Имя пользователя" defaultValue={profile?.username || ''} />
-          <input name="full_name" placeholder="Полное имя" defaultValue={profile?.full_name || ''} />
+          <input name="username" placeholder="Логин" defaultValue={profile?.username || ''} />
+          <input name="full_name" placeholder="Имя пользователя" defaultValue={profile?.full_name || ''} />
           <input name="avatar_url" placeholder="URL аватара" defaultValue={profile?.avatar_url || ''} />
           <button type="submit" disabled={saving}>{saving ? 'Сохраняем…' : 'Сохранить'}</button>
         </form>

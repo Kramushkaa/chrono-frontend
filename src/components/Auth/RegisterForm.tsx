@@ -8,8 +8,8 @@ export function RegisterForm({ onSuccess }: { onSuccess?: () => void }) {
   const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [loginName, setLoginName] = useState('');
+  const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,12 +20,12 @@ export function RegisterForm({ onSuccess }: { onSuccess?: () => void }) {
     if (!/[A-Z]/.test(password)) errors.push('Пароль: хотя бы одна заглавная буква');
     if (!/[a-z]/.test(password)) errors.push('Пароль: хотя бы одна строчная буква');
     if (!/\d/.test(password)) errors.push('Пароль: хотя бы одна цифра');
-    if (username) {
-      if (username.length < 3) errors.push('Имя пользователя: минимум 3 символа');
-      if (username.length > 50) errors.push('Имя пользователя: не более 50 символов');
-      if (!/^[a-zA-Z0-9_-]+$/.test(username)) errors.push('Имя пользователя: только латинские буквы, цифры, - и _');
+    if (loginName) {
+      if (loginName.length < 3) errors.push('Логин: минимум 3 символа');
+      if (loginName.length > 50) errors.push('Логин: не более 50 символов');
+      if (!/^[a-zA-Z0-9_-]+$/.test(loginName)) errors.push('Логин: только латинские буквы, цифры, - и _');
     }
-    if (fullName && fullName.length > 255) errors.push('Полное имя: не более 255 символов');
+    if (userName && userName.length > 255) errors.push('Имя пользователя: не более 255 символов');
     return errors;
   };
 
@@ -39,7 +39,7 @@ export function RegisterForm({ onSuccess }: { onSuccess?: () => void }) {
     }
     setLoading(true);
     try {
-      await apiRegister({ email, password, username, full_name: fullName });
+      await apiRegister({ email, password, login: loginName, full_name: userName });
       showToast('Регистрация успешна', 'success');
       // Автовход после успешной регистрации
       try {
@@ -63,12 +63,12 @@ export function RegisterForm({ onSuccess }: { onSuccess?: () => void }) {
       <h3>Регистрация</h3>
       <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       <input type="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required />
-      <input type="text" placeholder="Имя пользователя" value={username} onChange={(e) => setUsername(e.target.value)} />
-      <input type="text" placeholder="Полное имя" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+      <input type="text" placeholder="Логин" value={loginName} onChange={(e) => setLoginName(e.target.value)} />
+      <input type="text" placeholder="Имя пользователя" value={userName} onChange={(e) => setUserName(e.target.value)} />
       {error && <pre style={{ whiteSpace: 'pre-wrap', color: 'red', fontSize: 12 }}>{error}</pre>}
       <button type="submit" disabled={loading}>{loading ? 'Регистрируем...' : 'Зарегистрироваться'}</button>
       <div style={{ fontSize: 12, color: '#666' }}>
-        Пароль: минимум 8 символов, хотя бы одна заглавная, строчная буква и цифра. Имя пользователя — латиница/цифры/"-"/"_".
+        Пароль: минимум 8 символов, хотя бы одна заглавная, строчная буква и цифра. Логин — латиница/цифры/"-"/"_".
       </div>
     </form>
   );

@@ -6,7 +6,7 @@ type AuthContextValue = {
   user: AuthUser | null;
   isAuthenticated: boolean;
   state: AuthState;
-  login: (email: string, password: string) => Promise<void>;
+  login: (login: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
 };
@@ -18,8 +18,8 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>(() => authApi.authStorage.load());
 
-  const login = useCallback(async (email: string, password: string) => {
-    const newState = await authApi.login({ email, password });
+  const login = useCallback(async (loginStr: string, password: string) => {
+    const newState = await authApi.login({ login: loginStr, password });
     setState(newState);
   }, []);
 

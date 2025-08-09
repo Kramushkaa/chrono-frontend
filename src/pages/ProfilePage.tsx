@@ -25,7 +25,12 @@ export default function ProfilePage() {
         if (res.ok) {
           showToast('Email подтвержден', 'success');
         } else {
-          showToast(data?.message || 'Не удалось подтвердить email', 'error');
+          const msg = data?.message || 'Не удалось подтвердить email';
+          if (/истек/i.test(msg)) {
+            showToast('Срок действия токена истек. Отправьте письмо повторно из профиля.', 'error');
+          } else {
+            showToast(msg, 'error');
+          }
         }
       } catch {
         showToast('Ошибка подтверждения', 'error');

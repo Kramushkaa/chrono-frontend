@@ -33,7 +33,7 @@ export const authStorage = {
   }
 };
 
-export async function register(payload: { email: string; password: string; username?: string; full_name?: string; }) {
+export async function register(payload: { email: string; password: string; login?: string; username?: string; full_name?: string; }) {
   const res = await apiFetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -45,11 +45,12 @@ export async function register(payload: { email: string; password: string; usern
   return data;
 }
 
-export async function login(payload: { email: string; password: string; }) {
+export async function login(payload: { login: string; password: string; } | { email: string; password: string; }) {
   const res = await apiFetch('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    // Support both new {login, password} and legacy {email, password}
+    body: JSON.stringify('login' in payload ? payload : { login: (payload as any).email, password: (payload as any).password })
   });
   if (!res.ok) throw new Error('Login failed');
   const data = await res.json();

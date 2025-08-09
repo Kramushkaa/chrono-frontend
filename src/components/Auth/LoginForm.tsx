@@ -5,7 +5,7 @@ import { useToast } from '../../context/ToastContext';
 export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
   const { login } = useAuth();
   const { showToast } = useToast();
-  const [email, setEmail] = useState('');
+  const [loginOrEmail, setLoginOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,11 +15,11 @@ export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
     setError(null);
     setLoading(true);
     try {
-      await login(email, password);
+      await login(loginOrEmail, password);
       showToast('Вход выполнен', 'success');
       onSuccess?.();
     } catch (err) {
-      setError('Неверный email или пароль');
+      setError('Неверный логин или пароль');
       showToast('Ошибка входа', 'error');
     } finally {
       setLoading(false);
@@ -30,10 +30,10 @@ export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 8, maxWidth: 320 }}>
       <h3>Вход</h3>
       <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        type="text"
+        placeholder="Логин или Email"
+        value={loginOrEmail}
+        onChange={(e) => setLoginOrEmail(e.target.value)}
         required
       />
       <input
