@@ -806,28 +806,52 @@ export const Timeline: React.FC<TimelineProps> = ({
                       );
                     })}
 
-                                     {/* полоса правления */}
-                   {person.reignStart && person.reignEnd && (
-                     <div 
-                       className="reign-bar"
-                       id={`reign-bar-${person.id}`}
-                       role="presentation"
-                       aria-label={`Период правления: ${person.reignStart} - ${person.reignEnd}`}
-                       style={{
-                         position: 'absolute',
-                         top: '-15px',
-                         left: `${getAdjustedPosition(person.reignStart)}px`,
-                         width: `${getAdjustedWidth(person.reignStart, person.reignEnd)}px`,
-                         height: '65px',
-                         backgroundColor: 'rgba(211, 47, 47, 0.25)',
-                         pointerEvents: 'none',
-                         borderLeft: '2px solid #D32F2F',
-                         borderRight: '2px solid #D32F2F',
-                         borderRadius: '3px',
-                         zIndex: 1
-                       }} 
-                     />
-                   )}
+                  {/* полосы правления: множественные сегменты */}
+                  {Array.isArray((person as any).rulerPeriods) && (person as any).rulerPeriods.length > 0
+                    ? (person as any).rulerPeriods.map((rp: any, idx: number) => (
+                        <div
+                          key={`ruler-${person.id}-${idx}`}
+                          className="reign-bar"
+                          id={`reign-bar-${person.id}-${idx}`}
+                          role="presentation"
+                          aria-label={`Период правления: ${rp.startYear} - ${rp.endYear}${rp.countryName ? `, ${rp.countryName}` : ''}`}
+                          style={{
+                            position: 'absolute',
+                            top: '-15px',
+                            left: `${getAdjustedPosition(rp.startYear)}px`,
+                            width: `${getAdjustedWidth(rp.startYear, rp.endYear)}px`,
+                            height: '65px',
+                            backgroundColor: 'rgba(211, 47, 47, 0.25)',
+                            pointerEvents: 'none',
+                            borderLeft: '2px solid #D32F2F',
+                            borderRight: '2px solid #D32F2F',
+                            borderRadius: '3px',
+                            zIndex: 1
+                          }}
+                          title={`👑 ${rp.startYear}–${rp.endYear}${rp.countryName ? ` • ${rp.countryName}` : ''}`}
+                        />
+                      ))
+                    : (person.reignStart && person.reignEnd && (
+                        <div 
+                          className="reign-bar"
+                          id={`reign-bar-${person.id}`}
+                          role="presentation"
+                          aria-label={`Период правления: ${person.reignStart} - ${person.reignEnd}`}
+                          style={{
+                            position: 'absolute',
+                            top: '-15px',
+                            left: `${getAdjustedPosition(person.reignStart)}px`,
+                            width: `${getAdjustedWidth(person.reignStart, person.reignEnd)}px`,
+                            height: '65px',
+                            backgroundColor: 'rgba(211, 47, 47, 0.25)',
+                            pointerEvents: 'none',
+                            borderLeft: '2px solid #D32F2F',
+                            borderRight: '2px solid #D32F2F',
+                            borderRadius: '3px',
+                            zIndex: 1
+                          }} 
+                        />
+                      ))}
 
                                      <div
                      className="life-bar"
@@ -911,7 +935,9 @@ export const Timeline: React.FC<TimelineProps> = ({
                       }
                     }}
                     onClick={() => {
-                      if (isMobile) {
+                      // Открываем нижнюю панель и на десктопе, и на мобильных
+                      // но игнорируем клик после жеста перетаскивания таймлайна
+                      if (!isDragging && !isDraggingTimeline) {
                         setSelectedPerson(person)
                       }
                     }}

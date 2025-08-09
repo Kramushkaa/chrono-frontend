@@ -5,6 +5,12 @@ export interface Person {
     deathYear: number;
     reignStart?: number;
     reignEnd?: number;
+    rulerPeriods?: Array<{
+      startYear: number;
+      endYear: number;
+      countryId?: number;
+      countryName?: string;
+    }>;
     category: string;
     country: string;
     description: string;

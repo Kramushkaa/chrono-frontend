@@ -209,21 +209,38 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
               </span>
             </div>
 
-            {/* Информация о правлении */}
-            {selectedPerson.reignStart && selectedPerson.reignEnd && (
-              <div 
+            {/* Информация о правлении (поддержка нескольких периодов) */}
+            {Array.isArray((selectedPerson as any).rulerPeriods) && (selectedPerson as any).rulerPeriods.length > 0 ? (
+              <div
                 className="mobile-panel-person-reign"
                 id="mobile-panel-person-reign"
-                aria-label={`Период правления: ${selectedPerson.reignStart} - ${selectedPerson.reignEnd}`}
-                style={{
-                  fontSize: '0.9rem',
-                  color: '#E57373',
-                  fontWeight: 'bold',
-                  marginBottom: '0.5rem'
-                }}
+                style={{ marginBottom: '0.5rem' }}
               >
-                👑 Правление: {selectedPerson.reignStart} - {selectedPerson.reignEnd}
+                <div style={{ fontSize: '0.95rem', color: '#E57373', fontWeight: 'bold' }}>👑 Периоды правления:</div>
+                <ul style={{ margin: '0.25rem 0 0 1rem', padding: 0, listStyle: 'disc', color: '#f4e4c1', fontSize: '0.9rem' }}>
+                  {(selectedPerson as any).rulerPeriods.map((rp: any, idx: number) => (
+                    <li key={idx}>
+                      {rp.startYear} — {rp.endYear}{rp.countryName ? ` • ${rp.countryName}` : ''}
+                    </li>
+                  ))}
+                </ul>
               </div>
+            ) : (
+              selectedPerson.reignStart && selectedPerson.reignEnd && (
+                <div 
+                  className="mobile-panel-person-reign"
+                  id="mobile-panel-person-reign"
+                  aria-label={`Период правления: ${selectedPerson.reignStart} - ${selectedPerson.reignEnd}`}
+                  style={{
+                    fontSize: '0.9rem',
+                    color: '#E57373',
+                    fontWeight: 'bold',
+                    marginBottom: '0.5rem'
+                  }}
+                >
+                  👑 Правление: {selectedPerson.reignStart} - {selectedPerson.reignEnd}
+                </div>
+              )
             )}
           </div>
         </div>

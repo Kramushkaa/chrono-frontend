@@ -90,6 +90,12 @@ interface Person {
   imageUrl?: string;
   reignStart?: number;
   reignEnd?: number;
+  rulerPeriods?: Array<{
+    startYear: number;
+    endYear: number;
+    countryId?: number;
+    countryName?: string;
+  }>;
   achievementYear1?: number;
   achievementYear2?: number;
   achievementYear3?: number;
@@ -153,6 +159,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       achievementYear2?: number;
       achievementYear3?: number;
       achievements?: string[];
+      rulerPeriods?: Array<{ startYear: number; endYear: number; countryId?: number; countryName?: string }>
     }) => ({
       id: person.id,
       name: safeDecode(person.name || ''),
@@ -164,6 +171,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       imageUrl: person.imageUrl,
       reignStart: person.reignStart,
       reignEnd: person.reignEnd,
+      rulerPeriods: Array.isArray(person.rulerPeriods) ? person.rulerPeriods : [],
       achievementYear1: person.achievementYear1,
       achievementYear2: person.achievementYear2,
       achievementYear3: person.achievementYear3,
