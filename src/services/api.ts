@@ -9,7 +9,7 @@ const getApiConfig = () => {
   
   // URL для разных окружений
   const LOCAL_BACKEND_URL = process.env.REACT_APP_LOCAL_BACKEND_URL || 'http://localhost:3001';
-  const REMOTE_BACKEND_URL = process.env.REACT_APP_REMOTE_BACKEND_URL || 'https://api.chrononinja.app';
+  const REMOTE_BACKEND_URL = process.env.REACT_APP_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io';
   const SERVER_DEFAULT_BACKEND_URL = process.env.REACT_APP_SERVER_BACKEND_URL || 'http://localhost:3001';
   
   // Выбираем URL в зависимости от настроек
