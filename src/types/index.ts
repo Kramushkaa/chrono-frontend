@@ -19,4 +19,5 @@ export interface Person {
     achievementYear2?: number;
     achievementYear3?: number;
     imageUrl?: string;
+    wikiLink?: string | null;
   } 

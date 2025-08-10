@@ -88,6 +88,7 @@ interface Person {
   country: string;
   description: string;
   imageUrl?: string;
+  wikiLink?: string | null;
   reignStart?: number;
   reignEnd?: number;
   rulerPeriods?: Array<{
@@ -153,6 +154,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       country?: string;
       description?: string;
       imageUrl?: string;
+      wikiLink?: string | null;
       reignStart?: number;
       reignEnd?: number;
       achievementYear1?: number;
@@ -169,6 +171,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       country: safeDecode(person.country || ''),
       description: safeDecode(person.description || ''),
       imageUrl: person.imageUrl,
+      wikiLink: person.wikiLink || null,
       reignStart: person.reignStart,
       reignEnd: person.reignEnd,
       rulerPeriods: Array.isArray(person.rulerPeriods) ? person.rulerPeriods : [],

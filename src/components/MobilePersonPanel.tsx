@@ -245,6 +245,21 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
           </div>
         </div>
 
+        {/* Ссылка на Википедию (если есть) */}
+        {selectedPerson.wikiLink && (
+          <div style={{ padding: '0 0.5rem' }}>
+            <a
+              href={selectedPerson.wikiLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#8ab4f8', textDecoration: 'underline' }}
+              aria-label={`Открыть статью в Википедии: ${selectedPerson.name}`}
+            >
+              Открыть в Википедии ↗
+            </a>
+          </div>
+        )}
+
         {/* Описание */}
         <div 
           className="mobile-panel-person-description"
