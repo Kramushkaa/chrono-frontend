@@ -2,8 +2,6 @@
 const CACHE_NAME = 'chrononinja-v1.0.0';
 const urlsToCache = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
   '/manifest.json',
   '/logo.png',
   '/favicon.ico'
@@ -49,7 +47,7 @@ self.addEventListener('fetch', (event) => {
         }
         
         // Иначе делаем сетевой запрос
-        return fetch(event.request).then(
+        return fetch(event.request, { cache: 'no-store' }).then(
           (response) => {
             // Проверяем, что ответ валидный
             if(!response || response.status !== 200 || response.type !== 'basic') {
@@ -61,7 +59,10 @@ self.addEventListener('fetch', (event) => {
 
             caches.open(CACHE_NAME)
               .then((cache) => {
-                cache.put(event.request, responseToCache);
+                // Кэшируем только GET к статике
+                if (event.request.method === 'GET' && /\.(?:png|jpg|jpeg|gif|svg|ico|css|js|json)$/.test(event.request.url)) {
+                  cache.put(event.request, responseToCache);
+                }
               });
 
             return response;

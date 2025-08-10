@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getBackendInfo, testBackendConnection } from '../services/api';
+import { getBackendInfo, testBackendConnection, getApiCandidates, applyBackendOverride } from '../services/api';
 import './BackendInfo.css';
 
 interface BackendInfoProps {
@@ -18,6 +18,7 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [overrideUrl, setOverrideUrl] = useState('');
 
   // Тестируем подключение при загрузке
   useEffect(() => {
@@ -100,6 +101,45 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
           </div>
           <div className="detail-item">
             <strong>Повторы:</strong> {backendInfo.config.retries}
+          </div>
+
+          <div className="detail-item" style={{ marginTop: 8 }}>
+            <strong>Переключить backend:</strong>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 6 }}>
+              <button
+                onClick={() => applyBackendOverride(getApiCandidates().local)}
+                style={{ padding: '4px 8px' }}
+                title="Локальный"
+              >
+                Локальный
+              </button>
+              <button
+                onClick={() => applyBackendOverride(getApiCandidates().remote)}
+                style={{ padding: '4px 8px' }}
+                title="Удалённый"
+              >
+                Удалённый
+              </button>
+              <button
+                onClick={() => applyBackendOverride()}
+                style={{ padding: '4px 8px' }}
+                title="Сбросить override"
+              >
+                Сбросить
+              </button>
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+              <input
+                type="text"
+                value={overrideUrl}
+                onChange={(e) => setOverrideUrl(e.target.value)}
+                placeholder="Произвольный URL"
+                style={{ flex: 1, padding: '4px 8px' }}
+              />
+              <button onClick={() => applyBackendOverride(overrideUrl)} style={{ padding: '4px 8px' }}>
+                Применить
+              </button>
+            </div>
           </div>
           
           <div className="backend-tips">

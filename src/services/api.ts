@@ -4,28 +4,28 @@ const getApiConfig = () => {
   // Определяем окружение
   const isDevelopment = process.env.NODE_ENV === 'development';
   const isLocalBackend = process.env.REACT_APP_USE_LOCAL_BACKEND === 'true';
-  const forcedApiUrl = process.env.REACT_APP_FORCE_API_URL;
-  const serverEnv = process.env.REACT_APP_ENV === 'server';
+  // Приоритет: локальное переопределение (localStorage) > env FORCE > остальные правила
+  const lsForcedApiUrl = (typeof window !== 'undefined' && window.localStorage)
+    ? window.localStorage.getItem('FORCE_API_URL') || undefined
+    : undefined;
+  const forcedApiUrl = lsForcedApiUrl || process.env.REACT_APP_FORCE_API_URL;
+  const logEnabled = process.env.REACT_APP_LOG_API_CALLS === 'true' || isDevelopment;
   
   // URL для разных окружений
   const LOCAL_BACKEND_URL = process.env.REACT_APP_LOCAL_BACKEND_URL || 'http://localhost:3001';
   const REMOTE_BACKEND_URL = process.env.REACT_APP_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io';
-  const SERVER_DEFAULT_BACKEND_URL = process.env.REACT_APP_SERVER_BACKEND_URL || 'http://localhost:3001';
   
   // Выбираем URL в зависимости от настроек
   let apiUrl: string;
   if (forcedApiUrl) {
     apiUrl = forcedApiUrl;
-    console.log('🚩 Принудительно задан backend:', apiUrl);
-  } else if (serverEnv) {
-    apiUrl = process.env.REACT_APP_API_URL || SERVER_DEFAULT_BACKEND_URL;
-    console.log('🏷️ Режим сервера: backend =', apiUrl);
+    if (logEnabled) console.log('🚩 Принудительно задан backend:', apiUrl);
   } else if (isDevelopment && isLocalBackend) {
     apiUrl = LOCAL_BACKEND_URL;
-    console.log('🔧 Используется локальный backend:', apiUrl);
+    if (logEnabled) console.log('🔧 Используется локальный backend:', apiUrl);
   } else {
     apiUrl = process.env.REACT_APP_API_URL || REMOTE_BACKEND_URL;
-    console.log('🌐 Используется удаленный backend:', apiUrl);
+    if (logEnabled) console.log('🌐 Используется удаленный backend:', apiUrl);
   }
   
   return {
@@ -274,6 +274,24 @@ export const getBackendInfo = () => {
     config: API_CONFIG
   };
 }; 
+
+// Экспорт кандидатов и утилит для переключения бекенда из UI
+export const getApiCandidates = () => {
+  const LOCAL_BACKEND_URL = process.env.REACT_APP_LOCAL_BACKEND_URL || 'http://localhost:3001';
+  const REMOTE_BACKEND_URL = process.env.REACT_APP_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io';
+  const current = API_BASE_URL;
+  return { local: LOCAL_BACKEND_URL, remote: REMOTE_BACKEND_URL, current };
+};
+
+export const applyBackendOverride = (url?: string) => {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  if (url && url.trim().length > 0) {
+    window.localStorage.setItem('FORCE_API_URL', url.trim());
+  } else {
+    window.localStorage.removeItem('FORCE_API_URL');
+  }
+  window.location.reload();
+};
 
 // --- Auth-aware fetch with 401 handling and token refresh ---
 
