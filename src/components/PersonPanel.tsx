@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Person } from '../types'
+import { apiFetch } from '../services/api'
 
 interface PersonPanelProps {
   selectedPerson: Person | null
@@ -16,6 +17,37 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
   getPersonGroup,
   getCategoryColor
 }) => {
+  const [achievementsWikiFallback, setAchievementsWikiFallback] = useState<(string | null)[] | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+    async function loadAchievementsWiki() {
+      if (!selectedPerson) {
+        if (isMounted) setAchievementsWikiFallback(null)
+        return
+      }
+      if (selectedPerson.achievementsWiki && selectedPerson.achievementsWiki.length > 0) {
+        if (isMounted) setAchievementsWikiFallback(null)
+        return
+      }
+      try {
+        const res = await apiFetch(`/api/persons/${selectedPerson.id}/achievements`)
+        const data = await res.json().catch(() => null)
+        const items: Array<{ year: number; wikipedia_url?: string | null }> = data?.data || []
+        const top3 = items
+          .slice()
+          .sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
+          .slice(0, 3)
+          .map(a => (a.wikipedia_url && a.wikipedia_url.trim().length > 0 ? a.wikipedia_url : null))
+        if (isMounted) setAchievementsWikiFallback(top3)
+      } catch {
+        if (isMounted) setAchievementsWikiFallback(null)
+      }
+    }
+    loadAchievementsWiki()
+    return () => { isMounted = false }
+  }, [selectedPerson])
+
   if (!selectedPerson) return null
 
   return (
@@ -310,6 +342,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
                   selectedPerson.achievementYear2,
                   selectedPerson.achievementYear3
                 ][index]
+                const wiki = (selectedPerson.achievementsWiki?.[index] ?? achievementsWikiFallback?.[index]) || null
                 
                 return (
                   <div 
@@ -348,6 +381,20 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
                       }}
                     >
                       {achievement}
+                      {wiki && (
+                        <>
+                          {' '}
+                          <a
+                            href={wiki}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: '#8ab4f8', textDecoration: 'underline' }}
+                            aria-label={`Открыть в Википедии: ${achievement}`}
+                          >
+                            ↗
+                          </a>
+                        </>
+                      )}
                     </div>
                   </div>
                 )

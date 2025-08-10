@@ -101,6 +101,7 @@ interface Person {
   achievementYear2?: number;
   achievementYear3?: number;
   achievements: string[];
+  achievementsWiki?: (string | null)[];
 }
 
 interface ApiFilters {
@@ -161,6 +162,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       achievementYear2?: number;
       achievementYear3?: number;
       achievements?: string[];
+      achievements_wiki?: (string | null)[];
       rulerPeriods?: Array<{ startYear: number; endYear: number; countryId?: number; countryName?: string }>
     }) => ({
       id: person.id,
@@ -179,6 +181,8 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       achievementYear2: person.achievementYear2,
       achievementYear3: person.achievementYear3,
       achievements: Array.isArray(person.achievements) ? person.achievements.map((a: string) => safeDecode(a || '')) : []
+      ,
+      achievementsWiki: Array.isArray((person as any).achievements_wiki) ? (person as any).achievements_wiki : []
     }));
     
     // Дополнительная фильтрация на клиенте для множественных стран

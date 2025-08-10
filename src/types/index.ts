@@ -15,6 +15,7 @@ export interface Person {
     country: string;
     description: string;
     achievements: string[];
+    achievementsWiki?: (string | null)[];
     achievementYear1?: number;
     achievementYear2?: number;
     achievementYear3?: number;

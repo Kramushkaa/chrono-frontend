@@ -31,6 +31,7 @@ import { SEO } from './components/SEO'
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage'))
 const RegisterPage = React.lazy(() => import('./pages/RegisterPage'))
+const ManagePage = React.lazy(() => import('./pages/ManagePage'))
 const Timeline = React.lazy(() => import('./components/Timeline').then(m => ({ default: m.Timeline })))
 const PersonPanel = React.lazy(() => import('./components/PersonPanel').then(m => ({ default: m.PersonPanel })))
 const Tooltips = React.lazy(() => import('./components/Tooltips').then(m => ({ default: m.Tooltips })))
@@ -573,6 +574,7 @@ export default function App() {
             <Route path="/" element={<Navigate to="/menu" replace />} />
             <Route path="/menu" element={<AppInner />} />
             <Route path="/timeline" element={<AppInner />} />
+            <Route path="/manage" element={<ManagePage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="*" element={<NotFoundPage />} />
