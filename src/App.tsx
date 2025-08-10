@@ -405,7 +405,7 @@ function AppInner() {
   // Рендерим главное меню
   if (isMenu) {
     return (
-      <div className="app" id="chrononinja-app" role="main" aria-label="Хроно ниндзя - Главное меню">
+      <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Главное меню">
         <MainMenu onOpenTimeline={handleOpenTimeline} />
         {/* Убрали прямые формы с меню – используем dropdown UserMenu */}
       </div>
@@ -414,7 +414,7 @@ function AppInner() {
 
   // Рендерим таймлайн
   return (
-    <div className="app" id="chrononinja-app" role="main" aria-label="Хроно ниндзя - Интерактивная временная линия исторических личностей">
+    <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Интерактивная временная линия исторических личностей">
       <SEO
         title="Хронониндзя — Временная линия исторических личностей"
         description="Исследуйте биографии и достижения исторических личностей на интерактивной линии времени. Фильтры по странам и категориям."

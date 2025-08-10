@@ -1,4 +1,4 @@
-// Service Worker для Хроно ниндзя PWA
+// Service Worker для Хронониндзя PWA
 const CACHE_NAME = 'chrononinja-v1.0.0';
 const urlsToCache = [
   '/',
@@ -74,7 +74,7 @@ self.addEventListener('fetch', (event) => {
 // Обработка push уведомлений (опционально)
 self.addEventListener('push', (event) => {
   const options = {
-            body: 'Новые данные доступны в Хроно ниндзя!',
+            body: 'Новые данные доступны в Хронониндзя!',
     icon: '/logo192.png',
     badge: '/logo192.png',
     vibrate: [100, 50, 100],
@@ -97,6 +97,6 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('Хроно ниндзя', options)
+    self.registration.showNotification('Хронониндзя', options)
   );
 }); 

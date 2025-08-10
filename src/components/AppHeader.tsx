@@ -92,7 +92,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
       className={`app-header ${isScrolled ? 'scrolled' : ''}`}
       id="app-header"
       role="banner"
-              aria-label="Заголовок приложения Хроно ниндзя"
+              aria-label="Заголовок приложения Хронониндзя"
       style={{
         padding: isScrolled ? '0.5rem 1rem' : '0.75rem 1rem',
         transition: 'all 0.3s ease'
@@ -165,7 +165,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
             onClick={() => {
               if (navigator.share) {
                 navigator.share({
-                  title: 'Хроно ниндзя - Временные линии исторических личностей',
+                  title: 'Хронониндзя — Временные линии исторических личностей',
                   text: 'Изучайте биографии и достижения выдающихся людей разных эпох',
                   url: window.location.href
                 });

@@ -39,7 +39,7 @@ export default function ProfilePage() {
   }, [showToast]);
 
   return (
-    <div className="app" id="chrononinja-app" role="main" aria-label="Хроно ниндзя - Личный кабинет">
+    <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Личный кабинет">
       <div style={{ maxWidth: 960, margin: '40px auto', padding: '0 16px' }}>
         <h1 style={{ marginBottom: 16 }}>Личный кабинет</h1>
         {isAuthenticated ? (
