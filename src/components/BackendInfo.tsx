@@ -22,7 +22,8 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
 
   // Тестируем подключение при загрузке
   useEffect(() => {
-    if (!shouldHide) {
+    const isSameOrigin = typeof window !== 'undefined' && backendInfo.baseUrl?.startsWith(window.location.origin);
+    if (!shouldHide && isSameOrigin) {
       testConnection();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

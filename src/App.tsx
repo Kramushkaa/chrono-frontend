@@ -1,14 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
-import NotFoundPage from './pages/NotFoundPage'
-import ProfilePage from './pages/ProfilePage'
-import RegisterPage from './pages/RegisterPage'
 // import { ProtectedRoute } from './components/ProtectedRoute'
 import { Person } from './types'
-import { AppHeader } from './components/AppHeader'
-import { Timeline } from './components/Timeline'
-import { Tooltips } from './components/Tooltips'
-import { MobilePersonPanel } from './components/MobilePersonPanel'
 import { MainMenu } from './components/MainMenu'
 import { AuthProvider } from './context'
 // removed inline auth forms from menu; keep imports minimal
@@ -33,6 +26,15 @@ import './App.css'
 import { ToastProvider } from './context/ToastContext'
 import { Toasts } from './components/Toasts'
 import { SEO } from './components/SEO'
+
+// Lazy-loaded chunks to reduce initial JS on the menu route
+const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
+const ProfilePage = React.lazy(() => import('./pages/ProfilePage'))
+const RegisterPage = React.lazy(() => import('./pages/RegisterPage'))
+const Timeline = React.lazy(() => import('./components/Timeline').then(m => ({ default: m.Timeline })))
+const MobilePersonPanel = React.lazy(() => import('./components/MobilePersonPanel').then(m => ({ default: m.MobilePersonPanel })))
+const Tooltips = React.lazy(() => import('./components/Tooltips').then(m => ({ default: m.Tooltips })))
+const AppHeader = React.lazy(() => import('./components/AppHeader').then(m => ({ default: m.AppHeader })))
 
 function AppInner() {
   // auth state not needed here since forms removed from menu
@@ -421,141 +423,143 @@ function AppInner() {
         canonical={typeof window !== 'undefined' ? window.location.origin + '/timeline' : undefined}
         image={typeof window !== 'undefined' ? window.location.origin + '/og-image.jpg' : undefined}
       />
-      <AppHeader
-        isScrolled={isScrolled}
-        showControls={showControls}
-        setShowControls={setShowControls}
-        filters={filters}
-        setFilters={setFilters}
-        groupingType={groupingType}
-        setGroupingType={setGroupingType}
-        allCategories={allCategories}
-        allCountries={allCountries}
-        yearInputs={yearInputs}
-        setYearInputs={setYearInputs}
-        applyYearFilter={applyYearFilter}
-        handleYearKeyPress={handleYearKeyPress}
-        resetAllFilters={resetAllFilters}
-        getCategoryColor={getGroupColor}
-        sortedData={sortedData}
-        handleSliderMouseDown={handleSliderMouseDown}
-        handleSliderMouseMove={handleSliderMouseMove}
-        handleSliderMouseUp={handleSliderMouseUp}
-        isDraggingSlider={isDraggingSlider}
-        onBackToMenu={handleBackToMenu}
-      />
-      
-      <div className="timeline-wrapper">
-        <main 
-          ref={timelineRef}
-          className={`timeline-container ${isDragging ? 'dragging' : ''}`}
-          id="timeline-viewport" 
-          role="region" 
-          aria-label="Область просмотра временной линии"
-        >
-          {isLoading && (
-            <div className="loading-overlay" role="status" aria-live="polite">
-              <div className="spinner" aria-hidden="true"></div>
-              <span>Загрузка данных...</span>
-            </div>
-          )}
-          <Timeline
-          isLoading={false}
-          timelineWidth={timelineWidth}
-          totalHeight={totalHeight}
-          centuryBoundaries={centuryBoundaries}
-          minYear={minYear}
-          pixelsPerYear={pixelsPerYear}
-          LEFT_PADDING_PX={LEFT_PADDING_PX}
-          rowPlacement={rowPlacement}
+      <React.Suspense fallback={<div className="loading-overlay" role="status" aria-live="polite"><div className="spinner" aria-hidden="true"></div><span>Загрузка...</span></div>}>
+        <AppHeader
+          isScrolled={isScrolled}
+          showControls={showControls}
+          setShowControls={setShowControls}
           filters={filters}
+          setFilters={setFilters}
           groupingType={groupingType}
-          categoryDividers={categoryDividers}
-          getGroupColor={getGroupColor}
-          getGroupColorDark={getGroupColorDark}
-          getGroupColorMuted={getGroupColorMuted}
-          getPersonGroup={(person) => getPersonGroup(person, groupingType)}
-          hoveredPerson={hoveredPerson}
-          setHoveredPerson={(person) => {
-            if (person) {
-              handlePersonHover(person, mousePosition.x, mousePosition.y);
-            } else {
-              handlePersonHover(null, 0, 0);
-            }
-          }}
-          mousePosition={mousePosition}
-          setMousePosition={(position) => {
-            if (hoveredPerson) {
-              handlePersonHover(hoveredPerson, position.x, position.y);
-            }
-          }}
-          showTooltip={showTooltip}
-          setShowTooltip={(show) => {
-            if (!show && hoveredPerson) {
-              handlePersonHover(null, 0, 0);
-            }
-          }}
-          activeAchievementMarker={activeAchievementMarker}
-          setActiveAchievementMarker={setActiveAchievementMarker}
-          hoveredAchievement={hoveredAchievement}
-          setHoveredAchievement={(achievement) => {
-            if (achievement) {
-              handleAchievementHover(achievement, achievementTooltipPosition.x, achievementTooltipPosition.y);
-            } else {
-              handleAchievementHover(null, 0, 0);
-            }
-          }}
-          achievementTooltipPosition={achievementTooltipPosition}
-          setAchievementTooltipPosition={(position) => {
-            if (hoveredAchievement) {
-              handleAchievementHover(hoveredAchievement, position.x, position.y);
-            }
-          }}
-          showAchievementTooltip={showAchievementTooltip}
-          setShowAchievementTooltip={(show) => {
-            if (!show && hoveredAchievement) {
-              handleAchievementHover(null, 0, 0);
-            }
-          }}
-          handlePersonHover={handlePersonHover}
-          hoverTimerRef={hoverTimerRef}
+          setGroupingType={setGroupingType}
+          allCategories={allCategories}
+          allCountries={allCountries}
+          yearInputs={yearInputs}
+          setYearInputs={setYearInputs}
+          applyYearFilter={applyYearFilter}
+          handleYearKeyPress={handleYearKeyPress}
+          resetAllFilters={resetAllFilters}
+          getCategoryColor={getGroupColor}
           sortedData={sortedData}
-          selectedPerson={selectedPerson}
-          setSelectedPerson={setSelectedPerson}
-          timelineRef={timelineRef}
-          isDragging={isDragging}
-          isDraggingTimeline={isDraggingTimeline}
-          handleMouseDown={handleMouseDown}
-          handleMouseMove={handleMouseMove}
-          handleMouseUp={handleMouseUp}
-          handleTouchStart={handleTouchStart}
-          handleTouchMove={handleTouchMove}
-          handleTouchEnd={handleTouchEnd}
+          handleSliderMouseDown={handleSliderMouseDown}
+          handleSliderMouseMove={handleSliderMouseMove}
+          handleSliderMouseUp={handleSliderMouseUp}
+          isDraggingSlider={isDraggingSlider}
+          onBackToMenu={handleBackToMenu}
         />
-        </main>
-      </div>
 
-      <aside className="tooltips-container" id="tooltips-aside" aria-label="Информационные подсказки">
-        <Tooltips
-          hoveredPerson={hoveredPerson}
-          showTooltip={showTooltip}
-          mousePosition={mousePosition}
-          hoveredAchievement={hoveredAchievement}
-          showAchievementTooltip={showAchievementTooltip}
-          achievementTooltipPosition={achievementTooltipPosition}
+        <div className="timeline-wrapper">
+          <main 
+            ref={timelineRef}
+            className={`timeline-container ${isDragging ? 'dragging' : ''}`}
+            id="timeline-viewport" 
+            role="region" 
+            aria-label="Область просмотра временной линии"
+          >
+            {isLoading && (
+              <div className="loading-overlay" role="status" aria-live="polite">
+                <div className="spinner" aria-hidden="true"></div>
+                <span>Загрузка данных...</span>
+              </div>
+            )}
+            <Timeline
+              isLoading={false}
+              timelineWidth={timelineWidth}
+              totalHeight={totalHeight}
+              centuryBoundaries={centuryBoundaries}
+              minYear={minYear}
+              pixelsPerYear={pixelsPerYear}
+              LEFT_PADDING_PX={LEFT_PADDING_PX}
+              rowPlacement={rowPlacement}
+              filters={filters}
+              groupingType={groupingType}
+              categoryDividers={categoryDividers}
+              getGroupColor={getGroupColor}
+              getGroupColorDark={getGroupColorDark}
+              getGroupColorMuted={getGroupColorMuted}
+              getPersonGroup={(person) => getPersonGroup(person, groupingType)}
+              hoveredPerson={hoveredPerson}
+              setHoveredPerson={(person: Person | null) => {
+                if (person) {
+                  handlePersonHover(person, mousePosition.x, mousePosition.y);
+                } else {
+                  handlePersonHover(null, 0, 0);
+                }
+              }}
+              mousePosition={mousePosition}
+              setMousePosition={(position: { x: number; y: number }) => {
+                if (hoveredPerson) {
+                  handlePersonHover(hoveredPerson, position.x, position.y);
+                }
+              }}
+              showTooltip={showTooltip}
+              setShowTooltip={(show: boolean) => {
+                if (!show && hoveredPerson) {
+                  handlePersonHover(null, 0, 0);
+                }
+              }}
+              activeAchievementMarker={activeAchievementMarker}
+              setActiveAchievementMarker={setActiveAchievementMarker}
+              hoveredAchievement={hoveredAchievement}
+              setHoveredAchievement={(achievement: { person: Person; year: number; index: number } | null) => {
+                if (achievement) {
+                  handleAchievementHover(achievement, achievementTooltipPosition.x, achievementTooltipPosition.y);
+                } else {
+                  handleAchievementHover(null, 0, 0);
+                }
+              }}
+              achievementTooltipPosition={achievementTooltipPosition}
+              setAchievementTooltipPosition={(position: { x: number; y: number }) => {
+                if (hoveredAchievement) {
+                  handleAchievementHover(hoveredAchievement, position.x, position.y);
+                }
+              }}
+              showAchievementTooltip={showAchievementTooltip}
+              setShowAchievementTooltip={(show: boolean) => {
+                if (!show && hoveredAchievement) {
+                  handleAchievementHover(null, 0, 0);
+                }
+              }}
+              handlePersonHover={handlePersonHover}
+              hoverTimerRef={hoverTimerRef}
+              sortedData={sortedData}
+              selectedPerson={selectedPerson}
+              setSelectedPerson={setSelectedPerson}
+              timelineRef={timelineRef}
+              isDragging={isDragging}
+              isDraggingTimeline={isDraggingTimeline}
+              handleMouseDown={handleMouseDown}
+              handleMouseMove={handleMouseMove}
+              handleMouseUp={handleMouseUp}
+              handleTouchStart={handleTouchStart}
+              handleTouchMove={handleTouchMove}
+              handleTouchEnd={handleTouchEnd}
+            />
+          </main>
+        </div>
+
+        <aside className="tooltips-container" id="tooltips-aside" aria-label="Информационные подсказки">
+          <Tooltips
+            hoveredPerson={hoveredPerson}
+            showTooltip={showTooltip}
+            mousePosition={mousePosition}
+            hoveredAchievement={hoveredAchievement}
+            showAchievementTooltip={showAchievementTooltip}
+            achievementTooltipPosition={achievementTooltipPosition}
+            getGroupColor={getGroupColor}
+            getPersonGroup={(person) => getPersonGroup(person, groupingType)}
+            getCategoryColor={getGroupColor}
+          />
+        </aside>
+
+        <MobilePersonPanel
+          selectedPerson={selectedPerson}
+          onClose={() => setSelectedPerson(null)}
           getGroupColor={getGroupColor}
           getPersonGroup={(person) => getPersonGroup(person, groupingType)}
           getCategoryColor={getGroupColor}
         />
-      </aside>
-      
-      <MobilePersonPanel
-        selectedPerson={selectedPerson}
-        onClose={() => setSelectedPerson(null)}
-        getGroupColor={getGroupColor}
-        getPersonGroup={(person) => getPersonGroup(person, groupingType)}
-        getCategoryColor={getGroupColor}
-      />
+      </React.Suspense>
     </div>
   )
 }
@@ -564,16 +568,18 @@ export default function App() {
   return (
     <AuthProvider>
       <ToastProvider>
-        <Routes>
-          <Route path="/" element={<Navigate to="/menu" replace />} />
-          <Route path="/menu" element={<AppInner />} />
-          <Route path="/timeline" element={<AppInner />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-        <BackendInfo />
-        <Toasts />
+        <React.Suspense fallback={<div className="loading-overlay" role="status" aria-live="polite"><div className="spinner" aria-hidden="true"></div><span>Загрузка...</span></div>}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/menu" replace />} />
+            <Route path="/menu" element={<AppInner />} />
+            <Route path="/timeline" element={<AppInner />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+          <BackendInfo />
+          <Toasts />
+        </React.Suspense>
       </ToastProvider>
     </AuthProvider>
   );

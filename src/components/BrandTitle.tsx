@@ -9,7 +9,7 @@ export const BrandTitle: React.FC<BrandTitleProps> = ({ asLink = false }) => {
   const content = (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
       <span>Хрон</span>
-      <img src="/logo.png" alt="" aria-hidden="true" style={{ width: '1em', height: '1em', verticalAlign: 'middle' }} />
+      <img src="/logo192.png" alt="" aria-hidden="true" style={{ width: '1em', height: '1em', verticalAlign: 'middle' }} />
       <span>ниндзя</span>
     </span>
   );

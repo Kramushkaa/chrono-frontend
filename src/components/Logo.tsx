@@ -16,7 +16,7 @@ export const Logo: React.FC = () => {
       {/* "Хрон" + картинка вместо второй буквы "о" + "ниндзя" => "Хронониндзя" */}
       <span>Хрон</span>
       <img
-        src="/logo.png"
+        src="/logo192.png"
         alt=""
         aria-hidden="true"
         style={{

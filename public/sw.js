@@ -3,7 +3,8 @@ const CACHE_NAME = 'chrononinja-v1.0.0';
 const urlsToCache = [
   '/',
   '/manifest.json',
-  '/logo.png',
+  '/logo192.png',
+  '/logo512.png',
   '/favicon.ico'
 ];
 

@@ -4,6 +4,7 @@
   "description": "Frontend for Chrono Ninja historical timeline",
   "private": true,
   "dependencies": {
+    "compression": "^1.7.4",
     "express": "^4.18.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

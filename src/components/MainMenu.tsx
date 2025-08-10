@@ -25,7 +25,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
           '@type': 'Organization',
           name: 'Хронониндзя',
           url: typeof window !== 'undefined' ? window.location.origin : undefined,
-          logo: typeof window !== 'undefined' ? window.location.origin + '/logo.png' : undefined
+          logo: typeof window !== 'undefined' ? window.location.origin + '/logo192.png' : undefined
         })}
       </script>
       <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 100 }}>
