@@ -32,7 +32,7 @@ const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage'))
 const RegisterPage = React.lazy(() => import('./pages/RegisterPage'))
 const Timeline = React.lazy(() => import('./components/Timeline').then(m => ({ default: m.Timeline })))
-const MobilePersonPanel = React.lazy(() => import('./components/MobilePersonPanel').then(m => ({ default: m.MobilePersonPanel })))
+const PersonPanel = React.lazy(() => import('./components/PersonPanel').then(m => ({ default: m.PersonPanel })))
 const Tooltips = React.lazy(() => import('./components/Tooltips').then(m => ({ default: m.Tooltips })))
 const AppHeader = React.lazy(() => import('./components/AppHeader').then(m => ({ default: m.AppHeader })))
 
@@ -552,7 +552,7 @@ function AppInner() {
           />
         </aside>
 
-        <MobilePersonPanel
+        <PersonPanel
           selectedPerson={selectedPerson}
           onClose={() => setSelectedPerson(null)}
           getGroupColor={getGroupColor}

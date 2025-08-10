@@ -1,7 +1,7 @@
 import React from 'react'
 import { Person } from '../types'
 
-interface MobilePersonPanelProps {
+interface PersonPanelProps {
   selectedPerson: Person | null
   onClose: () => void
   getGroupColor: (groupName: string) => string
@@ -9,7 +9,7 @@ interface MobilePersonPanelProps {
   getCategoryColor: (category: string) => string
 }
 
-export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
+export const PersonPanel: React.FC<PersonPanelProps> = ({
   selectedPerson,
   onClose,
   getGroupColor,
@@ -42,7 +42,6 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
         flexDirection: 'column'
       }}
     >
-      {/* Заголовок с кнопкой закрытия */}
       <div 
         className="mobile-panel-header"
         id="mobile-panel-header"
@@ -100,7 +99,6 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
         </button>
       </div>
 
-      {/* Основной контент */}
       <div 
         className="mobile-panel-content"
         id="mobile-panel-content"
@@ -115,7 +113,6 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
           gap: '1rem'
         }}
       >
-        {/* Фотография и основная информация */}
         <div 
           className="mobile-panel-person-info"
           id="mobile-panel-person-info"
@@ -209,7 +206,6 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
               </span>
             </div>
 
-            {/* Информация о правлении (поддержка нескольких периодов) */}
             {Array.isArray((selectedPerson as any).rulerPeriods) && (selectedPerson as any).rulerPeriods.length > 0 ? (
               <div
                 className="mobile-panel-person-reign"
@@ -245,7 +241,6 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
           </div>
         </div>
 
-        {/* Ссылка на Википедию (если есть) */}
         {selectedPerson.wikiLink && (
           <div style={{ padding: '0 0.5rem' }}>
             <a
@@ -260,7 +255,6 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
           </div>
         )}
 
-        {/* Описание */}
         <div 
           className="mobile-panel-person-description"
           id="mobile-panel-person-description"
@@ -280,7 +274,6 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
           {selectedPerson.description}
         </div>
 
-        {/* Достижения */}
         {selectedPerson.achievements && selectedPerson.achievements.length > 0 && (
           <div 
             className="mobile-panel-achievements"
@@ -365,4 +358,6 @@ export const MobilePersonPanel: React.FC<MobilePersonPanelProps> = ({
       </div>
     </div>
   )
-} 
+}
+
+
