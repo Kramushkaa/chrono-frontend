@@ -18,6 +18,10 @@ self.addEventListener('install', (event) => {
         console.error('Service Worker installation failed:', error);
       })
   );
+  // Немедленно активируем новый SW
+  if (self.skipWaiting) {
+    self.skipWaiting();
+  }
 });
 
 // Активация Service Worker
@@ -34,6 +38,10 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  // Захватываем клиентов сразу
+  if (self.clients && self.clients.claim) {
+    self.clients.claim();
+  }
 });
 
 // Перехват запросов
