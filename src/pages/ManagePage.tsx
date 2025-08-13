@@ -615,16 +615,13 @@ export default function ManagePage() {
         />
       </React.Suspense>
       <div style={{ padding: 16, paddingTop: 8 }}>
-        <div style={{ display: 'flex', gap: 12, margin: '8px 0 16px', alignItems: 'center' }} role="tablist" aria-label="Вкладки управления">
+        <div style={{ display: 'flex', gap: 12, margin: '8px 0 16px', alignItems: 'center', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }} role="tablist" aria-label="Вкладки управления">
           <button role="tab" aria-selected={activeTab === 'persons'} onClick={() => setActiveTab('persons')} style={{ padding: '6px 12px' }}>Личности</button>
           <button role="tab" aria-selected={activeTab === 'achievements'} onClick={() => setActiveTab('achievements')} style={{ padding: '6px 12px' }}>Достижения</button>
           <button role="tab" aria-selected={activeTab === 'periods'} onClick={() => setActiveTab('periods')} style={{ padding: '6px 12px' }}>Периоды</button>
-          <div style={{ marginLeft: 'auto' }}>
+          <div style={{ marginLeft: 'auto', flex: '0 0 auto' }}>
             <button onClick={() => { if (!isAuthenticated || !user?.email_verified) { setShowAuthModal(true); return } setCreateType(activeTab === 'persons' ? 'person' : 'achievement'); setShowCreate(true) }} aria-label={activeTab === 'persons' ? 'Добавить личность' : 'Добавить достижение'}>
               Добавить
-            </button>
-            <button onClick={() => { document.getElementById('lists-sidebar')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }} style={{ marginLeft: 8 }} title="Прокрутить к меню списков" aria-label="Прокрутить к меню списков">
-              К спискам
             </button>
           </div>
           {/* toggle moved to border handle */}

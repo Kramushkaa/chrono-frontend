@@ -32,8 +32,8 @@ export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, min
   const actionsStyle: React.CSSProperties = { display: 'flex', gap: 4, marginLeft: 'auto' }
   const actionBtn: React.CSSProperties = { padding: '2px 6px', fontSize: 12 }
   return (
-    <div id={id} role="region" aria-label="Меню списков" style={{ borderRight: '1px solid rgba(139,69,19,0.3)', paddingRight: 12, overflow: 'hidden' }}>
-      <div role="list" style={{ display: 'grid' }}>
+    <div id={id} role="region" aria-label="Меню списков" style={{ borderRight: '1px solid rgba(139,69,19,0.3)', paddingRight: 12, overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}>
+      <div role="list" style={{ display: 'grid', minWidth: 220 }}>
         <div role="button" tabIndex={0} style={itemStyle(selectedKey === 'all')}
              onClick={() => onSelect({ type: 'all' })}
              onKeyDown={(e) => { if (e.key === 'Enter') onSelect({ type: 'all' }) }}>{labelAll}</div>
