@@ -158,6 +158,14 @@ function AppInner() {
       if (shareParam) {
         try {
           const resolved = await resolveListShare(shareParam)
+          if (resolved?.owner_user_id && isAuthenticated && user?.id && String(user.id) === resolved.owner_user_id && resolved.list_id) {
+            // If shared list is own, open as owned list to enable full interactions
+            setSelectedListId(resolved.list_id)
+            setListPersons(null)
+            setSharedListMeta(null)
+            setSelectedListKey(`list:${resolved.list_id}`)
+            return
+          }
           const items: Array<{ item_type: string; person_id?: string }> = resolved?.items || []
           const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
           if (ids.length === 0) { setSelectedListId(null); setListPersons([]); return }

@@ -323,14 +323,16 @@ export async function createListShareCode(listId: number): Promise<string | null
   } catch { return null }
 }
 
-export async function resolveListShare(code: string): Promise<{ title: string; items: Array<{ item_type: string; person_id?: string; achievement_id?: number; period_id?: number }> } | null> {
+export async function resolveListShare(code: string): Promise<{ title: string; list_id?: number; owner_user_id?: string; items: Array<{ item_type: string; person_id?: string; achievement_id?: number; period_id?: number }> } | null> {
   try {
     const res = await apiFetch(`/api/list-shares/${encodeURIComponent(code)}`)
     if (!res.ok) return null
     const data = await res.json().catch(() => null)
     const title = data?.data?.title || ''
+    const list_id = Number(data?.data?.list_id)
+    const owner_user_id = data?.data?.owner_user_id != null ? String(data.data.owner_user_id) : undefined
     const items = Array.isArray(data?.data?.items) ? data.data.items : []
-    return { title, items }
+    return { title, list_id: Number.isFinite(list_id) ? list_id : undefined, owner_user_id, items }
   } catch { return null }
 }
 
