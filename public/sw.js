@@ -1,7 +1,8 @@
 // Service Worker для Хронониндзя PWA
-const CACHE_NAME = 'chrononinja-v1.0.0';
+// Важно: обновляйте версию при каждом релизе, чтобы сбрасывать устаревший кэш
+const CACHE_NAME = 'chrononinja-v1.1.0';
 const urlsToCache = [
-  '/',
+  '/index.html',
   '/manifest.json',
   '/logo192.png',
   '/logo512.png',
@@ -25,6 +26,13 @@ self.addEventListener('install', (event) => {
   }
 });
 
+// Поддержка мгновенного применения новой версии по сообщению от страницы
+self.addEventListener('message', (event) => {
+  if (event && event.data && event.data.type === 'SKIP_WAITING' && self.skipWaiting) {
+    self.skipWaiting();
+  }
+});
+
 // Активация Service Worker
 self.addEventListener('activate', (event) => {
   event.waitUntil(
@@ -43,42 +51,46 @@ self.addEventListener('activate', (event) => {
   if (self.clients && self.clients.claim) {
     self.clients.claim();
   }
+  // Принудительно обновляем контролирующего клиента при активации
+  if (self.registration && self.registration.waiting) {
+    self.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+  }
 });
 
 // Перехват запросов
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Возвращаем кэшированный ответ, если он есть
-        if (response) {
-          return response;
-        }
-        
-        // Иначе делаем сетевой запрос
-        return fetch(event.request, { cache: 'no-store' }).then(
-          (response) => {
-            // Проверяем, что ответ валидный
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
+  const req = event.request;
+  const url = new URL(req.url);
 
-            // Клонируем ответ
-            const responseToCache = response.clone();
+  // Для HTML-навигации используем network-first, чтобы не залипать на старом index.html
+  const isNavigation = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
+  if (isNavigation) {
+    event.respondWith(
+      fetch(req, { cache: 'no-store' }).catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
 
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                // Кэшируем только GET к статике
-                if (event.request.method === 'GET' && /\.(?:png|jpg|jpeg|gif|svg|ico|css|js|json)$/.test(event.request.url)) {
-                  cache.put(event.request, responseToCache);
-                }
-              });
-
-            return response;
+  // Для статических ассетов используем cache-first с догрузкой в кэш
+  const isStaticAsset = /\.(?:png|jpg|jpeg|gif|svg|ico|css|js|json|woff2?)$/i.test(url.pathname);
+  if (req.method === 'GET' && isStaticAsset) {
+    event.respondWith(
+      caches.match(req).then((cached) => {
+        const networkFetch = fetch(req).then((res) => {
+          if (res && res.status === 200) {
+            const copy = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
           }
-        );
+          return res;
+        }).catch(() => cached);
+        return cached || networkFetch;
       })
-  );
+    );
+    return;
+  }
+
+  // Прочие запросы не кэшируем
+  event.respondWith(fetch(req, { cache: 'no-store' }));
 });
 
 // Обработка push уведомлений (опционально)
