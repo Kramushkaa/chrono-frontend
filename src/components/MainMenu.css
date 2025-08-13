@@ -130,16 +130,20 @@
 /* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
   .main-menu {
-    padding: 1rem;
+    padding: 0.75rem;
     align-items: flex-start; /* не прижимать логотип к самому верху из-за фиксированного меню пользователя */
   }
 
   .main-menu-container {
-    margin-top: 72px; /* запас под кнопку "Войти" в правом верхнем углу */
+    margin-top: 56px; /* запас под кнопку "Войти" в правом верхнем углу */
+  }
+
+  .main-menu-header {
+    margin-bottom: 2rem;
   }
 
   .main-menu-title {
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 7vw, 2.5rem);
   }
 
   .main-menu-subtitle {
@@ -148,24 +152,44 @@
 
   .main-menu-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
+    margin-bottom: 2rem;
   }
 
   .main-menu-item {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 
   .main-menu-item-icon {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
   }
 
   .main-menu-item-title {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
 
   .main-menu-item-description {
     font-size: 0.9rem;
   }
+}
+
+/* Очень узкие экраны телефонов */
+@media (max-width: 380px) {
+  .main-menu-container { margin-top: 48px; }
+  .main-menu-header { margin-bottom: 1.25rem; }
+  .main-menu-title { font-size: clamp(1.8rem, 8vw, 2.2rem); }
+  .main-menu-grid { gap: 0.75rem; margin-bottom: 1.25rem; }
+  .main-menu-item { padding: 1rem; }
+  .main-menu-item-icon { font-size: 2rem; }
+  .main-menu-item-title { font-size: 1.1rem; }
+  .main-menu-item-description { font-size: 0.85rem; }
+}
+
+/* Невысокие экраны: уменьшить вертикальные отступы, чтобы всё помещалось */
+@media (max-height: 700px) {
+  .main-menu-header { margin-bottom: 1.25rem; }
+  .main-menu-grid { margin-bottom: 1rem; }
+  .main-menu-footer { padding-top: 1rem; }
 }
 
 /* Анимация появления */
