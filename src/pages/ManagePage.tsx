@@ -644,7 +644,7 @@ export default function ManagePage() {
                 // Пользовательские списки только для авторизованных
                 ...(isAuthenticated ? personLists : [])
               ]}
-              onAddList={() => setShowCreateList(true)}
+              onAddList={() => { if (!isAuthenticated) { setShowAuthModal(true); return } setShowCreateList(true) }}
               labelAll="Все"
               readonlyListId={sharedList?.id}
               onCopySharedList={async (id) => {
@@ -942,7 +942,7 @@ export default function ManagePage() {
                 ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined } as any] : []),
                 ...(isAuthenticated ? personLists : [])
               ]}
-              onAddList={() => setShowCreateList(true)}
+              onAddList={() => { if (!isAuthenticated) { setShowAuthModal(true); return } setShowCreateList(true) }}
               labelAll="Все"
               readonlyListId={sharedList?.id}
               onCopySharedList={async (id) => {
@@ -1086,7 +1086,7 @@ export default function ManagePage() {
               pendingCount={achPendingCount}
               mineCount={achMineCount}
               userLists={isAuthenticated ? personLists : []}
-              onAddList={() => setShowCreateList(true)}
+              onAddList={() => { if (!isAuthenticated) { setShowAuthModal(true); return } setShowCreateList(true) }}
               labelAll="Все"
               onDeleteList={async (id) => {
                 try {
