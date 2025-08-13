@@ -13,7 +13,8 @@ app.use((req, res, next) => {
   try {
     const host = String(req.headers.host || '').toLowerCase();
     if (host === 'chrono.ninja' || host === 'www.chrono.ninja') {
-      const target = `https://chrononinja.app${req.originalUrl || ''}`;
+      const isRoot = !req.originalUrl || req.originalUrl === '/';
+      const target = `https://chrononinja.app${isRoot ? '/timeline' : req.originalUrl}`;
       res.redirect(301, target);
       return;
     }
@@ -47,9 +48,9 @@ app.use(
   })
 );
 
-// Redirect root to /menu for better UX (SSR redirect)
+// Redirect root to /timeline for better UX (SSR redirect)
 app.get('/', (req, res) => {
-  res.redirect(302, '/menu');
+  res.redirect(302, '/timeline');
 });
 
 // Handle all routes by serving index.html
