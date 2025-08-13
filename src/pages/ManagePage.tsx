@@ -623,6 +623,9 @@ export default function ManagePage() {
             <button onClick={() => { if (!isAuthenticated || !user?.email_verified) { setShowAuthModal(true); return } setCreateType(activeTab === 'persons' ? 'person' : 'achievement'); setShowCreate(true) }} aria-label={activeTab === 'persons' ? 'Добавить личность' : 'Добавить достижение'}>
               Добавить
             </button>
+            <button onClick={() => { document.getElementById('lists-sidebar')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }} style={{ marginLeft: 8 }} title="Прокрутить к меню списков" aria-label="Прокрутить к меню списков">
+              К спискам
+            </button>
           </div>
           {/* toggle moved to border handle */}
         </div>
@@ -630,6 +633,7 @@ export default function ManagePage() {
         {activeTab === 'persons' && (
           <div style={{ display: 'grid', gridTemplateColumns: sidebarCollapsed ? '0px 8px 1fr 2fr' : '240px 8px 1fr 2fr', gap: 16, transition: 'grid-template-columns 0.2s ease' }}>
             <LeftMenu
+              id="lists-sidebar"
               selectedKey={menuSelection}
               onSelect={(sel: LeftMenuSelection) => {
                 if (sel.type === 'list') { setMenuSelection(`list:${sel.listId!}` as any) }
@@ -930,6 +934,7 @@ export default function ManagePage() {
         {activeTab === 'periods' && (
           <div style={{ display: 'grid', gridTemplateColumns: sidebarCollapsed ? '0px 8px 1fr' : '240px 8px 1fr', gap: 16, transition: 'grid-template-columns 0.2s ease' }}>
             <LeftMenu
+              id="lists-sidebar"
               selectedKey={menuSelection === 'pending' || menuSelection === 'mine' ? 'all' : menuSelection}
               onSelect={(sel: LeftMenuSelection) => {
                 if (sel.type === 'list') { setMenuSelection(`list:${sel.listId!}` as any) }
@@ -1077,6 +1082,7 @@ export default function ManagePage() {
         {activeTab === 'achievements' && (
           <div style={{ display: 'grid', gridTemplateColumns: sidebarCollapsed ? '0px 8px 1fr' : '240px 8px 1fr', gap: 16, transition: 'grid-template-columns 0.2s ease' }}>
             <LeftMenu
+              id="lists-sidebar"
               selectedKey={menuSelection}
               onSelect={(sel: LeftMenuSelection) => {
                 if (sel.type === 'list') { setMenuSelection(`list:${sel.listId!}` as any) }

@@ -17,9 +17,10 @@ type Props = {
   onShowOnTimeline?: (id: number) => void
   readonlyListId?: number
   onCopySharedList?: (id: number) => void
+  id?: string
 }
 
-export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, mineCount, userLists, onAddList, labelAll = 'Все', onDeleteList, onShareList, onShowOnTimeline, readonlyListId, onCopySharedList }: Props) {
+export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, mineCount, userLists, onAddList, labelAll = 'Все', onDeleteList, onShareList, onShowOnTimeline, readonlyListId, onCopySharedList, id }: Props) {
   const itemStyle = (active: boolean): React.CSSProperties => ({
     padding: '6px 8px',
     cursor: 'pointer',
@@ -31,7 +32,7 @@ export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, min
   const actionsStyle: React.CSSProperties = { display: 'flex', gap: 4, marginLeft: 'auto' }
   const actionBtn: React.CSSProperties = { padding: '2px 6px', fontSize: 12 }
   return (
-    <div role="region" aria-label="Меню списков" style={{ borderRight: '1px solid rgba(139,69,19,0.3)', paddingRight: 12, overflow: 'hidden' }}>
+    <div id={id} role="region" aria-label="Меню списков" style={{ borderRight: '1px solid rgba(139,69,19,0.3)', paddingRight: 12, overflow: 'hidden' }}>
       <div role="list" style={{ display: 'grid' }}>
         <div role="button" tabIndex={0} style={itemStyle(selectedKey === 'all')}
              onClick={() => onSelect({ type: 'all' })}

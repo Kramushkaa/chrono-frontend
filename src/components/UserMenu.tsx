@@ -31,7 +31,7 @@ export function UserMenu({ style, className }: UserMenuProps) {
         aria-expanded={open}
         title={isAuthenticated ? (user?.username || user?.email || 'Профиль') : 'Войти'}
         style={{
-          padding: '6px 10px',
+          padding: '6px 8px',
           background: 'rgba(244, 228, 193, 0.12)',
           border: '1px solid rgba(244, 228, 193, 0.3)',
           color: '#f4e4c1',
@@ -39,7 +39,8 @@ export function UserMenu({ style, className }: UserMenuProps) {
           cursor: 'pointer',
         }}
       >
-        {isAuthenticated ? (user?.username || 'Профиль') : 'Войти'}
+        <span aria-hidden="true">👤</span>
+        <span className="sr-only">{isAuthenticated ? (user?.username || 'Профиль') : 'Войти'}</span>
       </button>
 
       {open && (

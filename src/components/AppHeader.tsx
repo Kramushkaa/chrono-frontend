@@ -45,6 +45,7 @@ interface AppHeaderProps {
   isDraggingSlider: boolean
   onBackToMenu?: () => void
   extraRightControls?: React.ReactNode
+  extraFilterControls?: React.ReactNode
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
@@ -70,7 +71,8 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
   handleSliderMouseUp,
   isDraggingSlider,
   onBackToMenu,
-  extraRightControls
+  extraRightControls,
+  extraFilterControls
 }) => {
 
   const { showToast } = useToast()
@@ -404,6 +406,11 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
                 isDraggingSlider={isDraggingSlider}
                 isMobile={false}
               />
+              {extraFilterControls && (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  {extraFilterControls}
+                </div>
+              )}
               
               <button
                 id="reset-filters"
@@ -549,6 +556,11 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
               onSelectionChange={(countries) => setFilters((prev: FiltersState) => ({ ...prev, countries }))}
               textLabel="Страна"
             />
+            {extraFilterControls && (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {extraFilterControls}
+              </div>
+            )}
           </div>
           
           {/* Временной промежуток - на отдельной строке */}

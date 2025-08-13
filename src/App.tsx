@@ -585,56 +585,52 @@ function AppInner() {
           handleSliderMouseUp={handleSliderMouseUp}
           isDraggingSlider={isDraggingSlider}
           onBackToMenu={handleBackToMenu}
-          // Inject list picker via children placeholder
-          // @ts-ignore
-          extraRightControls={(
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <select
-                value={selectedListKey || (selectedListId ? `list:${selectedListId}` : '')}
-                onChange={(e) => {
-                  const v = e.target.value
-                  if (!v) {
+          extraFilterControls={(
+            <select
+              value={selectedListKey || (selectedListId ? `list:${selectedListId}` : '')}
+              onChange={(e) => {
+                const v = e.target.value
+                if (!v) {
+                  setSelectedListId(null)
+                  setListPersons(null)
+                  setSharedListMeta(null)
+                  setSelectedListKey('')
+                  const usp = new URLSearchParams(window.location.search)
+                  usp.delete('list'); usp.delete('share')
+                  window.history.replaceState(null, '', `/timeline${usp.toString() ? `?${usp.toString()}` : ''}`)
+                } else {
+                  if (v.startsWith('share:')) {
+                    const code = v.slice('share:'.length)
                     setSelectedListId(null)
-                    setListPersons(null)
-                    setSharedListMeta(null)
-                    setSelectedListKey('')
+                    setSelectedListKey(v)
                     const usp = new URLSearchParams(window.location.search)
-                    usp.delete('list'); usp.delete('share')
-                    window.history.replaceState(null, '', `/timeline${usp.toString() ? `?${usp.toString()}` : ''}`)
-                  } else {
-                    if (v.startsWith('share:')) {
-                      const code = v.slice('share:'.length)
-                      setSelectedListId(null)
-                      setSelectedListKey(v)
+                    usp.set('share', code)
+                    usp.delete('list')
+                    window.history.replaceState(null, '', `/timeline?${usp.toString()}`)
+                  } else if (v.startsWith('list:')) {
+                    const id = Number(v.slice('list:'.length))
+                    if (Number.isFinite(id) && id > 0) {
+                      setSelectedListId(id)
+                      setSelectedListKey(`list:${id}`)
+                      setSharedListMeta(null)
                       const usp = new URLSearchParams(window.location.search)
-                      usp.set('share', code)
-                      usp.delete('list')
+                      usp.set('list', String(id))
+                      usp.delete('share')
                       window.history.replaceState(null, '', `/timeline?${usp.toString()}`)
-                    } else if (v.startsWith('list:')) {
-                      const id = Number(v.slice('list:'.length))
-                      if (Number.isFinite(id) && id > 0) {
-                        setSelectedListId(id)
-                        setSelectedListKey(`list:${id}`)
-                        setSharedListMeta(null)
-                        const usp = new URLSearchParams(window.location.search)
-                        usp.set('list', String(id))
-                        usp.delete('share')
-                        window.history.replaceState(null, '', `/timeline?${usp.toString()}`)
-                      }
                     }
                   }
-                }}
-                style={{ padding: '4px 8px' }}
-              >
-                <option value="">Все</option>
-                {sharedListMeta ? (
-                  <option value={`share:${sharedListMeta.code}`}>🔒 {sharedListMeta.title}</option>
-                ) : null}
-                {isAuthenticated ? personLists.map(l => (
-                  <option key={l.id} value={`list:${l.id}`}>{l.title}</option>
-                )) : null}
-              </select>
-            </div>
+                }
+              }}
+              style={{ padding: '4px 8px', minWidth: 160 }}
+            >
+              <option value="">Все</option>
+              {sharedListMeta ? (
+                <option value={`share:${sharedListMeta.code}`}>🔒 {sharedListMeta.title}</option>
+              ) : null}
+              {isAuthenticated ? personLists.map(l => (
+                <option key={l.id} value={`list:${l.id}`}>{l.title}</option>
+              )) : null}
+            </select>
           )}
         />
 
