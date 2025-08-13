@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react'
+import { useToast } from '../context/ToastContext'
 import { AchievementMarker } from './AchievementMarker'
 import { FilterDropdown } from './FilterDropdown'
 import { GroupingToggle } from './GroupingToggle'
@@ -19,6 +20,7 @@ interface AppHeaderProps {
   isScrolled: boolean
   showControls: boolean
   setShowControls: (show: boolean) => void
+  mode?: 'full' | 'minimal'
   filters: {
     showAchievements: boolean
     hideEmptyCenturies: boolean
@@ -42,12 +44,14 @@ interface AppHeaderProps {
   handleSliderMouseUp: () => void
   isDraggingSlider: boolean
   onBackToMenu?: () => void
+  extraRightControls?: React.ReactNode
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
   isScrolled,
   showControls,
   setShowControls,
+  mode = 'full',
   filters,
   setFilters,
   groupingType,
@@ -65,9 +69,11 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
   handleSliderMouseMove,
   handleSliderMouseUp,
   isDraggingSlider,
-  onBackToMenu
+  onBackToMenu,
+  extraRightControls
 }) => {
 
+  const { showToast } = useToast()
 
   // Функция для переключения фильтра "Показать все века" с сбросом дат
   const handleHideEmptyCenturiesToggle = useCallback(() => {
@@ -110,7 +116,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
           <BrandTitle asLink />
         </h1>
         
-        {/* Кнопка "Назад в меню" и профиль рядом с ней на странице таймлайна */}
+        {/* Кнопка "Назад в меню" и профиль рядом с ней */}
         {onBackToMenu && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginLeft: '0.25rem' }}>
             <button
@@ -146,16 +152,21 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
           </div>
         )}
 
-        {/* В остальных местах (без onBackToMenu) — оставить справа */}
+        {/* Профиль справа, если нет кнопки назад */}
         {!onBackToMenu && (
           <div style={{ marginLeft: 'auto' }}>
             <UserMenu />
           </div>
         )}
-        
-        {/* Кнопки "Поделиться" - временно скрыты */}
+
+        {extraRightControls && (
+          <div style={{ marginLeft: '0.5rem' }}>
+            {extraRightControls}
+          </div>
+        )}
+        {mode === 'full' && (
         <div className="share-buttons" style={{
-          display: 'none', // Временно скрыты
+          display: 'none',
           gap: '0.5rem',
           alignItems: 'center',
           marginLeft: 'auto',
@@ -172,7 +183,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
               } else {
                 // Fallback для браузеров без Web Share API
                 navigator.clipboard.writeText(window.location.href);
-                alert('Ссылка скопирована в буфер обмена!');
+                showToast('Ссылка скопирована в буфер обмена', 'info')
               }
             }}
             style={{
@@ -236,8 +247,9 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
             📘
           </button>
         </div>
+        )}
         
-        {/* Кнопка-шестерёнка только на мобильных */}
+        {mode === 'full' && (
         <button
           className="filters-toggle-btn"
           id="filters-toggle"
@@ -260,8 +272,9 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
         >
           ⚙️
         </button>
+        )}
 
-        {/* Фильтры для больших экранов - в одной строке с заголовком */}
+        {mode === 'full' && (
         <div className="header-controls-desktop" role="toolbar" aria-label="Панель управления фильтрами">
           <div className="header-controls-inner">
             <div 
@@ -416,9 +429,10 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
             </div>
           </div>
         </div>
+        )}
       </div>
 
-      {/* Фильтры для мобильных - под заголовком */}
+      {mode === 'full' && (
       <div className={`header-controls-mobile${showControls ? ' visible' : ''}`} id="header-controls-mobile" role="region" aria-label="Мобильные элементы управления">
         <div className="header-controls-inner">
           {/* Группа кнопок - в одной строке */}
@@ -580,6 +594,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
           </div>
         </div>
       </div>
+      )}
     </header>
   )
 })

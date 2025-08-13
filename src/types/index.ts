@@ -15,10 +15,16 @@ export interface Person {
     country: string;
     description: string;
     achievements: string[];
+    achievementYears?: number[];
     achievementsWiki?: (string | null)[];
-    achievementYear1?: number;
-    achievementYear2?: number;
-    achievementYear3?: number;
     imageUrl?: string;
     wikiLink?: string | null;
+    periods?: Array<{
+      startYear: number;
+      endYear: number;
+      type?: string;
+      countryId?: number;
+      countryName?: string;
+      comment?: string | null;
+    }>;
   } 

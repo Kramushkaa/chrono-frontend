@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getBackendInfo, testBackendConnection, getApiCandidates, applyBackendOverride } from '../services/api';
+import { getBackendInfo, testBackendConnection, getApiCandidates, applyBackendOverride, getDtoVersion } from '../services/api';
+import { DTO_VERSION as DTO_VERSION_FE } from '../dto';
 import './BackendInfo.css';
 
 interface BackendInfoProps {
@@ -19,6 +20,8 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
   const [isTesting, setIsTesting] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [overrideUrl, setOverrideUrl] = useState('');
+  const [dtoVersionBE, setDtoVersionBE] = useState<string | null>(null);
+  const [dtoMismatch, setDtoMismatch] = useState<boolean>(false);
 
   // Тестируем подключение при загрузке
   useEffect(() => {
@@ -26,6 +29,11 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
     if (!shouldHide && isSameOrigin) {
       testConnection();
     }
+    (async () => {
+      const v = await getDtoVersion();
+      setDtoVersionBE(v);
+      setDtoMismatch(Boolean(v && v !== DTO_VERSION_FE));
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [backendInfo.baseUrl, shouldHide]);
 
@@ -66,7 +74,10 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
 
   return (
     <div className={`backend-info ${className}`}>
-      <div className="backend-header" onClick={() => setShowDetails(!showDetails)}>
+      <div className="backend-header" onClick={() => setShowDetails(!showDetails)} style={{
+        border: dtoMismatch ? '1px solid rgba(255,120,120,0.6)' : undefined,
+        boxShadow: dtoMismatch ? '0 0 0 2px rgba(255,80,80,0.15) inset' : undefined
+      }}>
         <div className="backend-status">
           <span className="status-icon">{getStatusIcon()}</span>
           <span className="status-text">{getStatusText()}</span>
@@ -74,6 +85,11 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
         <div className="backend-type" style={{ color: getBackendColor() }}>
           {getBackendType()} Backend
         </div>
+        {dtoMismatch && (
+          <div title="Версии DTO отличаются" style={{ color: '#ff9090', fontSize: 12, fontWeight: 600, marginLeft: 8 }}>
+            DTO mismatch
+          </div>
+        )}
         <button 
           className="test-button"
           onClick={(e) => {
@@ -103,6 +119,14 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
           <div className="detail-item">
             <strong>Повторы:</strong> {backendInfo.config.retries}
           </div>
+          <div className="detail-item">
+            <strong>DTO версии:</strong> FE={DTO_VERSION_FE}{dtoVersionBE ? `, BE=${dtoVersionBE}` : ''}
+          </div>
+          {dtoMismatch && (
+            <div className="detail-item" style={{ color: '#ff9090' }}>
+              Внимание: версии DTO отличаются. Возможны несоответствия структур данных.
+            </div>
+          )}
 
           <div className="detail-item" style={{ marginTop: 8 }}>
             <strong>Переключить backend:</strong>

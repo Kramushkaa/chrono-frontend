@@ -17,6 +17,92 @@ body {
   color: #e0e0e0;
 }
 
+/* Унифицированные скроллбары (как на timeline) */
+/* WebKit */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(139, 69, 19, 0.15);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 69, 19, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(139, 69, 19, 0.2);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 69, 19, 0.8);
+}
+::-webkit-scrollbar-corner {
+  background: rgba(139, 69, 19, 0.3);
+}
+/* Firefox */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: rgba(139,69,19,0.6) rgba(139,69,19,0.15);
+}
+
+/* Унифицированные поля ввода */
+input, select, textarea {
+  background: rgba(44, 24, 16, 0.6);
+  color: #f4e4c1;
+  border: 1px solid rgba(205, 133, 63, 0.35);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+input::placeholder, textarea::placeholder {
+  color: rgba(244, 228, 193, 0.6);
+}
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid #cd853f;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(205, 133, 63, 0.25);
+}
+
+/* Унифицированные кнопки */
+button {
+  background: linear-gradient(180deg, rgba(205,133,63,0.9), rgba(160,100,45,0.9));
+  color: #1c0f0a;
+  border: 1px solid rgba(205,133,63,0.6);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+button:active {
+  transform: translateY(0);
+}
+button:disabled, button[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Видимые focus-стили для интерактивных элементов */
+:focus-visible {
+  outline: 2px solid #cd853f;
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="tab"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="option"]:focus-visible,
+[role="slider"]:focus-visible {
+  outline: 2px solid #cd853f;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(205, 133, 63, 0.25);
+}
+
 /* Скрытые лейблы для скринридеров */
 .sr-only {
   position: absolute;

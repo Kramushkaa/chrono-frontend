@@ -24,13 +24,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts((list) => list.filter((t) => t.id !== id));
   }, []);
 
-  const showToast = useCallback((message: string, type: ToastType = 'info', durationMs = 3000) => {
+  const showToast = useCallback((message: string, type: ToastType = 'info', durationMs?: number) => {
+    const normalizedMessage = (message ?? '').toString().trim();
+    const duration = durationMs ?? (type === 'success' ? 3000 : type === 'error' ? 5000 : 2500);
     setToasts((list) => {
       const id = nextId;
       setNextId(id + 1);
-      const toast: Toast = { id, message, type };
+      const toast: Toast = { id, message: normalizedMessage, type };
       // schedule removal
-      window.setTimeout(() => removeToast(id), durationMs);
+      window.setTimeout(() => removeToast(id), duration);
       return [...list, toast];
     });
   }, [nextId, removeToast]);

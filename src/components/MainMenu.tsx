@@ -64,6 +64,24 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
               </p>
             </div>
           </div>
+          <div 
+            className="main-menu-item"
+            onClick={() => window.location.assign('/manage')}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                window.location.assign('/manage')
+              }
+            }}
+          >
+            <div className="main-menu-item-icon">🛠️</div>
+            <div className="main-menu-item-content">
+              <h3 className="main-menu-item-title">Управление</h3>
+              <p className="main-menu-item-description">Страница управления: личности и достижения</p>
+            </div>
+          </div>
         </div>
 
         {/* Футер */}

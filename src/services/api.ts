@@ -1,4 +1,5 @@
 import { authStorage } from './auth';
+import type { UpsertPersonDTO, LifePeriodItemDTO } from '../dto'
 // API configuration
 const getApiConfig = () => {
   // Определяем окружение
@@ -97,11 +98,17 @@ interface Person {
     countryId?: number;
     countryName?: string;
   }>;
-  achievementYear1?: number;
-  achievementYear2?: number;
-  achievementYear3?: number;
+  periods?: Array<{
+    startYear: number;
+    endYear: number;
+    type?: string;
+    countryId?: number;
+    countryName?: string;
+    comment?: string | null;
+  }>;
   achievements: string[];
   achievementsWiki?: (string | null)[];
+  achievementYears?: number[];
 }
 
 interface ApiFilters {
@@ -143,10 +150,11 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    const data = await response.json();
+    const payload = await response.json().catch(() => null) as any;
+    const data = Array.isArray(payload) ? payload : (payload?.data ?? []);
     
     // Преобразуем данные в правильный формат с безопасной декодировкой
-    let transformedData = data.map((person: {
+    let transformedData = (data as any[]).map((person: {
       id: string;
       name?: string;
       birthYear: number;
@@ -158,9 +166,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       wikiLink?: string | null;
       reignStart?: number;
       reignEnd?: number;
-      achievementYear1?: number;
-      achievementYear2?: number;
-      achievementYear3?: number;
+      achievementYears?: number[];
       achievements?: string[];
       achievements_wiki?: (string | null)[];
       rulerPeriods?: Array<{ startYear: number; endYear: number; countryId?: number; countryName?: string }>
@@ -177,9 +183,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       reignStart: person.reignStart,
       reignEnd: person.reignEnd,
       rulerPeriods: Array.isArray(person.rulerPeriods) ? person.rulerPeriods : [],
-      achievementYear1: person.achievementYear1,
-      achievementYear2: person.achievementYear2,
-      achievementYear3: person.achievementYear3,
+      achievementYears: Array.isArray((person as any).achievementYears) ? (person as any).achievementYears : undefined,
       achievements: Array.isArray(person.achievements) ? person.achievements.map((a: string) => safeDecode(a || '')) : []
       ,
       achievementsWiki: Array.isArray((person as any).achievements_wiki) ? (person as any).achievements_wiki : []
@@ -205,8 +209,13 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
 };
 
 // Get all categories
+let CACHED_CATEGORIES: { items: string[]; ts: number } | null = null
+const CACHE_TTL_MS = 60_000
 export const getCategories = async (): Promise<string[]> => {
   try {
+    if (CACHED_CATEGORIES && Date.now() - CACHED_CATEGORIES.ts < CACHE_TTL_MS) {
+      return CACHED_CATEGORIES.items
+    }
     const url = `${API_BASE_URL}/api/categories`;
     const response = await apiRequest(url);
     
@@ -214,10 +223,13 @@ export const getCategories = async (): Promise<string[]> => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    const data = await response.json();
+    const payload = await response.json().catch(() => null) as any;
+    const raw = Array.isArray(payload) ? payload : (payload?.data ?? []);
     
     // Безопасная декодировка категорий
-    return data.map((category: string) => safeDecode(category || ''));
+    const items = (raw as any[]).map((category: string) => safeDecode(category || ''));
+    CACHED_CATEGORIES = { items, ts: Date.now() }
+    return items;
   } catch (error) {
     console.error('Error fetching categories:', error);
     // Return default categories as fallback
@@ -228,6 +240,9 @@ export const getCategories = async (): Promise<string[]> => {
 // Get all countries
 export const getCountries = async (): Promise<string[]> => {
   try {
+    if ((getCountries as any)._cache && Date.now() - (getCountries as any)._cache.ts < CACHE_TTL_MS) {
+      return (getCountries as any)._cache.items
+    }
     const url = `${API_BASE_URL}/api/countries`;
     const response = await apiRequest(url);
     
@@ -235,12 +250,13 @@ export const getCountries = async (): Promise<string[]> => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    const data = await response.json();
+    const payload = await response.json().catch(() => null) as any;
+    const raw = Array.isArray(payload) ? payload : (payload?.data ?? []);
     
     // Безопасная декодировка стран и разбивка множественных стран
     const allCountries = new Set<string>();
     
-    data.forEach((country: string | null) => {
+    (raw as any[]).forEach((country: string | null) => {
       const decodedCountry = safeDecode(country || '');
       if (decodedCountry.includes('/')) {
         // Разбиваем множественные страны на отдельные
@@ -254,7 +270,9 @@ export const getCountries = async (): Promise<string[]> => {
     });
     
     // Сортируем страны по алфавиту
-    return Array.from(allCountries).sort();
+    const list = Array.from(allCountries).sort();
+    ;(getCountries as any)._cache = { items: list, ts: Date.now() }
+    return list;
   } catch (error) {
     console.error('Error fetching countries:', error);
     // Return default countries as fallback
@@ -281,6 +299,40 @@ export const getBackendInfo = () => {
     config: API_CONFIG
   };
 }; 
+
+// DTO version check
+export async function getDtoVersion(): Promise<string | null> {
+  try {
+    const res = await apiRequest(`${API_BASE_URL}/api/dto-version`)
+    if (!res.ok) return null
+    const data = await res.json().catch(() => null)
+    const v = data?.data?.version
+    return typeof v === 'string' ? v : null
+  } catch {
+    return null
+  }
+}
+
+// --- List sharing helpers ---
+export async function createListShareCode(listId: number): Promise<string | null> {
+  try {
+    const res = await apiFetch(`/api/lists/${listId}/share`, { method: 'POST' })
+    if (!res.ok) return null
+    const data = await res.json().catch(() => null)
+    return data?.data?.code || null
+  } catch { return null }
+}
+
+export async function resolveListShare(code: string): Promise<{ title: string; items: Array<{ item_type: string; person_id?: string; achievement_id?: number; period_id?: number }> } | null> {
+  try {
+    const res = await apiFetch(`/api/list-shares/${encodeURIComponent(code)}`)
+    if (!res.ok) return null
+    const data = await res.json().catch(() => null)
+    const title = data?.data?.title || ''
+    const items = Array.isArray(data?.data?.items) ? data.data.items : []
+    return { title, items }
+  } catch { return null }
+}
 
 // Экспорт кандидатов и утилит для переключения бекенда из UI
 export const getApiCandidates = () => {
@@ -353,4 +405,143 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
   } catch (e) {
     throw e;
   }
+}
+
+// --- Persons CRUD helpers for /manage ---
+type UpsertPersonPayload = UpsertPersonDTO
+
+export async function adminUpsertPerson(payload: UpsertPersonPayload) {
+  const res = await apiFetch(`/api/admin/persons`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось сохранить персону');
+  return data;
+}
+
+export async function proposePersonEdit(personId: string, payload: Partial<UpsertPersonPayload>) {
+  const res = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/edits`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ payload })
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось отправить правку');
+  return data;
+}
+
+export async function proposeNewPerson(payload: UpsertPersonPayload) {
+  const res = await apiFetch(`/api/persons/propose`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось предложить персону');
+  return data;
+}
+
+export async function addAchievement(personId: string, payload: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null }) {
+  const res = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/achievements`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось создать достижение');
+  return data;
+}
+
+// Create achievement not bound to person (optionally bound to country via country_id)
+export async function addGenericAchievement(payload: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null; country_id?: number | null }) {
+  const res = await apiFetch(`/api/achievements`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось создать достижение');
+  return data;
+}
+
+export type CountryOption = { id: number; name: string };
+let CACHED_COUNTRIES: { items: CountryOption[]; ts: number } | null = null
+export async function getCountryOptions(): Promise<CountryOption[]> {
+  if (CACHED_COUNTRIES && Date.now() - CACHED_COUNTRIES.ts < CACHE_TTL_MS) {
+    return CACHED_COUNTRIES.items
+  }
+  // Prefer options endpoint; if unavailable, derive from /api/countries
+  try {
+    const res = await apiFetch(`/api/countries/options`);
+    if (res.ok) {
+      const data = await res.json().catch(() => ({ data: [] }));
+      const items: CountryOption[] = Array.isArray(data.data) ? data.data : [];
+      if (items.length > 0) {
+        CACHED_COUNTRIES = { items, ts: Date.now() }
+        return items
+      }
+    }
+  } catch {}
+  // Fallback: build options from names
+  const names = await getCountries()
+  const mapped = names.map((name, idx) => ({ id: idx + 1, name }))
+  CACHED_COUNTRIES = { items: mapped, ts: Date.now() }
+  return mapped
+}
+
+export async function getPersonById(id: string): Promise<Person | null> {
+  try {
+    const res = await apiFetch(`/api/persons/${encodeURIComponent(id)}`);
+    if (!res.ok) return null;
+    const payload = await res.json().catch(() => null) as any;
+    const p = (payload && payload.data) ? payload.data : payload;
+    // Map to Person type used on frontend
+    const mapped: Person = {
+      id: p.id,
+      name: safeDecode(p.name || ''),
+      birthYear: p.birthYear,
+      deathYear: p.deathYear,
+      category: safeDecode(p.category || ''),
+      country: safeDecode(p.country || ''),
+      description: safeDecode(p.description || ''),
+      imageUrl: p.imageUrl || undefined,
+      wikiLink: p.wikiLink || null,
+      reignStart: p.reignStart || undefined,
+      reignEnd: p.reignEnd || undefined,
+      rulerPeriods: Array.isArray(p.rulerPeriods) ? p.rulerPeriods : [],
+      periods: Array.isArray(p.periods)
+        ? (p.periods as any[])
+            .map((pr: any) => ({
+              startYear: pr.startYear ?? pr.start_year,
+              endYear: pr.endYear ?? pr.end_year,
+              type: pr.type ?? pr.period_type,
+              countryId: pr.countryId ?? pr.country_id,
+              countryName: pr.countryName ?? pr.country_name,
+              comment: pr.comment ?? pr.period_comment ?? null,
+            }))
+            .sort((a, b) => (a.startYear ?? 0) - (b.startYear ?? 0))
+        : [],
+        achievementYears: Array.isArray(p.achievementYears) ? p.achievementYears : undefined,
+      achievements: Array.isArray(p.achievements) ? p.achievements.map((a: string) => safeDecode(a || '')) : [],
+      achievementsWiki: Array.isArray(p.achievementsWiki) ? p.achievementsWiki : []
+    };
+    return mapped;
+  } catch {
+    return null;
+  }
+}
+
+// --- Life periods (countries of residence) ---
+export type LifePeriodInput = Pick<LifePeriodItemDTO, 'country_id' | 'start_year' | 'end_year'>
+export async function saveLifePeriods(personId: string, periods: LifePeriodInput[]) {
+  const res = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/life-periods`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ periods })
+  })
+  const data = await res.json().catch(() => null)
+  if (!res.ok) throw new Error(data?.message || 'Не удалось сохранить страны проживания')
+  return data
 }

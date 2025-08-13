@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 // import { ProtectedRoute } from './components/ProtectedRoute'
 import { Person } from './types'
@@ -24,6 +24,9 @@ import {
 } from './utils/groupingUtils'
 import './App.css'
 import { ToastProvider } from './context/ToastContext'
+import { getDtoVersion, apiFetch, resolveListShare } from './services/api'
+import { useAuth } from './context'
+import { DTO_VERSION as DTO_VERSION_FE } from './dto'
 import { Toasts } from './components/Toasts'
 import { SEO } from './components/SEO'
 
@@ -43,6 +46,7 @@ function AppInner() {
   const location = useLocation();
   const isMenu = location.pathname === '/' || location.pathname === '/menu';
   const isTimeline = location.pathname === '/timeline';
+  const { isAuthenticated, user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeAchievementMarker, setActiveAchievementMarker] = useState<{ personId: string; index: number } | null>(null)
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
@@ -60,7 +64,10 @@ function AppInner() {
     resetAllFilters 
   } = useFilters()
   
-  const { persons, allCategories, allCountries, isLoading } = useTimelineData(filters, isTimeline)
+  // Disable global persons fetch when a specific list is selected
+  const [selectedListId, setSelectedListId] = useState<number | null>(null)
+  const [selectedListKey, setSelectedListKey] = useState<string>('')
+  const { persons, allCategories, allCountries, isLoading } = useTimelineData(filters, isTimeline && !selectedListId)
 
   const { 
     isDraggingSlider, 
@@ -111,7 +118,121 @@ function AppInner() {
 
 
 
-  const sortedData = sortGroupedData(persons, groupingType)
+  // Sidebar lists (user-owned)
+  const [personLists, setPersonLists] = useState<Array<{ id: number; title: string; items_count?: number }>>([])
+  const listsInFlightRef = useRef(false)
+  const lastListsFetchTsRef = useRef(0)
+  const loadUserLists = useRef<(force?: boolean) => Promise<void>>(async () => {})
+  loadUserLists.current = async (force?: boolean) => {
+    if (!isAuthenticated) { setPersonLists([]); return }
+    const now = Date.now()
+    if (!force) {
+      if (listsInFlightRef.current) return
+      if (now - lastListsFetchTsRef.current < 1500) return
+    }
+    listsInFlightRef.current = true
+    try {
+      const res = await apiFetch(`/api/lists`)
+      const data = await res.json().catch(() => ({ data: [] }))
+      setPersonLists(Array.isArray(data.data) ? data.data : [])
+      lastListsFetchTsRef.current = Date.now()
+    } catch {
+      setPersonLists([])
+    } finally {
+      listsInFlightRef.current = false
+    }
+  }
+  useEffect(() => { loadUserLists.current?.() }, [isAuthenticated, user?.id])
+
+  // Optional list persons (from /timeline?ids=p1,p2 or /timeline?list=ID) — include approved + pending + draft
+  const [listPersons, setListPersons] = useState<any[] | null>(null)
+  const [sharedListMeta, setSharedListMeta] = useState<{ code: string; title: string; listId?: number } | null>(null)
+  useEffect(() => {
+    if (!isTimeline) return
+    const usp = new URLSearchParams(window.location.search)
+    const idsParam = usp.get('ids')
+    const shareParam = usp.get('share')
+    const listParam = usp.get('list') || shareParam
+    const listId = listParam ? Number(listParam) : NaN
+    ;(async () => {
+      if (shareParam) {
+        try {
+          const resolved = await resolveListShare(shareParam)
+          const items: Array<{ item_type: string; person_id?: string }> = resolved?.items || []
+          const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
+          if (ids.length === 0) { setSelectedListId(null); setListPersons([]); return }
+          const prsRes = await apiFetch(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
+          const prsData = await prsRes.json().catch(() => ({ data: [] }))
+          const arr = Array.isArray(prsData.data) ? prsData.data : []
+          setSelectedListId(null)
+          setListPersons(arr)
+          setSharedListMeta({ code: shareParam, title: resolved?.title || 'Список', listId: undefined })
+          setSelectedListKey(`share:${shareParam}`)
+          return
+        } catch {
+          setSelectedListId(null)
+          setListPersons([])
+          setSharedListMeta(null)
+          setSelectedListKey('')
+          return
+        }
+      }
+      if (idsParam && idsParam.trim().length > 0) {
+        // Public share by explicit ids (no auth required)
+        try {
+          const ids = idsParam.split(',').map(s => s.trim()).filter(Boolean)
+          if (ids.length === 0) { setListPersons([]); setSelectedListId(null); return }
+          const prsRes = await apiFetch(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
+          const prsData = await prsRes.json().catch(() => ({ data: [] }))
+          const arr = Array.isArray(prsData.data) ? prsData.data : []
+          setSelectedListId(null)
+          setListPersons(arr)
+        } catch { setSelectedListId(null); setListPersons([]) }
+      } else if (Number.isFinite(listId) && listId > 0) {
+        setSelectedListId(listId)
+        try {
+          // Load list items (auth required)
+          const res = await apiFetch(`/api/lists/${listId}/items`)
+          const data = await res.json().catch(() => ({ data: [] }))
+          const items: Array<{ item_type: string; person_id?: string }> = Array.isArray(data.data) ? data.data : []
+          const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
+          if (ids.length === 0) { setListPersons([]); return }
+          // Load persons by ids (no approval filter)
+          const prsRes = await apiFetch(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
+          const prsData = await prsRes.json().catch(() => ({ data: [] }))
+          const arr = Array.isArray(prsData.data) ? prsData.data : []
+          setListPersons(arr)
+        } catch { setListPersons([]) }
+        setSharedListMeta(null)
+        setSelectedListKey(`list:${listId}`)
+      } else {
+        setSelectedListId(null)
+        setListPersons(null)
+        setSharedListMeta(null)
+        setSelectedListKey('')
+      }
+    })()
+  }, [isTimeline, location.search])
+  // When user picks a list from the UI
+  useEffect(() => {
+    if (!selectedListId) return
+    ;(async () => {
+      try {
+        const res = await apiFetch(`/api/lists/${selectedListId}/items`)
+        const data = await res.json().catch(() => ({ data: [] }))
+        const items: Array<{ item_type: string; person_id?: string }> = Array.isArray(data.data) ? data.data : []
+        const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
+        if (ids.length === 0) { setListPersons([]); return }
+        const prsRes = await apiFetch(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
+        const prsData = await prsRes.json().catch(() => ({ data: [] }))
+        const arr = Array.isArray(prsData.data) ? prsData.data : []
+        setListPersons(arr)
+      } catch { setListPersons([]) }
+    })()
+  }, [selectedListId])
+
+  const effectivePersons = useMemo(() => (listPersons !== null ? listPersons : persons), [listPersons, persons])
+  const sortedData = sortGroupedData(effectivePersons as any, groupingType)
 
   useEffect(() => {
     if (filters.hideEmptyCenturies && sortedData.length > 0) {
@@ -146,6 +267,15 @@ function AppInner() {
   }, [filters.hideEmptyCenturies, sortedData, filters.categories, filters.countries, filters.timeRange, setFilters, setYearInputs]);
 
   useEffect(() => {
+    // DTO drift detection (non-blocking)
+    (async () => {
+      try {
+        const v = await getDtoVersion()
+        if (v && v !== DTO_VERSION_FE) {
+          console.warn(`DTO version mismatch: FE=${DTO_VERSION_FE}, BE=${v}`)
+        }
+      } catch {}
+    })()
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop
       setIsScrolled(scrollTop > 50)
@@ -447,6 +577,57 @@ function AppInner() {
           handleSliderMouseUp={handleSliderMouseUp}
           isDraggingSlider={isDraggingSlider}
           onBackToMenu={handleBackToMenu}
+          // Inject list picker via children placeholder
+          // @ts-ignore
+          extraRightControls={(
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <select
+                value={selectedListKey || (selectedListId ? `list:${selectedListId}` : '')}
+                onChange={(e) => {
+                  const v = e.target.value
+                  if (!v) {
+                    setSelectedListId(null)
+                    setListPersons(null)
+                    setSharedListMeta(null)
+                    setSelectedListKey('')
+                    const usp = new URLSearchParams(window.location.search)
+                    usp.delete('list'); usp.delete('share')
+                    window.history.replaceState(null, '', `/timeline${usp.toString() ? `?${usp.toString()}` : ''}`)
+                  } else {
+                    if (v.startsWith('share:')) {
+                      const code = v.slice('share:'.length)
+                      setSelectedListId(null)
+                      setSelectedListKey(v)
+                      const usp = new URLSearchParams(window.location.search)
+                      usp.set('share', code)
+                      usp.delete('list')
+                      window.history.replaceState(null, '', `/timeline?${usp.toString()}`)
+                    } else if (v.startsWith('list:')) {
+                      const id = Number(v.slice('list:'.length))
+                      if (Number.isFinite(id) && id > 0) {
+                        setSelectedListId(id)
+                        setSelectedListKey(`list:${id}`)
+                        setSharedListMeta(null)
+                        const usp = new URLSearchParams(window.location.search)
+                        usp.set('list', String(id))
+                        usp.delete('share')
+                        window.history.replaceState(null, '', `/timeline?${usp.toString()}`)
+                      }
+                    }
+                  }
+                }}
+                style={{ padding: '4px 8px' }}
+              >
+                <option value="">Все</option>
+                {sharedListMeta ? (
+                  <option value={`share:${sharedListMeta.code}`}>🔒 {sharedListMeta.title}</option>
+                ) : null}
+                {isAuthenticated ? personLists.map(l => (
+                  <option key={l.id} value={`list:${l.id}`}>{l.title}</option>
+                )) : null}
+              </select>
+            </div>
+          )}
         />
 
         <div className="timeline-wrapper">

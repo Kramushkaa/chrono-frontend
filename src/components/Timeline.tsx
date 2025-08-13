@@ -656,9 +656,12 @@ export const Timeline: React.FC<TimelineProps> = ({
                                      </span>
 
                   {/* Маркеры ключевых достижений */}
-                  {filters.showAchievements && [person.achievementYear1, person.achievementYear2, person.achievementYear3]
-                    .filter(year => year !== undefined && year !== null)
-                    .map((year, index) => {
+                  {filters.showAchievements && (
+                    (Array.isArray((person as any).achievementYears) && (person as any).achievementYears.length > 0
+                      ? (person as any).achievementYears
+                      : [])
+                    .filter((year: number | null | undefined) => year !== undefined && year !== null)
+                    .map((year: number, index: number) => {
                       return (
                         <div 
                           key={index} 
@@ -804,7 +807,8 @@ export const Timeline: React.FC<TimelineProps> = ({
                           </span>
                         </div>
                       );
-                    })}
+                    })
+                  )}
 
                   {/* полосы правления: множественные сегменты */}
                   {Array.isArray((person as any).rulerPeriods) && (person as any).rulerPeriods.length > 0

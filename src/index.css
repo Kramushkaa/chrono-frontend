@@ -20,53 +20,13 @@ code {
     monospace;
 }
 
-/* Общие стили для кнопок */
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
+/* Общие классы кнопок – используют глобальные токены в global.css */
+.btn-primary, .btn-secondary {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(205,133,63,0.45);
 }
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
 .btn-secondary {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
+  background: rgba(44,24,16,0.7);
+  color: #f4e4c1;
 }
-
-.btn-secondary:hover {
-  background-color: #545b62;
-}
-
-/* Стили для скроллбара */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-} 

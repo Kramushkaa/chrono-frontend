@@ -4,7 +4,7 @@ import { useToast } from '../context/ToastContext';
 export function Toasts() {
   const { toasts, removeToast } = useToast();
   return (
-    <div style={{ position: 'fixed', top: 16, right: 16, display: 'grid', gap: 8, zIndex: 2000 }}>
+    <div style={{ position: 'fixed', top: 16, right: 16, display: 'grid', gap: 8, zIndex: 2000 }} aria-live="polite" aria-atomic="true" role="status">
       {toasts.map(t => (
         <div key={t.id} style={{
           background: t.type === 'success' ? 'rgba(39, 174, 96, 0.95)' : t.type === 'error' ? 'rgba(192, 57, 43, 0.95)' : 'rgba(44, 62, 80, 0.95)',

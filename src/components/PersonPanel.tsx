@@ -34,12 +34,11 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
         const res = await apiFetch(`/api/persons/${selectedPerson.id}/achievements`)
         const data = await res.json().catch(() => null)
         const items: Array<{ year: number; wikipedia_url?: string | null }> = data?.data || []
-        const top3 = items
+        const allWiki = items
           .slice()
           .sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
-          .slice(0, 3)
           .map(a => (a.wikipedia_url && a.wikipedia_url.trim().length > 0 ? a.wikipedia_url : null))
-        if (isMounted) setAchievementsWikiFallback(top3)
+        if (isMounted) setAchievementsWikiFallback(allWiki)
       } catch {
         if (isMounted) setAchievementsWikiFallback(null)
       }
@@ -337,11 +336,9 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
               }}
             >
               {selectedPerson.achievements.map((achievement, index) => {
-                const achievementYear = [
-                  selectedPerson.achievementYear1,
-                  selectedPerson.achievementYear2,
-                  selectedPerson.achievementYear3
-                ][index]
+                const achievementYear = Array.isArray(selectedPerson.achievementYears)
+                  ? selectedPerson.achievementYears[index]
+                  : undefined
                 const wiki = (selectedPerson.achievementsWiki?.[index] ?? achievementsWikiFallback?.[index]) || null
                 
                 return (

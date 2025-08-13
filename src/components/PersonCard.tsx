@@ -6,9 +6,14 @@ type PersonCardProps = {
   getGroupColor: (groupName: string) => string
   getPersonGroup: (person: Person) => string
   getCategoryColor: (category: string) => string
+  onAddAchievement?: (person: Person) => void
 }
 
-export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, getPersonGroup, getCategoryColor }) => {
+export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, getPersonGroup, getCategoryColor, onAddAchievement }) => {
+  const safeText = (v?: string | null) => {
+    const s = (v ?? '').toString()
+    return s
+  }
   return (
     <div
       role="region"
@@ -24,7 +29,7 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, g
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12,
         background: `linear-gradient(135deg, ${getGroupColor(getPersonGroup(person))}20 0%, rgba(139, 69, 19, 0.1) 100%)`,
         padding: '8px 12px', borderRadius: 6 }}>
-        <h2 style={{ margin: 0 }}>{person.name}</h2>
+        <h2 style={{ margin: 0 }}>{safeText(person.name)}</h2>
       </div>
 
       <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 12 }}>
@@ -41,9 +46,9 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, g
             {person.birthYear} - {person.deathYear}
           </div>
           <div style={{ marginBottom: 6 }}>
-            <span style={{ color: getCategoryColor(person.category), fontWeight: 'bold' }}>{person.category}</span>
+            <span style={{ color: getCategoryColor(person.category), fontWeight: 'bold' }}>{safeText(person.category)}</span>
             {' • '}
-            <span>{person.country}</span>
+            <span>{safeText(person.country)}</span>
           </div>
           {Array.isArray((person as any).rulerPeriods) && (person as any).rulerPeriods.length > 0 ? (
             <div style={{ marginBottom: 6 }}>
@@ -72,33 +77,45 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, g
         fontSize: '0.95rem', lineHeight: 1.6, color: '#f4e4c1', fontStyle: 'italic', padding: 8,
         background: 'rgba(139, 69, 19, 0.1)', borderRadius: 6, border: '1px solid rgba(139, 69, 19, 0.2)'
       }}>
-        {person.description}
+        {safeText(person.description as any)}
       </div>
 
-      {person.achievements && person.achievements.length > 0 && (
-        <div style={{ marginTop: 12 }}>
-          <h3 style={{ margin: '0 0 8px 0', color: getGroupColor(getPersonGroup(person)) }}>🎯 Ключевые достижения:</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {person.achievements.map((achievement, index) => {
-              const year = [person.achievementYear1, person.achievementYear2, person.achievementYear3][index]
-              const wiki = person.achievementsWiki?.[index] ?? null
-              return (
-                <div key={index} style={{ padding: 8, background: 'rgba(139, 69, 19, 0.1)', borderRadius: 4, border: `1px solid ${getGroupColor(getPersonGroup(person))}40` }}>
-                  <div style={{ fontSize: '0.85rem', color: getGroupColor(getPersonGroup(person)), fontWeight: 'bold', marginBottom: 4 }}>{year} г.</div>
-                  <div style={{ fontSize: '0.9rem' }}>
-                    {achievement}
-                    {wiki && (
-                      <>
-                        {' '}<a href={wiki} target="_blank" rel="noopener noreferrer" style={{ color: '#8ab4f8', textDecoration: 'underline' }} aria-label={`Открыть в Википедии: ${achievement}`}>↗</a>
-                      </>
+      <div style={{ marginTop: 12 }}>
+        {person.achievements && person.achievements.length > 0 && (
+          <div>
+            <h3 style={{ margin: '0 0 8px 0', color: getGroupColor(getPersonGroup(person)) }}>🎯 Ключевые достижения:</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
+              {person.achievements.map((achievement, index) => {
+                const allYears = (person as any).achievementYears
+                const year = Array.isArray(allYears) && allYears.length > 0
+                  ? allYears[index]
+                  : undefined
+                const wiki = person.achievementsWiki?.[index] ?? null
+                return (
+                  <div key={index} style={{ padding: 8, background: 'rgba(139, 69, 19, 0.1)', borderRadius: 4, border: `1px solid ${getGroupColor(getPersonGroup(person))}40` }}>
+                    {year != null && (
+                      <div style={{ fontSize: '0.85rem', color: getGroupColor(getPersonGroup(person)), fontWeight: 'bold', marginBottom: 4 }}>{year} г.</div>
                     )}
+                    <div style={{ fontSize: '0.9rem' }}>
+                      {achievement}
+                      {wiki && (
+                        <>
+                          {' '}<a href={wiki} target="_blank" rel="noopener noreferrer" style={{ color: '#8ab4f8', textDecoration: 'underline' }} aria-label={`Открыть в Википедии: ${achievement}`}>↗</a>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+        {onAddAchievement && (
+          <div>
+            <button onClick={() => onAddAchievement(person)}>Добавить достижение</button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

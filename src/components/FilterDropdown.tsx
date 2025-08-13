@@ -30,6 +30,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
   const isMobile = useMobile()
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState<number>(-1)
   
   // Функция для определения позиции dropdown
   const updateDropdownPosition = useCallback(() => {
@@ -121,6 +122,12 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
     
     // Обновляем позицию при открытии
     setTimeout(updateDropdownPosition, 0)
+    // Initialize active index and focus first option for keyboard users
+    setActiveIndex(0)
+    setTimeout(() => {
+      const input = contentRef.current?.querySelector<HTMLInputElement>('input[type="checkbox"]')
+      input?.focus()
+    }, 0)
     
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
@@ -161,6 +168,21 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
   const handleClick = () => {
     if (isMobile) {
       setIsOpen(!isOpen)
+    }
+  }
+
+  const handleButtonKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      setIsOpen(o => !o)
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      if (!isOpen) setIsOpen(true)
+      setTimeout(() => {
+        const input = contentRef.current?.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')?.[0]
+        input?.focus()
+      }, 0)
     }
   }
   
@@ -263,6 +285,44 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
         role="listbox"
         aria-label={`Список ${title}`}
         aria-multiselectable="true"
+        onKeyDown={(e) => {
+          const inputs = Array.from(contentRef.current?.querySelectorAll<HTMLInputElement>('input[type="checkbox"]') || [])
+          const max = inputs.length - 1
+          if (e.key === 'Escape') { e.preventDefault(); setIsOpen(false); return }
+          if (e.key === 'Tab') {
+            // trap focus within content
+            const focusables = Array.from(contentRef.current?.querySelectorAll<HTMLElement>('button, [href], input, [tabindex]:not([tabindex="-1"])') || [])
+            if (focusables.length === 0) return
+            const first = focusables[0]
+            const last = focusables[focusables.length - 1]
+            if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            return
+          }
+          if (['ArrowDown','ArrowUp','Home','End'].includes(e.key)) e.preventDefault()
+          if (e.key === 'ArrowDown') {
+            const next = Math.min((activeIndex < 0 ? 0 : activeIndex) + 1, max)
+            setActiveIndex(next)
+            inputs[next]?.focus()
+          } else if (e.key === 'ArrowUp') {
+            const prev = Math.max((activeIndex < 0 ? 0 : activeIndex) - 1, 0)
+            setActiveIndex(prev)
+            inputs[prev]?.focus()
+          } else if (e.key === 'Home') {
+            setActiveIndex(0)
+            inputs[0]?.focus()
+          } else if (e.key === 'End') {
+            setActiveIndex(max)
+            inputs[max]?.focus()
+          } else if (e.key === ' ' || e.key === 'Enter') {
+            // toggle current
+            const idx = activeIndex >= 0 ? activeIndex : 0
+            const input = inputs[idx]
+            if (input) {
+              input.click()
+            }
+          }
+        }}
         style={{
           position: isMobile ? 'fixed' : 'absolute',
           top: isMobile ? mobilePopupStyle.top : (dropdownPosition === 'bottom' ? '100%' : 'auto'),
@@ -333,7 +393,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
             Снять все
           </button>
         </div>
-        {items.map(item => (
+        {items.map((item, idx) => (
           <label 
             key={item} 
             className="filter-checkbox" 
@@ -364,6 +424,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
           >
             <input
               type="checkbox"
+              id={`fd-option-${title}-${idx}`}
               checked={selectedItems.includes(item)}
               onChange={(e) => {
                 e.stopPropagation()
@@ -419,6 +480,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
            justifyContent: 'center'
          }}
         onClick={handleClick}
+        onKeyDown={handleButtonKeyDown}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={`${title} - ${selectedItems.length} выбрано из ${items.length}`}
