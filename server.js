@@ -8,6 +8,19 @@ const PORT = process.env.PORT || 3001;
 // Enable gzip/brotli compression
 app.use(compression());
 
+// Domain-level redirect: chrono.ninja -> chrononinja.app (preserve path/query/hash)
+app.use((req, res, next) => {
+  try {
+    const host = String(req.headers.host || '').toLowerCase();
+    if (host === 'chrono.ninja' || host === 'www.chrono.ninja') {
+      const target = `https://chrononinja.app${req.originalUrl || ''}`;
+      res.redirect(301, target);
+      return;
+    }
+  } catch {}
+  next();
+});
+
 // Serve static files from the build directory (CRA output) with proper cache headers
 app.use(
   express.static(path.join(__dirname, 'build'), {
@@ -33,6 +46,11 @@ app.use(
     }
   })
 );
+
+// Redirect root to /menu for better UX (SSR redirect)
+app.get('/', (req, res) => {
+  res.redirect(302, '/menu');
+});
 
 // Handle all routes by serving index.html
 app.get('*', (req, res) => {
