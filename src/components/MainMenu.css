@@ -131,6 +131,11 @@
 @media (max-width: 768px) {
   .main-menu {
     padding: 1rem;
+    align-items: flex-start; /* не прижимать логотип к самому верху из-за фиксированного меню пользователя */
+  }
+
+  .main-menu-container {
+    margin-top: 72px; /* запас под кнопку "Войти" в правом верхнем углу */
   }
 
   .main-menu-title {
