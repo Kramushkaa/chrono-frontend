@@ -66,20 +66,20 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
           </div>
           <div 
             className="main-menu-item"
-            onClick={() => window.location.assign('/manage')}
+            onClick={() => window.location.assign('/lists')}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
-                window.location.assign('/manage')
+                window.location.assign('/lists')
               }
             }}
           >
             <div className="main-menu-item-icon">🛠️</div>
             <div className="main-menu-item-content">
-              <h3 className="main-menu-item-title">Управление</h3>
-              <p className="main-menu-item-description">Страница управления: личности и достижения</p>
+              <h3 className="main-menu-item-title">Списки</h3>
+              <p className="main-menu-item-description">Создавайте и управляйте своими списками личностей, достижений и периодов</p>
             </div>
           </div>
         </div>

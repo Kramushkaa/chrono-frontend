@@ -763,7 +763,8 @@ export default function App() {
             <Route path="/" element={<Navigate to="/menu" replace />} />
             <Route path="/menu" element={<AppInner />} />
             <Route path="/timeline" element={<AppInner />} />
-            <Route path="/manage" element={<ManagePage />} />
+            <Route path="/lists" element={<ManagePage />} />
+            <Route path="/manage" element={<Navigate to="/lists" replace />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="*" element={<NotFoundPage />} />

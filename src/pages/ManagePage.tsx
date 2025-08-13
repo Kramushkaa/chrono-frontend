@@ -514,7 +514,7 @@ export default function ManagePage() {
             setMenuSelection(`list:${listId}` as any)
             const next = new URLSearchParams(window.location.search)
             next.delete('share')
-            window.history.replaceState(null, '', `/manage${next.toString() ? `?${next.toString()}` : ''}`)
+            window.history.replaceState(null, '', `/lists${next.toString() ? `?${next.toString()}` : ''}`)
           } else {
             setSharedList({ id: listId, title, owner_user_id: ownerId || undefined })
           }
@@ -679,7 +679,7 @@ export default function ManagePage() {
               onShareList={async (id) => {
                 const code = await createListShareCode(id)
                 if (!code) { showToast('Не удалось создать ссылку', 'error'); return }
-                const url = `${window.location.origin}/manage?share=${encodeURIComponent(code)}`
+                const url = `${window.location.origin}/lists?share=${encodeURIComponent(code)}`
                 if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => showToast('Ссылка скопирована', 'success')).catch(() => alert(url))
                 else alert(url)
               }}
@@ -1101,7 +1101,7 @@ export default function ManagePage() {
               onShareList={async (id) => {
                 const code = await createListShareCode(id)
                 if (!code) { showToast('Не удалось создать ссылку', 'error'); return }
-                const url = `${window.location.origin}/manage?share=${encodeURIComponent(code)}`
+                const url = `${window.location.origin}/lists?share=${encodeURIComponent(code)}`
                 if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => showToast('Ссылка скопирована', 'success')).catch(() => alert(url))
                 else alert(url)
               }}
