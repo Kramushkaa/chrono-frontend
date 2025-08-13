@@ -26,7 +26,7 @@ type Props = {
 
 export function PersonsList({ search, setSearch, categories, countries, filters, setFilters, persons, isLoading, hasMore, loadMore, onSelect }: Props) {
   return (
-    <div role="region" aria-label="Список персон" style={{ borderRight: '1px solid rgba(139,69,19,0.3)', paddingRight: 12 }}>
+    <div role="region" aria-label="Список личностей" style={{ borderRight: '1px solid rgba(139,69,19,0.3)', paddingRight: 12 }}>
       <div style={{ marginBottom: 8 }}>
         <div style={{ marginBottom: 8 }}>
           <input
@@ -34,7 +34,7 @@ export function PersonsList({ search, setSearch, categories, countries, filters,
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Поиск"
             style={{ width: '100%', padding: 6 }}
-            aria-label="Поиск персон"
+          aria-label="Поиск личностей"
           />
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>

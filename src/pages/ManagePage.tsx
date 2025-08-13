@@ -740,7 +740,7 @@ export default function ManagePage() {
                     {listItems.filter(i => i.type === 'person').map((it) => (
                       <div key={it.key} style={{ padding: '6px 8px', borderBottom: '1px solid rgba(139,69,19,0.2)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         <div style={{ flex: 1, cursor: it.type==='person' ? 'pointer' : 'default' }} onClick={() => { if (it.type==='person' && it.person) setSelected(it.person) }}>
-                          <div style={{ fontWeight: 600 }}>{it.title}</div>
+                <div style={{ fontWeight: 600 }}>{it.title}</div>
                           {it.subtitle && <div style={{ fontSize: 12, opacity: 0.85 }}>{it.subtitle}</div>}
                         </div>
                         <button aria-label="Удалить из списка" title="Удалить" onClick={async () => {
@@ -764,7 +764,7 @@ export default function ManagePage() {
                 </>
               )}
             </div>
-            <div role="region" aria-label="Карточка персоны" style={{ position: 'relative', zIndex: 2 }}>
+            <div role="region" aria-label="Карточка личности" style={{ position: 'relative', zIndex: 2 }}>
               {selected ? (
                 <div>
                   {!isEditing ? (
@@ -855,7 +855,7 @@ export default function ManagePage() {
                             }
                             const fresh = await getPersonById(selected.id)
                             if (fresh) setSelected(fresh)
-                            showToast('Персона сохранена', 'success')
+                            showToast('Личность сохранена', 'success')
                           } else {
                             await proposePersonEdit(selected.id, payload)
                             // Если периоды изменились, отправляем их на согласование как pending
@@ -875,7 +875,7 @@ export default function ManagePage() {
                                 })
                               }
                             }
-                            showToast('Персона отправлена на модерацию', 'success')
+                            showToast('Личность отправлена на модерацию', 'success')
                           }
                           setIsEditing(false)
                         } catch (e: any) {
@@ -921,7 +921,7 @@ export default function ManagePage() {
                   )}
                 </div>
               ) : (
-                <div style={{ opacity: 0.8 }}>Выберите персону слева</div>
+                <div style={{ opacity: 0.8 }}>Выберите личность слева</div>
               )}
             </div>
           </div>
@@ -1160,7 +1160,7 @@ export default function ManagePage() {
                     {(achMode==='all' ? achLoadingAll : achAltLoading) && (achMode==='all' ? achItemsAll.length === 0 : achItemsAlt.length === 0) && <div>Загрузка...</div>}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
                       {(achMode==='all' ? achItemsAll : achItemsAlt).map((a) => {
-                  const title = (a as any).title || ''
+                  const title = (a as any).title || (a as any).person_name || (a as any).country_name || ''
                   return (
                           <div key={a.id} style={{ border: '1px solid rgba(139,69,19,0.4)', borderRadius: 8, padding: 12, background: 'rgba(44,24,16,0.85)', position: 'relative' }}>
                       <div style={{ fontWeight: 'bold', marginBottom: 6 }}>{title || '—'}</div>
@@ -1242,7 +1242,7 @@ export default function ManagePage() {
                 onKeyDown={(e) => { if (createModalRef.current) trapFocus(createModalRef.current, e) }}
               >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <div style={{ fontWeight: 'bold' }}>{createType === 'person' ? 'Новая персона' : 'Новое достижение'}</div>
+                <div style={{ fontWeight: 'bold' }}>{createType === 'person' ? 'Новая личность' : 'Новое достижение'}</div>
                 <button onClick={() => setShowCreate(false)}>✕</button>
               </div>
                 {createType === 'person' ? (
@@ -1295,18 +1295,18 @@ export default function ManagePage() {
                         }
                       } else {
                         await proposeNewPerson(payload)
-                        // Отправляем предложенные периоды вместе с персоной как pending
+                        // Отправляем предложенные периоды вместе с личностью как pending
                         if (newLifePeriods.length > 0) {
                           const normalized = newLifePeriods.map(lp => ({ country_id: Number(lp.countryId), start_year: Number(lp.start), end_year: Number(lp.end) }))
                           await apiFetch(`/api/persons/${encodeURIComponent(id)}/life-periods`, {
                             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ periods: normalized })
                           })
                         }
-                        showToast('Персона отправлена на модерацию', 'success')
+                        showToast('Личность отправлена на модерацию', 'success')
                       }
                       setShowCreate(false)
                       if (isModerator) {
-                        showToast('Персона создана', 'success')
+                        showToast('Личность создана', 'success')
                       }
                       setSearchPersons(payload.name)
                     } catch (e: any) {
@@ -1401,7 +1401,7 @@ export default function ManagePage() {
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                     <div style={{ flex: '1 1 260px', minWidth: 260 }}>
                       <SearchableSelect
-                        placeholder="Выбрать персону"
+                        placeholder="Выбрать личность"
                         value={achSelectedPersonId}
                         disabled={achIsGlobal || !!achSelectedCountryId}
                         options={personOptions}

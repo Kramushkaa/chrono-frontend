@@ -417,7 +417,7 @@ export async function adminUpsertPerson(payload: UpsertPersonPayload) {
     body: JSON.stringify(payload)
   });
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.message || 'Не удалось сохранить персону');
+  if (!res.ok) throw new Error(data?.message || 'Не удалось сохранить личность');
   return data;
 }
 
@@ -439,7 +439,7 @@ export async function proposeNewPerson(payload: UpsertPersonPayload) {
     body: JSON.stringify(payload)
   });
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.message || 'Не удалось предложить персону');
+  if (!res.ok) throw new Error(data?.message || 'Не удалось предложить личность');
   return data;
 }
 

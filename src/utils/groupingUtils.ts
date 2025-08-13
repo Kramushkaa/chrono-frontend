@@ -102,7 +102,7 @@ export const sortGroupedData = (data: Person[], groupingType: 'category' | 'coun
     return a.localeCompare(b)
   })
 
-  // Сортируем людей внутри групп по году рождения
+  // Сортируем личности внутри групп по году рождения
   sortedGroups.forEach(group => {
     grouped[group].sort((a, b) => a.birthYear - b.birthYear)
   })

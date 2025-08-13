@@ -177,7 +177,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
               if (navigator.share) {
                 navigator.share({
                   title: 'Хронониндзя — Временные линии исторических личностей',
-                  text: 'Изучайте биографии и достижения выдающихся людей разных эпох',
+                  text: 'Изучайте биографии и достижения выдающихся личностей разных эпох',
                   url: window.location.href
                 });
               } else {
