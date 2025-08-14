@@ -11,8 +11,8 @@ export default function NotFoundPage() {
       </Helmet>
       <div style={{ maxWidth: 720, margin: '60px auto', padding: '0 16px', textAlign: 'center' }}>
         <h1>404 — Страница не найдена</h1>
-        <p>Похоже, такой страницы нет. Вернитесь в меню и продолжите путешествие по истории.</p>
-        <Link to="/menu" style={{ color: '#cd853f', fontWeight: 600 }}>Перейти в меню</Link>
+        <p>Похоже, такой страницы нет. Перейдите к временной линии и продолжите путешествие по истории.</p>
+        <Link to="/timeline" style={{ color: '#cd853f', fontWeight: 600 }}>Перейти к временной линии</Link>
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context';
+import { useAuth } from 'shared/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { getProfile, updateProfile, changePassword } from '../services/auth';
-import { apiFetch } from '../services/api';
-import { useToast } from '../context/ToastContext';
+import { getProfile, updateProfile, changePassword } from 'features/auth/services/auth';
+import { apiFetch } from 'shared/api/api';
+import { useToast } from 'shared/context/ToastContext';
 
 export function Profile() {
   const { state, logout } = useAuth();

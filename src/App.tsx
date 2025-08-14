@@ -1,44 +1,45 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
-// import { ProtectedRoute } from './components/ProtectedRoute'
-import { Person } from './types'
-import { MainMenu } from './components/MainMenu'
-import { AuthProvider } from './context'
+// import { ProtectedRoute } from '@shared/ui/ProtectedRoute'
+import { Person } from 'shared/types'
+import { MainMenu } from 'shared/ui/MainMenu'
+import { AuthProvider } from 'shared/context/AuthContext'
 // removed inline auth forms from menu; keep imports minimal
-import { BackendInfo } from './components/BackendInfo'
-import { useTimelineData } from './hooks/useTimelineData'
+import { BackendInfo } from 'shared/ui/BackendInfo'
+import { useTimelineData } from 'features/timeline/hooks/useTimelineData'
 import { useFilters } from './hooks/useFilters'
 import { useSlider } from './hooks/useSlider'
-import { useTooltip } from './hooks/useTooltip'
-import { useTimelineDrag } from './hooks/useTimelineDrag'
+import { useTooltip } from 'features/timeline/hooks/useTooltip'
+import { useTimelineDrag } from 'features/timeline/hooks/useTimelineDrag'
 import { 
   generateCenturyBoundaries,
   getFirstCountry
-} from './utils/timelineUtils'
+} from 'features/timeline/utils/timelineUtils'
 import { 
   getGroupColor, 
   getGroupColorDark, 
   getGroupColorMuted, 
   getPersonGroup,
   sortGroupedData
-} from './utils/groupingUtils'
+} from 'features/persons/utils/groupingUtils'
 import './App.css'
-import { ToastProvider } from './context/ToastContext'
-import { getDtoVersion, apiFetch, resolveListShare } from './services/api'
-import { useAuth } from './context'
+import { ToastProvider } from 'shared/context/ToastContext'
+import { useToast } from 'shared/context/ToastContext'
+import { getDtoVersion, apiData, resolveListShare } from 'shared/api/api'
+import { useAuth } from 'shared/context/AuthContext'
 import { DTO_VERSION as DTO_VERSION_FE } from './dto'
-import { Toasts } from './components/Toasts'
-import { SEO } from './components/SEO'
+import { Toasts } from 'shared/ui/Toasts'
+import { SEO } from 'shared/ui/SEO'
 
 // Lazy-loaded chunks to reduce initial JS on the menu route
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
-const ProfilePage = React.lazy(() => import('./pages/ProfilePage'))
-const RegisterPage = React.lazy(() => import('./pages/RegisterPage'))
-const ManagePage = React.lazy(() => import('./pages/ManagePage'))
-const Timeline = React.lazy(() => import('./components/Timeline').then(m => ({ default: m.Timeline })))
-const PersonPanel = React.lazy(() => import('./components/PersonPanel').then(m => ({ default: m.PersonPanel })))
-const Tooltips = React.lazy(() => import('./components/Tooltips').then(m => ({ default: m.Tooltips })))
-const AppHeader = React.lazy(() => import('./components/AppHeader').then(m => ({ default: m.AppHeader })))
+const ProfilePage = React.lazy(() => import('features/auth/pages/ProfilePage'))
+const RegisterPage = React.lazy(() => import('features/auth/pages/RegisterPage'))
+const ManagePage = React.lazy(() => import('features/manage/pages/ManagePage'))
+const Timeline = React.lazy(() => import('features/timeline/components/Timeline').then(m => ({ default: m.Timeline })))
+const PersonPanel = React.lazy(() => import('features/persons/components/PersonPanel').then(m => ({ default: m.PersonPanel })))
+const Tooltips = React.lazy(() => import('features/timeline/components/Tooltips').then(m => ({ default: m.Tooltips })))
+const AppHeader = React.lazy(() => import('shared/layout/AppHeader').then(m => ({ default: m.AppHeader })))
 
 function AppInner() {
   // auth state not needed here since forms removed from menu
@@ -47,6 +48,7 @@ function AppInner() {
   const isMenu = location.pathname === '/' || location.pathname === '/menu';
   const isTimeline = location.pathname === '/timeline';
   const { isAuthenticated, user } = useAuth();
+  const { showToast } = useToast();
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeAchievementMarker, setActiveAchievementMarker] = useState<{ personId: string; index: number } | null>(null)
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
@@ -132,17 +134,16 @@ function AppInner() {
     }
     listsInFlightRef.current = true
     try {
-      const res = await apiFetch(`/api/lists`)
-      const data = await res.json().catch(() => ({ data: [] }))
-      setPersonLists(Array.isArray(data.data) ? data.data : [])
+      const list = await apiData<Array<{ id: number; title: string; items_count?: number }>>(`/api/lists`)
+      setPersonLists(Array.isArray(list) ? list : [])
       lastListsFetchTsRef.current = Date.now()
-    } catch {
-      setPersonLists([])
+    } catch (e: any) {
+      showToast(e?.message || 'Не удалось загрузить списки', 'error')
     } finally {
       listsInFlightRef.current = false
     }
   }
-  useEffect(() => { loadUserLists.current?.() }, [isAuthenticated, user?.id])
+  useEffect(() => { loadUserLists.current?.() }, [isAuthenticated, user?.id, loadUserLists])
 
   // Optional list persons (from /timeline?ids=p1,p2 or /timeline?list=ID) — include approved + pending + draft
   const [listPersons, setListPersons] = useState<any[] | null>(null)
@@ -169,15 +170,14 @@ function AppInner() {
           const items: Array<{ item_type: string; person_id?: string }> = resolved?.items || []
           const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
           if (ids.length === 0) { setSelectedListId(null); setListPersons([]); return }
-          const prsRes = await apiFetch(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
-          const prsData = await prsRes.json().catch(() => ({ data: [] }))
-          const arr = Array.isArray(prsData.data) ? prsData.data : []
+          const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
           setSelectedListId(null)
           setListPersons(arr)
           setSharedListMeta({ code: shareParam, title: resolved?.title || 'Список', listId: undefined })
           setSelectedListKey(`share:${shareParam}`)
           return
-        } catch {
+        } catch (e: any) {
+          showToast(e?.message || 'Не удалось загрузить общий список', 'error')
           setSelectedListId(null)
           setListPersons([])
           setSharedListMeta(null)
@@ -190,27 +190,21 @@ function AppInner() {
         try {
           const ids = idsParam.split(',').map(s => s.trim()).filter(Boolean)
           if (ids.length === 0) { setListPersons([]); setSelectedListId(null); return }
-          const prsRes = await apiFetch(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
-          const prsData = await prsRes.json().catch(() => ({ data: [] }))
-          const arr = Array.isArray(prsData.data) ? prsData.data : []
+          const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
           setSelectedListId(null)
           setListPersons(arr)
-        } catch { setSelectedListId(null); setListPersons([]) }
+        } catch (e: any) { showToast(e?.message || 'Не удалось загрузить выбранных личностей', 'error'); setSelectedListId(null); setListPersons([]) }
       } else if (Number.isFinite(listId) && listId > 0) {
         setSelectedListId(listId)
         try {
           // Load list items (auth required)
-          const res = await apiFetch(`/api/lists/${listId}/items`)
-          const data = await res.json().catch(() => ({ data: [] }))
-          const items: Array<{ item_type: string; person_id?: string }> = Array.isArray(data.data) ? data.data : []
+          const items = await apiData<Array<{ item_type: string; person_id?: string }>>(`/api/lists/${listId}/items`)
           const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
           if (ids.length === 0) { setListPersons([]); return }
           // Load persons by ids (no approval filter)
-          const prsRes = await apiFetch(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
-          const prsData = await prsRes.json().catch(() => ({ data: [] }))
-          const arr = Array.isArray(prsData.data) ? prsData.data : []
+          const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
           setListPersons(arr)
-        } catch { setListPersons([]) }
+        } catch (e: any) { showToast(e?.message || 'Не удалось загрузить содержимое списка', 'error'); setListPersons([]) }
         setSharedListMeta(null)
         setSelectedListKey(`list:${listId}`)
       } else {
@@ -220,24 +214,20 @@ function AppInner() {
         setSelectedListKey('')
       }
     })()
-  }, [isTimeline, location.search])
+  }, [isTimeline, location.search, isAuthenticated, user?.id, showToast])
   // When user picks a list from the UI
   useEffect(() => {
     if (!selectedListId) return
     ;(async () => {
       try {
-        const res = await apiFetch(`/api/lists/${selectedListId}/items`)
-        const data = await res.json().catch(() => ({ data: [] }))
-        const items: Array<{ item_type: string; person_id?: string }> = Array.isArray(data.data) ? data.data : []
+        const items = await apiData<Array<{ item_type: string; person_id?: string }>>(`/api/lists/${selectedListId}/items`)
         const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
         if (ids.length === 0) { setListPersons([]); return }
-        const prsRes = await apiFetch(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
-        const prsData = await prsRes.json().catch(() => ({ data: [] }))
-        const arr = Array.isArray(prsData.data) ? prsData.data : []
+        const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
         setListPersons(arr)
-      } catch { setListPersons([]) }
+      } catch (e: any) { showToast(e?.message || 'Не удалось загрузить содержимое списка', 'error'); setListPersons([]) }
     })()
-  }, [selectedListId])
+  }, [selectedListId, showToast])
 
   const effectivePersons = useMemo(() => (listPersons !== null ? listPersons : persons), [listPersons, persons])
   const sortedData = sortGroupedData(effectivePersons as any, groupingType)
@@ -290,8 +280,16 @@ function AppInner() {
     }
 
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    // Global 401 handler from apiFetch
+    const onUnauthorized = () => {
+      try { showToast('Сессия истекла. Пожалуйста, войдите снова.', 'error', 5000) } catch {}
+    }
+    window.addEventListener('auth:unauthorized', onUnauthorized as any)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('auth:unauthorized', onUnauthorized as any)
+    }
+  }, [showToast])
 
   useEffect(() => {
     const handleCloseAchievementTooltip = () => {
@@ -756,7 +754,7 @@ export default function App() {
       <ToastProvider>
         <React.Suspense fallback={<div className="loading-overlay" role="status" aria-live="polite"><div className="spinner" aria-hidden="true"></div><span>Загрузка...</span></div>}>
           <Routes>
-            <Route path="/" element={<Navigate to="/menu" replace />} />
+            <Route path="/" element={<Navigate to="/timeline" replace />} />
             <Route path="/menu" element={<AppInner />} />
             <Route path="/timeline" element={<AppInner />} />
             <Route path="/lists" element={<ManagePage />} />

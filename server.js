@@ -13,6 +13,10 @@ app.use((req, res, next) => {
   try {
     const host = String(req.headers.host || '').toLowerCase();
     if (host === 'chrono.ninja' || host === 'www.chrono.ninja') {
+      // Allow verification files to be served under the original domain without redirect
+      if (/^\/yandex_[A-Za-z0-9]+\.html$/i.test(req.path)) {
+        return next();
+      }
       const isRoot = !req.originalUrl || req.originalUrl === '/';
       const target = `https://chrononinja.app${isRoot ? '/timeline' : req.originalUrl}`;
       res.redirect(301, target);
@@ -48,7 +52,7 @@ app.use(
   })
 );
 
-// Redirect root to /timeline for better UX (SSR redirect)
+// Redirect root to /timeline for direct entry into the main experience
 app.get('/', (req, res) => {
   res.redirect(302, '/timeline');
 });

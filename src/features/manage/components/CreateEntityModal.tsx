@@ -1,0 +1,227 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { SearchableSelect, SelectOption } from 'shared/ui/SearchableSelect'
+import { LifePeriodsEditor } from 'features/persons/components/LifePeriodsEditor'
+
+type CountryOption = { id: number; name: string }
+
+type Props = {
+  isOpen: boolean
+  onClose: () => void
+  type: 'person' | 'achievement'
+
+  // Person form
+  categories: string[]
+  countryOptions: CountryOption[]
+  onCreatePerson: (payload: {
+    id: string
+    name: string
+    birthYear: number
+    deathYear: number
+    category: string
+    description: string
+    imageUrl: string | null
+    wikiLink: string | null
+    lifePeriods: Array<{ countryId: string; start: number | ''; end: number | '' }>
+  }) => Promise<void>
+
+  // Achievement form
+  personOptions: SelectOption[]
+  personsSelectLoading: boolean
+  onSearchPersons: (q: string) => Promise<void>
+  onCreateAchievement: (payload: {
+    year: number
+    description: string
+    wikipedia_url: string | null
+    image_url: string | null
+    personId?: string
+    countryId?: number | null
+  }) => Promise<void>
+}
+
+export function CreateEntityModal(props: Props) {
+  const { isOpen, onClose, type, categories, countryOptions, onCreatePerson, personOptions, personsSelectLoading, onSearchPersons, onCreateAchievement } = props
+  const modalRef = useRef<HTMLDivElement | null>(null)
+  const lastFocusedBeforeModalRef = useRef<HTMLElement | null>(null)
+
+  const [newLifePeriods, setNewLifePeriods] = useState<Array<{ countryId: string; start: number | ''; end: number | '' }>>([])
+  const [newBirthYear, setNewBirthYear] = useState<number | ''>('')
+  const [newDeathYear, setNewDeathYear] = useState<number | ''>('')
+  // Local inline validation removed; rely on parent handlers
+  const [newPersonCategory, setNewPersonCategory] = useState<string>('')
+
+  const [achIsGlobal, setAchIsGlobal] = useState(false)
+  const [achSelectedCountryId, setAchSelectedCountryId] = useState<string>('')
+  const [achSelectedPersonId, setAchSelectedPersonId] = useState<string>('')
+
+  const countrySelectOptions = useMemo(() => countryOptions.map(c => ({ value: String(c.id), label: c.name })), [countryOptions])
+  const categorySelectOptions = useMemo(() => categories.map(c => ({ value: c, label: c })), [categories])
+
+  const trapFocus = (container: HTMLElement, e: React.KeyboardEvent) => {
+    if (e.key !== 'Tab') return
+    const focusable = container.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    )
+    const list = Array.from(focusable).filter(el => el.offsetParent !== null)
+    if (list.length === 0) return
+    const first = list[0]
+    const last = list[list.length - 1]
+    const active = document.activeElement as HTMLElement | null
+    const shift = (e as any).shiftKey
+    if (!shift && active === last) { e.preventDefault(); first.focus(); }
+    else if (shift && active === first) { e.preventDefault(); last.focus(); }
+  }
+
+  useEffect(() => {
+    if (isOpen) {
+      lastFocusedBeforeModalRef.current = document.activeElement as HTMLElement
+      setTimeout(() => { modalRef.current?.focus() }, 0)
+      if (type === 'person' && newLifePeriods.length === 0) setNewLifePeriods([{ countryId: '', start: '', end: '' }])
+    } else if (!isOpen && lastFocusedBeforeModalRef.current) {
+      try { lastFocusedBeforeModalRef.current.focus() } catch {}
+      lastFocusedBeforeModalRef.current = null
+    }
+  }, [isOpen, type, newLifePeriods.length])
+
+  if (!isOpen) return null
+
+  return (
+    <div role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000 }} onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
+      <div
+        ref={modalRef}
+        tabIndex={-1}
+        style={{ background: 'rgba(44,24,16,0.95)', border: '1px solid rgba(139,69,19,0.4)', borderRadius: 8, padding: 16, minWidth: 360 }}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => { if (modalRef.current) trapFocus(modalRef.current, e) }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontWeight: 'bold' }}>{type === 'person' ? 'Новая личность' : 'Новое достижение'}</div>
+          <button onClick={onClose}>✕</button>
+        </div>
+
+        {type === 'person' ? (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault()
+              const fd = new FormData(e.currentTarget as HTMLFormElement)
+              const name = String(fd.get('name') || '').trim()
+              const birthStr = String(fd.get('birthYear') || '').trim()
+              const deathStr = String(fd.get('deathYear') || '').trim()
+              const birthYear = Number(birthStr)
+              const deathYear = Number(deathStr)
+              const category = (newPersonCategory || String(fd.get('category') || '').trim())
+              const description = String(fd.get('description') || '').trim()
+              const imageUrl = String(fd.get('imageUrl') || '') || null
+              const wikiLink = String(fd.get('wikiLink') || '') || null
+              if (!name) return
+              if (birthStr === '' || deathStr === '') return
+              const payload = {
+                id: '', // генерируется снаружи по slug
+                name, birthYear, deathYear, category, description, imageUrl, wikiLink, lifePeriods: newLifePeriods
+              }
+              await onCreatePerson(payload)
+            }}
+            style={{ display: 'grid', gap: 8 }}
+          >
+            <input name="name" placeholder="Имя" required />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input name="birthYear" type="number" placeholder="Год рождения" required value={newBirthYear} onChange={(e) => setNewBirthYear(e.target.value === '' ? '' : Number(e.target.value))} />
+              <input name="deathYear" type="number" placeholder="Год смерти" required value={newDeathYear} onChange={(e) => setNewDeathYear(e.target.value === '' ? '' : Number(e.target.value))} />
+            </div>
+            {/* Inline errors removed; parent handles validation */}
+            <div>
+              <label style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>Род деятельности</label>
+              <SearchableSelect
+                placeholder="Выбрать род деятельности"
+                value={newPersonCategory}
+                options={categorySelectOptions}
+                onChange={(val) => setNewPersonCategory(val)}
+                locale="ru"
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>Страны проживания</label>
+              <div style={{ marginTop: 8 }}>
+                <button type="button" onClick={() => {
+                  const used = new Set(newLifePeriods.map(lp => lp.countryId))
+                  const next = countrySelectOptions.find(opt => !used.has(opt.value))?.value || ''
+                  const by = typeof newBirthYear === 'number' ? newBirthYear : 0
+                  const dy = typeof newDeathYear === 'number' ? newDeathYear : 0
+                  setNewLifePeriods(prev => [...prev, { countryId: next, start: by, end: dy }])
+                }}>+ Добавить страну проживания</button>
+              </div>
+              {newLifePeriods.length > 0 && (
+                <LifePeriodsEditor
+                  periods={newLifePeriods}
+                  onChange={setNewLifePeriods}
+                  options={countrySelectOptions}
+                  minYear={typeof newBirthYear === 'number' ? newBirthYear : undefined}
+                  maxYear={typeof newDeathYear === 'number' ? newDeathYear : undefined}
+                  disableDeleteWhenSingle
+                />
+              )}
+              {/* Inline period errors removed; parent handles validation */}
+            </div>
+            <input name="imageUrl" placeholder="URL изображения (необязательно)" />
+            <input name="wikiLink" placeholder="Ссылка на Википедию (необязательно)" />
+            <textarea name="description" placeholder="Описание" rows={6} />
+            <button type="submit">Сохранить</button>
+          </form>
+        ) : (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault()
+              const fd = new FormData(e.currentTarget as HTMLFormElement)
+              const year = Number(fd.get('year') || 0)
+              const description = String(fd.get('description') || '').trim()
+              const wikipedia_url = String(fd.get('wikipedia_url') || '') || null
+              const image_url = String(fd.get('image_url') || '') || null
+              const personId = achSelectedPersonId || undefined
+              const countryId = achSelectedCountryId ? Number(achSelectedCountryId) : null
+              await onCreateAchievement({ year, description, wikipedia_url, image_url, personId, countryId })
+            }}
+            style={{ display: 'grid', gap: 8 }}
+          >
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input type="checkbox" checked={achIsGlobal} disabled={!!achSelectedPersonId || !!achSelectedCountryId} onChange={(e) => { const v = e.target.checked; setAchIsGlobal(v); if (v) { setAchSelectedPersonId(''); setAchSelectedCountryId(''); } }} /> Глобальное событие
+            </label>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 260px', minWidth: 260 }}>
+                <SearchableSelect
+                  placeholder="Выбрать личность"
+                  value={achSelectedPersonId}
+                  disabled={achIsGlobal || !!achSelectedCountryId}
+                  options={personOptions}
+                  isLoading={personsSelectLoading}
+                  locale="ru"
+                  onChange={(val) => { setAchSelectedPersonId(val); if (val) { setAchIsGlobal(false); setAchSelectedCountryId('') } }}
+                  onSearchChange={(q) => onSearchPersons(q)}
+                />
+              </div>
+              <div style={{ flex: '1 1 260px', minWidth: 220 }}>
+                <SearchableSelect
+                  placeholder="Выбрать страну"
+                  value={achSelectedCountryId}
+                  disabled={achIsGlobal || !!achSelectedPersonId}
+                  options={countrySelectOptions}
+                  locale="ru"
+                  onChange={(val) => { setAchSelectedCountryId(val); if (val) { setAchIsGlobal(false); setAchSelectedPersonId('') } }}
+                />
+              </div>
+            </div>
+              <div style={{ fontSize: 12, opacity: 0.8 }}>
+                Можно выбрать только одно: «Глобальное событие», «Выбрать личность» или «Выбрать страну».
+              </div>
+            <input name="year" type="number" placeholder="Год" required />
+            <textarea name="description" placeholder="Описание" rows={4} required />
+            <input name="wikipedia_url" placeholder="Ссылка на Википедию (необязательно)" />
+            <input name="image_url" placeholder="URL изображения (необязательно)" />
+            <button type="submit">Сохранить</button>
+          </form>
+        )}
+      </div>
+    </div>
+  )
+}
+
+
+
