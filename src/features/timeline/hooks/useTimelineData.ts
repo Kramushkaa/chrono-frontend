@@ -37,7 +37,7 @@ export const useTimelineData = (filters: Filters, enabled: boolean = true) => {
     return filtersToApply
   }, [filters.categories, filters.countries, filters.timeRange.start, filters.timeRange.end])
 
-  // Загружаем список персон при изменении фильтров
+  // Загружаем список Личностей при изменении фильтров
   const fetchPersons = useCallback(async () => {
     if (!enabled) { setIsLoading(false); return }
     try {
