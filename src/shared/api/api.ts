@@ -14,7 +14,7 @@ const getApiConfig = () => {
   
   // URL для разных окружений
   const LOCAL_BACKEND_URL = process.env.REACT_APP_LOCAL_BACKEND_URL || 'http://localhost:3001';
-  const REMOTE_BACKEND_URL = process.env.REACT_APP_REMOTE_BACKEND_URL || 'https://api.chrononinja.app';
+  const REMOTE_BACKEND_URL = process.env.REACT_APP_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io';
   
   // Выбираем URL в зависимости от настроек
   let apiUrl: string;
@@ -298,7 +298,7 @@ export async function resolveListShare(code: string): Promise<{ title: string; l
 // Экспорт кандидатов и утилит для переключения бекенда из UI
 export const getApiCandidates = () => {
   const LOCAL_BACKEND_URL = process.env.REACT_APP_LOCAL_BACKEND_URL || 'http://localhost:3001';
-  const REMOTE_BACKEND_URL = process.env.REACT_APP_REMOTE_BACKEND_URL || 'https://api.chrononinja.app';
+  const REMOTE_BACKEND_URL = process.env.REACT_APP_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io';
   const current = API_BASE_URL;
   return { local: LOCAL_BACKEND_URL, remote: REMOTE_BACKEND_URL, current };
 };

@@ -6,7 +6,7 @@ Use env vars at build time:
 REACT_APP_USE_LOCAL_BACKEND=false
 REACT_APP_API_URL=
 REACT_APP_LOCAL_BACKEND_URL=http://localhost:3001
-REACT_APP_REMOTE_BACKEND_URL=https://api.chrononinja.app
+REACT_APP_REMOTE_BACKEND_URL=https://chrono-back-kramushka.amvera.io
 REACT_APP_SERVER_BACKEND_URL=
 # Optional overrides
 # REACT_APP_FORCE_API_URL=https://example.com
