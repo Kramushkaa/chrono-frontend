@@ -88,7 +88,7 @@ export function Breadcrumbs() {
               </span>
             ) : (
               <Link
-                to={item.path}
+                to={item.path === '/' ? '/menu' : item.path}
               >
                 {item.label}
               </Link>
