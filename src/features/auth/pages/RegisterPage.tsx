@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RegisterForm } from 'features/auth/components/RegisterForm';
 import { useNavigate } from 'react-router-dom';
 import { AppHeader } from 'shared/layout/AppHeader';
+import { Breadcrumbs } from 'shared/ui/Breadcrumbs';
 import { useFilters } from 'hooks/useFilters';
 import { getCategories, getCountries } from 'shared/api/api';
 import { getGroupColor } from 'features/persons/utils/groupingUtils';
@@ -54,10 +55,8 @@ export default function RegisterPage() {
         handleSliderMouseUp={() => {}}
         isDraggingSlider={false}
       />
+      <Breadcrumbs />
       <div style={{ maxWidth: 960, margin: '40px auto', padding: '0 16px' }}>
-        <div style={{ marginBottom: 12 }}>
-          <button onClick={() => { window.location.href = '/menu' }} aria-label="В меню">← В меню</button>
-        </div>
         <h1 style={{ marginBottom: 16 }}>Регистрация</h1>
         <RegisterForm onSuccess={() => navigate('/profile')} />
       </div>

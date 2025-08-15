@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { Breadcrumbs } from 'shared/ui/Breadcrumbs';
 
 export default function NotFoundPage() {
   return (
@@ -9,6 +10,7 @@ export default function NotFoundPage() {
         <title>Страница не найдена — Хронониндзя</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
+      <Breadcrumbs />
       <div style={{ maxWidth: 720, margin: '60px auto', padding: '0 16px', textAlign: 'center' }}>
         <h1>404 — Страница не найдена</h1>
         <p>Похоже, такой страницы нет. Перейдите к временной линии и продолжите путешествие по истории.</p>

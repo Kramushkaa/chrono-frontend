@@ -19,15 +19,15 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/timeline",
   "display": "standalone",
   "theme_color": "#2c1810",
   "background_color": "#1a0f0a",
-  "orientation": "landscape-primary",
+  "orientation": "any",
   "categories": ["education", "history", "reference"],
   "lang": "ru",
   "dir": "ltr",
-  "scope": "/",
+  "scope": "/timeline",
   "prefer_related_applications": false,
   "related_applications": []
 } 

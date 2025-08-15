@@ -118,7 +118,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
           <BrandTitle asLink />
         </h1>
         
-        {/* Кнопка "Назад в меню" и профиль рядом с ней */}
+        {/* Профиль и, опционально, кнопка "Назад в меню" рядом */}
         {onBackToMenu && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginLeft: '0.25rem' }}>
             <button

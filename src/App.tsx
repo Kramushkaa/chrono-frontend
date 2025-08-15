@@ -265,6 +265,18 @@ function AppInner() {
   }, [filters.hideEmptyCenturies, sortedData, filters.categories, filters.countries, filters.timeRange, setFilters, setYearInputs]);
 
   useEffect(() => {
+    // Yandex.Metrika SPA hits
+    try {
+      // @ts-ignore
+      if (typeof window !== 'undefined' && typeof (window as any).ym === 'function') {
+        const url = window.location.pathname + window.location.search + window.location.hash
+        // @ts-ignore
+        ;(window as any).ym(103755343, 'hit', url)
+      }
+    } catch {}
+  }, [location.pathname, location.search, location.hash])
+
+  useEffect(() => {
     // DTO drift detection (non-blocking)
     (async () => {
       try {

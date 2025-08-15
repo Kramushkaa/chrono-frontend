@@ -7,6 +7,7 @@ import { LoginForm } from 'features/auth/components/LoginForm';
 import { RegisterForm } from 'features/auth/components/RegisterForm';
 import { useFilters } from 'hooks/useFilters';
 import { AppHeader } from 'shared/layout/AppHeader';
+import { Breadcrumbs } from 'shared/ui/Breadcrumbs';
 import { getCategories, getCountries } from 'shared/api/api';
 import { getGroupColor } from 'features/persons/utils/groupingUtils';
 
@@ -95,10 +96,8 @@ export default function ProfilePage() {
         handleSliderMouseUp={() => {}}
         isDraggingSlider={false}
       />
+      <Breadcrumbs />
       <div style={{ maxWidth: 960, margin: '40px auto', padding: '0 16px' }}>
-        <div style={{ marginBottom: 12 }}>
-          <button onClick={() => { window.location.href = '/menu' }} aria-label="В меню">← В меню</button>
-        </div>
         <h1 style={{ marginBottom: 16 }}>Личный кабинет</h1>
         {isAuthenticated ? (
           <Profile />

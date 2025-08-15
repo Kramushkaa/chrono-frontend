@@ -66,13 +66,7 @@ export function Profile() {
             <div><strong>Имя пользователя:</strong> {profile.full_name || '—'}</div>
             <div><strong>Роль:</strong> {profile.role}</div>
             <div><strong>Email подтвержден:</strong> {profile.email_verified ? 'да' : 'нет'}</div>
-            <div style={{ marginTop: 8 }}>
-              {!isEditing ? (
-                <button onClick={() => { setValidationError(null); setDraft({ username: profile.username || '', full_name: profile.full_name || '', avatar_url: profile.avatar_url || '' }); setIsEditing(true); }}>Редактировать</button>
-              ) : (
-                <button onClick={() => { setIsEditing(false); setValidationError(null); }}>Отмена</button>
-              )}
-            </div>
+            
           </div>
         ) : (
           <div>Нет данных профиля</div>

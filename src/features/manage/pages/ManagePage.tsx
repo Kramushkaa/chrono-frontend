@@ -23,6 +23,7 @@ import { useToast } from 'shared/context/ToastContext'
 // import { LoginForm } from '../../auth/components/LoginForm'
 import { AuthRequiredModal } from 'features/manage/components/AuthRequiredModal'
 import { CreateEntityModal } from 'features/manage/components/CreateEntityModal'
+import { Breadcrumbs } from 'shared/ui/Breadcrumbs'
 import { slugifyIdFromName } from 'shared/utils/slug'
 // import { validateLifePeriodsClient } from '../../../utils/validation'
 import { AchievementsSection } from 'features/manage/components/AchievementsSection'
@@ -473,6 +474,7 @@ export default function ManagePage() {
           onBackToMenu={() => navigate('/menu')}
         />
       </React.Suspense>
+      <Breadcrumbs />
       <ManageUIProvider
         value={{
           openAddAchievement: (id: number) => addToList.openForAchievement(id),
