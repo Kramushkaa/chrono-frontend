@@ -39,6 +39,8 @@ interface PersonsSectionProps {
   setPersonsAltOffset: (updater: (prev: number) => number) => void
   onSelect: (p: any) => void
   personsMode: 'all' | 'pending' | 'mine' | 'list'
+  statusFilters: Record<string, boolean>
+  setStatusFilters: (filters: Record<string, boolean>) => void
 
   // List mode
   listLoading: boolean
@@ -77,7 +79,9 @@ export function PersonsSection(props: PersonsSectionProps) {
     personsAltLoading,
     personsAltHasMore,
     setPersonsAltOffset,
-    onSelect
+    onSelect,
+    statusFilters,
+    setStatusFilters
   } = props
 
   return (
@@ -114,6 +118,8 @@ export function PersonsSection(props: PersonsSectionProps) {
       personsAltHasMore={personsAltHasMore}
       setPersonsAltOffset={setPersonsAltOffset}
       onSelect={onSelect}
+      statusFilters={statusFilters}
+      setStatusFilters={setStatusFilters}
       listLoading={props.listLoading}
       listItems={props.listItems}
     />

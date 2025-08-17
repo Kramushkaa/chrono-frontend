@@ -19,6 +19,7 @@ interface AchievementsSectionProps {
 	achMineCount: number | null
 	personLists: ListItem[]
 	isAuthenticated: boolean
+	emailVerified: boolean
 	setShowAuthModal: (b: boolean) => void
 	setShowCreateList: (b: boolean) => void
 	sharedList: { id: number; title: string; owner_user_id?: string } | null
@@ -56,6 +57,7 @@ export function AchievementsSection(props: AchievementsSectionProps) {
 		achMineCount,
 		personLists,
 		isAuthenticated,
+		emailVerified,
 		setShowAuthModal,
 		setShowCreateList,
 		sharedList,
@@ -169,6 +171,7 @@ export function AchievementsSection(props: AchievementsSectionProps) {
 												<button
               onClick={() => {
                 if (!isAuthenticated) { setShowAuthModal(true); return }
+                if (!emailVerified) { showToast('Требуется подтверждение email для добавления достижений', 'error'); return }
                 manageUI.openAddAchievement(Number(a.id))
               }}
 													title="Добавить в список"

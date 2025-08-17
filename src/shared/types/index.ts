@@ -27,4 +27,7 @@ export interface Person {
       countryName?: string;
       comment?: string | null;
     }>;
+    // Поля для модерации (не всегда присутствуют)
+    status?: 'draft' | 'pending' | 'approved' | 'rejected';
+    is_draft?: boolean;
   } 

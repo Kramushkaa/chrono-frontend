@@ -3,9 +3,15 @@ export type LifePeriodDraft = { countryId: string; start: number | ''; end: numb
 export function validateLifePeriodsClient(
   periods: LifePeriodDraft[],
   birthYear?: number,
-  deathYear?: number
+  deathYear?: number,
+  isRequired: boolean = false
 ): { ok: boolean; message?: string } {
-  if (!periods || periods.length === 0) return { ok: true };
+  if (!periods || periods.length === 0) {
+    if (isRequired) {
+      return { ok: false, message: 'Необходимо указать хотя бы один период жизни' };
+    }
+    return { ok: true };
+  }
   for (const lp of periods) {
     if (!lp.countryId || lp.start === '' || lp.end === '') {
       return { ok: false, message: 'Заполните страну и годы начала/конца для каждого периода' };

@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Person } from 'shared/types'
 import { PersonEditor } from './PersonEditor'
 import { validateLifePeriodsClient } from 'shared/utils/validation'
-import { adminUpsertPerson, getPersonById } from 'shared/api/api'
+import { DraftModerationButtons } from 'shared/ui/DraftModerationButtons'
+import { adminUpsertPerson, getPersonById, updatePerson } from 'shared/api/api'
 import { apiFetch } from 'shared/api/api'
 
 type Option = { value: string; label: string }
@@ -25,15 +26,60 @@ type Props = {
   showToast: (m: string, t?: 'success' | 'error' | 'info') => void
   onPersonUpdated: (fresh: Person) => void
   onProposeEdit: (id: string, payload: any, nextLifePeriods: Array<{ country_id: number; start_year: number; end_year: number }>) => Promise<void>
+  onUpdateDraft?: (id: string, payload: any, nextLifePeriods: Array<{ country_id: number; start_year: number; end_year: number }>) => Promise<void>
+  onSubmitDraft?: (id: string, payload: any, nextLifePeriods: Array<{ country_id: number; start_year: number; end_year: number }>) => Promise<void>
+  onSuccess?: () => void
 }
 
 export function PersonEditModal(props: Props) {
-  const { isOpen, onClose, person, isModerator, editBirthYear, setEditBirthYear, editDeathYear, setEditDeathYear, editPersonCategory, setEditPersonCategory, categorySelectOptions, lifePeriods, setLifePeriods, countrySelectOptions, showToast, onPersonUpdated, onProposeEdit } = props
+  const { isOpen, onClose, person, isModerator, editBirthYear, setEditBirthYear, editDeathYear, setEditDeathYear, editPersonCategory, setEditPersonCategory, categorySelectOptions, lifePeriods, setLifePeriods, countrySelectOptions, showToast, onPersonUpdated, onProposeEdit, onUpdateDraft, onSubmitDraft, onSuccess } = props
   const [saving, setSaving] = useState(false)
   const [yearErrors, setYearErrors] = useState<{ birth?: string; death?: string }>({})
   const [periodsError, setPeriodsError] = useState<string | null>(null)
   const modalRef = useRef<HTMLDivElement | null>(null)
   const lastFocusedBeforeModalRef = useRef<HTMLElement | null>(null)
+
+  // Общая функция валидации и получения payload
+  const validateAndGetPayload = () => {
+    const formData = new FormData(modalRef.current?.querySelector('form') as HTMLFormElement)
+    const payload = {
+      id: person.id,
+      name: String(formData.get('name') || '').trim(),
+      birthYear: Number(editBirthYear),
+      deathYear: Number(editDeathYear),
+      category: editPersonCategory || String(formData.get('category') || person.category),
+      country: (() => {
+        const chosen = countrySelectOptions.find(c => String(c.value) === String(formData.get('countryId') || ''))?.label
+        return chosen || person.country
+      })(),
+      description: String(formData.get('description') || person.description),
+      imageUrl: String(formData.get('imageUrl') || person.imageUrl || '') || null,
+      wikiLink: String(formData.get('wikiLink') || person.wikiLink || '') || null,
+    }
+
+    // Валидация годов
+    const errs: { birth?: string; death?: string } = {}
+    if (!Number.isInteger(editBirthYear)) errs.birth = 'Введите целое число'
+    if (!Number.isInteger(editDeathYear)) errs.death = 'Введите целое число'
+    if (Number.isInteger(editBirthYear) && Number.isInteger(editDeathYear) && editBirthYear > editDeathYear) {
+      errs.birth = 'Год рождения > года смерти'
+      errs.death = 'Год смерти < года рождения'
+    }
+    setYearErrors(errs)
+    if (errs.birth || errs.death) return null
+
+    // Валидация периодов
+    if (lifePeriods.length > 0) {
+      const v = validateLifePeriodsClient(lifePeriods as any, payload.birthYear, payload.deathYear)
+      if (!v.ok) { 
+        setPeriodsError(v.message || 'Проверьте периоды')
+        return null
+      }
+      setPeriodsError(null)
+    }
+
+    return { payload, lifePeriods: lifePeriods.map(lp => ({ country_id: Number(lp.countryId), start_year: Number(lp.start), end_year: Number(lp.end) })) }
+  }
 
   const trapFocus = (container: HTMLElement, e: React.KeyboardEvent) => {
     if (e.key !== 'Tab') return
@@ -73,64 +119,7 @@ export function PersonEditModal(props: Props) {
           <div style={{ fontWeight: 'bold', fontSize: 16 }}>Редактирование личности</div>
           <button onClick={onClose}>Отмена</button>
         </div>
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault()
-            const form = e.currentTarget as HTMLFormElement
-            const fd = new FormData(form)
-            const payload = {
-              id: person.id,
-              name: String(fd.get('name') || '').trim(),
-              birthYear: Number(editBirthYear),
-              deathYear: Number(editDeathYear),
-              category: editPersonCategory || String(fd.get('category') || person.category),
-              country: (() => {
-                const chosen = countrySelectOptions.find(c => String(c.value) === String(fd.get('countryId') || ''))?.label
-                return chosen || person.country
-              })(),
-              description: String(fd.get('description') || person.description),
-              imageUrl: String(fd.get('imageUrl') || person.imageUrl || '') || null,
-              wikiLink: String(fd.get('wikiLink') || person.wikiLink || '') || null,
-            }
-            const errs: { birth?: string; death?: string } = {}
-            if (!Number.isInteger(editBirthYear)) errs.birth = 'Введите целое число'
-            if (!Number.isInteger(editDeathYear)) errs.death = 'Введите целое число'
-            if (Number.isInteger(editBirthYear) && Number.isInteger(editDeathYear) && editBirthYear > editDeathYear) {
-              errs.birth = 'Год рождения > года смерти'
-              errs.death = 'Год смерти < года рождения'
-            }
-            setYearErrors(errs)
-            if (errs.birth || errs.death) return
-            if (lifePeriods.length > 0) {
-              const v = validateLifePeriodsClient(lifePeriods as any, payload.birthYear, payload.deathYear)
-              if (!v.ok) { setPeriodsError(v.message || 'Проверьте периоды'); return }
-              setPeriodsError(null)
-            }
-            setSaving(true)
-            try {
-              if (isModerator) {
-                await adminUpsertPerson(payload)
-                if (lifePeriods.length > 0) {
-                  const normalized = lifePeriods.map(lp => ({ country_id: Number(lp.countryId), start_year: Number(lp.start), end_year: Number(lp.end) }))
-                  await apiFetch(`/api/persons/${encodeURIComponent(person.id)}/life-periods`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ periods: normalized }) })
-                }
-                const fresh = await getPersonById(person.id)
-                if (fresh) onPersonUpdated(fresh as any)
-                showToast('Личность сохранена', 'success')
-              } else {
-                const next = lifePeriods.map(lp => ({ country_id: Number(lp.countryId), start_year: Number(lp.start), end_year: Number(lp.end) }))
-                await onProposeEdit(person.id, payload, next)
-                showToast('Личность отправлена на модерацию', 'success')
-              }
-              onClose()
-            } catch (e: any) {
-              showToast(e?.message || 'Ошибка сохранения', 'error')
-            } finally {
-              setSaving(false)
-            }
-          }}
-          style={{ display: 'grid', gap: 8 }}
-        >
+        <form style={{ display: 'grid', gap: 8 }}>
           <PersonEditor
             person={person}
             editBirthYear={editBirthYear}
@@ -153,9 +142,119 @@ export function PersonEditModal(props: Props) {
           {periodsError && (
             <div style={{ color: '#ffaaaa', fontSize: 12 }}>{periodsError}</div>
           )}
-          <button type="submit" disabled={saving || Boolean(yearErrors.birth || yearErrors.death || periodsError)}>
-            {saving ? 'Сохраняем…' : isModerator ? 'Сохранить (модератор)' : 'Отправить на модерацию'}
-          </button>
+          
+          {/* Кнопки в зависимости от статуса и роли */}
+          {isModerator ? (
+            // Модераторы имеют одну кнопку
+            <button 
+              type="button" 
+              disabled={saving || Boolean(yearErrors.birth || yearErrors.death || periodsError)}
+              onClick={async () => {
+                const data = validateAndGetPayload()
+                if (!data) return
+                
+                setSaving(true)
+                try {
+                  await adminUpsertPerson(data.payload)
+                  if (data.lifePeriods.length > 0) {
+                    await apiFetch(`/api/persons/${encodeURIComponent(person.id)}/life-periods`, { 
+                      method: 'POST', 
+                      headers: { 'Content-Type': 'application/json' }, 
+                      body: JSON.stringify({ periods: data.lifePeriods }) 
+                    })
+                  }
+                  const fresh = await getPersonById(person.id)
+                  if (fresh) onPersonUpdated(fresh as any)
+                  showToast('Личность сохранена', 'success')
+                  onClose()
+                } catch (e: any) {
+                  showToast(e?.message || 'Ошибка сохранения', 'error')
+                } finally {
+                  setSaving(false)
+                }
+              }}
+            >
+              {saving ? 'Сохраняем…' : 'Сохранить (модератор)'}
+            </button>
+          ) : (
+            // Обычные пользователи: разные кнопки для черновиков и опубликованных
+            (() => {
+              const isDraft = person.status === 'draft' || person.is_draft === true
+              
+              if (isDraft) {
+                // Для черновиков - две кнопки
+                return (
+                  <DraftModerationButtons
+                    mode="edit"
+                    disabled={Boolean(yearErrors.birth || yearErrors.death || periodsError)}
+                    saving={saving}
+                    onSaveDraft={async () => {
+                      const data = validateAndGetPayload()
+                      if (!data || !onUpdateDraft) return
+                      
+                      setSaving(true)
+                      try {
+                        await onUpdateDraft(person.id, data.payload, data.lifePeriods)
+                        showToast('Черновик сохранен', 'success')
+                        // Вызываем callback для обновления данных
+                        if (onSuccess) onSuccess()
+                        onClose()
+                      } catch (e: any) {
+                        showToast(e?.message || 'Ошибка сохранения', 'error')
+                      } finally {
+                        setSaving(false)
+                      }
+                    }}
+                    onSubmitModeration={async () => {
+                      const data = validateAndGetPayload()
+                      if (!data || !onSubmitDraft) return
+                      
+                      setSaving(true)
+                      try {
+                        await onSubmitDraft(person.id, data.payload, data.lifePeriods)
+                        showToast('Черновик отправлен на модерацию', 'success')
+                        // Вызываем callback для обновления данных
+                        if (onSuccess) onSuccess()
+                        onClose()
+                      } catch (e: any) {
+                        showToast(e?.message || 'Ошибка отправки', 'error')
+                      } finally {
+                        setSaving(false)
+                      }
+                    }}
+                    showDescription={true}
+                  />
+                )
+              } else {
+                // Для опубликованных персон - одна кнопка
+                return (
+                  <button 
+                    type="button"
+                    disabled={saving || Boolean(yearErrors.birth || yearErrors.death || periodsError)}
+                    onClick={async () => {
+                      const data = validateAndGetPayload()
+                      if (!data) return
+                      
+                      setSaving(true)
+                      try {
+                        await onProposeEdit(person.id, data.payload, data.lifePeriods)
+                        showToast('Изменения отправлены на модерацию', 'success')
+                        // Вызываем callback для обновления данных
+                        if (onSuccess) onSuccess()
+                        onClose()
+                      } catch (e: any) {
+                        showToast(e?.message || 'Ошибка отправки', 'error')
+                      } finally {
+                        setSaving(false)
+                      }
+                    }}
+                  >
+                    {saving ? 'Отправляем…' : 'Отправить на модерацию'}
+                  </button>
+                )
+              }
+            })()
+          )}
         </form>
       </div>
     </div>

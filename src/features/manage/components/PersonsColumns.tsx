@@ -3,6 +3,7 @@ import { LeftMenuSelection } from './LeftMenu'
 import { LeftMenuLayout } from './LeftMenuLayout'
 import { PersonsList } from './PersonsList'
 import { apiFetch, createListShareCode } from 'shared/api/api'
+import { FilterDropdown } from 'shared/ui/FilterDropdown'
 
 type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean }
 
@@ -30,6 +31,8 @@ interface PersonsColumnsProps {
 
   // Persons data/controls
   personsMode: 'all' | 'pending' | 'mine' | 'list'
+  statusFilters: Record<string, boolean>
+  setStatusFilters: (filters: Record<string, boolean>) => void
   searchPersons: string
   setSearchPersons: (v: string) => void
   categories: string[]
@@ -70,6 +73,8 @@ export function PersonsColumns(props: PersonsColumnsProps) {
     loadUserLists,
     showToast,
     personsMode,
+    statusFilters,
+    setStatusFilters,
     searchPersons,
     setSearchPersons,
     categories,
@@ -162,21 +167,76 @@ export function PersonsColumns(props: PersonsColumnsProps) {
     >
       <div>
         {personsMode !== 'list' ? (
-          <PersonsList
-            search={searchPersons}
-            setSearch={setSearchPersons}
-            categories={categories}
-            countries={countries}
-            filters={filters}
-            setFilters={setFilters}
-            persons={personsMode==='all' ? personsAll : personsAlt}
-            isLoading={personsMode==='all' ? isPersonsLoadingAll : personsAltLoading}
-            hasMore={personsMode==='all' ? personsHasMoreAll : personsAltHasMore}
-            loadMore={() => {
-              if (personsMode==='all') loadMorePersonsAll(); else setPersonsAltOffset(o => o + 50)
-            }}
-            onSelect={onSelect}
-          />
+          (() => {
+            const persons = personsMode==='all' ? personsAll : personsAlt
+            const isLoading = personsMode==='all' ? isPersonsLoadingAll : personsAltLoading
+            const hasMore = personsMode==='all' ? personsHasMoreAll : personsAltHasMore
+          
+            return (
+              <div>
+                {/* Фильтр статусов для режима "mine" */}
+                {personsMode === 'mine' && (
+                  <div style={{ marginBottom: 12, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <FilterDropdown
+                      title="📋 Статус"
+                      textLabel="Статус"
+                      items={['🟡 Черновики', '🟠 На модерации', '🟢 Одобренные', '🔴 Отклоненные']}
+                      selectedItems={Object.entries(statusFilters)
+                        .filter(([_, checked]) => checked)
+                        .map(([status, _]) => {
+                          switch (status) {
+                            case 'draft': return '🟡 Черновики'
+                            case 'pending': return '🟠 На модерации'
+                            case 'approved': return '🟢 Одобренные'
+                            case 'rejected': return '🔴 Отклоненные'
+                            default: return status
+                          }
+                        })}
+                      onSelectionChange={(statuses) => {
+                        const statusMap = {
+                          '🟡 Черновики': 'draft',
+                          '🟠 На модерации': 'pending',
+                          '🟢 Одобренные': 'approved',
+                          '🔴 Отклоненные': 'rejected'
+                        }
+                        const selectedKeys = statuses.map(s => statusMap[s as keyof typeof statusMap]).filter(Boolean)
+                        const newFilters = {
+                          draft: selectedKeys.includes('draft'),
+                          pending: selectedKeys.includes('pending'),
+                          approved: selectedKeys.includes('approved'),
+                          rejected: selectedKeys.includes('rejected')
+                        }
+                        setStatusFilters(newFilters)
+                      }}
+                      getItemColor={(item) => {
+                        if (item.includes('Черновики')) return '#ffc107'      // жёлтый
+                        if (item.includes('модерации')) return '#fd7e14'      // оранжевый  
+                        if (item.includes('Одобренные')) return '#28a745'     // зелёный
+                        if (item.includes('Отклоненные')) return '#dc3545'    // красный
+                        return '#f4e4c1'
+                      }}
+                    />
+                  </div>
+                )}
+                
+                <PersonsList
+                search={searchPersons}
+                setSearch={setSearchPersons}
+                categories={categories}
+                countries={countries}
+                filters={filters}
+                setFilters={setFilters}
+                persons={persons}
+                isLoading={isLoading}
+                hasMore={hasMore}
+                loadMore={() => {
+                  if (personsMode==='all') loadMorePersonsAll(); else setPersonsAltOffset(o => o + 50)
+                }}
+                onSelect={onSelect}
+              />
+              </div>
+            )
+          })()
         ) : (
           <>
             <div style={{ marginBottom: 8, fontSize: 12, opacity: 0.9 }}>

@@ -15,7 +15,8 @@ import { PersonEditModal } from '../components/PersonEditModal'
 import { CreateListModal } from '../components/CreateListModal'
 // import { LeftMenu, LeftMenuSelection } from '../components/LeftMenu'
 import { AddToListModal } from '../components/AddToListModal'
-import { adminUpsertPerson, getPersonById, proposePersonEdit, proposeNewPerson, addAchievement } from 'shared/api/api'
+import { EditWarningModal } from 'shared/ui/EditWarningModal'
+import { adminUpsertPerson, getPersonById, proposePersonEdit, proposeNewPerson, addAchievement, createAchievementDraft, createPersonDraft, updatePerson, submitPersonDraft, revertPersonToDraft } from 'shared/api/api'
 import { useLists } from 'features/manage/hooks/useLists'
 import { useAddToList } from 'features/manage/hooks/useAddToList'
 import { useAuth } from 'shared/context/AuthContext'
@@ -50,6 +51,12 @@ export default function ManagePage() {
   const [activeTab, setActiveTab] = useState<Tab>('persons')
   type ViewMode = 'all' | 'pending' | 'mine' | 'list'
   const [personsMode, setPersonsMode] = useState<ViewMode>('all')
+  const [statusFilters, setStatusFilters] = useState<Record<string, boolean>>({
+    draft: false,
+    pending: false,
+    approved: false,
+    rejected: false
+  }) // Фильтры по статусам для 'mine' режима
   const [selectedListId, setSelectedListId] = useState<number | null>(null)
   type AchViewMode = 'all' | 'pending' | 'mine' | 'list'
   const [achMode, setAchMode] = useState<AchViewMode>('all')
@@ -83,6 +90,8 @@ export default function ManagePage() {
   const [showCreate, setShowCreate] = useState(false)
   const [createType, setCreateType] = useState<'person' | 'achievement'>('person')
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showEditWarning, setShowEditWarning] = useState(false)
+  const [isReverting, setIsReverting] = useState(false)
   // moved into CreateEntityModal
   const [countryOptions, setCountryOptions] = useState<CountryOption[]>([])
   // removed local query state for persons select
@@ -265,32 +274,82 @@ export default function ManagePage() {
   useEffect(() => {
     if (activeTab !== 'persons') return
     if (personsMode === 'all' || personsMode === 'list') return
+    
+    // Сбрасываем состояние
     setPersonsAlt([])
     setPersonsAltHasMore(true)
     setPersonsAltOffset(0)
-  }, [activeTab, personsMode])
-  useEffect(() => {
+    setPersonsAltLoading(true)
+    
+    // Загружаем данные
     let aborted = false
-    async function loadChunk() {
-      if (personsMode === 'all' || personsMode === 'list' || !personsAltHasMore || personsAltLoading) return
-      setPersonsAltLoading(true)
+    async function loadInitialData() {
       try {
-        const params = new URLSearchParams({ limit: '50', offset: String(personsAltOffset) })
+        const params = new URLSearchParams({ limit: '50', offset: '0' })
+        if (personsMode === 'mine') {
+          const selectedStatuses = Object.entries(statusFilters)
+            .filter(([_, checked]) => checked)
+            .map(([status, _]) => status)
+          if (selectedStatuses.length > 0) {
+            params.set('status', selectedStatuses.join(','))
+          }
+        }
         const path = personsMode === 'pending' ? '/api/admin/persons/moderation' : '/api/persons/mine'
         const arr = await apiData<Person[]>(`${path}?${params.toString()}`)
         if (!aborted) {
-          setPersonsAlt(prev => [...prev, ...arr])
-          if (arr.length < 50) setPersonsAltHasMore(false)
+          setPersonsAlt(arr || [])
+          setPersonsAltHasMore((arr?.length || 0) >= 50)
         }
-      } catch {
+      } catch (error) {
+        console.error('Error loading persons:', error)
+        if (!aborted) {
+          setPersonsAlt([])
+          setPersonsAltHasMore(false)
+        }
+      } finally {
+        if (!aborted) setPersonsAltLoading(false)
+      }
+    }
+    
+    loadInitialData()
+    return () => { aborted = true }
+  }, [activeTab, personsMode, statusFilters])
+  
+  // Separate useEffect for loading more data (pagination)
+  useEffect(() => {
+    if (personsAltOffset === 0) return // Skip initial load (handled above)
+    if (personsMode === 'all' || personsMode === 'list' || !personsAltHasMore || personsAltLoading) return
+    
+    let aborted = false
+    async function loadMoreData() {
+      setPersonsAltLoading(true)
+      try {
+        const params = new URLSearchParams({ limit: '50', offset: String(personsAltOffset) })
+        if (personsMode === 'mine') {
+          const selectedStatuses = Object.entries(statusFilters)
+            .filter(([_, checked]) => checked)
+            .map(([status, _]) => status)
+          if (selectedStatuses.length > 0) {
+            params.set('status', selectedStatuses.join(','))
+          }
+        }
+        const path = personsMode === 'pending' ? '/api/admin/persons/moderation' : '/api/persons/mine'
+        const arr = await apiData<Person[]>(`${path}?${params.toString()}`)
+        if (!aborted) {
+          setPersonsAlt(prev => [...prev, ...(arr || [])])
+          setPersonsAltHasMore((arr?.length || 0) >= 50)
+        }
+      } catch (error) {
+        console.error('Error loading more persons:', error)
         if (!aborted) setPersonsAltHasMore(false)
       } finally {
         if (!aborted) setPersonsAltLoading(false)
       }
     }
-    loadChunk()
+    
+    loadMoreData()
     return () => { aborted = true }
-  }, [activeTab, personsMode, personsAltOffset, personsAltHasMore, personsAltLoading])
+  }, [personsAltOffset])
 
   // Load selected list content (for both tabs + periods). Only loads when current tab is in 'list' mode
   useEffect(() => {
@@ -533,6 +592,8 @@ export default function ManagePage() {
               setPersonsAltOffset={setPersonsAltOffset}
               onSelect={(p) => setSelected(p)}
               personsMode={personsMode}
+              statusFilters={statusFilters}
+              setStatusFilters={setStatusFilters}
               listLoading={listLoading}
               listItems={listItems}
             />
@@ -542,7 +603,18 @@ export default function ManagePage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                       <div style={{ fontWeight: 'bold', fontSize: 16 }}>Карточка</div>
                       <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={() => { if (!isAuthenticated || !user?.email_verified) { setShowAuthModal(true); return } setIsEditing(true) }}>Редактировать</button>
+                        <button onClick={() => { 
+                          if (!isAuthenticated || !user?.email_verified) { 
+                            setShowAuthModal(true); 
+                            return; 
+                          }
+                          // Проверяем статус личности
+                          if (selected?.status === 'pending') {
+                            setShowEditWarning(true);
+                            return;
+                          }
+                          setIsEditing(true);
+                        }}>Редактировать</button>
                       <button onClick={() => { if (!isAuthenticated || !user?.email_verified) { setShowAuthModal(true); return } if (selected) addToList.openForPerson(selected) }}>Добавить в список</button>
                       </div>
                     </div>
@@ -619,6 +691,7 @@ export default function ManagePage() {
             achMineCount={achMineCount}
             personLists={isAuthenticated ? personLists : []}
             isAuthenticated={isAuthenticated}
+            emailVerified={!!user?.email_verified}
             setShowAuthModal={setShowAuthModal}
             setShowCreateList={setShowCreateList}
             sharedList={sharedList}
@@ -649,28 +722,55 @@ export default function ManagePage() {
             type={createType}
             categories={categories}
             countryOptions={countryOptions as any}
-            onCreatePerson={async ({ id: _ignored, name, birthYear, deathYear, category, description, imageUrl, wikiLink, lifePeriods }: { id: string; name: string; birthYear: number; deathYear: number; category: string; description: string; imageUrl: string | null; wikiLink: string | null; lifePeriods: Array<{ countryId: string; start: number | ''; end: number | '' }> }) => {
-                    let id = slugifyIdFromName(name)
+            onCreatePerson={async (payload) => {
+              try {
+                if (!user?.email_verified) { showToast('Требуется подтверждение email для создания личностей', 'error'); return }
+                
+                let id = slugifyIdFromName(payload.name)
               if (!id || id.length < 2) id = `person-${Date.now()}`
-                    const payload = { id, name, birthYear, deathYear, category, description, imageUrl, wikiLink }
-                    try {
-                      if (isModerator) {
-                        await adminUpsertPerson(payload)
-                  if (lifePeriods.length > 0) {
-                    const normalized = lifePeriods.map((lp: { countryId: string; start: number | ''; end: number | '' }) => ({ country_id: Number(lp.countryId), start_year: Number(lp.start), end_year: Number(lp.end) }))
-                    await apiFetch(`/api/persons/${encodeURIComponent(id)}/life-periods`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ periods: normalized }) })
-                        }
+                
+                const personPayload = { 
+                  id, 
+                  name: payload.name, 
+                  birthYear: payload.birthYear, 
+                  deathYear: payload.deathYear, 
+                  category: payload.category, 
+                  description: payload.description, 
+                  imageUrl: payload.imageUrl, 
+                  wikiLink: payload.wikiLink,
+                  saveAsDraft: payload.saveAsDraft,
+                  lifePeriods: payload.lifePeriods
+                }
+                
+                if (payload.saveAsDraft) {
+                  await createPersonDraft(personPayload)
+                  showToast('Черновик личности сохранен', 'success')
+                } else if (isModerator) {
+                  const { saveAsDraft, ...personData } = personPayload
+                  await adminUpsertPerson(personData)
+                  // Модераторы по-прежнему используют отдельный API для периодов
+                  if (payload.lifePeriods.length > 0) {
+                    const normalized = payload.lifePeriods.map((lp: { countryId: string; start: number | ''; end: number | '' }) => ({ 
+                      country_id: Number(lp.countryId), 
+                      start_year: Number(lp.start), 
+                      end_year: Number(lp.end) 
+                    }))
+                    await apiFetch(`/api/persons/${encodeURIComponent(id)}/life-periods`, { 
+                      method: 'POST', 
+                      headers: { 'Content-Type': 'application/json' }, 
+                      body: JSON.stringify({ periods: normalized }) 
+                    })
+                  }
+                  showToast('Личность создана', 'success')
+                  setSearchPersons(personPayload.name)
                       } else {
-                        await proposeNewPerson(payload)
-                  if (lifePeriods.length > 0) {
-                    const normalized = lifePeriods.map((lp: { countryId: string; start: number | ''; end: number | '' }) => ({ country_id: Number(lp.countryId), start_year: Number(lp.start), end_year: Number(lp.end) }))
-                    await apiFetch(`/api/persons/${encodeURIComponent(id)}/life-periods`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ periods: normalized }) })
-                        }
-                        showToast('Личность отправлена на модерацию', 'success')
-                      }
+                  const { saveAsDraft, ...personData } = personPayload
+                  await proposeNewPerson(personData)
+                  // Периоды теперь сохраняются прямо в proposeNewPerson, дополнительный вызов не нужен
+                  showToast('Личность создана и отправлена на модерацию', 'success')
+                }
+                
                       setShowCreate(false)
-                if (isModerator) showToast('Личность создана', 'success')
-                      setSearchPersons(payload.name)
                     } catch (e: any) {
                       showToast(e?.message || 'Ошибка', 'error')
                     }
@@ -691,16 +791,27 @@ export default function ManagePage() {
                           } catch { setPersonOptions([]) }
                           finally { setPersonsSelectLoading(false) }
                       }}
-            onCreateAchievement={async ({ year, description, wikipedia_url, image_url, personId, countryId }: { year: number; description: string; wikipedia_url: string | null; image_url: string | null; personId?: string; countryId?: number | null }) => {
+            onCreateAchievement={async ({ year, description, wikipedia_url, image_url, personId, countryId, saveAsDraft }: { year: number; description: string; wikipedia_url: string | null; image_url: string | null; personId?: string; countryId?: number | null; saveAsDraft?: boolean }) => {
               try {
-                if (!isModerator) { showToast('Создавать достижения могут модераторы/админы', 'error'); return }
+                if (!user?.email_verified) { showToast('Требуется подтверждение email для создания достижений', 'error'); return }
                 if (personId) {
+                  if (saveAsDraft) {
+                    await createAchievementDraft(personId, { year, description, wikipedia_url, image_url })
+                    showToast('Черновик достижения сохранен', 'success')
+                  } else {
                   await addAchievement(personId, { year, description, wikipedia_url, image_url })
+                    showToast('Достижение создано и отправлено на модерацию', 'success')
+                  }
                 } else {
+                  // Для глобальных достижений всё ещё нужны права модератора
+                  if (!isModerator) { showToast('Создавать глобальные достижения могут только модераторы/админы', 'error'); return }
                   await addGenericAchievement({ year, description, wikipedia_url, image_url, country_id: countryId ?? null })
+                  showToast('Глобальное достижение создано', 'success')
                 }
                 setShowCreate(false)
+                if (!saveAsDraft) {
                 setSearchAch(String(year))
+                }
               } catch (e: any) {
                 showToast(e?.message || 'Ошибка', 'error')
               }
@@ -744,6 +855,46 @@ export default function ManagePage() {
               await apiFetch(`/api/persons/${encodeURIComponent(id)}/life-periods`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ periods: next }) })
             }
           }}
+          onUpdateDraft={async (id: string, payload: any, next: Array<{ country_id: number; start_year: number; end_year: number }>) => {
+            // Преобразуем периоды в формат frontend
+            const lifePeriods = next.map(p => ({
+              countryId: String(p.country_id),
+              start: p.start_year,
+              end: p.end_year
+            }))
+            
+            console.log('onUpdateDraft called for:', id)
+            // Обновляем персону с периодами
+            await updatePerson(id, { ...payload, lifePeriods })
+            const fresh = await getPersonById(id)
+            console.log('Fresh data after updatePerson:', (fresh as any)?.status, (fresh as any)?.is_draft)
+
+            if (fresh) setSelected(fresh as any)
+          }}
+          onSubmitDraft={async (id: string, payload: any, next: Array<{ country_id: number; start_year: number; end_year: number }>) => {
+            // Сначала обновляем черновик с изменениями
+            const lifePeriods = next.map(p => ({
+              countryId: String(p.country_id),
+              start: p.start_year,
+              end: p.end_year
+            }))
+            await updatePerson(id, { ...payload, lifePeriods })
+            
+            // Затем отправляем на модерацию
+            await submitPersonDraft(id)
+            const fresh = await getPersonById(id)
+
+            if (fresh) setSelected(fresh as any)
+          }}
+          onSuccess={async () => {
+            // Дополнительно обновляем данные о личности после успешной операции
+            console.log('onSuccess called, selected before:', (selected as any)?.status, (selected as any)?.is_draft)
+            if (selected) {
+              const fresh = await getPersonById(selected.id)
+              console.log('Fresh data from API:', (fresh as any)?.status, (fresh as any)?.is_draft)
+              if (fresh) setSelected(fresh as any)
+            }
+          }}
         />
 
         <CreateListModal
@@ -771,6 +922,33 @@ export default function ManagePage() {
             </label>
           ) : null}
           onAdd={(listId: number) => addToList.onAdd(listId)}
+        />
+
+        <EditWarningModal
+          isOpen={showEditWarning}
+          personName={selected?.name || ''}
+          onRevertToDraft={async () => {
+            if (!selected || isReverting) return;
+            
+            setIsReverting(true);
+            try {
+              await revertPersonToDraft(selected.id);
+              showToast('Личность возвращена в черновики', 'success');
+              
+              // Обновляем данные о личности
+              const fresh = await getPersonById(selected.id);
+
+              if (fresh) setSelected(fresh as any);
+              
+              setShowEditWarning(false);
+            } catch (e: any) {
+              showToast(e?.message || 'Ошибка при возврате в черновики', 'error');
+            } finally {
+              setIsReverting(false);
+            }
+          }}
+          onCancel={() => setShowEditWarning(false)}
+          isReverting={isReverting}
         />
       </div>
       </ManageUIProvider>

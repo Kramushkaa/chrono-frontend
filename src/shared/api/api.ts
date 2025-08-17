@@ -459,6 +459,42 @@ export async function addAchievement(personId: string, payload: { year: number; 
   return data;
 }
 
+// Get user's achievements
+export async function getMyAchievements(limit?: number, offset?: number) {
+  const params = new URLSearchParams();
+  if (limit) params.append('limit', limit.toString());
+  if (offset) params.append('offset', offset.toString());
+  
+  const res = await apiFetch(`/api/achievements/mine?${params.toString()}`);
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось получить достижения');
+  return data;
+}
+
+// Get pending achievements (for moderators)
+export async function getPendingAchievements(limit?: number, offset?: number) {
+  const params = new URLSearchParams();
+  if (limit) params.append('limit', limit.toString());
+  if (offset) params.append('offset', offset.toString());
+  
+  const res = await apiFetch(`/api/admin/achievements/pending?${params.toString()}`);
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось получить pending достижения');
+  return data;
+}
+
+// Review achievement (approve/reject) - for moderators
+export async function reviewAchievement(achievementId: number, action: 'approve' | 'reject', comment?: string) {
+  const res = await apiFetch(`/api/admin/achievements/${achievementId}/review`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, comment })
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось обработать достижение');
+  return data;
+}
+
 // Create achievement not bound to person (optionally bound to country via country_id)
 export async function addGenericAchievement(payload: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null; country_id?: number | null }) {
   const res = await apiFetch(`/api/achievements`, {
@@ -496,7 +532,7 @@ export async function getPersonById(id: string): Promise<Person | null> {
   try {
     const p = await apiData<any>(`/api/persons/${encodeURIComponent(id)}`)
     // Map to Person type used on frontend
-    const mapped: Person = {
+    const mapped: any = {
       id: p.id,
       name: maybePercentDecode(p.name || ''),
       birthYear: p.birthYear,
@@ -523,7 +559,9 @@ export async function getPersonById(id: string): Promise<Person | null> {
         : [],
         achievementYears: Array.isArray(p.achievementYears) ? p.achievementYears : undefined,
       achievements: Array.isArray(p.achievements) ? p.achievements.map((a: string) => maybePercentDecode(a || '')) : [],
-      achievementsWiki: Array.isArray(p.achievementsWiki) ? p.achievementsWiki : []
+      achievementsWiki: Array.isArray(p.achievementsWiki) ? p.achievementsWiki : [],
+      status: p.status,
+      is_draft: p.is_draft
     };
     return mapped;
   } catch {
@@ -540,4 +578,145 @@ export async function saveLifePeriods(personId: string, periods: LifePeriodInput
     body: JSON.stringify({ periods })
   })
   return data
+}
+
+// Draft management functions
+export async function getAchievementDrafts(limit?: number, offset?: number) {
+  const params = new URLSearchParams();
+  if (limit) params.append('limit', limit.toString());
+  if (offset) params.append('offset', offset.toString());
+
+  const res = await apiFetch(`/api/achievements/drafts?${params.toString()}`);
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось получить черновики достижений');
+  return data;
+}
+
+export async function getPeriodDrafts(limit?: number, offset?: number) {
+  const params = new URLSearchParams();
+  if (limit) params.append('limit', limit.toString());
+  if (offset) params.append('offset', offset.toString());
+
+  const res = await apiFetch(`/api/periods/drafts?${params.toString()}`);
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось получить черновики периодов');
+  return data;
+}
+
+export async function updateAchievement(achievementId: number, data: { year?: number; description?: string; wikipedia_url?: string | null; image_url?: string | null }) {
+  const res = await apiFetch(`/api/achievements/${achievementId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  const responseData = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(responseData?.message || 'Не удалось обновить достижение');
+  return responseData;
+}
+
+export async function updatePeriod(periodId: number, data: { start_year?: number; end_year?: number; period_type?: string; country_id?: number | null; comment?: string | null }) {
+  const res = await apiFetch(`/api/periods/${periodId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  const responseData = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(responseData?.message || 'Не удалось обновить период');
+  return responseData;
+}
+
+export async function submitAchievementDraft(achievementId: number) {
+  const res = await apiFetch(`/api/achievements/${achievementId}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось отправить черновик на модерацию');
+  return data;
+}
+
+export async function submitPeriodDraft(periodId: number) {
+  const res = await apiFetch(`/api/periods/${periodId}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось отправить черновик на модерацию');
+  return data;
+}
+
+export async function createAchievementDraft(personId: string, data: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null }) {
+  const res = await apiFetch(`/api/persons/${personId}/achievements`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...data, saveAsDraft: true })
+  });
+  const responseData = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(responseData?.message || 'Не удалось создать черновик достижения');
+  return responseData;
+}
+
+export async function createPeriodDraft(personId: string, data: { start_year: number; end_year: number; period_type: string; country_id?: number | null; comment?: string | null }) {
+  const res = await apiFetch(`/api/persons/${personId}/periods`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...data, saveAsDraft: true })
+  });
+  const responseData = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(responseData?.message || 'Не удалось создать черновик периода');
+  return responseData;
+}
+
+// Person draft management functions
+export async function getPersonDrafts(limit?: number, offset?: number) {
+  const params = new URLSearchParams();
+  if (limit) params.append('limit', limit.toString());
+  if (offset) params.append('offset', offset.toString());
+
+  const res = await apiFetch(`/api/persons/drafts?${params.toString()}`);
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось получить черновики личностей');
+  return data;
+}
+
+export async function updatePerson(personId: string, data: { name?: string; birthYear?: number; deathYear?: number; category?: string; description?: string; imageUrl?: string | null; wikiLink?: string | null; lifePeriods?: Array<{ countryId: string; start: number | ''; end: number | '' }> }) {
+  const res = await apiFetch(`/api/persons/${personId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  const responseData = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(responseData?.message || 'Не удалось обновить личность');
+  return responseData;
+}
+
+export async function submitPersonDraft(personId: string) {
+  const res = await apiFetch(`/api/persons/${personId}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(data?.message || 'Не удалось отправить черновик на модерацию');
+  return data;
+}
+
+export async function createPersonDraft(data: { id: string; name: string; birthYear: number; deathYear: number; category: string; description: string; imageUrl: string | null; wikiLink: string | null; lifePeriods: Array<{ countryId: string; start: number | ''; end: number | '' }> }) {
+  const res = await apiFetch(`/api/persons/propose`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...data, saveAsDraft: true })
+  });
+  const responseData = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(responseData?.message || 'Не удалось создать черновик личности');
+  return responseData;
+}
+
+export async function revertPersonToDraft(personId: string) {
+  const res = await apiFetch(`/api/persons/${personId}/revert-to-draft`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  const responseData = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(responseData?.message || 'Не удалось вернуть личность в черновики');
+  return responseData;
 }

@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { SearchableSelect, SelectOption } from 'shared/ui/SearchableSelect'
 import { LifePeriodsEditor } from 'features/persons/components/LifePeriodsEditor'
+import { validateLifePeriodsClient } from 'shared/utils/validation'
+import { DraftModerationButtons } from 'shared/ui/DraftModerationButtons'
 
 type CountryOption = { id: number; name: string }
 
@@ -22,6 +24,7 @@ type Props = {
     imageUrl: string | null
     wikiLink: string | null
     lifePeriods: Array<{ countryId: string; start: number | ''; end: number | '' }>
+    saveAsDraft?: boolean
   }) => Promise<void>
 
   // Achievement form
@@ -35,6 +38,7 @@ type Props = {
     image_url: string | null
     personId?: string
     countryId?: number | null
+    saveAsDraft?: boolean
   }) => Promise<void>
 }
 
@@ -46,6 +50,7 @@ export function CreateEntityModal(props: Props) {
   const [newLifePeriods, setNewLifePeriods] = useState<Array<{ countryId: string; start: number | ''; end: number | '' }>>([])
   const [newBirthYear, setNewBirthYear] = useState<number | ''>('')
   const [newDeathYear, setNewDeathYear] = useState<number | ''>('')
+  const [periodsError, setPeriodsError] = useState<string | null>(null)
   // Local inline validation removed; rely on parent handlers
   const [newPersonCategory, setNewPersonCategory] = useState<string>('')
 
@@ -76,6 +81,7 @@ export function CreateEntityModal(props: Props) {
       lastFocusedBeforeModalRef.current = document.activeElement as HTMLElement
       setTimeout(() => { modalRef.current?.focus() }, 0)
       if (type === 'person' && newLifePeriods.length === 0) setNewLifePeriods([{ countryId: '', start: '', end: '' }])
+      setPeriodsError(null) // Очистить ошибки при открытии
     } else if (!isOpen && lastFocusedBeforeModalRef.current) {
       try { lastFocusedBeforeModalRef.current.focus() } catch {}
       lastFocusedBeforeModalRef.current = null
@@ -99,28 +105,7 @@ export function CreateEntityModal(props: Props) {
         </div>
 
         {type === 'person' ? (
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault()
-              const fd = new FormData(e.currentTarget as HTMLFormElement)
-              const name = String(fd.get('name') || '').trim()
-              const birthStr = String(fd.get('birthYear') || '').trim()
-              const deathStr = String(fd.get('deathYear') || '').trim()
-              const birthYear = Number(birthStr)
-              const deathYear = Number(deathStr)
-              const category = (newPersonCategory || String(fd.get('category') || '').trim())
-              const description = String(fd.get('description') || '').trim()
-              const imageUrl = String(fd.get('imageUrl') || '') || null
-              const wikiLink = String(fd.get('wikiLink') || '') || null
-              if (!name) return
-              if (birthStr === '' || deathStr === '') return
-              const payload = {
-                id: '', // генерируется снаружи по slug
-                name, birthYear, deathYear, category, description, imageUrl, wikiLink, lifePeriods: newLifePeriods
-              }
-              await onCreatePerson(payload)
-            }}
-            style={{ display: 'grid', gap: 8 }}
+          <form style={{ display: 'grid', gap: 8 }}
           >
             <input name="name" placeholder="Имя" required />
             <div style={{ display: 'flex', gap: 8 }}>
@@ -159,12 +144,78 @@ export function CreateEntityModal(props: Props) {
                   disableDeleteWhenSingle
                 />
               )}
-              {/* Inline period errors removed; parent handles validation */}
+              {periodsError && (
+                <div style={{ fontSize: 12, color: '#d32f2f', marginTop: 4 }}>
+                  {periodsError}
+                </div>
+              )}
             </div>
             <input name="imageUrl" placeholder="URL изображения (необязательно)" />
             <input name="wikiLink" placeholder="Ссылка на Википедию (необязательно)" />
             <textarea name="description" placeholder="Описание" rows={6} />
-            <button type="submit">Сохранить</button>
+            <DraftModerationButtons
+              mode="create"
+              onSaveDraft={async () => {
+                const fd = new FormData(document.querySelector('form') as HTMLFormElement)
+                const name = String(fd.get('name') || '').trim()
+                const birthStr = String(fd.get('birthYear') || '').trim()
+                const deathStr = String(fd.get('deathYear') || '').trim()
+                const birthYear = Number(birthStr)
+                const deathYear = Number(deathStr)
+                const category = (newPersonCategory || String(fd.get('category') || '').trim())
+                const description = String(fd.get('description') || '').trim()
+                const imageUrl = String(fd.get('imageUrl') || '') || null
+                const wikiLink = String(fd.get('wikiLink') || '') || null
+                if (!name) return
+                if (birthStr === '' || deathStr === '') return
+                
+                // Для черновиков валидация периодов не обязательна, но если есть - должны быть корректными
+                if (newLifePeriods.length > 0) {
+                  const periodsValidation = validateLifePeriodsClient(newLifePeriods, birthYear, deathYear, false)
+                  if (!periodsValidation.ok) {
+                    setPeriodsError(periodsValidation.message || 'Проверьте периоды жизни')
+                    return
+                  }
+                }
+                setPeriodsError(null)
+                
+                const payload = {
+                  id: '', // генерируется снаружи по slug
+                  name, birthYear, deathYear, category, description, imageUrl, wikiLink, lifePeriods: newLifePeriods, saveAsDraft: true
+                }
+                await onCreatePerson(payload)
+              }}
+              onSubmitModeration={async () => {
+                // Используем логику из onSubmit формы
+                const fd = new FormData(document.querySelector('form') as HTMLFormElement)
+                const name = String(fd.get('name') || '').trim()
+                const birthStr = String(fd.get('birthYear') || '').trim()
+                const deathStr = String(fd.get('deathYear') || '').trim()
+                const birthYear = Number(birthStr)
+                const deathYear = Number(deathStr)
+                const category = (newPersonCategory || String(fd.get('category') || '').trim())
+                const description = String(fd.get('description') || '').trim()
+                const imageUrl = String(fd.get('imageUrl') || '') || null
+                const wikiLink = String(fd.get('wikiLink') || '') || null
+                if (!name) return
+                if (birthStr === '' || deathStr === '') return
+                
+                // Валидация периодов жизни (требуется для отправки на модерацию)
+                const periodsValidation = validateLifePeriodsClient(newLifePeriods, birthYear, deathYear, true)
+                if (!periodsValidation.ok) {
+                  setPeriodsError(periodsValidation.message || 'Проверьте периоды жизни')
+                  return
+                }
+                setPeriodsError(null)
+                
+                const payload = {
+                  id: '', // генерируется снаружи по slug
+                  name, birthYear, deathYear, category, description, imageUrl, wikiLink, lifePeriods: newLifePeriods, saveAsDraft: false
+                }
+                await onCreatePerson(payload)
+              }}
+              showDescription={true}
+            />
           </form>
         ) : (
           <form
@@ -177,7 +228,7 @@ export function CreateEntityModal(props: Props) {
               const image_url = String(fd.get('image_url') || '') || null
               const personId = achSelectedPersonId || undefined
               const countryId = achSelectedCountryId ? Number(achSelectedCountryId) : null
-              await onCreateAchievement({ year, description, wikipedia_url, image_url, personId, countryId })
+              await onCreateAchievement({ year, description, wikipedia_url, image_url, personId, countryId, saveAsDraft: false })
             }}
             style={{ display: 'grid', gap: 8 }}
           >
@@ -215,7 +266,49 @@ export function CreateEntityModal(props: Props) {
             <textarea name="description" placeholder="Описание" rows={4} required />
             <input name="wikipedia_url" placeholder="Ссылка на Википедию (необязательно)" />
             <input name="image_url" placeholder="URL изображения (необязательно)" />
-            <button type="submit">Сохранить</button>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between' }}>
+              <button 
+                type="button"
+                onClick={async () => {
+                  const fd = new FormData(document.querySelector('form') as HTMLFormElement)
+                  const year = Number(fd.get('year') || 0)
+                  const description = String(fd.get('description') || '').trim()
+                  const wikipedia_url = String(fd.get('wikipedia_url') || '') || null
+                  const image_url = String(fd.get('image_url') || '') || null
+                  const personId = achSelectedPersonId || undefined
+                  const countryId = achSelectedCountryId ? Number(achSelectedCountryId) : null
+                  await onCreateAchievement({ year, description, wikipedia_url, image_url, personId, countryId, saveAsDraft: true })
+                }}
+                style={{ 
+                  flex: 1, 
+                  padding: '12px 16px', 
+                  background: '#6c757d', 
+                  border: '1px solid #6c757d', 
+                  borderRadius: 4, 
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                Сохранить как черновик
+              </button>
+              <button 
+                type="submit"
+                style={{ 
+                  flex: 1, 
+                  padding: '12px 16px', 
+                  background: '#4CAF50', 
+                  border: '1px solid #4CAF50', 
+                  borderRadius: 4, 
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                Отправить на модерацию
+              </button>
+            </div>
+            <div style={{ fontSize: 12, opacity: 0.8, textAlign: 'center' }}>
+              Черновик можно будет редактировать и отправить на модерацию позже
+            </div>
           </form>
         )}
       </div>
