@@ -874,12 +874,11 @@ export default function ManagePage() {
             setSidebarCollapsed={setSidebarCollapsed}
             menuSelection={menuSelection as any}
             setMenuSelection={setMenuSelection as any}
-              isModerator={isModerator}
+            isModerator={isModerator}
             achPendingCount={achPendingCount}
             achMineCount={achMineCount}
             personLists={isAuthenticated ? personLists : []}
             isAuthenticated={isAuthenticated}
-            emailVerified={!!user?.email_verified}
             setShowAuthModal={setShowAuthModal}
             setShowCreateList={setShowCreateList}
             sharedList={sharedList}
@@ -896,7 +895,6 @@ export default function ManagePage() {
             achItemsAlt={achItemsAlt}
             achAltLoading={achAltLoading}
             achAltHasMore={achAltHasMore}
-            setAchAltOffset={setAchAltOffset}
             listLoading={listLoading}
             listItems={listItems}
             setListItems={setListItems as any}
