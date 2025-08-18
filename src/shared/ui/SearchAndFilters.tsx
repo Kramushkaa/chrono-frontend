@@ -1,4 +1,5 @@
 import React from 'react'
+import { FilterDropdown } from './FilterDropdown'
 
 interface SearchAndFiltersProps {
   searchValue: string
@@ -38,18 +39,19 @@ export function SearchAndFilters({
         />
         
         {filters.map(filter => (
-          <select 
+          <FilterDropdown
             key={filter.key}
-            value={filter.value} 
-            onChange={(e) => filter.onChange(e.target.value)} 
-            style={{ padding: 6 }}
-          >
-            {filter.options.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            title={filter.label}
+            textLabel={filter.label}
+            items={filter.options.map(opt => opt.label)}
+            selectedItems={filter.value ? [filter.options.find(opt => opt.value === filter.value)?.label || ''] : []}
+            onSelectionChange={(selected) => {
+              const selectedValue = selected.length > 0 ? selected[0] : ''
+              const option = filter.options.find(opt => opt.label === selectedValue)
+              filter.onChange(option ? option.value : '')
+            }}
+            getItemColor={() => '#f4e4c1'}
+          />
         ))}
       </div>
       
