@@ -2,51 +2,49 @@ import React from 'react'
 import { LeftMenuSelection } from 'features/manage/components/LeftMenu'
 import { LeftMenuLayout } from 'features/manage/components/LeftMenuLayout'
 import { ListItemsView } from './ListItemsView'
-import { ListSummary } from './ListSummary'
 import { deleteListItem, createAndCopyShareLink, openListOnTimeline } from '../utils/lists'
 import { apiFetch } from '../api/api'
 
-type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean }
-
 interface ManageSectionProps {
-  // Sidebar
+  // Layout control
   sidebarCollapsed: boolean
-  setSidebarCollapsed: (updater: (prev: boolean) => boolean) => void
+  
+  // Menu state
   menuSelection: string
-  setMenuSelection: (sel: any) => void
-  isModerator: boolean
-  pendingCount: number | null
-  mineCount: number | null
-  personLists: ListItem[]
+  setMenuSelection: (sel: string) => void
+  
+  // User info
   isAuthenticated: boolean
-  emailVerified: boolean
-  setShowAuthModal: (b: boolean) => void
-  setShowCreateList: (b: boolean) => void
-  sharedList: { id: number; title: string; owner_user_id?: string } | null
+  isModerator: boolean
+  pendingCount?: number | null
+  mineCount?: number | null
+  
+  // Lists
+  personLists: any[]
+  sharedList?: any
   selectedListId: number | null
   setSelectedListId: (id: number | null) => void
   loadUserLists: (force?: boolean) => Promise<void>
-  showToast: (m: string, t?: 'success' | 'error' | 'info') => void
-
-  // Content
-  children: React.ReactNode
   
-  // List mode
-  listLoading: boolean
-  listItems: Array<{ key: string; listItemId: number; type: 'person' | 'achievement' | 'period'; title: string; subtitle?: string }>
-  filterType: 'person' | 'achievement' | 'period'
+  // Modals
+  setShowAuthModal: (show: boolean) => void
+  setShowCreateList: (show: boolean) => void
   
-  // Layout control
-  fullWidth?: boolean
-  
-  // Actions
+  // List items (for user-defined lists)
+  listItems?: any[]
+  filterType?: 'person' | 'achievement' | 'period'
+  listLoading?: boolean
   onDeleteListItem?: (listItemId: number) => Promise<void> | void
+  
+  // Utilities
+  showToast: (message: string, type?: 'success' | 'error' | 'info') => void
+  
+  children: React.ReactNode
 }
 
 export function ManageSection(props: ManageSectionProps) {
   const {
     sidebarCollapsed,
-    setSidebarCollapsed,
     menuSelection,
     setMenuSelection,
     isModerator,
@@ -54,7 +52,6 @@ export function ManageSection(props: ManageSectionProps) {
     mineCount,
     personLists,
     isAuthenticated,
-    emailVerified,
     setShowAuthModal,
     setShowCreateList,
     sharedList,
@@ -66,7 +63,6 @@ export function ManageSection(props: ManageSectionProps) {
     listLoading,
     listItems,
     filterType,
-    fullWidth = true,
     onDeleteListItem
   } = props
 
@@ -91,9 +87,8 @@ export function ManageSection(props: ManageSectionProps) {
   return (
     <LeftMenuLayout
       sidebarCollapsed={sidebarCollapsed}
-      setSidebarCollapsed={setSidebarCollapsed}
-      gridWhenOpen={fullWidth ? "240px 8px 1fr" : "240px 8px auto"}
-      gridWhenCollapsed={fullWidth ? "0px 8px 1fr" : "0px 8px auto"}
+      gridWhenOpen={"240px 1fr"}
+      gridWhenCollapsed={"0px 1fr"}
       menuId="lists-sidebar"
       selectedKey={menuSelection}
       onSelect={(sel: LeftMenuSelection) => {
@@ -139,19 +134,17 @@ export function ManageSection(props: ManageSectionProps) {
       onShareList={async (id) => { await createAndCopyShareLink(id, showToast) }}
       onShowOnTimeline={async (id) => { await openListOnTimeline(id, sharedList?.id, showToast) }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        {!(menuSelection as string).startsWith('list:') ? (
-          children
-        ) : (
-          <ListItemsView
-            items={listItems}
-            filterType={filterType}
-            isLoading={listLoading}
-            emptyText="Список пуст"
-            onDelete={handleDeleteListItem}
-          />
-        )}
-      </div>
+      {!(menuSelection as string).startsWith('list:') ? (
+        children
+      ) : (
+        <ListItemsView
+          items={listItems || []}
+          filterType={filterType || 'person'}
+          isLoading={listLoading || false}
+          emptyText="Список пуст"
+          onDelete={handleDeleteListItem}
+        />
+      )}
     </LeftMenuLayout>
   )
 }

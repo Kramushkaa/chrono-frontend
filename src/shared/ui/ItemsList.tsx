@@ -61,7 +61,7 @@ export function ItemsList({
       id="items-list"
       role="region"
       aria-label="Список элементов"
-      style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: 6, ...style }}
+      style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: 6, ...style }}
       onScroll={(e) => {
         const el = e.currentTarget as HTMLDivElement
         if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {

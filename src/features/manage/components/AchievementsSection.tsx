@@ -12,7 +12,6 @@ type ListItem = { id: number; title: string; items_count?: number }
 interface AchievementsSectionProps {
 	// Sidebar
 	sidebarCollapsed: boolean
-	setSidebarCollapsed: (updater: (prev: boolean) => boolean) => void
 	menuSelection: string
 	setMenuSelection: (sel: any) => void
 	isModerator: boolean
@@ -52,7 +51,6 @@ interface AchievementsSectionProps {
 export function AchievementsSection(props: AchievementsSectionProps) {
 	const {
 		sidebarCollapsed,
-		setSidebarCollapsed,
 		menuSelection,
 		setMenuSelection,
 		isModerator,
@@ -89,16 +87,14 @@ export function AchievementsSection(props: AchievementsSectionProps) {
 
 	return (
 		<ManageSection
-			sidebarCollapsed={sidebarCollapsed}
-			setSidebarCollapsed={setSidebarCollapsed}
+      sidebarCollapsed={sidebarCollapsed}
 			menuSelection={menuSelection}
 			setMenuSelection={setMenuSelection}
-			isModerator={isModerator}
-			pendingCount={achPendingCount}
-			mineCount={achMineCount}
+      isModerator={isModerator}
+      pendingCount={achPendingCount}
+      mineCount={achMineCount}
 			personLists={personLists}
 			isAuthenticated={isAuthenticated}
-			emailVerified={true}
 			setShowAuthModal={setShowAuthModal}
 			setShowCreateList={setShowCreateList}
 			sharedList={sharedList}
@@ -114,75 +110,73 @@ export function AchievementsSection(props: AchievementsSectionProps) {
 				const ok = await deleteListItem(selectedListId, listItemId)
 				if (ok) { 
 					setListItems(prev => prev.filter(x => x.listItemId !== listItemId))
-					await loadUserLists(true)
+            await loadUserLists(true)
 					showToast('Удалено из списка', 'success')
 				} else { 
 					showToast('Не удалось удалить', 'error')
-				}
-			}}
+        }
+      }}
 		>
-			<div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-				{!modeIsList ? (
-					<>
-						<SearchAndFilters
-							searchValue={searchAch}
-							onSearchChange={setSearchAch}
-							searchPlaceholder="Поиск по достижениям/имени/стране"
-							foundCount={modeIsAll ? achItemsAll.length : achItemsAlt.length}
-							hasMore={!(modeIsAll ? achLoadingAll : achAltLoading) && (modeIsAll ? hasMoreAll : achAltHasMore)}
-							isLoading={modeIsAll ? achLoadingAll : achAltLoading}
-						/>
-						<ItemsList
-							items={(modeIsAll ? achItemsAll : achItemsAlt).map((a: any) => {
-								const title = (a as any).title || (a as any).person_name || (a as any).country_name || ''
-								return {
-									id: a.id,
-									title: title || '—',
-									year: a.year,
-									description: a.description
-								}
-							})}
-							isLoading={modeIsAll ? achLoadingAll : achAltLoading}
-							hasMore={modeIsAll ? hasMoreAll : achAltHasMore}
-							onLoadMore={() => {
-								if (modeIsAll) {
-									loadMoreAll()
-								}
-								// Note: mine mode pagination is handled by the parent component
-							}}
-							onAddToList={(id) => {
-								if (!isAuthenticated) { 
-									setShowAuthModal(true)
-									return
-								}
-								openAddAchievement(Number(id))
-							}}
-							isAuthenticated={isAuthenticated}
-							emailVerified={true}
-							showAuthModal={() => setShowAuthModal(true)}
-							showToast={showToast}
-							emptyMessage={!achAltLoading && modeIsMine && achItemsAlt.length === 0 
-								? "Здесь будут отображаться созданные или отредактированные вами элементы"
-								: "Достижения не найдены"
-							}
-							loadingMessage="Загрузка..."
-						/>
-					</>
-				) : (
-					<ListItemsView
-						items={listItems as any}
-						filterType="achievement"
-						isLoading={listLoading}
-						emptyText="Список пуст"
-						onDelete={async (listItemId) => {
-							if (!selectedListId) return
-							const ok = await deleteListItem(selectedListId, listItemId)
-							if (ok) { setListItems(prev => prev.filter(x => x.listItemId !== listItemId)); await loadUserLists(true); showToast('Удалено из списка', 'success') }
-							else { showToast('Не удалось удалить', 'error') }
-						}}
+			{!modeIsList ? (
+				<>
+					<SearchAndFilters
+						searchValue={searchAch}
+						onSearchChange={setSearchAch}
+						searchPlaceholder="Поиск по достижениям/имени/стране"
+						foundCount={modeIsAll ? achItemsAll.length : achItemsAlt.length}
+						hasMore={!(modeIsAll ? achLoadingAll : achAltLoading) && (modeIsAll ? hasMoreAll : achAltHasMore)}
+						isLoading={modeIsAll ? achLoadingAll : achAltLoading}
 					/>
-				)}
-			</div>
+					<ItemsList
+						items={(modeIsAll ? achItemsAll : achItemsAlt).map((a: any) => {
+							const title = (a as any).title || (a as any).person_name || (a as any).country_name || ''
+							return {
+								id: a.id,
+								title: title || '—',
+								year: a.year,
+								description: a.description
+							}
+						})}
+						isLoading={modeIsAll ? achLoadingAll : achAltLoading}
+						hasMore={modeIsAll ? hasMoreAll : achAltHasMore}
+						onLoadMore={() => {
+							if (modeIsAll) {
+								loadMoreAll()
+							}
+							// Note: mine mode pagination is handled by the parent component
+						}}
+						onAddToList={(id) => {
+							if (!isAuthenticated) { 
+								setShowAuthModal(true)
+								return
+							}
+							openAddAchievement(Number(id))
+						}}
+						isAuthenticated={isAuthenticated}
+						emailVerified={true}
+						showAuthModal={() => setShowAuthModal(true)}
+						showToast={showToast}
+						emptyMessage={!achAltLoading && modeIsMine && achItemsAlt.length === 0 
+							? "Здесь будут отображаться созданные или отредактированные вами элементы"
+							: "Достижения не найдены"
+						}
+						loadingMessage="Загрузка..."
+					/>
+				</>
+			) : (
+				<ListItemsView
+					items={listItems as any}
+					filterType="achievement"
+					isLoading={listLoading}
+					emptyText="Список пуст"
+					onDelete={async (listItemId) => {
+						if (!selectedListId) return
+						const ok = await deleteListItem(selectedListId, listItemId)
+						if (ok) { setListItems(prev => prev.filter(x => x.listItemId !== listItemId)); await loadUserLists(true); showToast('Удалено из списка', 'success') }
+						else { showToast('Не удалось удалить', 'error') }
+					}}
+				/>
+			)}
 		</ManageSection>
 	)
 }

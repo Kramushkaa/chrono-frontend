@@ -3,7 +3,7 @@ import { Person } from 'shared/types'
 import { PersonEditor } from './PersonEditor'
 import { validateLifePeriodsClient } from 'shared/utils/validation'
 import { DraftModerationButtons } from 'shared/ui/DraftModerationButtons'
-import { adminUpsertPerson, getPersonById, updatePerson } from 'shared/api/api'
+import { adminUpsertPerson, getPersonById } from 'shared/api/api'
 import { apiFetch } from 'shared/api/api'
 
 type Option = { value: string; label: string }

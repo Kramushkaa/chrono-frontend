@@ -6,7 +6,6 @@ type ListItem = { id: number; title: string; items_count?: number; readonly?: bo
 type Props = {
 	// Layout
 	sidebarCollapsed: boolean
-	setSidebarCollapsed: (updater: (prev: boolean) => boolean) => void
 	gridWhenOpen?: string
 	gridWhenCollapsed?: string
 
@@ -32,7 +31,6 @@ type Props = {
 export function LeftMenuLayout(props: Props) {
 	const {
 		sidebarCollapsed,
-		setSidebarCollapsed,
 		gridWhenOpen = '240px 8px 1fr',
 		gridWhenCollapsed = '0px 8px 1fr',
 		menuId,
@@ -53,7 +51,13 @@ export function LeftMenuLayout(props: Props) {
 	} = props
 
 	return (
-		<div style={{ display: 'grid', gridTemplateColumns: sidebarCollapsed ? gridWhenCollapsed : gridWhenOpen, gap: 16, transition: 'grid-template-columns 0.2s ease' }}>
+		<div style={{ 
+			display: 'grid', 
+			gridTemplateColumns: sidebarCollapsed ? gridWhenCollapsed : gridWhenOpen, 
+			gap: 16, 
+			transition: 'grid-template-columns 0.2s ease',
+			minHeight: 'calc(100vh - 120px)' // Растягиваем на полную высоту экрана минус хедер и табы
+		}}>
 			<LeftMenu
 				id={menuId}
 				selectedKey={selectedKey}
@@ -70,15 +74,6 @@ export function LeftMenuLayout(props: Props) {
 				readonlyListId={readonlyListId}
 				onCopySharedList={onCopySharedList}
 			/>
-			<div style={{ position: 'relative' }}>
-				<button
-					onClick={() => setSidebarCollapsed(c => !c)}
-					aria-pressed={sidebarCollapsed}
-					aria-label={sidebarCollapsed ? 'Показать меню' : 'Скрыть меню'}
-					title={sidebarCollapsed ? 'Показать меню' : 'Скрыть меню'}
-					style={{ position: 'absolute', left: -8, top: 0, width: 16, height: 32 }}
-				>{sidebarCollapsed ? '⟩' : '⟨'}</button>
-			</div>
 			<div style={{ minWidth: 0 }}>
 				{children}
 			</div>

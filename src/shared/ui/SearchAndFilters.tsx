@@ -30,13 +30,13 @@ export function SearchAndFilters({
 }: SearchAndFiltersProps) {
   return (
     <div className="search-and-filters" role="region" aria-label="Фильтр и поиск" style={{ marginBottom: 12, ...style }}>
-      <div className="search-and-filters__controls" style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+      <div className="search-and-filters__controls" style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
         <input 
           className="search-and-filters__input"
           value={searchValue} 
           onChange={(e) => onSearchChange(e.target.value)} 
           placeholder={searchPlaceholder} 
-          style={{ flex: '1 1 200px', minWidth: 200, maxWidth: '100%', padding: 6 }} 
+          style={{ flex: '1 1 180px', minWidth: 180, maxWidth: '100%', padding: 6 }} 
         />
         
         {filters.map(filter => (

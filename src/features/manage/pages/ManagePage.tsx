@@ -760,6 +760,19 @@ export default function ManagePage() {
           >
             Периоды
           </button>
+          
+          {/* Collapse/Expand button */}
+          <button
+            className="manage-page__collapse-btn"
+            id="manage-collapse-btn"
+            onClick={() => setSidebarCollapsed(c => !c)}
+            aria-pressed={sidebarCollapsed}
+            aria-label={sidebarCollapsed ? 'Показать меню' : 'Скрыть меню'}
+            title={sidebarCollapsed ? 'Показать меню' : 'Скрыть меню'}
+          >
+            {sidebarCollapsed ? '⟩' : '⟨'}
+          </button>
+          
           <div className="manage-page__actions" style={{ marginLeft: 'auto', flex: '0 0 auto' }}>
             <button 
               className="manage-page__add-button"
@@ -770,15 +783,13 @@ export default function ManagePage() {
               Добавить
             </button>
           </div>
-          {/* toggle moved to border handle */}
         </div>
 
         {activeTab === 'persons' && (
-          <div className="manage-page__persons-layout" id="manage-persons-layout" style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: 16, alignItems: 'start' }}>
-            <div className="manage-page__persons-list" id="manage-persons-list" style={{ borderRight: '2px solid rgba(139,69,19,0.3)', paddingRight: 16, minWidth: 0, width: '250px' }}>
+          <div className="manage-page__persons-layout" id="manage-persons-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(480px, 1fr) 2fr', gap: 16, alignItems: 'start' }}>
+            <div className="manage-page__persons-section" id="manage-persons-section" style={{ minWidth: 0, borderRight: '2px solid rgba(139,69,19,0.3)', paddingRight: 16 }}>
               <PersonsSection
                 sidebarCollapsed={sidebarCollapsed}
-                setSidebarCollapsed={setSidebarCollapsed}
                 menuSelection={menuSelection as any}
                 setMenuSelection={setMenuSelection as any}
                 isModerator={isModerator}
@@ -877,7 +888,6 @@ export default function ManagePage() {
           <div className="manage-page__periods-section" id="manage-periods-section">
             <PeriodsSection
               sidebarCollapsed={sidebarCollapsed}
-              setSidebarCollapsed={setSidebarCollapsed}
               menuSelection={menuSelection as any}
               setMenuSelection={setMenuSelection as any}
               isModerator={isModerator}
@@ -917,7 +927,6 @@ export default function ManagePage() {
           <div className="manage-page__achievements-section" id="manage-achievements-section">
             <AchievementsSection
               sidebarCollapsed={sidebarCollapsed}
-              setSidebarCollapsed={setSidebarCollapsed}
               menuSelection={menuSelection as any}
               setMenuSelection={setMenuSelection as any}
               isModerator={isModerator}
@@ -1185,7 +1194,7 @@ export default function ManagePage() {
           </div>
         </div>
       </ManageUIProvider>
-    </div>
+      </div>
   )
 }
 

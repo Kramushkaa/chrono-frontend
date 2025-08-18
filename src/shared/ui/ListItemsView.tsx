@@ -15,7 +15,7 @@ export function ListItemsView({ items, filterType, isLoading, onDelete, emptyTex
   const filtered = items.filter(i => i.type === filterType)
 
   return (
-    <div className="list-items-view" id="list-items-view" role="region" aria-label="Содержимое списка" style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: 6 }}>
+    <div className="list-items-view" id="list-items-view" role="region" aria-label="Содержимое списка" style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: 6 }}>
       <ListSummary items={items} style={{ marginBottom: 8, fontSize: 12, opacity: 0.9 }} />
       {isLoading && filtered.length === 0 && <div>Загрузка…</div>}
       {filtered.map((it) => (

@@ -63,7 +63,7 @@ export function PersonsList({ search, setSearch, categories, countries, filters,
             if (!isLoading && hasMore) loadMore()
           }
         }}
-        style={{ overflowY: 'auto', maxHeight: '70vh', paddingRight: 6 }}
+        style={{ overflowY: 'auto', maxHeight: '60vh', paddingRight: 6 }}
       >
         {isLoading && persons.length === 0 && <div>Загрузка...</div>}
         

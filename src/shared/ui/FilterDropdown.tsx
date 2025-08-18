@@ -463,9 +463,9 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
       <button 
         className={`filter-btn ${isActive ? 'active' : ''}`}
                  style={{ 
-           minWidth: isMobile ? '140px' : '120px',
-           width: isMobile ? '140px' : '120px',
-           padding: isMobile ? '0.5rem 0.8rem' : '0.3rem 0.6rem',
+           minWidth: isMobile ? '140px' : '100px',
+           width: isMobile ? '140px' : '100px',
+           padding: isMobile ? '0.5rem 0.8rem' : '0.3rem 0.4rem',
            display: 'flex', 
            alignItems: 'center', 
            gap: '0.3rem',
