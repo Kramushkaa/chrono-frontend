@@ -79,17 +79,13 @@ export function ItemCard({
       
       {type && (
         <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6 }}>
-          Тип: {type === 'ruler' ? 'Правление' : type === 'life' ? 'Жизнь' : type}
+          {type}
         </div>
-      )}
-      
-      {year && (
-        <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6 }}>{year}</div>
       )}
       
       {(startYear || endYear) && (
         <div style={{ fontSize: 14 }}>
-          Годы: {startYear ?? '—'} — {endYear ?? '—'}
+          {startYear ?? '—'} — {endYear ?? '—'}
         </div>
       )}
       

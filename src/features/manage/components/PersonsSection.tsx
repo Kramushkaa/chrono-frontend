@@ -211,11 +211,9 @@ export function PersonsSection(props: PersonsSectionProps) {
                 id: p.id,
                 title: p.name || '—',
                 subtitle: p.country_name || p.countryName || '',
-                year: p.birth_year || p.birthYear || p.death_year || p.deathYear || '',
                 startYear: p.birth_year || p.birthYear,
                 endYear: p.death_year || p.deathYear,
-                type: p.category || '',
-                description: p.description || ''
+                type: p.category || ''
               }))}
               isLoading={modeIsAll ? isPersonsLoadingAll : personsAltLoading}
               hasMore={modeIsAll ? personsHasMoreAll : personsAltHasMore}
