@@ -55,6 +55,8 @@ export function ItemsList({
 
   return (
     <div
+      className="items-list"
+      id="items-list"
       role="region"
       aria-label="Список элементов"
       style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: 6, ...style }}
@@ -83,7 +85,7 @@ export function ItemsList({
         </div>
       )}
       
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
+      <div className="items-list__grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
         {items.map((item) => (
           <ItemCard
             key={item.id}

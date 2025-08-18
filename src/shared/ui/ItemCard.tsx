@@ -59,7 +59,9 @@ export function ItemCard({
 
   return (
     <div 
-      key={id} 
+      key={id}
+      className="item-card items-list__card"
+      id={`item-card-${id}`}
       style={{ 
         border: '1px solid rgba(139,69,19,0.4)', 
         borderRadius: 8, 

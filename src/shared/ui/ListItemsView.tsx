@@ -15,11 +15,11 @@ export function ListItemsView({ items, filterType, isLoading, onDelete, emptyTex
   const filtered = items.filter(i => i.type === filterType)
 
   return (
-    <div role="region" aria-label="Содержимое списка" style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: 6 }}>
+    <div className="list-items-view" id="list-items-view" role="region" aria-label="Содержимое списка" style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: 6 }}>
       <ListSummary items={items} style={{ marginBottom: 8, fontSize: 12, opacity: 0.9 }} />
       {isLoading && filtered.length === 0 && <div>Загрузка…</div>}
       {filtered.map((it) => (
-        <div key={it.key} style={{ padding: '6px 8px', borderBottom: '1px solid rgba(139,69,19,0.2)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div key={it.key} className="list-items-view__row" id={`list-item-${it.listItemId}`} style={{ padding: '6px 8px', borderBottom: '1px solid rgba(139,69,19,0.2)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 600 }}>{it.title}</div>
             {it.subtitle && <div style={{ fontSize: 12, opacity: 0.85 }}>{it.subtitle}</div>}
