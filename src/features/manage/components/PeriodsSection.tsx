@@ -1,10 +1,9 @@
 import React from 'react'
-import { LeftMenuSelection } from './LeftMenu'
-import { LeftMenuLayout } from './LeftMenuLayout'
-import { apiFetch } from 'shared/api/api'
+import { LeftMenuLayout } from 'features/manage/components/LeftMenuLayout'
 import { ListItemsView } from 'shared/ui/ListItemsView'
 import { deleteListItem } from 'shared/utils/lists'
-import { useManageUI } from 'features/manage/context/ManageUIContext'
+import { apiFetch } from 'shared/api/api'
+import { LeftMenuSelection } from 'features/manage/components/LeftMenu'
 
 type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean }
 
@@ -58,9 +57,9 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 		menuSelection,
 		setMenuSelection,
 		isModerator,
+		periodsMineCount,
 		personLists,
 		isAuthenticated,
-		emailVerified,
 		setShowAuthModal,
 		setShowCreateList,
 		sharedList,
@@ -76,18 +75,13 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 		periodsLoadingAll,
 		periodsHasMoreAll,
 		loadMorePeriodsAll,
-		periodsMineCount,
 		periodItemsMine,
 		periodsLoadingMine,
 		periodsHasMoreMine,
-		periodsMineOffset,
-		setPeriodsMineOffset,
 		listLoading,
 		listItems,
 		setListItems
 	} = props
-
-  const manageUI = useManageUI()
 
 	return (
 		<LeftMenuLayout
@@ -154,9 +148,8 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 							if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
 								if (menuSelection === 'all') {
 									if (!periodsLoadingAll && periodsHasMoreAll) loadMorePeriodsAll()
-								} else if (menuSelection === 'mine') {
-									if (!periodsLoadingMine && periodsHasMoreMine) setPeriodsMineOffset(o => o + 100)
 								}
+								// Note: mine mode pagination is handled by the parent component
 							}
 						}}
 					>
@@ -198,7 +191,7 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 										<div style={{ position: 'absolute', top: 8, right: 8 }}>
                 <button
 											onClick={() => {
-												if (!isAuthenticated || !emailVerified) { setShowAuthModal(true); return }
+												if (!isAuthenticated) { setShowAuthModal(true); return }
 												props.openAddPeriod(Number(p.id))
 											}}
 											title="Добавить в список"
@@ -213,7 +206,7 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 							<div style={{ marginTop: 12 }}>
 								<button onClick={() => { 
 									if (menuSelection === 'all') loadMorePeriodsAll()
-									else if (menuSelection === 'mine') setPeriodsMineOffset(o => o + 100)
+									// Note: mine mode pagination is handled by the parent component
 								}} style={{ padding: '6px 12px' }}>Показать ещё</button>
 							</div>
 						)}

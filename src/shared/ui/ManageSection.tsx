@@ -33,11 +33,11 @@ interface ManageSectionProps {
   
   // List mode
   listLoading: boolean
-  listItems: Array<{ key: string; listItemId: number; type: string; title: string; subtitle?: string }>
-  filterType: 'person' | 'achievement' | 'period'
+  listItems: Array<{ key: string; listItemId: number; type: 'person' | 'achievement' | 'period'; title: string; subtitle?: string }>
+  filterType: 'achievement' | 'period'
   
   // Actions
-  onDeleteListItem?: (listItemId: number) => Promise<boolean>
+  onDeleteListItem?: (listItemId: number) => Promise<void> | void
 }
 
 export function ManageSection(props: ManageSectionProps) {
@@ -67,10 +67,11 @@ export function ManageSection(props: ManageSectionProps) {
   } = props
 
   const handleDeleteListItem = async (listItemId: number) => {
-    if (!selectedListId) return false
+    if (!selectedListId) return
     
     if (onDeleteListItem) {
-      return await onDeleteListItem(listItemId)
+      await onDeleteListItem(listItemId)
+      return
     }
     
     // Default delete behavior
@@ -81,7 +82,6 @@ export function ManageSection(props: ManageSectionProps) {
     } else {
       showToast('Не удалось удалить', 'error')
     }
-    return ok
   }
 
   return (
