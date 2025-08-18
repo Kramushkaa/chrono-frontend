@@ -26,6 +26,7 @@ import './App.css'
 import { ToastProvider } from 'shared/context/ToastContext'
 import { useToast } from 'shared/context/ToastContext'
 import { getDtoVersion, apiData, resolveListShare } from 'shared/api/api'
+import { useLists } from 'features/manage/hooks/useLists'
 import { useAuth } from 'shared/context/AuthContext'
 import { DTO_VERSION as DTO_VERSION_FE } from './dto'
 import { Toasts } from 'shared/ui/Toasts'
@@ -120,30 +121,8 @@ function AppInner() {
 
 
 
-  // Sidebar lists (user-owned)
-  const [personLists, setPersonLists] = useState<Array<{ id: number; title: string; items_count?: number }>>([])
-  const listsInFlightRef = useRef(false)
-  const lastListsFetchTsRef = useRef(0)
-  const loadUserLists = useRef<(force?: boolean) => Promise<void>>(async () => {})
-  loadUserLists.current = async (force?: boolean) => {
-    if (!isAuthenticated) { setPersonLists([]); return }
-    const now = Date.now()
-    if (!force) {
-      if (listsInFlightRef.current) return
-      if (now - lastListsFetchTsRef.current < 1500) return
-    }
-    listsInFlightRef.current = true
-    try {
-      const list = await apiData<Array<{ id: number; title: string; items_count?: number }>>(`/api/lists`)
-      setPersonLists(Array.isArray(list) ? list : [])
-      lastListsFetchTsRef.current = Date.now()
-    } catch (e: any) {
-      showToast(e?.message || 'Не удалось загрузить списки', 'error')
-    } finally {
-      listsInFlightRef.current = false
-    }
-  }
-  useEffect(() => { loadUserLists.current?.() }, [isAuthenticated, user?.id, loadUserLists])
+  // Sidebar lists (user-owned) — reuse shared hook
+  const { personLists } = useLists({ isAuthenticated, userId: user?.id ? String(user.id) : null, apiData })
 
   // Optional list persons (from /timeline?ids=p1,p2 or /timeline?list=ID) — include approved + pending + draft
   const [listPersons, setListPersons] = useState<any[] | null>(null)

@@ -2,8 +2,10 @@ import React from 'react'
 import { LeftMenuSelection } from './LeftMenu'
 import { LeftMenuLayout } from './LeftMenuLayout'
 import { PersonsList } from './PersonsList'
-import { apiFetch, createListShareCode } from 'shared/api/api'
+import { apiFetch } from 'shared/api/api'
 import { FilterDropdown } from 'shared/ui/FilterDropdown'
+import { ListSummary } from 'shared/ui/ListSummary'
+import { deleteListItem, createAndCopyShareLink, openListOnTimeline } from 'shared/utils/lists'
 
 type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean }
 
@@ -142,28 +144,8 @@ export function PersonsColumns(props: PersonsColumnsProps) {
           } else showToast('Не удалось удалить список', 'error')
         } catch { showToast('Ошибка удаления списка', 'error') }
       }}
-      onShareList={async (id) => {
-        const code = await createListShareCode(id)
-        if (!code) { showToast('Не удалось создать ссылку', 'error'); return }
-        const url = `${window.location.origin}/lists?share=${encodeURIComponent(code)}`
-        if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => showToast('Ссылка скопирована', 'success')).catch(() => alert(url))
-        else alert(url)
-      }}
-      onShowOnTimeline={async (id) => {
-        const usp = new URLSearchParams(window.location.search)
-        const shareCode = usp.get('share')
-        if (sharedList?.id === id && shareCode) {
-          window.location.href = `/timeline?share=${encodeURIComponent(shareCode)}`
-          return
-        }
-        try {
-          const code = await createListShareCode(id)
-          if (!code) throw new Error('no_code')
-          window.location.href = `/timeline?share=${encodeURIComponent(code)}`
-        } catch {
-          showToast('Не удалось открыть на таймлайне', 'error')
-        }
-      }}
+      onShareList={async (id) => { await createAndCopyShareLink(id, showToast) }}
+      onShowOnTimeline={async (id) => { await openListOnTimeline(id, sharedList?.id, showToast) }}
     >
       <div>
         {personsMode !== 'list' ? (
@@ -239,14 +221,7 @@ export function PersonsColumns(props: PersonsColumnsProps) {
           })()
         ) : (
           <>
-            <div style={{ marginBottom: 8, fontSize: 12, opacity: 0.9 }}>
-              {(() => {
-                const pc = listItems.filter(i => i.type === 'person').length
-                const ac = listItems.filter(i => i.type === 'achievement').length
-                const prc = listItems.filter(i => i.type === 'period').length
-                return `Личностей: ${pc} • Достижений: ${ac} • Периодов: ${prc}`
-              })()}
-            </div>
+            <ListSummary items={listItems as any} style={{ marginBottom: 8, fontSize: 12, opacity: 0.9 }} />
             <div role="region" aria-label="Содержимое списка" style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: 6 }}>
               {listLoading && listItems.filter(i => i.type === 'person').length === 0 && <div>Загрузка…</div>}
               {listItems.filter(i => i.type === 'person').map((it) => (
@@ -258,15 +233,9 @@ export function PersonsColumns(props: PersonsColumnsProps) {
                   <button aria-label="Удалить из списка" title="Удалить" onClick={async () => {
                     if (!selectedListId) return
                     const id = it.listItemId
-                    try {
-                      const res = await apiFetch(`/api/lists/${selectedListId}/items/${id}`, { method: 'DELETE' })
-                      if (res.ok) {
-                        await loadUserLists()
-                        showToast('Удалено из списка', 'success')
-                      } else {
-                        showToast('Не удалось удалить', 'error')
-                      }
-                    } catch { showToast('Ошибка удаления', 'error') }
+                    const ok = await deleteListItem(selectedListId, id)
+                    if (ok) { await loadUserLists(); showToast('Удалено из списка', 'success') }
+                    else { showToast('Не удалось удалить', 'error') }
                   }}>✕</button>
                 </div>
               ))}

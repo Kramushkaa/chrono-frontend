@@ -279,6 +279,11 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
         {mode === 'full' && (
         <div className="header-controls-desktop" role="toolbar" aria-label="Панель управления фильтрами">
           <div className="header-controls-inner">
+            {extraFilterControls && (
+              <div style={{ display: 'flex', alignItems: 'center', marginRight: '0.5rem' }}>
+                {extraFilterControls}
+              </div>
+            )}
             <div 
               className="header-marker-toggle" 
               id="achievements-toggle"
@@ -406,11 +411,6 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
                 isDraggingSlider={isDraggingSlider}
                 isMobile={false}
               />
-              {extraFilterControls && (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  {extraFilterControls}
-                </div>
-              )}
               
               <button
                 id="reset-filters"
@@ -442,6 +442,11 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
       {mode === 'full' && (
       <div className={`header-controls-mobile${showControls ? ' visible' : ''}`} id="header-controls-mobile" role="region" aria-label="Мобильные элементы управления">
         <div className="header-controls-inner">
+          {extraFilterControls && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
+              {extraFilterControls}
+            </div>
+          )}
           {/* Группа кнопок - в одной строке */}
           <div className="header-filters-group-mobile" role="toolbar" aria-label="Мобильные кнопки управления" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <div 
@@ -556,11 +561,6 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
                onSelectionChange={(countries: string[]) => setFilters((prev: FiltersState) => ({ ...prev, countries }))}
               textLabel="Страна"
             />
-            {extraFilterControls && (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                {extraFilterControls}
-              </div>
-            )}
           </div>
           
           {/* Временной промежуток - на отдельной строке */}

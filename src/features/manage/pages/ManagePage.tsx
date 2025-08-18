@@ -49,8 +49,7 @@ export default function ManagePage() {
   const [isScrolled] = useState(false)
   const [showControls, setShowControls] = useState(false)
   const [activeTab, setActiveTab] = useState<Tab>('persons')
-  type ViewMode = 'all' | 'pending' | 'mine' | 'list'
-  const [personsMode, setPersonsMode] = useState<ViewMode>('all')
+  // Removed old mode variables - now using menuSelection directly
   const [statusFilters, setStatusFilters] = useState<Record<string, boolean>>({
     draft: false,
     pending: false,
@@ -58,10 +57,6 @@ export default function ManagePage() {
     rejected: false
   }) // Фильтры по статусам для 'mine' режима
   const [selectedListId, setSelectedListId] = useState<number | null>(null)
-  type AchViewMode = 'all' | 'pending' | 'mine' | 'list'
-  const [achMode, setAchMode] = useState<AchViewMode>('all')
-  type PeriodViewMode = 'all' | 'pending' | 'mine' | 'list'
-  const [periodsMode, setPeriodsMode] = useState<PeriodViewMode>('all')
   type MenuSelection = 'all' | 'pending' | 'mine' | `list:${number}`
   const [menuSelection, setMenuSelection] = useState<MenuSelection>('all')
   // const { persons, isLoading } = useTimelineData(filters, true)
@@ -70,15 +65,24 @@ export default function ManagePage() {
   const [searchPeriods, setSearchPeriods] = useState('')
   const [categories, setCategories] = useState<string[]>([])
   const [countries, setCountries] = useState<string[]>([])
-  const { items: achItemsAll, isLoading: achLoadingAll, hasMore: hasMoreAll, loadMore: loadMoreAll } = useAchievements(searchAch, activeTab === 'achievements' && achMode === 'all')
+  const { items: achItemsAll, isLoading: achLoadingAll, hasMore: hasMoreAll, loadMore: loadMoreAll } = useAchievements(searchAch, activeTab === 'achievements' && menuSelection === 'all')
   const [achItemsAlt, setAchItemsAlt] = useState<any[]>([])
   const [achAltLoading, setAchAltLoading] = useState(false)
   const [achAltHasMore, setAchAltHasMore] = useState(false)
   const [achAltOffset, setAchAltOffset] = useState(0)
   const [achPendingCount, setAchPendingCount] = useState<number | null>(null)
   const [achMineCount, setAchMineCount] = useState<number | null>(null)
+  
+  // Add periods mine count
+  const [periodsMineCount, setPeriodsMineCount] = useState<number | null>(null)
   const [periodType, setPeriodType] = useState<'life' | 'ruler' | ''>('')
-  const { items: periodItemsAll, isLoading: periodsLoadingAll, hasMore: periodsHasMoreAll, loadMore: loadMorePeriodsAll } = usePeriods({ query: searchPeriods, type: periodType }, activeTab === 'periods')
+  const { items: periodItemsAll, isLoading: periodsLoadingAll, hasMore: periodsHasMoreAll, loadMore: loadMorePeriodsAll } = usePeriods({ query: searchPeriods, type: periodType }, activeTab === 'periods' && menuSelection === 'all')
+  
+  // Add support for periods 'mine' mode
+  const [periodItemsMine, setPeriodItemsMine] = useState<any[]>([])
+  const [periodsLoadingMine, setPeriodsLoadingMine] = useState(false)
+  const [periodsHasMoreMine, setPeriodsHasMoreMine] = useState(false)
+  const [periodsMineOffset, setPeriodsMineOffset] = useState(0)
   const [selected, setSelected] = useState<Person | null>(null)
   const lastSelectedRef = useRef<Person | null>(null)
   useEffect(() => { if (selected) lastSelectedRef.current = selected }, [selected])
@@ -249,7 +253,7 @@ export default function ManagePage() {
     category: filters.categories.length ? filters.categories.join(',') : undefined,
     country: filters.countries.length ? filters.countries.join(',') : undefined
   }), [searchPersons, filters.categories, filters.countries])
-  const { items: personsAll, isLoading: isPersonsLoadingAll, hasMore: personsHasMoreAll, loadMore: loadMorePersonsAll } = usePersonsPaged(personsQuery, activeTab === 'persons' && personsMode === 'all')
+  const { items: personsAll, isLoading: isPersonsLoadingAll, hasMore: personsHasMoreAll, loadMore: loadMorePersonsAll } = usePersonsPaged(personsQuery, activeTab === 'persons' && menuSelection === 'all')
   const [personsAlt, setPersonsAlt] = useState<Person[]>([])
   const [personsAltLoading, setPersonsAltLoading] = useState(false)
   const [personsAltHasMore, setPersonsAltHasMore] = useState(false)
@@ -270,10 +274,49 @@ export default function ManagePage() {
   })
   const [showCreateList, setShowCreateList] = useState(false)
 
-  // Helpers to fetch alternative lists (pending/mine)
+  // Helper: client-side filter for persons in 'mine' mode (backend supports only status)
+  const applyMinePersonsFilters = React.useCallback((items: Person[]): Person[] => {
+    const decodeIfNeeded = (s: string | undefined | null) => {
+      const v = (s ?? '').toString();
+      if (/%[0-9A-Fa-f]{2}/.test(v)) {
+        try { return decodeURIComponent(v) } catch { return v }
+      }
+      return v;
+    };
+    const q = searchPersons.trim().toLowerCase();
+    const selectedCategories = filters.categories;
+    const selectedCountries = filters.countries;
+    return items.filter((p) => {
+      const name = decodeIfNeeded((p as any).name).toLowerCase();
+      const category = decodeIfNeeded((p as any).category).toLowerCase();
+      const countryRaw = decodeIfNeeded((p as any).country).toLowerCase();
+      const description = decodeIfNeeded((p as any).description).toLowerCase();
+      // Search
+      if (q.length > 0) {
+        const haystack = `${name} ${category} ${countryRaw} ${description}`;
+        if (!haystack.includes(q)) return false;
+      }
+      // Category filter (OR across selected)
+      if (selectedCategories.length > 0) {
+        const ok = selectedCategories.some((c: string) => category === c.toLowerCase());
+        if (!ok) return false;
+      }
+      // Country filter: person country can be 'A/B/C'
+      if (selectedCountries.length > 0) {
+        const personCountries = countryRaw.includes('/') ? countryRaw.split('/').map(s => s.trim()) : [countryRaw];
+        const ok = selectedCountries.some((c: string) => personCountries.includes(c.toLowerCase()));
+        if (!ok) return false;
+      }
+      return true;
+    });
+  }, [searchPersons, filters.categories, filters.countries]);
+
+  // Simplified content loading logic based on activeTab + menuSelection
   useEffect(() => {
     if (activeTab !== 'persons') return
-    if (personsMode === 'all' || personsMode === 'list') return
+    if (menuSelection === 'all' || (menuSelection as string).startsWith('list:')) return
+    
+    console.log('Loading persons in mode:', { activeTab, menuSelection, searchPersons, filters: { categories: filters.categories, countries: filters.countries, statusFilters } })
     
     // Сбрасываем состояние
     setPersonsAlt([])
@@ -286,7 +329,10 @@ export default function ManagePage() {
     async function loadInitialData() {
       try {
         const params = new URLSearchParams({ limit: '50', offset: '0' })
-        if (personsMode === 'mine') {
+        
+        // Добавляем все фильтры для режима 'mine' (кроме status — он поддерживается бэкендом)
+        if (menuSelection === 'mine') {
+          // Фильтры по статусам — серверные
           const selectedStatuses = Object.entries(statusFilters)
             .filter(([_, checked]) => checked)
             .map(([status, _]) => status)
@@ -294,38 +340,82 @@ export default function ManagePage() {
             params.set('status', selectedStatuses.join(','))
           }
         }
-        const path = personsMode === 'pending' ? '/api/admin/persons/moderation' : '/api/persons/mine'
+        
+        const path = menuSelection === 'pending' ? '/api/admin/persons/moderation' : '/api/persons/mine'
+        console.log('Loading persons from:', path, params.toString())
+        
         const arr = await apiData<Person[]>(`${path}?${params.toString()}`)
+        console.log('Received persons data:', arr?.length || 0)
+        
         if (!aborted) {
-          setPersonsAlt(arr || [])
+          const normalized = menuSelection === 'mine' ? applyMinePersonsFilters(arr || []) : (arr || [])
+          setPersonsAlt(normalized)
+          // Если сервер вернул >= лимита, продолжаем пагинацию
           setPersonsAltHasMore((arr?.length || 0) >= 50)
+          setPersonsAltLoading(false)
         }
       } catch (error) {
         console.error('Error loading persons:', error)
         if (!aborted) {
           setPersonsAlt([])
           setPersonsAltHasMore(false)
+          setPersonsAltLoading(false)
         }
-      } finally {
-        if (!aborted) setPersonsAltLoading(false)
       }
     }
     
     loadInitialData()
     return () => { aborted = true }
-  }, [activeTab, personsMode, statusFilters])
+  }, [activeTab, menuSelection, statusFilters, searchPersons, filters.categories, filters.countries, applyMinePersonsFilters])
+
+  // Reset offset when filters change to reload data from beginning
+  useEffect(() => {
+    if (activeTab === 'persons' && menuSelection === 'mine') {
+      console.log('Resetting persons offset due to filter change:', { searchPersons, filters: { categories: filters.categories, countries: filters.countries, statusFilters } })
+      setPersonsAltOffset(0)
+      setPersonsAlt([])
+      setPersonsAltHasMore(true)
+      setPersonsAltLoading(false)
+    }
+  }, [activeTab, menuSelection, searchPersons, filters.categories, filters.countries, statusFilters])
+  
+  // Reset offset for achievements when filters change
+  useEffect(() => {
+    if (activeTab === 'achievements' && menuSelection === 'mine') {
+      console.log('Resetting achievements offset due to filter change:', { searchAch })
+      setAchAltOffset(0)
+      setAchItemsAlt([])
+      setAchAltHasMore(true)
+      setAchAltLoading(false)
+    }
+  }, [activeTab, menuSelection, searchAch])
+  
+  // Reset offset for periods when filters change
+  useEffect(() => {
+    if (activeTab === 'periods' && menuSelection === 'mine') {
+      console.log('Resetting periods offset due to filter change:', { searchPeriods, periodType })
+      setPeriodsMineOffset(0)
+      setPeriodItemsMine([])
+      setPeriodsHasMoreMine(true)
+      setPeriodsLoadingMine(false)
+    }
+  }, [activeTab, menuSelection, searchPeriods, periodType])
   
   // Separate useEffect for loading more data (pagination)
   useEffect(() => {
     if (personsAltOffset === 0) return // Skip initial load (handled above)
-    if (personsMode === 'all' || personsMode === 'list' || !personsAltHasMore || personsAltLoading) return
+    if (menuSelection === 'all' || (menuSelection as string).startsWith('list:') || !personsAltHasMore || personsAltLoading) return
+    
+    console.log('Loading more persons data:', { personsAltOffset, personsAltHasMore, personsAltLoading })
     
     let aborted = false
     async function loadMoreData() {
       setPersonsAltLoading(true)
       try {
         const params = new URLSearchParams({ limit: '50', offset: String(personsAltOffset) })
-        if (personsMode === 'mine') {
+        
+        // Только status передаём на бэкенд
+        if (menuSelection === 'mine') {
           const selectedStatuses = Object.entries(statusFilters)
             .filter(([_, checked]) => checked)
             .map(([status, _]) => status)
@@ -333,10 +423,12 @@ export default function ManagePage() {
             params.set('status', selectedStatuses.join(','))
           }
         }
-        const path = personsMode === 'pending' ? '/api/admin/persons/moderation' : '/api/persons/mine'
+        
+        const path = menuSelection === 'pending' ? '/api/admin/persons/moderation' : '/api/persons/mine'
         const arr = await apiData<Person[]>(`${path}?${params.toString()}`)
         if (!aborted) {
-          setPersonsAlt(prev => [...prev, ...(arr || [])])
+          const normalized = menuSelection === 'mine' ? applyMinePersonsFilters(arr || []) : (arr || [])
+          setPersonsAlt(prev => [...prev, ...normalized])
           setPersonsAltHasMore((arr?.length || 0) >= 50)
         }
       } catch (error) {
@@ -349,13 +441,13 @@ export default function ManagePage() {
     
     loadMoreData()
     return () => { aborted = true }
-  }, [personsAltOffset])
+  }, [personsAltOffset, menuSelection, statusFilters, applyMinePersonsFilters, personsAltHasMore, personsAltLoading])
 
   // Load selected list content (for both tabs + periods). Only loads when current tab is in 'list' mode
   useEffect(() => {
     let aborted = false
     ;(async () => {
-      const listModeActive = (activeTab === 'persons' ? personsMode === 'list' : activeTab === 'achievements' ? achMode === 'list' : periodsMode === 'list')
+      const listModeActive = (menuSelection as string).startsWith('list:')
       if (!listModeActive || !selectedListId) { setListItems([]); return }
       setListLoading(true)
       try {
@@ -403,44 +495,138 @@ export default function ManagePage() {
       }
     })()
     return () => { aborted = true }
-  }, [activeTab, personsMode, achMode, periodsMode, selectedListId])
+  }, [activeTab, menuSelection, selectedListId])
 
   // Preserve person card when switching to an empty list
   useEffect(() => {
-    if (personsMode === 'list' && listItems.length === 0 && !listLoading && !selected && lastSelectedRef.current) {
+    if ((menuSelection as string).startsWith('list:') && listItems.length === 0 && !listLoading && !selected && lastSelectedRef.current) {
       setSelected(lastSelectedRef.current)
     }
-  }, [personsMode, listItems.length, listLoading, selected])
+  }, [menuSelection, listItems.length, listLoading, selected])
 
+  // Achievements: initial load on reset
   useEffect(() => {
     if (activeTab !== 'achievements') return
-    if (achMode === 'all') return
+    if (menuSelection === 'all' || (menuSelection as string).startsWith('list:')) return
+    
+    console.log('Loading achievements in mode:', { activeTab, menuSelection, searchAch })
     setAchItemsAlt([])
     setAchAltHasMore(true)
     setAchAltOffset(0)
-  }, [activeTab, achMode])
-  useEffect(() => {
+    setAchAltLoading(true)
     let aborted = false
-    async function loadChunk() {
-      if (achMode === 'all' || !achAltHasMore || achAltLoading) return
-      setAchAltLoading(true)
+    ;(async () => {
       try {
-        const params = new URLSearchParams({ limit: '100', offset: String(achAltOffset) })
-        const path = achMode === 'pending' ? '/api/admin/achievements/pending' : '/api/achievements/mine'
+        const params = new URLSearchParams({ limit: '100', offset: '0' })
+        if (menuSelection === 'mine' && searchAch.trim()) params.set('q', searchAch.trim())
+        const path = menuSelection === 'pending' ? '/api/admin/achievements/pending' : '/api/achievements/mine'
+        console.log('Loading achievements from:', path, params.toString())
         const arr = await apiData<any[]>(`${path}?${params.toString()}`)
         if (!aborted) {
-          setAchItemsAlt(prev => [...prev, ...arr])
-          if (arr.length < 100) setAchAltHasMore(false)
+          setAchItemsAlt(arr || [])
+          setAchAltHasMore((arr?.length || 0) >= 100)
         }
-      } catch {
+      } catch (e) {
         if (!aborted) setAchAltHasMore(false)
       } finally {
         if (!aborted) setAchAltLoading(false)
       }
-    }
-    loadChunk()
+    })()
     return () => { aborted = true }
-  }, [activeTab, achMode, achAltOffset, achAltHasMore, achAltLoading])
+  }, [activeTab, menuSelection, searchAch])
+
+  // Achievements: load more when offset increases
+  useEffect(() => {
+    if (activeTab !== 'achievements') return
+    if (menuSelection === 'all' || (menuSelection as string).startsWith('list:')) return
+    if (achAltOffset === 0) return
+    if (!achAltHasMore || achAltLoading) return
+    let aborted = false
+    ;(async () => {
+      setAchAltLoading(true)
+      try {
+        const params = new URLSearchParams({ limit: '100', offset: String(achAltOffset) })
+        if (menuSelection === 'mine' && searchAch.trim()) params.set('q', searchAch.trim())
+        const path = menuSelection === 'pending' ? '/api/admin/achievements/pending' : '/api/achievements/mine'
+        console.log('Loading more achievements from:', path, params.toString())
+        const arr = await apiData<any[]>(`${path}?${params.toString()}`)
+        if (!aborted) {
+          setAchItemsAlt(prev => [...prev, ...(arr || [])])
+          setAchAltHasMore((arr?.length || 0) >= 100)
+        }
+      } catch (e) {
+        if (!aborted) setAchAltHasMore(false)
+      } finally {
+        if (!aborted) setAchAltLoading(false)
+      }
+    })()
+    return () => { aborted = true }
+  }, [activeTab, menuSelection, achAltOffset, achAltHasMore, achAltLoading, searchAch])
+  
+  // Periods: initial load on reset
+  useEffect(() => {
+    if (activeTab !== 'periods') return
+    if (menuSelection === 'all' || (menuSelection as string).startsWith('list:')) return
+    
+    console.log('Loading periods in mode:', { activeTab, menuSelection, searchPeriods, periodType })
+    setPeriodItemsMine([])
+    setPeriodsHasMoreMine(true)
+    setPeriodsMineOffset(0)
+    setPeriodsLoadingMine(true)
+    let aborted = false
+    ;(async () => {
+      try {
+        const params = new URLSearchParams({ limit: '100', offset: '0' })
+        if (menuSelection === 'mine') {
+          if (searchPeriods.trim()) params.set('q', searchPeriods.trim())
+          if (periodType) params.set('type', periodType)
+        }
+        const path = menuSelection === 'mine' ? '/api/periods/mine' : '/api/admin/periods/pending'
+        console.log('Loading periods from:', path, params.toString())
+        const arr = await apiData<any[]>(`${path}?${params.toString()}`)
+        if (!aborted) {
+          setPeriodItemsMine(arr || [])
+          setPeriodsHasMoreMine((arr?.length || 0) >= 100)
+        }
+      } catch (e) {
+        if (!aborted) setPeriodsHasMoreMine(false)
+      } finally {
+        if (!aborted) setPeriodsLoadingMine(false)
+      }
+    })()
+    return () => { aborted = true }
+  }, [activeTab, menuSelection, searchPeriods, periodType])
+
+  // Periods: load more when offset increases
+  useEffect(() => {
+    if (activeTab !== 'periods') return
+    if (menuSelection === 'all' || (menuSelection as string).startsWith('list:')) return
+    if (periodsMineOffset === 0) return
+    if (!periodsHasMoreMine || periodsLoadingMine) return
+    let aborted = false
+    ;(async () => {
+      setPeriodsLoadingMine(true)
+      try {
+        const params = new URLSearchParams({ limit: '100', offset: String(periodsMineOffset) })
+        if (menuSelection === 'mine') {
+          if (searchPeriods.trim()) params.set('q', searchPeriods.trim())
+          if (periodType) params.set('type', periodType)
+        }
+        const path = menuSelection === 'mine' ? '/api/periods/mine' : '/api/admin/periods/pending'
+        console.log('Loading more periods from:', path, params.toString())
+        const arr = await apiData<any[]>(`${path}?${params.toString()}`)
+        if (!aborted) {
+          setPeriodItemsMine(prev => [...prev, ...(arr || [])])
+          setPeriodsHasMoreMine((arr?.length || 0) >= 100)
+        }
+      } catch (e) {
+        if (!aborted) setPeriodsHasMoreMine(false)
+      } finally {
+        if (!aborted) setPeriodsLoadingMine(false)
+      }
+    })()
+    return () => { aborted = true }
+  }, [activeTab, menuSelection, periodsMineOffset, periodsHasMoreMine, periodsLoadingMine, searchPeriods, periodType])
 
   // Detect shared list side effects kept minimal (handled in useLists)
   useEffect(() => {}, [sharedList])
@@ -471,9 +657,10 @@ export default function ManagePage() {
         if (!aborted) {
           setPersonsMineCount(Number((data as any)?.persons || 0))
           setAchMineCount(Number((data as any)?.achievements || 0))
+          setPeriodsMineCount(Number((data as any)?.periods || 0))
         }
       } catch {
-        if (!aborted) { setPersonsMineCount(0); setAchMineCount(0) }
+        if (!aborted) { setPersonsMineCount(0); setAchMineCount(0); setPeriodsMineCount(0) }
       }
     })()
     return () => { aborted = true }
@@ -484,23 +671,22 @@ export default function ManagePage() {
   // Apply global menuSelection on tab switch
   useEffect(() => {
     const applySelection = (target: Tab) => {
-      if (menuSelection.startsWith && (menuSelection as string).startsWith('list:')) {
+      console.log('Applying selection:', { target, menuSelection })
+      
+      if ((menuSelection as string).startsWith('list:')) {
         const id = Number((menuSelection as string).split(':')[1])
         setSelectedListId(Number.isFinite(id) ? id : null)
-        if (target === 'persons') setPersonsMode('list')
-        else if (target === 'achievements') setAchMode('list')
-        else setPeriodsMode('list')
       } else if (menuSelection === 'all') {
         setSelectedListId(null)
-        if (target === 'persons') setPersonsMode('all')
-        else if (target === 'achievements') setAchMode('all')
-        else setPeriodsMode('all')
       } else if (menuSelection === 'pending' || menuSelection === 'mine') {
         setSelectedListId(null)
-        if (target === 'persons') setPersonsMode(menuSelection)
-        else if (target === 'achievements') setAchMode(menuSelection)
-        else setPeriodsMode('all') // periods do not support pending/mine
       }
+      
+      console.log('Applied selection result:', { 
+        target, 
+        menuSelection, 
+        selectedListId: (menuSelection as string).startsWith('list:') ? Number((menuSelection as string).split(':')[1]) : null
+      })
     }
     applySelection(activeTab)
   }, [activeTab, menuSelection])
@@ -591,7 +777,7 @@ export default function ManagePage() {
               personsAltHasMore={personsAltHasMore}
               setPersonsAltOffset={setPersonsAltOffset}
               onSelect={(p) => setSelected(p)}
-              personsMode={personsMode}
+              personsMode={menuSelection === 'all' ? 'all' : menuSelection === 'mine' ? 'mine' : 'list'}
               statusFilters={statusFilters}
               setStatusFilters={setStatusFilters}
               listLoading={listLoading}
@@ -672,7 +858,12 @@ export default function ManagePage() {
             periodsLoadingAll={periodsLoadingAll}
             periodsHasMoreAll={periodsHasMoreAll}
             loadMorePeriodsAll={loadMorePeriodsAll}
-            periodsMode={periodsMode}
+            periodsMineCount={periodsMineCount}
+            periodItemsMine={periodItemsMine}
+            periodsLoadingMine={periodsLoadingMine}
+            periodsHasMoreMine={periodsHasMoreMine}
+            periodsMineOffset={periodsMineOffset}
+            setPeriodsMineOffset={setPeriodsMineOffset}
             listLoading={listLoading}
             listItems={listItems}
             setListItems={setListItems as any}
@@ -701,7 +892,6 @@ export default function ManagePage() {
             showToast={showToast}
             searchAch={searchAch}
             setSearchAch={setSearchAch}
-            achMode={achMode}
             achItemsAll={achItemsAll as any}
             achLoadingAll={achLoadingAll}
             hasMoreAll={hasMoreAll}
@@ -710,6 +900,9 @@ export default function ManagePage() {
             achAltLoading={achAltLoading}
             achAltHasMore={achAltHasMore}
             setAchAltOffset={setAchAltOffset}
+            listLoading={listLoading}
+            listItems={listItems}
+            setListItems={setListItems as any}
             openAddAchievement={(id: number) => { addToList.openForAchievement(id) }}
             openAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}
           />
@@ -863,11 +1056,9 @@ export default function ManagePage() {
               end: p.end_year
             }))
             
-            console.log('onUpdateDraft called for:', id)
             // Обновляем персону с периодами
             await updatePerson(id, { ...payload, lifePeriods })
             const fresh = await getPersonById(id)
-            console.log('Fresh data after updatePerson:', (fresh as any)?.status, (fresh as any)?.is_draft)
 
             if (fresh) setSelected(fresh as any)
           }}
@@ -888,10 +1079,8 @@ export default function ManagePage() {
           }}
           onSuccess={async () => {
             // Дополнительно обновляем данные о личности после успешной операции
-            console.log('onSuccess called, selected before:', (selected as any)?.status, (selected as any)?.is_draft)
             if (selected) {
               const fresh = await getPersonById(selected.id)
-              console.log('Fresh data from API:', (fresh as any)?.status, (fresh as any)?.is_draft)
               if (fresh) setSelected(fresh as any)
             }
           }}

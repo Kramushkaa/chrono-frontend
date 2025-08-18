@@ -66,6 +66,22 @@ export function PersonsList({ search, setSearch, categories, countries, filters,
         style={{ overflowY: 'auto', maxHeight: '70vh', paddingRight: 6 }}
       >
         {isLoading && persons.length === 0 && <div>Загрузка...</div>}
+        
+        {/* Show informative message when no items in mine mode */}
+        {!isLoading && persons.length === 0 && (
+          <div style={{ 
+			textAlign: 'center', 
+			padding: '40px 20px', 
+			opacity: 0.7, 
+			fontSize: 14,
+			border: '1px dashed rgba(139,69,19,0.3)',
+			borderRadius: 8,
+			background: 'rgba(139,69,19,0.05)'
+		  }}>
+			Здесь будут отображаться созданные или отредактированные вами элементы
+		  </div>
+        )}
+        
         {persons.map(p => (
           <div key={p.id} onClick={() => onSelect(p)} role="button" tabIndex={0}
             onKeyDown={(e) => {
@@ -78,7 +94,6 @@ export function PersonsList({ search, setSearch, categories, countries, filters,
             <div style={{ fontSize: 12, opacity: 0.8 }}>{(p as any).country}</div>
           </div>
         ))}
-        {!isLoading && persons.length === 0 && <div style={{ opacity: 0.8 }}>Ничего не найдено</div>}
         {!isLoading && hasMore && (
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
             <button onClick={loadMore} style={{ padding: '6px 10px' }}>Показать ещё</button>

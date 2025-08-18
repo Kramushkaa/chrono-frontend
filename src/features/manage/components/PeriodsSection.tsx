@@ -2,6 +2,8 @@ import React from 'react'
 import { LeftMenuSelection } from './LeftMenu'
 import { LeftMenuLayout } from './LeftMenuLayout'
 import { apiFetch } from 'shared/api/api'
+import { ListItemsView } from 'shared/ui/ListItemsView'
+import { deleteListItem } from 'shared/utils/lists'
 import { useManageUI } from 'features/manage/context/ManageUIContext'
 
 type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean }
@@ -33,7 +35,14 @@ interface PeriodsSectionProps {
 	periodsLoadingAll: boolean
 	periodsHasMoreAll: boolean
 	loadMorePeriodsAll: () => void
-	periodsMode: 'all' | 'pending' | 'mine' | 'list'
+	
+	// Add support for periods 'mine' mode
+	periodsMineCount: number | null
+	periodItemsMine: any[]
+	periodsLoadingMine: boolean
+	periodsHasMoreMine: boolean
+	periodsMineOffset: number
+	setPeriodsMineOffset: (updater: (prev: number) => number) => void
 
 	// List mode
 	listLoading: boolean
@@ -67,7 +76,12 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 		periodsLoadingAll,
 		periodsHasMoreAll,
 		loadMorePeriodsAll,
-		periodsMode,
+		periodsMineCount,
+		periodItemsMine,
+		periodsLoadingMine,
+		periodsHasMoreMine,
+		periodsMineOffset,
+		setPeriodsMineOffset,
 		listLoading,
 		listItems,
 		setListItems
@@ -82,14 +96,14 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 			gridWhenOpen="240px 8px 1fr"
 			gridWhenCollapsed="0px 8px 1fr"
 			menuId="lists-sidebar"
-			selectedKey={(menuSelection === 'pending' || menuSelection === 'mine') ? 'all' : menuSelection}
+			selectedKey={menuSelection}
 			onSelect={(sel: LeftMenuSelection) => {
 				if (sel.type === 'list') { setMenuSelection(`list:${sel.listId!}` as any) }
 				else { setMenuSelection(sel.type as any) }
 			}}
 			isModerator={isModerator}
 			pendingCount={null}
-			mineCount={null}
+			mineCount={periodsMineCount}
 			userLists={personLists}
 			onAddList={() => { if (!isAuthenticated) { setShowAuthModal(true); return } setShowCreateList(true) }}
 			labelAll="Все"
@@ -115,20 +129,22 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 			}}
 		>
 			<div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-				<div role="region" aria-label="Фильтр периодов" style={{ marginBottom: 12 }}>
-					<div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
-						<input value={searchPeriods} onChange={(e) => setSearchPeriods(e.target.value)} placeholder="Поиск по имени/стране" style={{ flex: '1 1 260px', minWidth: 260, padding: 6 }} />
-						<select value={periodType} onChange={(e) => setPeriodType((e.target.value as any))} style={{ padding: 6 }}>
-							<option value="">Все типы</option>
-							<option value="ruler">Правление</option>
-							<option value="life">Жизнь</option>
-						</select>
+				{!(menuSelection as string).startsWith('list:') && (
+					<div role="region" aria-label="Фильтр периодов" style={{ marginBottom: 12 }}>
+						<div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+							<input value={searchPeriods} onChange={(e) => setSearchPeriods(e.target.value)} placeholder="Поиск по имени/стране" style={{ flex: '1 1 260px', minWidth: 260, padding: 6 }} />
+							<select value={periodType} onChange={(e) => setPeriodType((e.target.value as any))} style={{ padding: 6 }}>
+								<option value="">Все типы</option>
+								<option value="ruler">Правление</option>
+								<option value="life">Жизнь</option>
+							</select>
+						</div>
+						<div style={{ fontSize: 12, opacity: 0.8 }}>
+							Найдено: {menuSelection === 'all' ? periodItemsAll.length : periodItemsMine.length}{!(menuSelection === 'all' ? periodsLoadingAll : periodsLoadingMine) && (menuSelection === 'all' ? periodsHasMoreAll : periodsHasMoreMine) ? '+' : ''}
+						</div>
 					</div>
-					<div style={{ fontSize: 12, opacity: 0.8 }}>
-						Найдено: {periodItemsAll.length}{!periodsLoadingAll && periodsHasMoreAll ? '+' : ''}
-					</div>
-				</div>
-				{periodsMode !== 'list' ? (
+				)}
+				{!(menuSelection as string).startsWith('list:') ? (
 					<div
 						role="region"
 						aria-label="Периоды"
@@ -136,78 +152,85 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 						onScroll={(e) => {
 							const el = e.currentTarget as HTMLDivElement
 							if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
-								if (!periodsLoadingAll && periodsHasMoreAll) loadMorePeriodsAll()
+								if (menuSelection === 'all') {
+									if (!periodsLoadingAll && periodsHasMoreAll) loadMorePeriodsAll()
+								} else if (menuSelection === 'mine') {
+									if (!periodsLoadingMine && periodsHasMoreMine) setPeriodsMineOffset(o => o + 100)
+								}
 							}
 						}}
 					>
-						{periodsLoadingAll && periodItemsAll.length === 0 && <div>Загрузка...</div>}
+						{(menuSelection === 'all' ? periodsLoadingAll : periodsLoadingMine) && (menuSelection === 'all' ? periodItemsAll.length === 0 : periodItemsMine.length === 0) && <div>Загрузка...</div>}
+						
+						{/* Show informative message when no items in mine mode */}
+						{!periodsLoadingMine && menuSelection === 'mine' && periodItemsMine.length === 0 && (
+							<div style={{ 
+								textAlign: 'center', 
+								padding: '40px 20px', 
+								opacity: 0.7, 
+								fontSize: 14,
+								border: '1px dashed rgba(139,69,19,0.3)',
+								borderRadius: 8,
+								background: 'rgba(139,69,19,0.05)'
+							}}>
+								Здесь будут отображаться созданные или отредактированные вами элементы
+							</div>
+						)}
+						
 						<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
-							{periodItemsAll.map((p: any) => {
+							{(menuSelection === 'all' ? periodItemsAll : periodItemsMine).map((p: any) => {
+								const personName = p.person_name ?? p.personName ?? ''
+								const countryName = p.country_name ?? p.countryName ?? ''
+								const type = p.period_type ?? p.periodType
+								const start = p.start_year ?? p.startYear
+								const end = p.end_year ?? p.endYear
 								const headerParts: string[] = []
-								if (p.person_name) headerParts.push(p.person_name)
-								if (p.country_name) headerParts.push(p.country_name)
+								if (personName) headerParts.push(personName)
+								if (countryName) headerParts.push(countryName)
 								const header = headerParts.join(' • ')
 								return (
-									<div key={p.id} style={{ border: '1px solid rgba(139,69,19,0.4)', borderRadius: 8, padding: 12, background: 'rgba(44,24,16,0.85)', position: 'relative' }}>
+									<div key={p.id ?? `${personName}-${start}-${end}`} style={{ border: '1px solid rgba(139,69,19,0.4)', borderRadius: 8, padding: 12, background: 'rgba(44,24,16,0.85)', position: 'relative' }}>
 										<div style={{ fontWeight: 'bold', marginBottom: 6 }}>{header || '—'}</div>
 										<div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6 }}>
-											Тип: {p.period_type === 'ruler' ? 'Правление' : p.period_type === 'life' ? 'Жизнь' : p.period_type}
+											Тип: {type === 'ruler' ? 'Правление' : type === 'life' ? 'Жизнь' : (type || '—')}
 										</div>
-										<div style={{ fontSize: 14 }}>Годы: {p.start_year} — {p.end_year ?? '—'}</div>
+										<div style={{ fontSize: 14 }}>Годы: {start ?? '—'} — {end ?? '—'}</div>
 										<div style={{ position: 'absolute', top: 8, right: 8 }}>
                 <button
-									onClick={() => {
-										if (!isAuthenticated || !emailVerified) { setShowAuthModal(true); return }
-										manageUI.openAddPeriod(Number(p.id))
-									}}
-												title="Добавить в список"
-											>＋</button>
+											onClick={() => {
+												if (!isAuthenticated || !emailVerified) { setShowAuthModal(true); return }
+												props.openAddPeriod(Number(p.id))
+											}}
+											title="Добавить в список"
+										>
+											＋</button>
 										</div>
 									</div>
 								)
 							})}
 						</div>
-						{!periodsLoadingAll && periodsHasMoreAll && (
+						{!(menuSelection === 'all' ? periodsLoadingAll : periodsLoadingMine) && (menuSelection === 'all' ? periodsHasMoreAll : periodsHasMoreMine) && (
 							<div style={{ marginTop: 12 }}>
-								<button onClick={() => loadMorePeriodsAll()} style={{ padding: '6px 12px' }}>Показать ещё</button>
+								<button onClick={() => { 
+									if (menuSelection === 'all') loadMorePeriodsAll()
+									else if (menuSelection === 'mine') setPeriodsMineOffset(o => o + 100)
+								}} style={{ padding: '6px 12px' }}>Показать ещё</button>
 							</div>
 						)}
 					</div>
 				) : (
-					<div role="region" aria-label="Содержимое списка (периоды)" style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: 6 }}>
-						<div style={{ marginBottom: 8, fontSize: 12, opacity: 0.9 }}>
-							{(() => {
-								const pc = listItems.filter(i => i.type === 'person').length
-								const ac = listItems.filter(i => i.type === 'achievement').length
-								const prc = listItems.filter(i => i.type === 'period').length
-								return `Личностей: ${pc} • Достижений: ${ac} • Периодов: ${prc}`
-							})()}
-						</div>
-						{listLoading && listItems.filter(it => it.type === 'period').length === 0 && <div>Загрузка…</div>}
-						{listItems.filter(it => it.type === 'period').map((it) => (
-							<div key={it.key} style={{ padding: '6px 8px', borderBottom: '1px solid rgba(139,69,19,0.2)', display: 'flex', alignItems: 'center', gap: 8 }}>
-								<div style={{ flex: 1 }}>
-									<div style={{ fontWeight: 600 }}>{it.title}</div>
-									{it.subtitle && <div style={{ fontSize: 12, opacity: 0.85 }}>{it.subtitle}</div>}
-								</div>
-								<button aria-label="Удалить из списка" title="Удалить" onClick={async () => {
-									if (!selectedListId) return
-									const id = it.listItemId
-									try {
-										const res = await apiFetch(`/api/lists/${selectedListId}/items/${id}`, { method: 'DELETE' })
-										if (res.ok) {
-											setListItems(prev => prev.filter(x => x.listItemId !== id))
-											await loadUserLists()
-											showToast('Удалено из списка', 'success')
-										} else {
-											showToast('Не удалось удалить', 'error')
-										}
-									} catch { showToast('Ошибка удаления', 'error') }
-								}}>✕</button>
-							</div>
-						))}
-						{!listLoading && listItems.filter(it => it.type === 'period').length === 0 && <div style={{ opacity: 0.8 }}>Список пуст</div>}
-					</div>
+					<ListItemsView
+						items={listItems as any}
+						filterType="period"
+						isLoading={listLoading}
+						emptyText="Список пуст"
+						onDelete={async (listItemId) => {
+							if (!selectedListId) return
+							const ok = await deleteListItem(selectedListId, listItemId)
+							if (ok) { setListItems(prev => prev.filter(x => x.listItemId !== listItemId)); await loadUserLists(); showToast('Удалено из списка', 'success') }
+							else { showToast('Не удалось удалить', 'error') }
+						}}
+					/>
 				)}
 			</div>
 		</LeftMenuLayout>
