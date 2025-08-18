@@ -775,9 +775,7 @@ export default function ManagePage() {
               personsAlt={personsAlt}
               personsAltLoading={personsAltLoading}
               personsAltHasMore={personsAltHasMore}
-              setPersonsAltOffset={setPersonsAltOffset}
               onSelect={(p) => setSelected(p)}
-              personsMode={menuSelection === 'all' ? 'all' : menuSelection === 'mine' ? 'mine' : 'list'}
               statusFilters={statusFilters}
               setStatusFilters={setStatusFilters}
               listLoading={listLoading}

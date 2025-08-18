@@ -5,7 +5,7 @@ type MixedItem = { key: string; listItemId: number; type: 'person' | 'achievemen
 
 type Props = {
   items: MixedItem[]
-  filterType: 'achievement' | 'period'
+  filterType: 'person' | 'achievement' | 'period'
   isLoading: boolean
   onDelete: (listItemId: number) => Promise<void> | void
   emptyText?: string

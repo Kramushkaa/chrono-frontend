@@ -34,7 +34,7 @@ interface ManageSectionProps {
   // List mode
   listLoading: boolean
   listItems: Array<{ key: string; listItemId: number; type: 'person' | 'achievement' | 'period'; title: string; subtitle?: string }>
-  filterType: 'achievement' | 'period'
+  filterType: 'person' | 'achievement' | 'period'
   
   // Actions
   onDeleteListItem?: (listItemId: number) => Promise<void> | void
