@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { SearchableSelect, SelectOption } from 'shared/ui/SearchableSelect'
 import { LifePeriodsEditor } from 'features/persons/components/LifePeriodsEditor'
 import { validateLifePeriodsClient } from 'shared/utils/validation'
 import { DraftModerationButtons } from 'shared/ui/DraftModerationButtons'
+import { Modal } from 'shared/ui/Modal'
 
 type CountryOption = { id: number; name: string }
 
@@ -44,9 +45,6 @@ type Props = {
 
 export function CreateEntityModal(props: Props) {
   const { isOpen, onClose, type, categories, countryOptions, onCreatePerson, personOptions, personsSelectLoading, onSearchPersons, onCreateAchievement } = props
-  const modalRef = useRef<HTMLDivElement | null>(null)
-  const lastFocusedBeforeModalRef = useRef<HTMLElement | null>(null)
-
   const [newLifePeriods, setNewLifePeriods] = useState<Array<{ countryId: string; start: number | ''; end: number | '' }>>([])
   const [newBirthYear, setNewBirthYear] = useState<number | ''>('')
   const [newDeathYear, setNewDeathYear] = useState<number | ''>('')
@@ -61,49 +59,25 @@ export function CreateEntityModal(props: Props) {
   const countrySelectOptions = useMemo(() => countryOptions.map(c => ({ value: String(c.id), label: c.name })), [countryOptions])
   const categorySelectOptions = useMemo(() => categories.map(c => ({ value: c, label: c })), [categories])
 
-  const trapFocus = (container: HTMLElement, e: React.KeyboardEvent) => {
-    if (e.key !== 'Tab') return
-    const focusable = container.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-    )
-    const list = Array.from(focusable).filter(el => el.offsetParent !== null)
-    if (list.length === 0) return
-    const first = list[0]
-    const last = list[list.length - 1]
-    const active = document.activeElement as HTMLElement | null
-    const shift = (e as any).shiftKey
-    if (!shift && active === last) { e.preventDefault(); first.focus(); }
-    else if (shift && active === first) { e.preventDefault(); last.focus(); }
-  }
-
   useEffect(() => {
     if (isOpen) {
-      lastFocusedBeforeModalRef.current = document.activeElement as HTMLElement
-      setTimeout(() => { modalRef.current?.focus() }, 0)
       if (type === 'person' && newLifePeriods.length === 0) setNewLifePeriods([{ countryId: '', start: '', end: '' }])
       setPeriodsError(null) // Очистить ошибки при открытии
-    } else if (!isOpen && lastFocusedBeforeModalRef.current) {
-      try { lastFocusedBeforeModalRef.current.focus() } catch {}
-      lastFocusedBeforeModalRef.current = null
     }
   }, [isOpen, type, newLifePeriods.length])
 
   if (!isOpen) return null
 
   return (
-    <div role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000 }} onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="large"
+      title={type === 'person' ? 'Новая личность' : 'Новое достижение'}
+    >
       <div
-        ref={modalRef}
-        tabIndex={-1}
-        style={{ background: 'rgba(44,24,16,0.95)', border: '1px solid rgba(139,69,19,0.4)', borderRadius: 8, padding: 16, minWidth: 360 }}
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => { if (modalRef.current) trapFocus(modalRef.current, e) }}
+        style={{ display: 'grid', gap: 8 }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <div style={{ fontWeight: 'bold' }}>{type === 'person' ? 'Новая личность' : 'Новое достижение'}</div>
-          <button onClick={onClose}>✕</button>
-        </div>
-
         {type === 'person' ? (
           <form style={{ display: 'grid', gap: 8 }}
           >
@@ -312,7 +286,7 @@ export function CreateEntityModal(props: Props) {
           </form>
         )}
       </div>
-    </div>
+    </Modal>
   )
 }
 
