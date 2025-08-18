@@ -1,0 +1,169 @@
+/* ManagePage - Семантические стили для страницы управления */
+
+.manage-page {
+  /* Основной контейнер страницы управления */
+}
+
+.manage-page__content {
+  /* Контейнер основного содержимого */
+}
+
+/* Табы управления */
+.manage-page__tabs {
+  /* Контейнер табов */
+}
+
+.manage-page__tab {
+  /* Отдельный таб */
+  transition: all 0.2s ease;
+}
+
+.manage-page__tab--active {
+  /* Активный таб */
+  font-weight: 600;
+  background-color: rgba(139, 69, 19, 0.1);
+  border-radius: 4px;
+}
+
+.manage-page__actions {
+  /* Контейнер действий (кнопка "Добавить") */
+}
+
+.manage-page__add-button {
+  /* Кнопка добавления */
+  background-color: #8b4513;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.manage-page__add-button:hover {
+  background-color: #a0522d;
+}
+
+/* Секция личностей */
+.manage-page__persons-layout {
+  /* Двухколоночный layout для личностей */
+}
+
+.manage-page__persons-list {
+  /* Левая колонка со списком личностей */
+}
+
+.manage-page__person-card {
+  /* Правая колонка с карточкой личности */
+}
+
+.manage-page__person-card-content {
+  /* Содержимое карточки личности */
+}
+
+.manage-page__person-card-header {
+  /* Заголовок карточки личности */
+}
+
+.manage-page__person-card-title {
+  /* Заголовок "Карточка" */
+}
+
+.manage-page__person-card-actions {
+  /* Кнопки действий в карточке */
+}
+
+.manage-page__person-card-edit-btn {
+  /* Кнопка редактирования */
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.manage-page__person-card-edit-btn:hover {
+  background-color: #357abd;
+}
+
+.manage-page__person-card-add-btn {
+  /* Кнопка добавления в список */
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.manage-page__person-card-add-btn:hover {
+  background-color: #218838;
+}
+
+.manage-page__person-card-empty {
+  /* Сообщение когда личность не выбрана */
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+/* Секции достижений и периодов */
+.manage-page__achievements-section,
+.manage-page__periods-section {
+  /* Общие стили для секций достижений и периодов */
+}
+
+/* Модальные окна */
+.manage-page__modals {
+  /* Контейнер для всех модальных окон */
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .manage-page__persons-layout {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  
+  .manage-page__persons-list {
+    border-right: none !important;
+    border-bottom: 2px solid rgba(139, 69, 19, 0.3) !important;
+    padding-right: 0 !important;
+    padding-bottom: 16px !important;
+  }
+  
+  .manage-page__tabs {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .manage-page__actions {
+    margin-left: 0 !important;
+    margin-top: 8px;
+  }
+}
+
+/* Доступность */
+.manage-page__tab:focus,
+.manage-page__add-button:focus,
+.manage-page__person-card-edit-btn:focus,
+.manage-page__person-card-add-btn:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+/* Темная тема (если понадобится в будущем) */
+@media (prefers-color-scheme: dark) {
+  .manage-page__tab--active {
+    background-color: rgba(139, 69, 19, 0.2);
+  }
+  
+  .manage-page__person-card-empty {
+    color: #999;
+  }
+}

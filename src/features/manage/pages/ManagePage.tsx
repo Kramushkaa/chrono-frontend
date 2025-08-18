@@ -31,6 +31,7 @@ import { AchievementsSection } from 'features/manage/components/AchievementsSect
 import { PersonsSection } from 'features/manage/components/PersonsSection'
 import { PeriodsSection } from 'features/manage/components/PeriodsSection'
 import { ManageUIProvider } from 'features/manage/context/ManageUIContext'
+import '../../../styles/manage-page.css'
 
 type Tab = 'persons' | 'achievements' | 'periods'
 
@@ -692,7 +693,7 @@ export default function ManagePage() {
   }, [activeTab, menuSelection])
 
   return (
-    <div className="app" id="chrononinja-manage" role="main" aria-label="Управление контентом">
+    <div className="app manage-page" id="chrononinja-manage" role="main" aria-label="Управление контентом">
       <React.Suspense fallback={<div />}> 
         <AppHeader
           isScrolled={isScrolled}
@@ -727,13 +728,45 @@ export default function ManagePage() {
           openAddForSelectedPerson: () => { if (selected) addToList.openForPerson(selected) }
         }}
       >
-      <div style={{ padding: 16, paddingTop: 8 }}>
-        <div style={{ display: 'flex', gap: 12, margin: '8px 0 16px', alignItems: 'center', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }} role="tablist" aria-label="Вкладки управления">
-          <button role="tab" aria-selected={activeTab === 'persons'} onClick={() => setActiveTab('persons')} style={{ padding: '6px 12px' }}>Личности</button>
-          <button role="tab" aria-selected={activeTab === 'achievements'} onClick={() => setActiveTab('achievements')} style={{ padding: '6px 12px' }}>Достижения</button>
-          <button role="tab" aria-selected={activeTab === 'periods'} onClick={() => setActiveTab('periods')} style={{ padding: '6px 12px' }}>Периоды</button>
-          <div style={{ marginLeft: 'auto', flex: '0 0 auto' }}>
-            <button onClick={() => { if (!isAuthenticated || !user?.email_verified) { setShowAuthModal(true); return } setCreateType(activeTab === 'persons' ? 'person' : 'achievement'); setShowCreate(true) }} aria-label={activeTab === 'persons' ? 'Добавить личность' : 'Добавить достижение'}>
+      <div className="manage-page__content" style={{ padding: 16, paddingTop: 8 }}>
+        <div className="manage-page__tabs" style={{ display: 'flex', gap: 12, margin: '8px 0 16px', alignItems: 'center', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }} role="tablist" aria-label="Вкладки управления">
+          <button 
+            className={`manage-page__tab ${activeTab === 'persons' ? 'manage-page__tab--active' : ''}`}
+            id="manage-tab-persons"
+            role="tab" 
+            aria-selected={activeTab === 'persons'} 
+            onClick={() => setActiveTab('persons')} 
+            style={{ padding: '6px 12px' }}
+          >
+            Личности
+          </button>
+          <button 
+            className={`manage-page__tab ${activeTab === 'achievements' ? 'manage-page__tab--active' : ''}`}
+            id="manage-tab-achievements"
+            role="tab" 
+            aria-selected={activeTab === 'achievements'} 
+            onClick={() => setActiveTab('achievements')} 
+            style={{ padding: '6px 12px' }}
+          >
+            Достижения
+          </button>
+          <button 
+            className={`manage-page__tab ${activeTab === 'periods' ? 'manage-page__tab--active' : ''}`}
+            id="manage-tab-periods"
+            role="tab" 
+            aria-selected={activeTab === 'periods'} 
+            onClick={() => setActiveTab('periods')} 
+            style={{ padding: '6px 12px' }}
+          >
+            Периоды
+          </button>
+          <div className="manage-page__actions" style={{ marginLeft: 'auto', flex: '0 0 auto' }}>
+            <button 
+              className="manage-page__add-button"
+              id={`manage-add-${activeTab}`}
+              onClick={() => { if (!isAuthenticated || !user?.email_verified) { setShowAuthModal(true); return } setCreateType(activeTab === 'persons' ? 'person' : 'achievement'); setShowCreate(true) }} 
+              aria-label={activeTab === 'persons' ? 'Добавить личность' : 'Добавить достижение'}
+            >
               Добавить
             </button>
           </div>
@@ -741,8 +774,8 @@ export default function ManagePage() {
         </div>
 
         {activeTab === 'persons' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 16, alignItems: 'start' }}>
-            <div style={{ borderRight: '2px solid rgba(139,69,19,0.3)', paddingRight: 16 }}>
+          <div className="manage-page__persons-layout" id="manage-persons-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 16, alignItems: 'start' }}>
+            <div className="manage-page__persons-list" id="manage-persons-list" style={{ borderRight: '2px solid rgba(139,69,19,0.3)', paddingRight: 16 }}>
               <PersonsSection
                 sidebarCollapsed={sidebarCollapsed}
                 setSidebarCollapsed={setSidebarCollapsed}
@@ -783,25 +816,35 @@ export default function ManagePage() {
                 listItems={listItems}
               />
             </div>
-            <div role="region" aria-label="Карточка личности" style={{ position: 'relative', zIndex: 2, minWidth: 0 }}>
+            <div className="manage-page__person-card" id="manage-person-card" role="region" aria-label="Карточка личности" style={{ position: 'relative', zIndex: 2, minWidth: 0 }}>
               {selected ? (
-                <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                      <div style={{ fontWeight: 'bold', fontSize: 16 }}>Карточка</div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={() => { 
-                          if (!isAuthenticated || !user?.email_verified) { 
-                            setShowAuthModal(true); 
-                            return; 
-                          }
-                          // Проверяем статус личности
-                          if (selected?.status === 'pending') {
-                            setShowEditWarning(true);
-                            return;
-                          }
-                          setIsEditing(true);
-                        }}>Редактировать</button>
-                      <button onClick={() => { if (!isAuthenticated || !user?.email_verified) { setShowAuthModal(true); return } if (selected) addToList.openForPerson(selected) }}>Добавить в список</button>
+                <div className="manage-page__person-card-content">
+                    <div className="manage-page__person-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <div className="manage-page__person-card-title" style={{ fontWeight: 'bold', fontSize: 16 }}>Карточка</div>
+                      <div className="manage-page__person-card-actions" style={{ display: 'flex', gap: 8 }}>
+                        <button 
+                          className="manage-page__person-card-edit-btn"
+                          onClick={() => { 
+                            if (!isAuthenticated || !user?.email_verified) { 
+                              setShowAuthModal(true); 
+                              return; 
+                            }
+                            // Проверяем статус личности
+                            if (selected?.status === 'pending') {
+                              setShowEditWarning(true);
+                              return;
+                            }
+                            setIsEditing(true);
+                          }}
+                        >
+                          Редактировать
+                        </button>
+                      <button 
+                        className="manage-page__person-card-add-btn"
+                        onClick={() => { if (!isAuthenticated || !user?.email_verified) { setShowAuthModal(true); return } if (selected) addToList.openForPerson(selected) }}
+                      >
+                        Добавить в список
+                      </button>
                       </div>
                     </div>
                     <PersonCard
@@ -824,83 +867,87 @@ export default function ManagePage() {
                     />
                 </div>
               ) : (
-                <div style={{ opacity: 0.8 }}>Выберите личность слева</div>
+                <div className="manage-page__person-card-empty" style={{ opacity: 0.8 }}>Выберите личность слева</div>
               )}
             </div>
           </div>
         )}
 
         {activeTab === 'periods' && (
-          <PeriodsSection
-            sidebarCollapsed={sidebarCollapsed}
-            setSidebarCollapsed={setSidebarCollapsed}
-            menuSelection={menuSelection as any}
-            setMenuSelection={setMenuSelection as any}
-            isModerator={isModerator}
-            personLists={[
-              ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
-              ...(isAuthenticated ? personLists : [])
-            ]}
-            isAuthenticated={isAuthenticated}
-            setShowAuthModal={setShowAuthModal}
-            setShowCreateList={setShowCreateList}
-            sharedList={sharedList}
-            selectedListId={selectedListId}
-            setSelectedListId={setSelectedListId}
-            loadUserLists={(force?: boolean) => loadUserLists.current?.(force) as any}
-            showToast={showToast}
-            searchPeriods={searchPeriods}
-            setSearchPeriods={setSearchPeriods}
-            periodType={periodType}
-            setPeriodType={setPeriodType}
-            periodItemsAll={periodItemsAll as any}
-            periodsLoadingAll={periodsLoadingAll}
-            periodsHasMoreAll={periodsHasMoreAll}
-            loadMorePeriodsAll={loadMorePeriodsAll}
-            periodsMineCount={periodsMineCount}
-            periodItemsMine={periodItemsMine}
-            periodsLoadingMine={periodsLoadingMine}
-            periodsHasMoreMine={periodsHasMoreMine}
-            listLoading={listLoading}
-            listItems={listItems}
-            setListItems={setListItems as any}
-            openAddPeriod={(id: number) => { addToList.openForPeriod(id) }}
-          />
+          <div className="manage-page__periods-section" id="manage-periods-section">
+            <PeriodsSection
+              sidebarCollapsed={sidebarCollapsed}
+              setSidebarCollapsed={setSidebarCollapsed}
+              menuSelection={menuSelection as any}
+              setMenuSelection={setMenuSelection as any}
+              isModerator={isModerator}
+              personLists={[
+                ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
+                ...(isAuthenticated ? personLists : [])
+              ]}
+              isAuthenticated={isAuthenticated}
+              setShowAuthModal={setShowAuthModal}
+              setShowCreateList={setShowCreateList}
+              sharedList={sharedList}
+              selectedListId={selectedListId}
+              setSelectedListId={setSelectedListId}
+              loadUserLists={(force?: boolean) => loadUserLists.current?.(force) as any}
+              showToast={showToast}
+              searchPeriods={searchPeriods}
+              setSearchPeriods={setSearchPeriods}
+              periodType={periodType}
+              setPeriodType={setPeriodType}
+              periodItemsAll={periodItemsAll as any}
+              periodsLoadingAll={periodsLoadingAll}
+              periodsHasMoreAll={periodsHasMoreAll}
+              loadMorePeriodsAll={loadMorePeriodsAll}
+              periodsMineCount={periodsMineCount}
+              periodItemsMine={periodItemsMine}
+              periodsLoadingMine={periodsLoadingMine}
+              periodsHasMoreMine={periodsHasMoreMine}
+              listLoading={listLoading}
+              listItems={listItems}
+              setListItems={setListItems as any}
+              openAddPeriod={(id: number) => { addToList.openForPeriod(id) }}
+            />
+          </div>
         )}
 
         {activeTab === 'achievements' && (
-          <AchievementsSection
-            sidebarCollapsed={sidebarCollapsed}
-            setSidebarCollapsed={setSidebarCollapsed}
-            menuSelection={menuSelection as any}
-            setMenuSelection={setMenuSelection as any}
-            isModerator={isModerator}
-            achPendingCount={achPendingCount}
-            achMineCount={achMineCount}
-            personLists={isAuthenticated ? personLists : []}
-            isAuthenticated={isAuthenticated}
-            setShowAuthModal={setShowAuthModal}
-            setShowCreateList={setShowCreateList}
-            sharedList={sharedList}
-            selectedListId={selectedListId}
-            setSelectedListId={setSelectedListId}
-            loadUserLists={(force?: boolean) => loadUserLists.current?.(force) as any}
-            showToast={showToast}
-            searchAch={searchAch}
-            setSearchAch={setSearchAch}
-            achItemsAll={achItemsAll as any}
-            achLoadingAll={achLoadingAll}
-            hasMoreAll={hasMoreAll}
-            loadMoreAll={loadMoreAll}
-            achItemsAlt={achItemsAlt}
-            achAltLoading={achAltLoading}
-            achAltHasMore={achAltHasMore}
-            listLoading={listLoading}
-            listItems={listItems}
-            setListItems={setListItems as any}
-            openAddAchievement={(id: number) => { addToList.openForAchievement(id) }}
-            openAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}
-          />
+          <div className="manage-page__achievements-section" id="manage-achievements-section">
+            <AchievementsSection
+              sidebarCollapsed={sidebarCollapsed}
+              setSidebarCollapsed={setSidebarCollapsed}
+              menuSelection={menuSelection as any}
+              setMenuSelection={setMenuSelection as any}
+              isModerator={isModerator}
+              achPendingCount={achPendingCount}
+              achMineCount={achMineCount}
+              personLists={isAuthenticated ? personLists : []}
+              isAuthenticated={isAuthenticated}
+              setShowAuthModal={setShowAuthModal}
+              setShowCreateList={setShowCreateList}
+              sharedList={sharedList}
+              selectedListId={selectedListId}
+              setSelectedListId={setSelectedListId}
+              loadUserLists={(force?: boolean) => loadUserLists.current?.(force) as any}
+              showToast={showToast}
+              searchAch={searchAch}
+              setSearchAch={setSearchAch}
+              achItemsAll={achItemsAll as any}
+              achLoadingAll={achLoadingAll}
+              hasMoreAll={hasMoreAll}
+              loadMoreAll={loadMoreAll}
+              achItemsAlt={achItemsAlt}
+              achAltLoading={achAltLoading}
+              achAltHasMore={achAltHasMore}
+              listLoading={listLoading}
+              listItems={listItems}
+              setListItems={setListItems as any}
+              openAddAchievement={(id: number) => { addToList.openForAchievement(id) }}
+              openAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}
+            />
+          </div>
         )}
 
         {showCreate && (
@@ -1007,95 +1054,96 @@ export default function ManagePage() {
           />
         )}
 
-        <AuthRequiredModal
-          isOpen={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-          isAuthenticated={isAuthenticated}
-          emailVerified={!!user?.email_verified}
-          onGoToProfile={() => navigate('/profile')}
-        />
+        <div className="manage-page__modals">
+          <AuthRequiredModal
+            isOpen={showAuthModal}
+            onClose={() => setShowAuthModal(false)}
+            isAuthenticated={isAuthenticated}
+            emailVerified={!!user?.email_verified}
+            onGoToProfile={() => navigate('/profile')}
+          />
 
-        <PersonEditModal
-          isOpen={isEditing && !!selected}
-          onClose={() => setIsEditing(false)}
-          person={selected as any}
-          isModerator={isModerator}
-          editBirthYear={editBirthYear}
-          setEditBirthYear={setEditBirthYear}
-          editDeathYear={editDeathYear}
-          setEditDeathYear={setEditDeathYear}
-          editPersonCategory={editPersonCategory}
-          setEditPersonCategory={setEditPersonCategory}
-          categorySelectOptions={categorySelectOptions}
-          lifePeriods={lifePeriods as any}
-          setLifePeriods={setLifePeriods as any}
-          countrySelectOptions={countrySelectOptions}
-          showToast={showToast}
-          onPersonUpdated={(fresh: Person) => setSelected(fresh)}
-          onProposeEdit={async (id: string, payload: any, next: Array<{ country_id: number; start_year: number; end_year: number }>) => {
-            await proposePersonEdit(id, payload)
-            const orig = (Array.isArray((selected as any)?.periods) ? (selected as any).periods : [])
-              .filter((pr: any) => (pr.type || '').toLowerCase() === 'life' && pr.countryId)
-              .map((pr: any) => ({ country_id: Number(pr.countryId), start_year: Number(pr.startYear), end_year: Number(pr.endYear) }))
-              .sort((a: any, b: any) => a.start_year - b.start_year || a.end_year - b.end_year || a.country_id - b.country_id)
-            const changed = JSON.stringify(orig) !== JSON.stringify(next)
-            if (changed) {
-              await apiFetch(`/api/persons/${encodeURIComponent(id)}/life-periods`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ periods: next }) })
-            }
-          }}
-          onUpdateDraft={async (id: string, payload: any, next: Array<{ country_id: number; start_year: number; end_year: number }>) => {
-            // Преобразуем периоды в формат frontend
-            const lifePeriods = next.map(p => ({
-              countryId: String(p.country_id),
-              start: p.start_year,
-              end: p.end_year
-            }))
-            
-            // Обновляем персону с периодами
-            await updatePerson(id, { ...payload, lifePeriods })
-            const fresh = await getPersonById(id)
-
-            if (fresh) setSelected(fresh as any)
-          }}
-          onSubmitDraft={async (id: string, payload: any, next: Array<{ country_id: number; start_year: number; end_year: number }>) => {
-            // Сначала обновляем черновик с изменениями
-            const lifePeriods = next.map(p => ({
-              countryId: String(p.country_id),
-              start: p.start_year,
-              end: p.end_year
-            }))
-            await updatePerson(id, { ...payload, lifePeriods })
-            
-            // Затем отправляем на модерацию
-            await submitPersonDraft(id)
-            const fresh = await getPersonById(id)
-
-            if (fresh) setSelected(fresh as any)
-          }}
-          onSuccess={async () => {
-            // Дополнительно обновляем данные о личности после успешной операции
-            if (selected) {
-              const fresh = await getPersonById(selected.id)
-              if (fresh) setSelected(fresh as any)
-            }
-          }}
-        />
-
-        <CreateListModal
-          isOpen={showCreateList}
-          onClose={() => setShowCreateList(false)}
-          onCreate={async (title: string) => {
-            try {
-              const res = await apiFetch(`/api/lists`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title }) })
-              const data = await res.json().catch(() => null)
-              if (res.ok && data?.data) {
-                await loadUserLists.current?.()
+          <PersonEditModal
+            isOpen={isEditing && !!selected}
+            onClose={() => setIsEditing(false)}
+            person={selected as any}
+            isModerator={isModerator}
+            editBirthYear={editBirthYear}
+            setEditBirthYear={setEditBirthYear}
+            editDeathYear={editDeathYear}
+            setEditDeathYear={setEditDeathYear}
+            editPersonCategory={editPersonCategory}
+            setEditPersonCategory={setEditPersonCategory}
+            categorySelectOptions={categorySelectOptions}
+            lifePeriods={lifePeriods as any}
+            setLifePeriods={setLifePeriods as any}
+            countrySelectOptions={countrySelectOptions}
+            showToast={showToast}
+            onPersonUpdated={(fresh: Person) => setSelected(fresh)}
+            onProposeEdit={async (id: string, payload: any, next: Array<{ country_id: number; start_year: number; end_year: number }>) => {
+              await proposePersonEdit(id, payload)
+              const orig = (Array.isArray((selected as any)?.periods) ? (selected as any).periods : [])
+                .filter((pr: any) => (pr.type || '').toLowerCase() === 'life' && pr.countryId)
+                .map((pr: any) => ({ country_id: Number(pr.countryId), start_year: Number(pr.startYear), end_year: Number(pr.endYear) }))
+                .sort((a: any, b: any) => a.start_year - b.start_year || a.end_year - b.end_year || a.country_id - b.country_id)
+              const changed = JSON.stringify(orig) !== JSON.stringify(next)
+              if (changed) {
+                await apiFetch(`/api/persons/${encodeURIComponent(id)}/life-periods`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ periods: next }) })
               }
-            } catch {}
-          }}
-        />
+            }}
+            onUpdateDraft={async (id: string, payload: any, next: Array<{ country_id: number; start_year: number; end_year: number }>) => {
+              // Преобразуем периоды в формат frontend
+              const lifePeriods = next.map(p => ({
+                countryId: String(p.country_id),
+                start: p.start_year,
+                end: p.end_year
+              }))
+              
+              // Обновляем персону с периодами
+              await updatePerson(id, { ...payload, lifePeriods })
+              const fresh = await getPersonById(id)
 
-        <AddToListModal
+              if (fresh) setSelected(fresh as any)
+            }}
+            onSubmitDraft={async (id: string, payload: any, next: Array<{ country_id: number; start_year: number; end_year: number }>) => {
+              // Сначала обновляем черновик с изменениями
+              const lifePeriods = next.map(p => ({
+                countryId: String(p.country_id),
+                start: p.start_year,
+                end: p.end_year
+              }))
+              await updatePerson(id, { ...payload, lifePeriods })
+              
+              // Затем отправляем на модерацию
+              await submitPersonDraft(id)
+              const fresh = await getPersonById(id)
+
+              if (fresh) setSelected(fresh as any)
+            }}
+            onSuccess={async () => {
+              // Дополнительно обновляем данные о личности после успешной операции
+              if (selected) {
+                const fresh = await getPersonById(selected.id)
+                if (fresh) setSelected(fresh as any)
+              }
+            }}
+          />
+
+          <CreateListModal
+            isOpen={showCreateList}
+            onClose={() => setShowCreateList(false)}
+            onCreate={async (title: string) => {
+              try {
+                const res = await apiFetch(`/api/lists`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title }) })
+                const data = await res.json().catch(() => null)
+                if (res.ok && data?.data) {
+                  await loadUserLists.current?.()
+                }
+              } catch {}
+            }}
+          />
+
+          <AddToListModal
           isOpen={addToList.isOpen}
           onClose={() => addToList.close()}
           lists={isAuthenticated ? personLists : []}
@@ -1134,7 +1182,8 @@ export default function ManagePage() {
           onCancel={() => setShowEditWarning(false)}
           isReverting={isReverting}
         />
-      </div>
+          </div>
+        </div>
       </ManageUIProvider>
     </div>
   )
