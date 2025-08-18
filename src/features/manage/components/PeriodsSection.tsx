@@ -4,6 +4,7 @@ import { SearchAndFilters } from 'shared/ui/SearchAndFilters'
 import { ItemsList } from 'shared/ui/ItemsList'
 import { ListItemsView } from 'shared/ui/ListItemsView'
 import { deleteListItem } from 'shared/utils/lists'
+import { ListSummary } from 'shared/ui/ListSummary'
 
 type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean }
 
@@ -139,6 +140,7 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 						isLoading={menuSelection === 'all' ? periodsLoadingAll : periodsLoadingMine}
 					/>
 				)}
+
 				{!(menuSelection as string).startsWith('list:') ? (
 					<ItemsList
 						items={(menuSelection === 'all' ? periodItemsAll : periodItemsMine).map((p: any) => {
@@ -186,18 +188,28 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 						loadingMessage="Загрузка..."
 					/>
 				) : (
-					<ListItemsView
-						items={listItems as any}
-						filterType="period"
-						isLoading={listLoading}
-						emptyText="Список пуст"
-						onDelete={async (listItemId) => {
-							if (!selectedListId) return
-							const ok = await deleteListItem(selectedListId, listItemId)
-							if (ok) { setListItems(prev => prev.filter(x => x.listItemId !== listItemId)); await loadUserLists(); showToast('Удалено из списка', 'success') }
-							else { showToast('Не удалось удалить', 'error') }
-						}}
-					/>
+					<>
+						{!(menuSelection as string).startsWith('list:') && (
+							<ListSummary 
+								items={[
+									...(menuSelection === 'all' ? periodItemsAll : periodItemsMine).map(p => ({ type: 'period' }))
+								]} 
+								style={{ marginBottom: 8, fontSize: 12, opacity: 0.9 }} 
+							/>
+						)}
+						<ListItemsView
+							items={listItems as any}
+							filterType="period"
+							isLoading={listLoading}
+							emptyText="Список пуст"
+							onDelete={async (listItemId) => {
+								if (!selectedListId) return
+								const ok = await deleteListItem(selectedListId, listItemId)
+								if (ok) { setListItems(prev => prev.filter(x => x.listItemId !== listItemId)); await loadUserLists(); showToast('Удалено из списка', 'success') }
+								else { showToast('Не удалось удалить', 'error') }
+							}}
+						/>
+					</>
 				)}
 			</div>
 		</ManageSection>

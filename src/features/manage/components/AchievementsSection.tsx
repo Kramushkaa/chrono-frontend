@@ -4,6 +4,7 @@ import { SearchAndFilters } from 'shared/ui/SearchAndFilters'
 import { ItemsList } from 'shared/ui/ItemsList'
 import { ListItemsView } from 'shared/ui/ListItemsView'
 import { deleteListItem } from 'shared/utils/lists'
+import { ListSummary } from 'shared/ui/ListSummary'
 
 type AchievementItem = any
 
@@ -132,6 +133,15 @@ export function AchievementsSection(props: AchievementsSectionProps) {
 							hasMore={!(modeIsAll ? achLoadingAll : achAltLoading) && (modeIsAll ? hasMoreAll : achAltHasMore)}
 							isLoading={modeIsAll ? achLoadingAll : achAltLoading}
 						/>
+
+						{!modeIsList && (
+							<ListSummary 
+								items={[
+									...(modeIsAll ? achItemsAll : achItemsAlt).map(a => ({ type: 'achievement' }))
+								]} 
+								style={{ marginBottom: 8, fontSize: 12, opacity: 0.9 }} 
+							/>
+						)}
 						<ItemsList
 							items={(modeIsAll ? achItemsAll : achItemsAlt).map((a: any) => {
 								const title = (a as any).title || (a as any).person_name || (a as any).country_name || ''

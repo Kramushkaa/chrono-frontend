@@ -205,6 +205,15 @@ export function PersonsSection(props: PersonsSectionProps) {
               isLoading={modeIsAll ? isPersonsLoadingAll : personsAltLoading}
             />
 
+            {!modeIsList && (
+              <ListSummary 
+                items={[
+                  ...(modeIsAll ? personsAll : personsAlt).map(p => ({ type: 'person' }))
+                ]} 
+                style={{ marginBottom: 8, fontSize: 12, opacity: 0.9 }} 
+              />
+            )}
+
             <ItemsList
               items={(modeIsAll ? personsAll : personsAlt).map((p: any) => ({
                 id: p.id,
