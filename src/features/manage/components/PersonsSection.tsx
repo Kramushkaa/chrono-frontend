@@ -115,6 +115,7 @@ export function PersonsSection(props: PersonsSectionProps) {
       listLoading={listLoading}
       listItems={listItems}
       filterType="person"
+      fullWidth={false}
       onDeleteListItem={async (listItemId) => {
         if (!selectedListId) return
         const ok = await deleteListItem(selectedListId, listItemId)

@@ -36,6 +36,9 @@ interface ManageSectionProps {
   listItems: Array<{ key: string; listItemId: number; type: 'person' | 'achievement' | 'period'; title: string; subtitle?: string }>
   filterType: 'person' | 'achievement' | 'period'
   
+  // Layout control
+  fullWidth?: boolean
+  
   // Actions
   onDeleteListItem?: (listItemId: number) => Promise<void> | void
 }
@@ -63,6 +66,7 @@ export function ManageSection(props: ManageSectionProps) {
     listLoading,
     listItems,
     filterType,
+    fullWidth = true,
     onDeleteListItem
   } = props
 
@@ -88,8 +92,8 @@ export function ManageSection(props: ManageSectionProps) {
     <LeftMenuLayout
       sidebarCollapsed={sidebarCollapsed}
       setSidebarCollapsed={setSidebarCollapsed}
-      gridWhenOpen="240px 8px 1fr"
-      gridWhenCollapsed="0px 8px 1fr"
+      gridWhenOpen={fullWidth ? "240px 8px 1fr" : "240px 8px auto"}
+      gridWhenCollapsed={fullWidth ? "0px 8px 1fr" : "0px 8px auto"}
       menuId="lists-sidebar"
       selectedKey={menuSelection}
       onSelect={(sel: LeftMenuSelection) => {
