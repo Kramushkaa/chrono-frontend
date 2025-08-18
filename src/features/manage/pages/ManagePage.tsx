@@ -774,8 +774,8 @@ export default function ManagePage() {
         </div>
 
         {activeTab === 'persons' && (
-          <div className="manage-page__persons-layout" id="manage-persons-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 16, alignItems: 'start' }}>
-            <div className="manage-page__persons-list" id="manage-persons-list" style={{ borderRight: '2px solid rgba(139,69,19,0.3)', paddingRight: 16 }}>
+          <div className="manage-page__persons-layout" id="manage-persons-layout" style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: 16, alignItems: 'start' }}>
+            <div className="manage-page__persons-list" id="manage-persons-list" style={{ borderRight: '2px solid rgba(139,69,19,0.3)', paddingRight: 16, minWidth: 0 }}>
               <PersonsSection
                 sidebarCollapsed={sidebarCollapsed}
                 setSidebarCollapsed={setSidebarCollapsed}

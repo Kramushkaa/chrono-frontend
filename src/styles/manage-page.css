@@ -51,6 +51,23 @@
 
 .manage-page__persons-list {
   /* Левая колонка со списком личностей */
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Обеспечиваем, что все элементы фильтрации помещаются в колонку */
+.manage-page__persons-list .search-and-filters {
+  max-width: 100%;
+}
+
+.manage-page__persons-list .search-and-filters input {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.manage-page__persons-list .filter-dropdown {
+  max-width: 100%;
+  min-width: 0;
 }
 
 .manage-page__person-card {
@@ -146,6 +163,20 @@
     margin-left: 0 !important;
     margin-top: 8px;
   }
+  
+  /* На мобильных устройствах фильтры занимают всю ширину */
+  .search-and-filters__controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-and-filters__input {
+    min-width: 100% !important;
+  }
+  
+  .filter-dropdown {
+    min-width: 100%;
+  }
 }
 
 /* Доступность */
@@ -186,4 +217,32 @@
 }
 
 .list-items-view__row {
+}
+
+/* Стили для фильтров и поиска */
+.search-and-filters {
+  width: 100%;
+  max-width: 100%;
+}
+
+.search-and-filters__controls {
+  width: 100%;
+  max-width: 100%;
+}
+
+.search-and-filters__input {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.search-and-filters__count {
+  width: 100%;
+  max-width: 100%;
+}
+
+.filter-dropdown {
+  max-width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
 }

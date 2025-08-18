@@ -24,6 +24,7 @@ interface ItemsListProps {
   emptyMessage?: string
   loadingMessage?: string
   style?: React.CSSProperties
+  gridMinWidth?: number
 }
 
 export function ItemsList({
@@ -39,7 +40,8 @@ export function ItemsList({
   showToast,
   emptyMessage = "Элементы не найдены",
   loadingMessage = "Загрузка...",
-  style
+  style,
+  gridMinWidth = 260
 }: ItemsListProps) {
   const handleAddToList = (id: number | string) => {
     if (onAddToList) {
@@ -85,7 +87,7 @@ export function ItemsList({
         </div>
       )}
       
-      <div className="items-list__grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
+      <div className="items-list__grid" style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${gridMinWidth}px, 1fr))`, gap: 12 }}>
         {items.map((item) => (
           <ItemCard
             key={item.id}

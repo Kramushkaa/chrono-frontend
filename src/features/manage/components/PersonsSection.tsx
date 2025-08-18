@@ -232,6 +232,7 @@ export function PersonsSection(props: PersonsSectionProps) {
                 : "Личности не найдены"
               }
               loadingMessage="Загрузка..."
+              gridMinWidth={200}
             />
           </>
         ) : (
