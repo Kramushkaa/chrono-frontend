@@ -742,45 +742,47 @@ export default function ManagePage() {
 
         {activeTab === 'persons' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 16, alignItems: 'start' }}>
-            <PersonsSection
-              sidebarCollapsed={sidebarCollapsed}
-              setSidebarCollapsed={setSidebarCollapsed}
-              menuSelection={menuSelection as any}
-              setMenuSelection={setMenuSelection as any}
-              isModerator={isModerator}
-              personsPendingCount={personsPendingCount}
-              personsMineCount={personsMineCount}
-              personLists={[
-                ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
-                ...(isAuthenticated ? personLists : [])
-              ]}
-              isAuthenticated={isAuthenticated}
-              setShowAuthModal={setShowAuthModal}
-              setShowCreateList={setShowCreateList}
-              sharedList={sharedList}
-              selectedListId={selectedListId}
-              setSelectedListId={setSelectedListId}
-              loadUserLists={(force?: boolean) => loadUserLists.current?.(force) as any}
-              showToast={showToast}
-              searchPersons={searchPersons}
-              setSearchPersons={setSearchPersons}
-              categories={categories}
-              countries={countries}
-              filters={filters as any}
-              setFilters={setFilters as any}
-              personsAll={personsAll}
-              isPersonsLoadingAll={isPersonsLoadingAll}
-              personsHasMoreAll={personsHasMoreAll}
-              loadMorePersonsAll={loadMorePersonsAll}
-              personsAlt={personsAlt}
-              personsAltLoading={personsAltLoading}
-              personsAltHasMore={personsAltHasMore}
-              onSelect={(p) => setSelected(p)}
-              statusFilters={statusFilters}
-              setStatusFilters={setStatusFilters}
-              listLoading={listLoading}
-              listItems={listItems}
-            />
+            <div style={{ borderRight: '2px solid rgba(139,69,19,0.3)', paddingRight: 16 }}>
+              <PersonsSection
+                sidebarCollapsed={sidebarCollapsed}
+                setSidebarCollapsed={setSidebarCollapsed}
+                menuSelection={menuSelection as any}
+                setMenuSelection={setMenuSelection as any}
+                isModerator={isModerator}
+                personsPendingCount={personsPendingCount}
+                personsMineCount={personsMineCount}
+                personLists={[
+                  ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
+                  ...(isAuthenticated ? personLists : [])
+                ]}
+                isAuthenticated={isAuthenticated}
+                setShowAuthModal={setShowAuthModal}
+                setShowCreateList={setShowCreateList}
+                sharedList={sharedList}
+                selectedListId={selectedListId}
+                setSelectedListId={setSelectedListId}
+                loadUserLists={(force?: boolean) => loadUserLists.current?.(force) as any}
+                showToast={showToast}
+                searchPersons={searchPersons}
+                setSearchPersons={setSearchPersons}
+                categories={categories}
+                countries={countries}
+                filters={filters as any}
+                setFilters={setFilters as any}
+                personsAll={personsAll}
+                isPersonsLoadingAll={isPersonsLoadingAll}
+                personsHasMoreAll={personsHasMoreAll}
+                loadMorePersonsAll={loadMorePersonsAll}
+                personsAlt={personsAlt}
+                personsAltLoading={personsAltLoading}
+                personsAltHasMore={personsAltHasMore}
+                onSelect={(p) => setSelected(p)}
+                statusFilters={statusFilters}
+                setStatusFilters={setStatusFilters}
+                listLoading={listLoading}
+                listItems={listItems}
+              />
+            </div>
             <div role="region" aria-label="Карточка личности" style={{ position: 'relative', zIndex: 2, minWidth: 0 }}>
               {selected ? (
                 <div>

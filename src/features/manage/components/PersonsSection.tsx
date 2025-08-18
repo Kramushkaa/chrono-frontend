@@ -212,6 +212,9 @@ export function PersonsSection(props: PersonsSectionProps) {
                 title: p.name || '—',
                 subtitle: p.country_name || p.countryName || '',
                 year: p.birth_year || p.birthYear || p.death_year || p.deathYear || '',
+                startYear: p.birth_year || p.birthYear,
+                endYear: p.death_year || p.deathYear,
+                type: p.category || '',
                 description: p.description || ''
               }))}
               isLoading={modeIsAll ? isPersonsLoadingAll : personsAltLoading}
