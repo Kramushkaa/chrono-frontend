@@ -139,16 +139,13 @@ export function ManageSection(props: ManageSectionProps) {
         {!(menuSelection as string).startsWith('list:') ? (
           children
         ) : (
-          <>
-            <ListSummary items={listItems} style={{ marginBottom: 8, fontSize: 12, opacity: 0.9 }} />
-            <ListItemsView
-              items={listItems}
-              filterType={filterType}
-              isLoading={listLoading}
-              emptyText="Список пуст"
-              onDelete={handleDeleteListItem}
-            />
-          </>
+          <ListItemsView
+            items={listItems}
+            filterType={filterType}
+            isLoading={listLoading}
+            emptyText="Список пуст"
+            onDelete={handleDeleteListItem}
+          />
         )}
       </div>
     </LeftMenuLayout>

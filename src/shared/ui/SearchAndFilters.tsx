@@ -52,6 +52,10 @@ export function SearchAndFilters({
           </select>
         ))}
       </div>
+      
+      <div style={{ fontSize: 12, opacity: 0.8 }}>
+        Найдено: {foundCount}{!isLoading && hasMore ? '+' : ''}
+      </div>
     </div>
   )
 }
