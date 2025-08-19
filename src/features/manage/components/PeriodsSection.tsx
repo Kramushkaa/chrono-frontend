@@ -1,6 +1,5 @@
 import React from 'react'
 import { ManageSection } from 'shared/ui/ManageSection'
-import { SearchAndFilters } from 'shared/ui/SearchAndFilters'
 import { ItemsList } from 'shared/ui/ItemsList'
 
 import { FilterDropdown } from 'shared/ui/FilterDropdown'
@@ -91,6 +90,26 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 	const modeIsAll = menuSelection === ('all' as any)
 	const modeIsMine = menuSelection === ('mine' as any)
 
+	// Local UI state for period type dropdown selection to fully reuse FilterDropdown logic
+	const [selectedPeriodTypes, setSelectedPeriodTypes] = React.useState<string[]>(() => {
+		if (periodType === 'ruler') return ['Правление']
+		if (periodType === 'life') return ['Жизнь']
+		return []
+	})
+
+	// Keep local selection in sync if parent periodType changes externally
+	React.useEffect(() => {
+		if (periodType === 'ruler') {
+			setSelectedPeriodTypes(['Правление'])
+		} else if (periodType === 'life') {
+			setSelectedPeriodTypes(['Жизнь'])
+		} else {
+			// Если сверху пришёл сброс (все типы), не очищаем визуальные галочки,
+			// если пользователь явно выбрал оба варианта — сохраняем обе отметки.
+			setSelectedPeriodTypes(prev => (prev.length === 2 ? prev : []))
+		}
+	}, [periodType])
+
 	return (
 		<ManageSection
 			sidebarCollapsed={sidebarCollapsed}
@@ -169,27 +188,35 @@ export function PeriodsSection(props: PeriodsSectionProps) {
 						</div>
 					)}
 
-					<SearchAndFilters
-					searchValue={searchPeriods}
-					onSearchChange={setSearchPeriods}
-					searchPlaceholder="Поиск по имени/стране"
-					filters={[
-						{
-							key: 'periodType',
-							label: 'Тип периода',
-							value: periodType,
-							options: [
-								{ value: '', label: 'Все типы' },
-								{ value: 'ruler', label: 'Правление' },
-								{ value: 'life', label: 'Жизнь' },
-							],
-							onChange: (value: string) => setPeriodType(value as 'life' | 'ruler' | '')
-						}
-					]}
-					foundCount={menuSelection === 'all' ? periodItemsAll.length : periodItemsMine.length}
-					hasMore={!(menuSelection === 'all' ? periodsLoadingAll : periodsLoadingMine) && (menuSelection === 'all' ? periodsHasMoreAll : periodsHasMoreMine)}
-					isLoading={menuSelection === 'all' ? periodsLoadingAll : periodsLoadingMine}
-				/>
+					<div className="search-and-filters" role="region" aria-label="Фильтр и поиск" style={{ marginBottom: 12 }}>
+						<div className="search-and-filters__controls" style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+							<input
+								className="search-and-filters__input"
+								value={searchPeriods}
+								onChange={(e) => setSearchPeriods(e.target.value)}
+								placeholder="Поиск по имени/стране"
+								style={{ flex: '1 1 180px', minWidth: 180, maxWidth: '100%', padding: 6 }}
+							/>
+							<FilterDropdown
+								title="🕰"
+								textLabel="Тип периода"
+								items={[ 'Правление', 'Жизнь' ]}
+								selectedItems={selectedPeriodTypes}
+								onSelectionChange={(selected) => {
+									const next = Array.isArray(selected) ? (selected as string[]) : []
+									setSelectedPeriodTypes(next)
+									// При двух выбранных вариантах оставляем визуальные галочки и сбрасываем periodType (все типы)
+									if (next.length === 2) { setPeriodType(''); return }
+									if (next.length === 1) { setPeriodType(next[0] === 'Правление' ? 'ruler' : 'life'); return }
+									setPeriodType('')
+								}}
+								getItemColor={() => '#f4e4c1'}
+							/>
+						</div>
+						<div className="search-and-filters__count" style={{ fontSize: 12, opacity: 0.8 }}>
+							Найдено: {modeIsAll ? periodItemsAll.length : periodItemsMine.length}{!(modeIsAll ? periodsLoadingAll : periodsLoadingMine) && (modeIsAll ? periodsHasMoreAll : periodsHasMoreMine) ? '+' : ''}
+						</div>
+					</div>
 					
 					<ItemsList
 						items={(modeIsAll ? periodItemsAll : periodItemsMine).map((p: any) => {
