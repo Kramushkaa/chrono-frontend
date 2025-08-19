@@ -3,6 +3,7 @@ import { ManageSection } from 'shared/ui/ManageSection'
 import { SearchAndFilters } from 'shared/ui/SearchAndFilters'
 import { ItemsList } from 'shared/ui/ItemsList'
 import { ListItemsView } from 'shared/ui/ListItemsView'
+import { FilterDropdown } from 'shared/ui/FilterDropdown'
 import { deleteListItem } from 'shared/utils/lists'
 
 type AchievementItem = any
@@ -46,6 +47,10 @@ interface AchievementsSectionProps {
 	listLoading: boolean
 	listItems: Array<{ key: string; listItemId: number; type: 'person' | 'achievement' | 'period'; title: string; subtitle?: string }>
 	setListItems: (updater: (prev: any[]) => any[]) => void
+	
+	// Status filters for 'mine' mode
+	statusFilters: Record<string, boolean>
+	setStatusFilters: (filters: Record<string, boolean>) => void
 }
 
 export function AchievementsSection(props: AchievementsSectionProps) {
@@ -77,7 +82,9 @@ export function AchievementsSection(props: AchievementsSectionProps) {
     	listLoading,
     	listItems,
     	setListItems,
-    	openAddAchievement
+    	openAddAchievement,
+    	statusFilters,
+    	setStatusFilters
 	} = props
 
 	// Derive mode from menuSelection
@@ -119,6 +126,50 @@ export function AchievementsSection(props: AchievementsSectionProps) {
 		>
 			{!modeIsList ? (
 				<>
+					{modeIsMine && (
+						<div style={{ marginBottom: 12, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+							<FilterDropdown
+								title="📋 Статус"
+								textLabel="Статус"
+								items={['🟡 Черновики', '🟠 На модерации', '🟢 Одобренные', '🔴 Отклоненные']}
+								selectedItems={Object.entries(statusFilters)
+									.filter(([_, checked]) => checked)
+									.map(([status, _]) => {
+										switch (status) {
+											case 'draft': return '🟡 Черновики'
+											case 'pending': return '🟠 На модерации'
+											case 'approved': return '🟢 Одобренные'
+											case 'rejected': return '🔴 Отклоненные'
+											default: return status
+										}
+									})}
+								onSelectionChange={(statuses) => {
+									const statusMap = {
+										'🟡 Черновики': 'draft',
+										'🟠 На модерации': 'pending',
+										'🟢 Одобренные': 'approved',
+										'🔴 Отклоненные': 'rejected'
+									}
+									const selectedKeys = statuses.map(s => statusMap[s as keyof typeof statusMap]).filter(Boolean)
+									const newFilters = {
+										draft: selectedKeys.includes('draft'),
+										pending: selectedKeys.includes('pending'),
+										approved: selectedKeys.includes('approved'),
+										rejected: selectedKeys.includes('rejected')
+									}
+									setStatusFilters(newFilters)
+								}}
+								getItemColor={(item) => {
+									if (item.includes('Черновики')) return '#ffc107'      // жёлтый
+									if (item.includes('модерации')) return '#fd7e14'      // оранжевый  
+									if (item.includes('Одобренные')) return '#28a745'     // зелёный
+									if (item.includes('Отклоненные')) return '#dc3545'    // красный
+									return '#f4e4c1'
+								}}
+							/>
+						</div>
+					)}
+
 					<SearchAndFilters
 						searchValue={searchAch}
 						onSearchChange={setSearchAch}

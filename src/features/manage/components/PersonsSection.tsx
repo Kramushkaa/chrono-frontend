@@ -1,6 +1,6 @@
 import React from 'react'
 import { ManageSection } from 'shared/ui/ManageSection'
-import { SearchAndFilters } from 'shared/ui/SearchAndFilters'
+
 import { ItemsList } from 'shared/ui/ItemsList'
 import { FilterDropdown } from 'shared/ui/FilterDropdown'
 import { ListSummary } from 'shared/ui/ListSummary'
@@ -169,36 +169,39 @@ export function PersonsSection(props: PersonsSectionProps) {
             </div>
           )}
 
-          <SearchAndFilters
-            searchValue={searchPersons}
-            onSearchChange={setSearchPersons}
-            searchPlaceholder="Поиск по имени/стране"
-            filters={[
-              {
-                key: 'category',
-                label: 'Категория',
-                value: filters?.category || '',
-                options: [
-                  { value: '', label: 'Все категории' },
-                  ...categories.map(cat => ({ value: cat, label: cat }))
-                ],
-                onChange: (value: string) => setFilters((prev: any) => ({ ...prev, category: value }))
-              },
-              {
-                key: 'country',
-                label: 'Страна',
-                value: filters?.country || '',
-                options: [
-                  { value: '', label: 'Все страны' },
-                  ...countries.map(country => ({ value: country, label: country }))
-                ],
-                onChange: (value: string) => setFilters((prev: any) => ({ ...prev, country: value }))
-              }
-            ]}
-            foundCount={modeIsAll ? personsAll.length : personsAlt.length}
-            hasMore={!(modeIsAll ? isPersonsLoadingAll : personsAltLoading) && (modeIsAll ? personsHasMoreAll : personsAltHasMore)}
-            isLoading={modeIsAll ? isPersonsLoadingAll : personsAltLoading}
-          />
+          <div className="search-and-filters" role="region" aria-label="Фильтр и поиск" style={{ marginBottom: 12 }}>
+            <div className="search-and-filters__controls" style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+              <input 
+                className="search-and-filters__input"
+                value={searchPersons} 
+                onChange={(e) => setSearchPersons(e.target.value)} 
+                placeholder="Поиск по имени/стране" 
+                style={{ flex: '1 1 180px', minWidth: 180, maxWidth: '100%', padding: 6 }} 
+              />
+              
+              <FilterDropdown
+                title="🎭"
+                textLabel="Род деятельности"
+                items={categories}
+                selectedItems={filters?.categories || []}
+                onSelectionChange={(categories: string[]) => setFilters((prev: any) => ({ ...prev, categories }))}
+                getItemColor={() => '#f4e4c1'}
+              />
+              
+              <FilterDropdown
+                title="🌍"
+                textLabel="Страна"
+                items={countries}
+                selectedItems={filters?.countries || []}
+                onSelectionChange={(countries: string[]) => setFilters((prev: any) => ({ ...prev, countries }))}
+                getItemColor={() => '#f4e4c1'}
+              />
+            </div>
+            
+            <div className="search-and-filters__count" style={{ fontSize: 12, opacity: 0.8 }}>
+              Найдено: {modeIsAll ? personsAll.length : personsAlt.length}{!(modeIsAll ? isPersonsLoadingAll : personsAltLoading) && (modeIsAll ? personsHasMoreAll : personsAltHasMore) ? '+' : ''}
+            </div>
+          </div>
 
           <ItemsList
             items={(modeIsAll ? personsAll : personsAlt).map((p: any) => ({

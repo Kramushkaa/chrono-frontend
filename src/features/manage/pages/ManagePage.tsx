@@ -56,7 +56,21 @@ export default function ManagePage() {
     pending: false,
     approved: false,
     rejected: false
-  }) // Фильтры по статусам для 'mine' режима
+  }) // Фильтры по статусам для 'mine' режима личностей
+  
+  const [achStatusFilters, setAchStatusFilters] = useState<Record<string, boolean>>({
+    draft: false,
+    pending: false,
+    approved: false,
+    rejected: false
+  }) // Фильтры по статусам для 'mine' режима достижений
+  
+  const [periodsStatusFilters, setPeriodsStatusFilters] = useState<Record<string, boolean>>({
+    draft: false,
+    pending: false,
+    approved: false,
+    rejected: false
+  }) // Фильтры по статусам для 'mine' режима периодов
   const [selectedListId, setSelectedListId] = useState<number | null>(null)
   type MenuSelection = 'all' | 'pending' | 'mine' | `list:${number}`
   const [menuSelection, setMenuSelection] = useState<MenuSelection>('all')
@@ -312,6 +326,61 @@ export default function ManagePage() {
     });
   }, [searchPersons, filters.categories, filters.countries]);
 
+  // Apply frontend filtering for achievements 'mine' mode
+  const applyMineAchievementsFilters = React.useCallback((items: any[]): any[] => {
+    const q = searchAch.trim().toLowerCase();
+    const selectedStatuses = Object.entries(achStatusFilters)
+      .filter(([_, checked]) => checked)
+      .map(([status, _]) => status);
+    
+    return items.filter((a) => {
+      // Search filter
+      if (q.length > 0) {
+        const title = (a.title || '').toLowerCase();
+        const description = (a.description || '').toLowerCase();
+        const haystack = `${title} ${description}`;
+        if (!haystack.includes(q)) return false;
+      }
+      
+      // Status filter
+      if (selectedStatuses.length > 0) {
+        if (!selectedStatuses.includes(a.status)) return false;
+      }
+      
+      return true;
+    });
+  }, [searchAch, achStatusFilters]);
+
+  // Apply frontend filtering for periods 'mine' mode
+  const applyMinePeriodsFilters = React.useCallback((items: any[]): any[] => {
+    const q = searchPeriods.trim().toLowerCase();
+    const selectedStatuses = Object.entries(periodsStatusFilters)
+      .filter(([_, checked]) => checked)
+      .map(([status, _]) => status);
+    
+    return items.filter((p) => {
+      // Search filter
+      if (q.length > 0) {
+        const personName = (p.person_name || p.personName || '').toLowerCase();
+        const countryName = (p.country_name || p.countryName || '').toLowerCase();
+        const haystack = `${personName} ${countryName}`;
+        if (!haystack.includes(q)) return false;
+      }
+      
+      // Period type filter
+      if (periodType && periodType !== p.period_type && periodType !== p.periodType) {
+        return false;
+      }
+      
+      // Status filter
+      if (selectedStatuses.length > 0) {
+        if (!selectedStatuses.includes(p.status)) return false;
+      }
+      
+      return true;
+    });
+  }, [searchPeriods, periodType, periodsStatusFilters]);
+
   // Simplified content loading logic based on activeTab + menuSelection
   useEffect(() => {
     if (activeTab !== 'persons') return
@@ -383,24 +452,24 @@ export default function ManagePage() {
   // Reset offset for achievements when filters change
   useEffect(() => {
     if (activeTab === 'achievements' && menuSelection === 'mine') {
-      console.log('Resetting achievements offset due to filter change:', { searchAch })
+      console.log('Resetting achievements offset due to filter change:', { searchAch, achStatusFilters })
       setAchAltOffset(0)
       setAchItemsAlt([])
       setAchAltHasMore(true)
       setAchAltLoading(false)
     }
-  }, [activeTab, menuSelection, searchAch])
+  }, [activeTab, menuSelection, searchAch, achStatusFilters, applyMineAchievementsFilters])
   
   // Reset offset for periods when filters change
   useEffect(() => {
     if (activeTab === 'periods' && menuSelection === 'mine') {
-      console.log('Resetting periods offset due to filter change:', { searchPeriods, periodType })
+      console.log('Resetting periods offset due to filter change:', { searchPeriods, periodType, periodsStatusFilters })
       setPeriodsMineOffset(0)
       setPeriodItemsMine([])
       setPeriodsHasMoreMine(true)
       setPeriodsLoadingMine(false)
     }
-  }, [activeTab, menuSelection, searchPeriods, periodType])
+  }, [activeTab, menuSelection, searchPeriods, periodType, periodsStatusFilters, applyMinePeriodsFilters])
   
   // Separate useEffect for loading more data (pagination)
   useEffect(() => {
@@ -519,12 +588,16 @@ export default function ManagePage() {
     ;(async () => {
       try {
         const params = new URLSearchParams({ limit: '100', offset: '0' })
-        if (menuSelection === 'mine' && searchAch.trim()) params.set('q', searchAch.trim())
+        // Убираем q параметр - фильтрация будет на клиенте
+        // if (menuSelection === 'mine' && searchAch.trim()) params.set('q', searchAch.trim())
+        
         const path = menuSelection === 'pending' ? '/api/admin/achievements/pending' : '/api/achievements/mine'
         console.log('Loading achievements from:', path, params.toString())
         const arr = await apiData<any[]>(`${path}?${params.toString()}`)
         if (!aborted) {
-          setAchItemsAlt(arr || [])
+          // Применяем клиентскую фильтрацию для режима 'mine'
+          const filtered = menuSelection === 'mine' ? applyMineAchievementsFilters(arr || []) : (arr || [])
+          setAchItemsAlt(filtered)
           setAchAltHasMore((arr?.length || 0) >= 100)
         }
       } catch (e) {
@@ -534,7 +607,7 @@ export default function ManagePage() {
       }
     })()
     return () => { aborted = true }
-  }, [activeTab, menuSelection, searchAch])
+  }, [activeTab, menuSelection, searchAch, achStatusFilters, applyMineAchievementsFilters])
 
   // Achievements: load more when offset increases
   useEffect(() => {
@@ -547,13 +620,25 @@ export default function ManagePage() {
       setAchAltLoading(true)
       try {
         const params = new URLSearchParams({ limit: '100', offset: String(achAltOffset) })
-        if (menuSelection === 'mine' && searchAch.trim()) params.set('q', searchAch.trim())
+        // Убираем q параметр - фильтрация будет на клиенте
+        // if (menuSelection === 'mine' && searchAch.trim()) params.set('q', searchAch.trim())
+        
         const path = menuSelection === 'pending' ? '/api/admin/achievements/pending' : '/api/achievements/mine'
         console.log('Loading more achievements from:', path, params.toString())
         const arr = await apiData<any[]>(`${path}?${params.toString()}`)
         if (!aborted) {
-          setAchItemsAlt(prev => [...prev, ...(arr || [])])
-          setAchAltHasMore((arr?.length || 0) >= 100)
+          // Для режима 'mine' нужно перезагрузить все данные с клиентской фильтрацией
+          if (menuSelection === 'mine') {
+            // Получаем все данные заново и применяем фильтрацию
+            const allParams = new URLSearchParams({ limit: '1000', offset: '0' })
+            const allArr = await apiData<any[]>(`${path}?${allParams.toString()}`)
+            const filtered = applyMineAchievementsFilters(allArr || [])
+            setAchItemsAlt(filtered)
+            setAchAltHasMore(false) // Отключаем пагинацию для клиентской фильтрации
+          } else {
+            setAchItemsAlt(prev => [...prev, ...(arr || [])])
+            setAchAltHasMore((arr?.length || 0) >= 100)
+          }
         }
       } catch (e) {
         if (!aborted) setAchAltHasMore(false)
@@ -562,7 +647,7 @@ export default function ManagePage() {
       }
     })()
     return () => { aborted = true }
-  }, [activeTab, menuSelection, achAltOffset, achAltHasMore, achAltLoading, searchAch])
+  }, [activeTab, menuSelection, achAltOffset, achAltHasMore, achAltLoading, searchAch, achStatusFilters])
   
   // Periods: initial load on reset
   useEffect(() => {
@@ -578,15 +663,19 @@ export default function ManagePage() {
     ;(async () => {
       try {
         const params = new URLSearchParams({ limit: '100', offset: '0' })
-        if (menuSelection === 'mine') {
-          if (searchPeriods.trim()) params.set('q', searchPeriods.trim())
-          if (periodType) params.set('type', periodType)
-        }
+        // Убираем параметры q и type - фильтрация будет на клиенте
+        // if (menuSelection === 'mine') {
+        //   if (searchPeriods.trim()) params.set('q', searchPeriods.trim())
+        //   if (periodType) params.set('type', periodType)
+        // }
+        
         const path = menuSelection === 'mine' ? '/api/periods/mine' : '/api/admin/periods/pending'
         console.log('Loading periods from:', path, params.toString())
         const arr = await apiData<any[]>(`${path}?${params.toString()}`)
         if (!aborted) {
-          setPeriodItemsMine(arr || [])
+          // Применяем клиентскую фильтрацию для режима 'mine'
+          const filtered = menuSelection === 'mine' ? applyMinePeriodsFilters(arr || []) : (arr || [])
+          setPeriodItemsMine(filtered)
           setPeriodsHasMoreMine((arr?.length || 0) >= 100)
         }
       } catch (e) {
@@ -596,7 +685,7 @@ export default function ManagePage() {
       }
     })()
     return () => { aborted = true }
-  }, [activeTab, menuSelection, searchPeriods, periodType])
+  }, [activeTab, menuSelection, searchPeriods, periodType, periodsStatusFilters, applyMinePeriodsFilters])
 
   // Periods: load more when offset increases
   useEffect(() => {
@@ -609,16 +698,28 @@ export default function ManagePage() {
       setPeriodsLoadingMine(true)
       try {
         const params = new URLSearchParams({ limit: '100', offset: String(periodsMineOffset) })
-        if (menuSelection === 'mine') {
-          if (searchPeriods.trim()) params.set('q', searchPeriods.trim())
-          if (periodType) params.set('type', periodType)
-        }
+        // Убираем параметры q и type - фильтрация будет на клиенте
+        // if (menuSelection === 'mine') {
+        //   if (searchPeriods.trim()) params.set('q', searchPeriods.trim())
+        //   if (periodType) params.set('type', periodType)
+        // }
+        
         const path = menuSelection === 'mine' ? '/api/periods/mine' : '/api/admin/periods/pending'
         console.log('Loading more periods from:', path, params.toString())
         const arr = await apiData<any[]>(`${path}?${params.toString()}`)
         if (!aborted) {
-          setPeriodItemsMine(prev => [...prev, ...(arr || [])])
-          setPeriodsHasMoreMine((arr?.length || 0) >= 100)
+          // Для режима 'mine' нужно перезагрузить все данные с клиентской фильтрацией
+          if (menuSelection === 'mine') {
+            // Получаем все данные заново и применяем фильтрацию
+            const allParams = new URLSearchParams({ limit: '1000', offset: '0' })
+            const allArr = await apiData<any[]>(`${path}?${allParams.toString()}`)
+            const filtered = applyMinePeriodsFilters(allArr || [])
+            setPeriodItemsMine(filtered)
+            setPeriodsHasMoreMine(false) // Отключаем пагинацию для клиентской фильтрации
+          } else {
+            setPeriodItemsMine(prev => [...prev, ...(arr || [])])
+            setPeriodsHasMoreMine((arr?.length || 0) >= 100)
+          }
         }
       } catch (e) {
         if (!aborted) setPeriodsHasMoreMine(false)
@@ -627,7 +728,7 @@ export default function ManagePage() {
       }
     })()
     return () => { aborted = true }
-  }, [activeTab, menuSelection, periodsMineOffset, periodsHasMoreMine, periodsLoadingMine, searchPeriods, periodType])
+  }, [activeTab, menuSelection, periodsMineOffset, periodsHasMoreMine, periodsLoadingMine, searchPeriods, periodType, periodsStatusFilters])
 
   // Detect shared list side effects kept minimal (handled in useLists)
   useEffect(() => {}, [sharedList])
@@ -919,6 +1020,8 @@ export default function ManagePage() {
               listItems={listItems}
               setListItems={setListItems as any}
               openAddPeriod={(id: number) => { addToList.openForPeriod(id) }}
+              statusFilters={periodsStatusFilters}
+              setStatusFilters={setPeriodsStatusFilters}
             />
           </div>
         )}
@@ -955,6 +1058,8 @@ export default function ManagePage() {
               setListItems={setListItems as any}
               openAddAchievement={(id: number) => { addToList.openForAchievement(id) }}
               openAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}
+              statusFilters={achStatusFilters}
+              setStatusFilters={setAchStatusFilters}
             />
           </div>
         )}
