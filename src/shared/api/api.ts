@@ -560,8 +560,7 @@ export async function getPersonById(id: string): Promise<Person | null> {
         achievementYears: Array.isArray(p.achievementYears) ? p.achievementYears : undefined,
       achievements: Array.isArray(p.achievements) ? p.achievements.map((a: string) => maybePercentDecode(a || '')) : [],
       achievementsWiki: Array.isArray(p.achievementsWiki) ? p.achievementsWiki : [],
-      status: p.status,
-      is_draft: p.is_draft
+      status: p.status
     };
     return mapped;
   } catch {
