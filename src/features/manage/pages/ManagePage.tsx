@@ -647,7 +647,7 @@ export default function ManagePage() {
       }
     })()
     return () => { aborted = true }
-  }, [activeTab, menuSelection, achAltOffset, achAltHasMore, achAltLoading, searchAch, achStatusFilters])
+  }, [activeTab, menuSelection, achAltOffset, achAltHasMore, achAltLoading, searchAch, achStatusFilters, applyMineAchievementsFilters])
   
   // Periods: initial load on reset
   useEffect(() => {
@@ -728,7 +728,7 @@ export default function ManagePage() {
       }
     })()
     return () => { aborted = true }
-  }, [activeTab, menuSelection, periodsMineOffset, periodsHasMoreMine, periodsLoadingMine, searchPeriods, periodType, periodsStatusFilters])
+  }, [activeTab, menuSelection, periodsMineOffset, periodsHasMoreMine, periodsLoadingMine, searchPeriods, periodType, periodsStatusFilters, applyMinePeriodsFilters])
 
   // Detect shared list side effects kept minimal (handled in useLists)
   useEffect(() => {}, [sharedList])

@@ -179,7 +179,7 @@ export function PersonEditModal(props: Props) {
           ) : (
             // Обычные пользователи: разные кнопки для черновиков и опубликованных
             (() => {
-              const isDraft = person.status === 'draft' || person.is_draft === true
+              const isDraft = person.status === 'draft'
               
               if (isDraft) {
                 // Для черновиков - две кнопки

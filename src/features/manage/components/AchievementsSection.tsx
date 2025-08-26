@@ -1,6 +1,5 @@
 import React from 'react'
 import { ManageSection } from 'shared/ui/ManageSection'
-import { SearchAndFilters } from 'shared/ui/SearchAndFilters'
 import { ItemsList } from 'shared/ui/ItemsList'
 import { ListItemsView } from 'shared/ui/ListItemsView'
 import { FilterDropdown } from 'shared/ui/FilterDropdown'
@@ -170,14 +169,21 @@ export function AchievementsSection(props: AchievementsSectionProps) {
 						</div>
 					)}
 
-					<SearchAndFilters
-						searchValue={searchAch}
-						onSearchChange={setSearchAch}
-						searchPlaceholder="Поиск по достижениям/имени/стране"
-						foundCount={modeIsAll ? achItemsAll.length : achItemsAlt.length}
-						hasMore={!(modeIsAll ? achLoadingAll : achAltLoading) && (modeIsAll ? hasMoreAll : achAltHasMore)}
-						isLoading={modeIsAll ? achLoadingAll : achAltLoading}
-					/>
+					<div className="search-and-filters" role="region" aria-label="Фильтр и поиск" style={{ marginBottom: 12 }}>
+						<div className="search-and-filters__controls" style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+							<input 
+								className="search-and-filters__input"
+								value={searchAch} 
+								onChange={(e) => setSearchAch(e.target.value)} 
+								placeholder="Поиск по достижениям/имени/стране" 
+								style={{ flex: '1 1 180px', minWidth: 180, maxWidth: '100%', padding: 6 }} 
+							/>
+						</div>
+						
+						<div className="search-and-filters__count" style={{ fontSize: 12, opacity: 0.8 }}>
+							Найдено: {modeIsAll ? achItemsAll.length : achItemsAlt.length}{!(modeIsAll ? achLoadingAll : achAltLoading) && (modeIsAll ? hasMoreAll : achAltHasMore) ? '+' : ''}
+						</div>
+					</div>
 					<ItemsList
 						items={(modeIsAll ? achItemsAll : achItemsAlt).map((a: any) => {
 							const title = (a as any).title || (a as any).person_name || (a as any).country_name || ''
