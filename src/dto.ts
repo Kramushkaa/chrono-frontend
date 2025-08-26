@@ -1,6 +1,6 @@
 // Manually duplicated DTO types/descriptors (keep in sync with backend)
 
-export const DTO_VERSION = '2025-08-11-1'
+export const DTO_VERSION = '2025-08-26-1'
 
 export type UpsertPersonDTO = {
   id: string
@@ -11,6 +11,7 @@ export type UpsertPersonDTO = {
   description: string
   imageUrl?: string | null
   wikiLink?: string | null
+  saveAsDraft?: boolean
 }
 
 export type LifePeriodItemDTO = {
@@ -44,12 +45,13 @@ export type AchievementPersonDTO = {
   description: string
   wikipedia_url?: string | null
   image_url?: string | null
+  saveAsDraft?: boolean
 }
 
 // Lightweight descriptor to detect drift via runtime check (optional)
 export const dtoDescriptors = {
   UpsertPerson: {
-    id: 'string', name: 'string', birthYear: 'int', deathYear: 'int', category: 'string', description: 'string', imageUrl: 'url|null?', wikiLink: 'url|null?'
+    id: 'string', name: 'string', birthYear: 'int', deathYear: 'int', category: 'string', description: 'string', imageUrl: 'url|null?', wikiLink: 'url|null?', saveAsDraft: 'boolean?'
   },
   LifePeriodItem: {
     country_id: 'int+', start_year: 'int', end_year: 'int', period_type: 'string?'
@@ -62,7 +64,7 @@ export const dtoDescriptors = {
     year: 'int', description: 'string', wikipedia_url: 'url|null?', image_url: 'url|null?', country_id: 'int|null?'
   },
   AchievementPerson: {
-    year: 'int', description: 'string', wikipedia_url: 'url|null?', image_url: 'url|null?'
+    year: 'int', description: 'string', wikipedia_url: 'url|null?', image_url: 'url|null?', saveAsDraft: 'boolean?'
   }
 } as const
 
