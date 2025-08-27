@@ -20,6 +20,7 @@ type Props = {
   // Filter toggle
   filtersVisible?: boolean
   onToggleFilters?: () => void
+  onAddElement?: () => void
 }
 
 export function MobileListsHeader({
@@ -38,7 +39,8 @@ export function MobileListsHeader({
   readonlyListId,
   onCopySharedList,
   filtersVisible,
-  onToggleFilters
+  onToggleFilters,
+  onAddElement
 }: Props) {
   const isListSelected = selectedKey.startsWith('list:')
   const currentList = isListSelected ? userLists.find(l => l.id === selectedListId) : null
@@ -70,6 +72,18 @@ export function MobileListsHeader({
         >
           {filtersVisible ? '🔼' : '🔽'}
         </button>
+
+        {/* Кнопка добавления элемента (всегда видна) */}
+        {onAddElement && (
+          <button
+            onClick={onAddElement}
+            className="lists-mobile-actions__action-button"
+            title="Добавить элемент"
+            style={{ flexShrink: 0 }}
+          >
+            ➕
+          </button>
+        )}
       </div>
 
       {/* Кнопки действий (только если выбран список) */}

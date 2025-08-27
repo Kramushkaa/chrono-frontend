@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react'
+import './Modal.css'
 
 interface ModalProps {
   isOpen: boolean
@@ -15,9 +16,9 @@ interface ModalProps {
 }
 
 const sizeStyles = {
-  small: { minWidth: 360, maxWidth: 480 },
-  medium: { minWidth: 480, maxWidth: 720 },
-  large: { minWidth: 720, maxWidth: 960 },
+  small: { minWidth: 320, maxWidth: 480, width: '90vw' },
+  medium: { minWidth: 320, maxWidth: 720, width: '95vw' },
+  large: { minWidth: 320, maxWidth: 960, width: '98vw' },
   custom: {}
 }
 
@@ -88,6 +89,8 @@ export function Modal({
     border: '1px solid rgba(139,69,19,0.4)',
     borderRadius: 8,
     padding: 16,
+    maxHeight: '90vh',
+    overflowY: 'auto' as const,
     ...sizeStyles[size],
     ...(customWidth && { width: customWidth }),
     ...(customHeight && { height: customHeight }),
@@ -106,6 +109,7 @@ export function Modal({
         alignItems: 'center', 
         justifyContent: 'center', 
         zIndex: 10000,
+        padding: '16px',
         ...style
       }} 
       onClick={handleBackdropClick}
@@ -113,21 +117,56 @@ export function Modal({
       <div
         ref={modalRef}
         tabIndex={-1}
+        className="modal-content"
         style={baseContentStyle}
         onClick={(e) => e.stopPropagation()}
         onKeyDown={(e) => { if (modalRef.current) trapFocus(modalRef.current, e) }}
       >
-        {title && (
-          <div style={{ 
-            fontSize: 18, 
-            fontWeight: 'bold', 
-            marginBottom: 16, 
-            borderBottom: '1px solid rgba(139,69,19,0.3)', 
-            paddingBottom: 8 
-          }}>
-            {title}
-          </div>
-        )}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: 16,
+          borderBottom: '1px solid rgba(139,69,19,0.3)',
+          paddingBottom: 8
+        }}>
+          {title && (
+            <div 
+              className="modal-title"
+              style={{ 
+                fontSize: 'clamp(16px, 4vw, 18px)', 
+                fontWeight: 'bold',
+                flex: 1,
+                textAlign: 'center'
+              }}
+            >
+              {title}
+            </div>
+          )}
+          <button
+            onClick={onClose}
+            className="modal-close-button"
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '24px',
+              cursor: 'pointer',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              color: '#666',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minWidth: '32px',
+              minHeight: '32px',
+              transition: 'all 0.2s ease'
+            }}
+            title="Закрыть"
+            aria-label="Закрыть модальное окно"
+          >
+            ✕
+          </button>
+        </div>
         {children}
       </div>
     </div>

@@ -22,8 +22,8 @@ interface AchievementsSectionProps {
 	setShowAuthModal: (b: boolean) => void
 	setShowCreateList: (b: boolean) => void
 	setShowCreate?: (show: boolean) => void
-	createType?: 'person' | 'achievement'
-	setCreateType?: (type: 'person' | 'achievement') => void
+	createType?: 'person' | 'achievement' | 'period'
+	setCreateType?: (type: 'person' | 'achievement' | 'period') => void
 	sharedList: { id: number; title: string; owner_user_id?: string } | null
 	selectedListId: number | null
 	setSelectedListId: (id: number | null) => void
@@ -130,6 +130,11 @@ export function AchievementsSection(props: AchievementsSectionProps) {
 				} else { 
 					showToast('Не удалось удалить', 'error')
         }
+      }}
+      onAddElement={() => {
+        if (!isAuthenticated) { setShowAuthModal(true); return }
+        setCreateType?.('achievement')
+        setShowCreate?.(true)
       }}
 		>
 			{!modeIsList ? (

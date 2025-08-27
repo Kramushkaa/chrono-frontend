@@ -30,20 +30,26 @@ export function DraftModerationButtons({
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between' }}>
+      <div className="modal-button-group" style={{ 
+        display: 'grid', 
+        gridTemplateColumns: '1fr 1fr',
+        gap: 'clamp(8px, 2vw, 12px)'
+      }}>
         <button 
           type="button"
+          className="modal-button"
           disabled={disabled || saving}
           onClick={handleSaveDraft}
           style={{ 
-            flex: 1, 
-            padding: '12px 16px', 
+            padding: 'clamp(12px, 3vw, 16px)', 
             background: '#6c757d', 
             color: 'white', 
             border: mode === 'create' ? '1px solid #6c757d' : 'none', 
-            borderRadius: '4px',
+            borderRadius: '8px',
             cursor: (disabled || saving) ? 'not-allowed' : 'pointer',
-            opacity: (disabled || saving) ? 0.6 : 1
+            opacity: (disabled || saving) ? 0.6 : 1,
+            fontSize: 'clamp(14px, 3.5vw, 16px)',
+            fontWeight: '500'
           }}
           aria-label="Сохранить как черновик для редактирования позже"
         >
@@ -51,17 +57,19 @@ export function DraftModerationButtons({
         </button>
         <button 
           type="button"
+          className="modal-button"
           disabled={disabled || saving}
           onClick={handleSubmitModeration}
           style={{ 
-            flex: 1, 
-            padding: '12px 16px', 
+            padding: 'clamp(12px, 3vw, 16px)', 
             background: mode === 'create' ? '#4CAF50' : '#007bff', 
             color: 'white', 
             border: mode === 'create' ? '1px solid #4CAF50' : 'none', 
-            borderRadius: '4px',
+            borderRadius: '8px',
             cursor: (disabled || saving) ? 'not-allowed' : 'pointer',
-            opacity: (disabled || saving) ? 0.6 : 1
+            opacity: (disabled || saving) ? 0.6 : 1,
+            fontSize: 'clamp(14px, 3.5vw, 16px)',
+            fontWeight: '500'
           }}
           aria-label="Отправить на проверку модераторам"
         >
@@ -70,7 +78,13 @@ export function DraftModerationButtons({
       </div>
       
       {showDescription && (
-        <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+        <div className="modal-help-text" style={{ 
+          fontSize: 'clamp(12px, 3vw, 14px)', 
+          color: '#666', 
+          marginTop: 'clamp(8px, 2vw, 16px)',
+          textAlign: 'center',
+          lineHeight: '1.5'
+        }}>
           <strong>Сохранить как черновик:</strong> изменения сохранятся, можно продолжить редактирование позже.<br/>
           <strong>Отправить на модерацию:</strong> {mode === 'create' ? 'личность' : 'изменения'} будут отправлены на проверку модераторам.
         </div>

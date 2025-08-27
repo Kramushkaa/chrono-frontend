@@ -26,8 +26,8 @@ interface ManageSectionProps {
   setShowAuthModal: (show: boolean) => void
   setShowCreateList: (show: boolean) => void
   setShowCreate?: (show: boolean) => void
-  createType?: 'person' | 'achievement'
-  setCreateType?: (type: 'person' | 'achievement') => void
+  createType?: 'person' | 'achievement' | 'period'
+  setCreateType?: (type: 'person' | 'achievement' | 'period') => void
   
   // List items (for user-defined lists)
   listItems?: any[]
@@ -40,6 +40,9 @@ interface ManageSectionProps {
   
   // Utilities
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void
+  
+  // Create modal trigger
+  onAddElement?: () => void
   
   children: React.ReactNode
 }
@@ -66,7 +69,7 @@ export function ManageSection(props: ManageSectionProps) {
     listItems,
     filterType,
     onDeleteListItem,
-    openAddForPerson
+    onAddElement
   } = props
 
 
@@ -92,7 +95,7 @@ export function ManageSection(props: ManageSectionProps) {
       listItems={listItems}
       filterType={filterType}
       onDeleteListItem={onDeleteListItem}
-      openAddForPerson={openAddForPerson}
+      onAddElement={onAddElement}
     >
       {children}
     </AdaptiveListsLayout>

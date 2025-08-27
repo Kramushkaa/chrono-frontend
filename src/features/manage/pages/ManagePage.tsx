@@ -107,7 +107,7 @@ export default function ManagePage() {
   const { showToast } = useToast()
   const [isEditing, setIsEditing] = useState(false)
   const [showCreate, setShowCreate] = useState(false)
-  const [createType, setCreateType] = useState<'person' | 'achievement'>('person')
+  const [createType, setCreateType] = useState<'person' | 'achievement' | 'period'>('person')
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showEditWarning, setShowEditWarning] = useState(false)
   const [isReverting, setIsReverting] = useState(false)
@@ -836,6 +836,25 @@ export default function ManagePage() {
           setSidebarCollapsed={setSidebarCollapsed}
           isAuthenticated={isAuthenticated}
           userEmailVerified={user?.email_verified}
+          onAddClick={() => {
+            if (!isAuthenticated) {
+              setShowAuthModal(true)
+              return
+            }
+            if (!user?.email_verified) {
+              setShowAuthModal(true)
+              return
+            }
+            // Устанавливаем тип создания в зависимости от активной вкладки
+            if (activeTab === 'persons') {
+              setCreateType('person')
+            } else if (activeTab === 'achievements') {
+              setCreateType('achievement')
+            } else if (activeTab === 'periods') {
+              setCreateType('period')
+            }
+            setShowCreate(true)
+          }}
         />
 
         {activeTab === 'persons' && (
@@ -1123,6 +1142,56 @@ export default function ManagePage() {
                 if (!saveAsDraft) {
                 setSearchAch(String(year))
                 }
+              } catch (e: any) {
+                showToast(e?.message || 'Ошибка', 'error')
+              }
+            }}
+            onCreatePeriod={async (payload) => {
+              try {
+                if (!user?.email_verified) { showToast('Требуется подтверждение email для создания периодов', 'error'); return }
+                const { name, startYear, endYear, description, type, countryId, personId, saveAsDraft } = payload
+
+                if (!personId) {
+                  throw new Error('Необходимо выбрать личность для периода')
+                }
+
+                if (saveAsDraft) {
+                  // Для черновиков отправляем напрямую
+                  const res = await apiFetch('/api/periods', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      name,
+                      start_year: startYear,
+                      end_year: endYear,
+                      description,
+                      type,
+                      country_id: countryId,
+                      person_id: personId,
+                      saveAsDraft: true
+                    })
+                  })
+                  if (!res.ok) throw new Error('Ошибка создания черновика')
+                  showToast('Черновик периода сохранен', 'success')
+                } else {
+                  // Для отправки на модерацию используем существующий API
+                  const res = await apiFetch('/api/periods', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      name,
+                      start_year: startYear,
+                      end_year: endYear,
+                      description,
+                      type,
+                      country_id: countryId,
+                      person_id: personId
+                    })
+                  })
+                  if (!res.ok) throw new Error('Ошибка создания периода')
+                  showToast('Период создан и отправлен на модерацию', 'success')
+                }
+                setShowCreate(false)
               } catch (e: any) {
                 showToast(e?.message || 'Ошибка', 'error')
               }

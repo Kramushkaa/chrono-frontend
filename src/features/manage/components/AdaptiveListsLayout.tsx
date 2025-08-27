@@ -37,8 +37,8 @@ type Props = {
   // Utilities
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void
   
-  // Add to list functionality
-  openAddForPerson?: (person: any) => void
+  // Create modal trigger
+  onAddElement?: () => void
   
   children: React.ReactNode
   

@@ -40,6 +40,9 @@ type Props = {
   // Add to list functionality
   openAddForPerson?: (person: any) => void
   
+  // External create action
+  onAddElement?: () => void
+  
   // Content to show when not viewing a list
   children: React.ReactNode
   
@@ -67,7 +70,8 @@ export function MobileListsLayout(props: Props) {
     listItems,
     filterType,
     onDeleteListItem,
-    openAddForPerson
+    openAddForPerson,
+    onAddElement
   } = props
 
   // Состояние для мобильной карточки личности
@@ -213,19 +217,7 @@ export function MobileListsLayout(props: Props) {
     }
   }
 
-  const handleAddElement = () => {
-    if (!isAuthenticated) {
-      setShowAuthModal(true)
-      return
-    }
-    
-    // Определяем тип элемента на основе текущего контекста
-    const type = filterType || 'person'
-    
-    // Здесь можно добавить логику для открытия модального окна создания
-    // Пока что просто показываем toast
-    showToast(`Добавление ${type === 'person' ? 'личности' : type === 'achievement' ? 'достижения' : 'периода'}`, 'info')
-  }
+
 
   return (
     <div className="lists-mobile-layout">
@@ -262,6 +254,7 @@ export function MobileListsLayout(props: Props) {
         onCopySharedList={handleCopySharedList}
         filtersVisible={filtersVisible}
         onToggleFilters={() => setFiltersVisible(v => !v)}
+        onAddElement={onAddElement}
       />
 
       {/* Основной контент */}
@@ -303,14 +296,7 @@ export function MobileListsLayout(props: Props) {
         )}
       </div>
 
-      {/* Плавающая кнопка "Добавить" */}
-      <button
-        className="mobile-fab-add"
-        onClick={handleAddElement}
-        title="Добавить элемент"
-      >
-        +
-      </button>
+
 
       {/* Не-модальная панель личности (как в timeline) */}
       <PersonPanel

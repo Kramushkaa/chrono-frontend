@@ -10,6 +10,7 @@ type Props = {
   setSidebarCollapsed: (collapsed: boolean) => void
   isAuthenticated: boolean
   userEmailVerified?: boolean
+  onAddClick?: () => void
 }
 
 export function AdaptiveTabs(props: Props) {

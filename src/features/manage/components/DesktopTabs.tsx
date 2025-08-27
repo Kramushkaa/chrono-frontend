@@ -7,6 +7,7 @@ type Props = {
   setSidebarCollapsed: (collapsed: boolean) => void
   isAuthenticated: boolean
   userEmailVerified?: boolean
+  onAddClick?: () => void
 }
 
 export function DesktopTabs({ 
@@ -15,7 +16,8 @@ export function DesktopTabs({
   sidebarCollapsed, 
   setSidebarCollapsed, 
   isAuthenticated, 
-  userEmailVerified
+  userEmailVerified,
+  onAddClick
 }: Props) {
 
   return (
@@ -63,6 +65,15 @@ export function DesktopTabs({
         {sidebarCollapsed ? '⟩' : '⟨'}
       </button>
       
+      <div style={{ marginLeft: 'auto' }} />
+      <button
+        className="manage-page__add-button"
+        onClick={onAddClick}
+        disabled={!isAuthenticated || !userEmailVerified}
+        title={!isAuthenticated ? 'Требуется вход' : !userEmailVerified ? 'Подтвердите email' : 'Добавить'}
+      >
+        Добавить
+      </button>
 
     </div>
   )
