@@ -24,7 +24,7 @@ import { useToast } from 'shared/context/ToastContext'
 // import { LoginForm } from '../../auth/components/LoginForm'
 import { AuthRequiredModal } from 'features/manage/components/AuthRequiredModal'
 import { CreateEntityModal } from 'features/manage/components/CreateEntityModal'
-import { Breadcrumbs } from 'shared/ui/Breadcrumbs'
+import { AdaptiveTabs } from 'features/manage/components/AdaptiveTabs'
 import { slugifyIdFromName } from 'shared/utils/slug'
 // import { validateLifePeriodsClient } from '../../../utils/validation'
 import { AchievementsSection } from 'features/manage/components/AchievementsSection'
@@ -821,7 +821,6 @@ export default function ManagePage() {
           onBackToMenu={() => navigate('/menu')}
         />
       </React.Suspense>
-      <Breadcrumbs />
       <ManageUIProvider
         value={{
           openAddAchievement: (id: number) => addToList.openForAchievement(id),
@@ -830,61 +829,14 @@ export default function ManagePage() {
         }}
       >
       <div className="manage-page__content" style={{ padding: 16, paddingTop: 8 }}>
-        <div className="manage-page__tabs" style={{ display: 'flex', gap: 12, margin: '8px 0 16px', alignItems: 'center', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }} role="tablist" aria-label="Вкладки управления">
-          <button 
-            className={`manage-page__tab ${activeTab === 'persons' ? 'manage-page__tab--active' : ''}`}
-            id="manage-tab-persons"
-            role="tab" 
-            aria-selected={activeTab === 'persons'} 
-            onClick={() => setActiveTab('persons')} 
-            style={{ padding: '6px 12px' }}
-          >
-            Личности
-          </button>
-          <button 
-            className={`manage-page__tab ${activeTab === 'achievements' ? 'manage-page__tab--active' : ''}`}
-            id="manage-tab-achievements"
-            role="tab" 
-            aria-selected={activeTab === 'achievements'} 
-            onClick={() => setActiveTab('achievements')} 
-            style={{ padding: '6px 12px' }}
-          >
-            Достижения
-          </button>
-          <button 
-            className={`manage-page__tab ${activeTab === 'periods' ? 'manage-page__tab--active' : ''}`}
-            id="manage-tab-periods"
-            role="tab" 
-            aria-selected={activeTab === 'periods'} 
-            onClick={() => setActiveTab('periods')} 
-            style={{ padding: '6px 12px' }}
-          >
-            Периоды
-          </button>
-          
-          {/* Collapse/Expand button */}
-          <button
-            className="manage-page__collapse-btn"
-            id="manage-collapse-btn"
-            onClick={() => setSidebarCollapsed(c => !c)}
-            aria-pressed={sidebarCollapsed}
-            aria-label={sidebarCollapsed ? 'Показать меню' : 'Скрыть меню'}
-            title={sidebarCollapsed ? 'Показать меню' : 'Скрыть меню'}
-          >
-            {sidebarCollapsed ? '⟩' : '⟨'}
-          </button>
-          
-          <div className="manage-page__actions" style={{ marginLeft: 'auto', flex: '0 0 auto' }}>
-            <button 
-              className="manage-page__add-button"
-              id={`manage-add-${activeTab}`}
-              onClick={() => { if (!isAuthenticated || !user?.email_verified) { setShowAuthModal(true); return } setCreateType(activeTab === 'persons' ? 'person' : 'achievement'); setShowCreate(true) }} 
-              aria-label={activeTab === 'persons' ? 'Добавить личность' : 'Добавить достижение'}
-            >
-              Добавить
-            </button>
-          </div>
-        </div>
+        <AdaptiveTabs
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          sidebarCollapsed={sidebarCollapsed}
+          setSidebarCollapsed={setSidebarCollapsed}
+          isAuthenticated={isAuthenticated}
+          userEmailVerified={user?.email_verified}
+        />
 
         {activeTab === 'persons' && (
           <div className="manage-page__persons-layout" id="manage-persons-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(480px, 1fr) 2fr', gap: 16, alignItems: 'start' }}>
@@ -903,6 +855,9 @@ export default function ManagePage() {
                 isAuthenticated={isAuthenticated}
                 setShowAuthModal={setShowAuthModal}
                 setShowCreateList={setShowCreateList}
+                setShowCreate={setShowCreate}
+                createType={createType}
+                setCreateType={setCreateType}
                 sharedList={sharedList}
                 selectedListId={selectedListId}
                 setSelectedListId={setSelectedListId}
@@ -926,6 +881,7 @@ export default function ManagePage() {
                 setStatusFilters={setStatusFilters}
                 listLoading={listLoading}
                 listItems={listItems}
+                openAddForPerson={(person) => addToList.openForPerson(person)}
               />
             </div>
             <div className="manage-page__person-card" id="manage-person-card" role="region" aria-label="Карточка личности" style={{ position: 'relative', zIndex: 2, minWidth: 0 }}>
@@ -999,6 +955,9 @@ export default function ManagePage() {
               isAuthenticated={isAuthenticated}
               setShowAuthModal={setShowAuthModal}
               setShowCreateList={setShowCreateList}
+              setShowCreate={setShowCreate}
+              createType={createType}
+              setCreateType={setCreateType}
               sharedList={sharedList}
               selectedListId={selectedListId}
               setSelectedListId={setSelectedListId}
@@ -1039,6 +998,9 @@ export default function ManagePage() {
               isAuthenticated={isAuthenticated}
               setShowAuthModal={setShowAuthModal}
               setShowCreateList={setShowCreateList}
+              setShowCreate={setShowCreate}
+              createType={createType}
+              setCreateType={setCreateType}
               sharedList={sharedList}
               selectedListId={selectedListId}
               setSelectedListId={setSelectedListId}

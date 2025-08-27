@@ -1,0 +1,610 @@
+/* Мобильные стили для страницы Lists */
+
+/* Основной контейнер */
+.lists-mobile-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
+  background: rgba(44,24,16,0.95);
+}
+
+/* Мобильный header */
+.lists-mobile-header {
+  position: sticky;
+  top: 0;
+  background: rgba(44,24,16,0.98);
+  border-bottom: 1px solid rgba(139,69,19,0.3);
+  padding: 16px;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+/* Селектор списков */
+.lists-mobile-selector {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.lists-mobile-selector__button {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(139,69,19,0.3);
+  border-radius: 8px;
+  background: rgba(44,24,16,0.95);
+  color: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.lists-mobile-selector__button:hover {
+  border-color: rgba(139,69,19,0.5);
+  background: rgba(44,24,16,0.98);
+}
+
+.lists-mobile-selector__button:focus {
+  outline: 2px solid rgba(139,69,19,0.5);
+  outline-offset: 2px;
+}
+
+.lists-mobile-selector__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(44,24,16,0.98);
+  border: 1px solid rgba(139,69,19,0.4);
+  border-radius: 8px;
+  margin-top: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.lists-mobile-selector__option {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.lists-mobile-selector__option:hover {
+  background: rgba(139,69,19,0.1);
+}
+
+.lists-mobile-selector__option--active {
+  background: rgba(139,69,19,0.2);
+}
+
+.lists-mobile-selector__divider {
+  height: 1px;
+  background: rgba(139,69,19,0.3);
+  margin: 8px 16px;
+}
+
+.lists-mobile-selector__divider--top {
+  border-top: 1px solid rgba(139,69,19,0.3);
+  margin-top: 8px;
+}
+
+.lists-mobile-selector__create-button {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(139,69,19,0.8);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.lists-mobile-selector__create-button:hover {
+  background: rgba(139,69,19,0.9);
+}
+
+/* Кнопки действий */
+.lists-mobile-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lists-mobile-actions__add-button {
+  padding: 12px 20px;
+  background: rgba(139,69,19,0.8);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  flex: 1;
+  min-width: 140px;
+  transition: background-color 0.2s ease;
+}
+
+.lists-mobile-actions__add-button:hover {
+  background: rgba(139,69,19,0.9);
+}
+
+.lists-mobile-actions__action-button {
+  padding: 12px 16px;
+  background: rgba(139,69,19,0.3);
+  color: inherit;
+  border: 1px solid rgba(139,69,19,0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  flex: 0 0 auto;
+  transition: all 0.2s ease;
+}
+
+.lists-mobile-actions__action-button:hover {
+  background: rgba(139,69,19,0.4);
+  border-color: rgba(139,69,19,0.6);
+}
+
+.lists-mobile-actions__action-button--danger {
+  background: rgba(220,53,69,0.3);
+  border-color: rgba(220,53,69,0.4);
+}
+
+.lists-mobile-actions__action-button--danger:hover {
+  background: rgba(220,53,69,0.4);
+  border-color: rgba(220,53,69,0.6);
+}
+
+/* Информация о списке */
+.lists-mobile-list-info {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(139,69,19,0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(139,69,19,0.2);
+}
+
+.lists-mobile-list-info__title {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.lists-mobile-list-info__count {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+/* Основной контент */
+.lists-mobile-content {
+  flex: 1;
+  padding: 16px;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .lists-mobile-header {
+    padding: 12px;
+  }
+  
+  .lists-mobile-selector__button {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  
+  .lists-mobile-selector__option {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  
+  .lists-mobile-actions {
+    gap: 8px;
+  }
+  
+  .lists-mobile-actions__add-button {
+    padding: 10px 16px;
+    font-size: 14px;
+    min-width: 120px;
+  }
+  
+  .lists-mobile-actions__action-button {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+  
+  .lists-mobile-content {
+    padding: 12px;
+  }
+}
+
+/* Анимации */
+.lists-mobile-selector__dropdown {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Улучшения для touch устройств */
+@media (hover: none) and (pointer: coarse) {
+  .lists-mobile-selector__button,
+  .lists-mobile-selector__option,
+  .lists-mobile-actions__add-button,
+  .lists-mobile-actions__action-button {
+    min-height: 44px; /* Минимальная высота для touch */
+  }
+  
+  .lists-mobile-selector__option {
+    padding: 16px 20px; /* Увеличиваем padding для touch */
+  }
+}
+
+/* Мобильные стили для элементов списка */
+.lists-mobile-content .list-items-view {
+  max-height: none;
+  overflow-y: visible;
+  padding-right: 0;
+}
+
+.lists-mobile-content .list-items-view__row {
+  padding: 16px;
+  border-bottom: 1px solid rgba(139,69,19,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.lists-mobile-content .list-items-view__row > div:first-child {
+  flex: 1;
+}
+
+.lists-mobile-content .list-items-view__row button {
+  align-self: flex-end;
+  padding: 8px 12px;
+  background: rgba(220,53,69,0.8);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  min-height: 36px;
+  min-width: 36px;
+}
+
+.lists-mobile-content .list-items-view__row button:hover {
+  background: rgba(220,53,69,0.9);
+}
+
+/* Мобильные стили для ListSummary */
+.lists-mobile-content .list-items-view > div:first-child {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: rgba(139,69,19,0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(139,69,19,0.2);
+  text-align: center;
+}
+
+/* Мобильные стили для вкладок */
+.mobile-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(44,24,16,0.98);
+  border-bottom: 1px solid rgba(139,69,19,0.3);
+}
+
+.mobile-tabs__container {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.mobile-tabs__tab {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid rgba(139,69,19,0.3);
+  border-radius: 8px;
+  background: rgba(44,24,16,0.95);
+  color: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  min-height: 44px;
+}
+
+.mobile-tabs__tab:hover {
+  border-color: rgba(139,69,19,0.5);
+  background: rgba(44,24,16,0.98);
+}
+
+.mobile-tabs__tab--active {
+  background: rgba(139,69,19,0.8);
+  color: white;
+  border-color: rgba(139,69,19,0.9);
+}
+
+.mobile-tabs__add-button {
+  width: 100%;
+  padding: 12px 20px;
+  background: rgba(139,69,19,0.8);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+  min-height: 44px;
+}
+
+.mobile-tabs__add-button:hover {
+  background: rgba(139,69,19,0.9);
+}
+
+/* Адаптивность для мобильных вкладок */
+@media (max-width: 480px) {
+  .mobile-tabs {
+    padding: 12px;
+  }
+  
+  .mobile-tabs__tab {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  
+  .mobile-tabs__add-button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Мобильные стили для ItemsList */
+.lists-mobile-content .items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lists-mobile-content .items-list__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lists-mobile-content .items-list__card {
+  padding: 16px;
+  border: 1px solid rgba(139,69,19,0.2);
+  border-radius: 8px;
+  background: rgba(44,24,16,0.95);
+  transition: all 0.2s ease;
+}
+
+.lists-mobile-content .items-list__card:hover {
+  border-color: rgba(139,69,19,0.4);
+  background: rgba(44,24,16,0.98);
+}
+
+.lists-mobile-content .item-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lists-mobile-content .item-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: inherit;
+}
+
+.lists-mobile-content .item-card__subtitle {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.lists-mobile-content .item-card__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.lists-mobile-content .item-card__actions button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  min-height: 36px;
+  min-width: 36px;
+  transition: all 0.2s ease;
+}
+
+.lists-mobile-content .item-card__actions button:first-child {
+  background: rgba(74,144,226,0.8);
+  color: white;
+}
+
+.lists-mobile-content .item-card__actions button:first-child:hover {
+  background: rgba(74,144,226,0.9);
+}
+
+.lists-mobile-content .item-card__actions button:last-child {
+  background: rgba(40,167,69,0.8);
+  color: white;
+}
+
+.lists-mobile-content .item-card__actions button:last-child:hover {
+  background: rgba(40,167,69,0.9);
+}
+
+  .lists-mobile-content .search-and-filters__count {
+    font-size: 11px;
+  }
+
+/* Плавающая кнопка "Добавить" */
+.mobile-fab-add {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(139,69,19,0.9);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: all 0.2s ease;
+  z-index: 1000;
+}
+
+.mobile-fab-add:hover {
+  background: rgba(139,69,19,1);
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.mobile-fab-add:active {
+  transform: scale(0.95);
+}
+
+/* Адаптивность для плавающей кнопки */
+@media (max-width: 480px) {
+  .mobile-fab-add {
+    bottom: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
+/* Сокращаем отступы для основного контента на мобильных */
+@media (max-width: 768px) {
+  .manage-page__content {
+    padding: 0 !important;
+    padding-top: 0 !important;
+  }
+  
+  /* Убираем лишние отступы в секциях */
+  .manage-page__persons-layout,
+  .manage-page__achievements-section,
+  .manage-page__periods-section {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Сокращаем отступы в секциях */
+  .manage-page__persons-section {
+    padding-right: 8px !important;
+  }
+  
+  /* Сокращаем отступы в табах */
+  .manage-page__tabs {
+    margin-bottom: 8px !important;
+  }
+  
+  /* Сокращаем отступы в адаптивных табах */
+  .adaptive-tabs {
+    margin-bottom: 8px !important;
+  }
+  
+  /* Сокращаем отступы в мобильных табах */
+  .mobile-tabs {
+    margin-bottom: 8px !important;
+  }
+}
+
+/* Скрываем блок фильтров при выключенном состоянии */
+.lists-mobile-content.filters-hidden .search-and-filters {
+  display: none !important;
+}
+
+/* Компактный ряд: селектор + фильтры */
+.lists-mobile-header .lists-mobile-filter-toggle {
+  padding: 6px 10px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Компактнее сам селектор (кнопка) */
+.lists-mobile-selector__button {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+/* Компактнее элементы выпадающего списка */
+.lists-mobile-selector__option {
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+/* Убираем нижний отступ у селектора в мобильном заголовке */
+.lists-mobile-header .lists-mobile-selector {
+  margin-bottom: 0 !important;
+}
+
+/* Универсальная зелёная кнопка добавления в список (как в достижениях) */
+.btn-add-list {
+  padding: 8px 12px;
+  background: rgba(40,167,69,0.8);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  min-height: 36px;
+  min-width: 36px;
+  transition: all 0.2s ease;
+}
+
+.btn-add-list:hover {
+  background: rgba(40,167,69,0.9);
+}
+
+/* Кнопка фильтров: нейтральная по умолчанию, подсветка только когда раскрыто */
+.lists-mobile-filter-toggle {
+  background: transparent !important;
+  border-color: rgba(139,69,19,0.3) !important;
+}
+
+.lists-mobile-filter-toggle[aria-pressed="true"] {
+  background: rgba(139,69,19,0.3) !important;
+  border-color: rgba(139,69,19,0.6) !important;
+}
+
+.lists-mobile-filter-toggle[aria-pressed="false"]:hover {
+  background: rgba(139,69,19,0.15) !important;
+  border-color: rgba(139,69,19,0.4) !important;
+}
+
+

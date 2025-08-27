@@ -21,6 +21,9 @@ interface AchievementsSectionProps {
 	isAuthenticated: boolean
 	setShowAuthModal: (b: boolean) => void
 	setShowCreateList: (b: boolean) => void
+	setShowCreate?: (show: boolean) => void
+	createType?: 'person' | 'achievement'
+	setCreateType?: (type: 'person' | 'achievement') => void
 	sharedList: { id: number; title: string; owner_user_id?: string } | null
 	selectedListId: number | null
 	setSelectedListId: (id: number | null) => void
@@ -64,6 +67,9 @@ export function AchievementsSection(props: AchievementsSectionProps) {
 		isAuthenticated,
 		setShowAuthModal,
 		setShowCreateList,
+		setShowCreate,
+		createType,
+		setCreateType,
 		sharedList,
 		selectedListId,
 		setSelectedListId,
@@ -103,6 +109,9 @@ export function AchievementsSection(props: AchievementsSectionProps) {
 			isAuthenticated={isAuthenticated}
 			setShowAuthModal={setShowAuthModal}
 			setShowCreateList={setShowCreateList}
+			setShowCreate={setShowCreate}
+			createType={createType}
+			setCreateType={setCreateType}
 			sharedList={sharedList}
 			selectedListId={selectedListId}
 			setSelectedListId={setSelectedListId}
@@ -170,18 +179,18 @@ export function AchievementsSection(props: AchievementsSectionProps) {
 					)}
 
 					<div className="search-and-filters" role="region" aria-label="Фильтр и поиск" style={{ marginBottom: 12 }}>
-						<div className="search-and-filters__controls" style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+						<div className="search-and-filters__controls" style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
 							<input 
+								id="achievements-search-input"
 								className="search-and-filters__input"
 								value={searchAch} 
 								onChange={(e) => setSearchAch(e.target.value)} 
 								placeholder="Поиск по достижениям/имени/стране" 
-								style={{ flex: '1 1 180px', minWidth: 180, maxWidth: '100%', padding: 6 }} 
 							/>
-						</div>
-						
-						<div className="search-and-filters__count" style={{ fontSize: 12, opacity: 0.8 }}>
-							Найдено: {modeIsAll ? achItemsAll.length : achItemsAlt.length}{!(modeIsAll ? achLoadingAll : achAltLoading) && (modeIsAll ? hasMoreAll : achAltHasMore) ? '+' : ''}
+							
+							<div className="search-and-filters__count" style={{ fontSize: 12, opacity: 0.8 }}>
+								Найдено: {modeIsAll ? achItemsAll.length : achItemsAlt.length}{!(modeIsAll ? achLoadingAll : achAltLoading) && (modeIsAll ? hasMoreAll : achAltHasMore) ? '+' : ''}
+							</div>
 						</div>
 					</div>
 					<ItemsList

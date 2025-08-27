@@ -11,12 +11,14 @@ interface ItemsListProps {
     startYear?: number | string
     endYear?: number | string
     type?: string
+    person?: any
   }>
   isLoading: boolean
   hasMore: boolean
   onLoadMore: () => void
   onAddToList?: (id: number | string) => void
   onSelect?: (id: number | string) => void
+  onPersonSelect?: (person: any) => void
   isAuthenticated?: boolean
   emailVerified?: boolean
   showAuthModal?: () => void
@@ -34,6 +36,7 @@ export function ItemsList({
   onLoadMore,
   onAddToList,
   onSelect,
+  onPersonSelect,
   isAuthenticated = true,
   emailVerified = true,
   showAuthModal,
@@ -98,6 +101,8 @@ export function ItemsList({
             year={item.year}
             startYear={item.startYear}
             endYear={item.endYear}
+            person={item.person}
+            onPersonSelect={onPersonSelect}
             type={item.type}
             onAddToList={onAddToList ? () => handleAddToList(item.id) : undefined}
             onSelect={onSelect ? () => handleSelect(item.id) : undefined}

@@ -20,6 +20,9 @@ interface PersonsSectionProps {
   isAuthenticated: boolean
   setShowAuthModal: (b: boolean) => void
   setShowCreateList: (b: boolean) => void
+  setShowCreate?: (show: boolean) => void
+  createType?: 'person' | 'achievement'
+  setCreateType?: (type: 'person' | 'achievement') => void
   sharedList: { id: number; title: string; owner_user_id?: string } | null
   selectedListId: number | null
   setSelectedListId: (id: number | null) => void
@@ -47,6 +50,12 @@ interface PersonsSectionProps {
   // List mode
   listLoading: boolean
   listItems: Array<{ key: string; listItemId: number; type: 'person' | 'achievement' | 'period'; title: string; subtitle?: string; person?: any }>
+  
+  // Person selection
+  onPersonSelect?: (person: any) => void
+  
+  // Add to list functionality
+  openAddForPerson?: (person: any) => void
 }
 
 export function PersonsSection(props: PersonsSectionProps) {
@@ -61,6 +70,9 @@ export function PersonsSection(props: PersonsSectionProps) {
     isAuthenticated,
     setShowAuthModal,
     setShowCreateList,
+    setShowCreate,
+    createType,
+    setCreateType,
     sharedList,
     selectedListId,
     setSelectedListId,
@@ -83,7 +95,9 @@ export function PersonsSection(props: PersonsSectionProps) {
     statusFilters,
     setStatusFilters,
     listLoading,
-    listItems
+    listItems,
+    onPersonSelect,
+    openAddForPerson
   } = props
 
   // Derive mode from menuSelection
@@ -103,6 +117,9 @@ export function PersonsSection(props: PersonsSectionProps) {
       isAuthenticated={isAuthenticated}
       setShowAuthModal={setShowAuthModal}
       setShowCreateList={setShowCreateList}
+      setShowCreate={setShowCreate}
+      createType={createType}
+      setCreateType={setCreateType}
       sharedList={sharedList}
       selectedListId={selectedListId}
       setSelectedListId={setSelectedListId}
@@ -111,6 +128,7 @@ export function PersonsSection(props: PersonsSectionProps) {
       listLoading={listLoading}
       listItems={listItems}
       filterType="person"
+      openAddForPerson={openAddForPerson}
       onDeleteListItem={async (listItemId) => {
         if (!selectedListId) return
         const ok = await deleteListItem(selectedListId, listItemId)
@@ -170,13 +188,13 @@ export function PersonsSection(props: PersonsSectionProps) {
           )}
 
           <div className="search-and-filters" role="region" aria-label="Фильтр и поиск" style={{ marginBottom: 12 }}>
-            <div className="search-and-filters__controls" style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+            <div className="search-and-filters__controls" style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
               <input 
+                id="persons-search-input"
                 className="search-and-filters__input"
                 value={searchPersons} 
                 onChange={(e) => setSearchPersons(e.target.value)} 
                 placeholder="Поиск по имени/стране" 
-                style={{ flex: '1 1 180px', minWidth: 180, maxWidth: '100%', padding: 6 }} 
               />
               
               <FilterDropdown
@@ -196,10 +214,10 @@ export function PersonsSection(props: PersonsSectionProps) {
                 onSelectionChange={(countries: string[]) => setFilters((prev: any) => ({ ...prev, countries }))}
                 getItemColor={() => '#f4e4c1'}
               />
-            </div>
-            
-            <div className="search-and-filters__count" style={{ fontSize: 12, opacity: 0.8 }}>
-              Найдено: {modeIsAll ? personsAll.length : personsAlt.length}{!(modeIsAll ? isPersonsLoadingAll : personsAltLoading) && (modeIsAll ? personsHasMoreAll : personsAltHasMore) ? '+' : ''}
+              
+              <div className="search-and-filters__count" style={{ fontSize: 12, opacity: 0.8 }}>
+                Найдено: {modeIsAll ? personsAll.length : personsAlt.length}{!(modeIsAll ? isPersonsLoadingAll : personsAltLoading) && (modeIsAll ? personsHasMoreAll : personsAltHasMore) ? '+' : ''}
+              </div>
             </div>
           </div>
 
@@ -210,7 +228,8 @@ export function PersonsSection(props: PersonsSectionProps) {
               subtitle: p.country_name || p.countryName || '',
               startYear: p.birth_year || p.birthYear,
               endYear: p.death_year || p.deathYear,
-              type: p.category || ''
+              type: p.category || '',
+              person: p
             }))}
             isLoading={modeIsAll ? isPersonsLoadingAll : personsAltLoading}
             hasMore={modeIsAll ? personsHasMoreAll : personsAltHasMore}
@@ -224,6 +243,7 @@ export function PersonsSection(props: PersonsSectionProps) {
               const person = (modeIsAll ? personsAll : personsAlt).find(p => p.id === id)
               if (person) onSelect(person)
             }}
+            onPersonSelect={onPersonSelect}
             emptyMessage={!personsAltLoading && modeIsMine && personsAlt.length === 0 
               ? "Здесь будут отображаться созданные или отредактированные вами элементы"
               : "Личности не найдены"
@@ -239,7 +259,19 @@ export function PersonsSection(props: PersonsSectionProps) {
             {listLoading && listItems.filter(i => i.type === 'person').length === 0 && <div>Загрузка…</div>}
             {listItems.filter(i => i.type === 'person').map((it) => (
               <div key={it.key} style={{ padding: '6px 8px', borderBottom: '1px solid rgba(139,69,19,0.2)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ flex: 1, cursor: it.type==='person' ? 'pointer' : 'default' }} onClick={() => { if (it.type==='person' && (it as any).person) onSelect((it as any).person) }}>
+                <div 
+                  style={{ 
+                    flex: 1, 
+                    cursor: it.type==='person' && (it as any).person ? 'pointer' : 'default' 
+                  }} 
+                  onClick={() => { 
+                    if (it.type==='person' && (it as any).person && onPersonSelect) {
+                      onPersonSelect((it as any).person)
+                    } else if (it.type==='person' && (it as any).person) {
+                      onSelect((it as any).person)
+                    }
+                  }}
+                >
                   <div style={{ fontWeight: 600 }}>{it.title}</div>
                   {it.subtitle && <div style={{ fontSize: 12, opacity: 0.85 }}>{it.subtitle}</div>}
                 </div>

@@ -8,6 +8,7 @@ interface PersonPanelProps {
   getGroupColor: (groupName: string) => string
   getPersonGroup: (person: Person) => string
   getCategoryColor: (category: string) => string
+  openAddForPerson?: (person: Person) => void
 }
 
 export const PersonPanel: React.FC<PersonPanelProps> = ({
@@ -15,7 +16,8 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
   onClose,
   getGroupColor,
   getPersonGroup,
-  getCategoryColor
+  getCategoryColor,
+  openAddForPerson
 }) => {
   const [achievementsWikiFallback, setAchievementsWikiFallback] = useState<(string | null)[] | null>(null)
 
@@ -99,35 +101,56 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
         >
           {selectedPerson.name}
         </h2>
-        <button
-          className="mobile-panel-close-btn"
-          id="mobile-panel-close"
-          onClick={onClose}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              e.preventDefault();
-              onClose();
-            }
-          }}
-          aria-label="Закрыть панель"
-          style={{
-            background: 'rgba(231, 76, 60, 0.2)',
-            border: '1px solid rgba(231, 76, 60, 0.4)',
-            borderRadius: '50%',
-            width: '32px',
-            height: '32px',
-            color: '#e74c3c',
-            fontSize: '1rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.2s ease'
-          }}
-          title="Закрыть"
-        >
-          ✕
-        </button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {openAddForPerson && (
+            <button
+              className="mobile-panel-add-btn"
+              onClick={() => openAddForPerson(selectedPerson)}
+              title="Добавить в список"
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(139,69,19,0.4)',
+                color: 'inherit',
+                padding: '4px 8px',
+                fontSize: '14px',
+                lineHeight: 1,
+                borderRadius: 6,
+                cursor: 'pointer'
+              }}
+            >
+              ＋
+            </button>
+          )}
+          <button
+            className="mobile-panel-close-btn"
+            id="mobile-panel-close"
+            onClick={onClose}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                onClose();
+              }
+            }}
+            aria-label="Закрыть панель"
+            style={{
+              background: 'rgba(231, 76, 60, 0.2)',
+              border: '1px solid rgba(231, 76, 60, 0.4)',
+              borderRadius: '50%',
+              width: '32px',
+              height: '32px',
+              color: '#e74c3c',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease'
+            }}
+            title="Закрыть"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       <div 

@@ -9,8 +9,10 @@ interface ItemCardProps {
   startYear?: number | string
   endYear?: number | string
   type?: string
+  person?: any
   onAddToList?: () => void
   onSelect?: () => void
+  onPersonSelect?: (person: any) => void
   isAuthenticated?: boolean
   emailVerified?: boolean
   showAuthModal?: () => void
@@ -29,8 +31,10 @@ export function ItemCard({
   startYear,
   endYear,
   type,
+  person,
   onAddToList,
   onSelect,
+  onPersonSelect,
   isAuthenticated = true,
   emailVerified = true,
   showAuthModal,
@@ -39,6 +43,7 @@ export function ItemCard({
   addButtonDisabled = false,
   style
 }: ItemCardProps) {
+  
   const handleAddToList = () => {
     if (!isAuthenticated) {
       showAuthModal?.()
@@ -52,7 +57,9 @@ export function ItemCard({
   }
 
   const handleSelect = () => {
-    if (onSelect) {
+    if (onPersonSelect && person) {
+      onPersonSelect(person)
+    } else if (onSelect) {
       onSelect()
     }
   }
