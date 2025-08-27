@@ -8,9 +8,9 @@ type BrandTitleProps = {
 export const BrandTitle: React.FC<BrandTitleProps> = ({ asLink = false }) => {
   const content = (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
-      <span>Хрон</span>
+      <span>ХР</span>
       <img src="/logo192.png" alt="" aria-hidden="true" style={{ width: '1em', height: '1em', verticalAlign: 'middle' }} />
-      <span>ниндзя</span>
+      <span>НОНИНДЗЯ</span>
     </span>
   );
   if (asLink) {
