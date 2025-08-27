@@ -821,13 +821,14 @@ export default function ManagePage() {
           onBackToMenu={() => navigate('/menu')}
         />
       </React.Suspense>
-      <ManageUIProvider
-        value={{
-          openAddAchievement: (id: number) => addToList.openForAchievement(id),
-          openAddPeriod: (id: number) => addToList.openForPeriod(id),
-          openAddForSelectedPerson: () => { if (selected) addToList.openForPerson(selected) }
-        }}
-      >
+      <div className="manage-wrapper">
+        <ManageUIProvider
+          value={{
+            openAddAchievement: (id: number) => addToList.openForAchievement(id),
+            openAddPeriod: (id: number) => addToList.openForPeriod(id),
+            openAddForSelectedPerson: () => { if (selected) addToList.openForPerson(selected) }
+          }}
+        >
       <div className="manage-page__content" style={{ padding: 16, paddingTop: 8 }}>
         <AdaptiveTabs
           activeTab={activeTab}
@@ -1329,8 +1330,9 @@ export default function ManagePage() {
         />
           </div>
         </div>
-      </ManageUIProvider>
+        </ManageUIProvider>
       </div>
+    </div>
   )
 }
 

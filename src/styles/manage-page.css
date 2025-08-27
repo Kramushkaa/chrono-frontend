@@ -10,8 +10,20 @@
   flex-direction: column;
 }
 
+/* Новый wrapper для правильной иерархии z-index */
+.manage-wrapper {
+  position: relative;
+  z-index: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow flex item to shrink */
+}
+
 .manage-page__content {
   /* Контейнер основного содержимого */
+  position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -191,6 +203,20 @@
   /* Контейнер для всех модальных окон */
 }
 
+/* Специальные стили для AppHeader на manage page */
+.manage-page .app-header {
+  z-index: 200; /* Выше, чем у обычного header'а */
+}
+
+/* Специальные стили для UserMenu на manage page */
+.manage-page .user-menu {
+  z-index: 10002 !important; /* Максимальный z-index для UserMenu */
+}
+
+.manage-page .user-menu .user-menu__dropdown {
+  z-index: 10002 !important;
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   .manage-page__persons-layout {
@@ -229,6 +255,28 @@
   
   .filter-dropdown {
     min-width: 100%;
+  }
+
+  /* Повышенный z-index для AppHeader в мобильной версии manage page */
+  .manage-page .app-header {
+    z-index: 10000; /* Максимальный z-index для мобильной версии */
+  }
+
+  /* Снижаем z-index проблемных элементов в мобильной версии */
+  .lists-mobile-content {
+    z-index: 50;
+  }
+
+  .lists-mobile-header {
+    z-index: 100;
+  }
+
+  .mobile-fab-add {
+    z-index: 150;
+  }
+
+  .search-and-filters {
+    z-index: 100;
   }
 }
 

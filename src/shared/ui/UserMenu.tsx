@@ -3,6 +3,9 @@ import { useAuth } from 'shared/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { LoginForm } from 'features/auth/components/LoginForm';
 
+// Функция определения, находимся ли мы на manage page
+const isManagePage = () => window.location.pathname.includes('/manage') || window.location.pathname.includes('/lists');
+
 type UserMenuProps = {
   style?: React.CSSProperties;
   className?: string;
@@ -11,6 +14,7 @@ type UserMenuProps = {
 export function UserMenu({ style, className }: UserMenuProps) {
   const { isAuthenticated, user, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const [isOnManagePage, setIsOnManagePage] = useState(isManagePage());
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -23,8 +27,27 @@ export function UserMenu({ style, className }: UserMenuProps) {
     return () => document.removeEventListener('mousedown', onDoc);
   }, []);
 
+  // Отслеживание изменения страницы
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setIsOnManagePage(isManagePage());
+    };
+
+    // Слушаем изменения location через popstate
+    window.addEventListener('popstate', handleLocationChange);
+
+    // Также проверяем при монтировании компонента
+    handleLocationChange();
+
+    return () => window.removeEventListener('popstate', handleLocationChange);
+  }, []);
+
   return (
-    <div ref={ref} className={className} style={{ position: 'relative', ...style }}>
+    <div
+      ref={ref}
+      className={`user-menu ${isOnManagePage ? 'user-menu--manage' : ''} ${className || ''}`}
+      style={{ position: 'relative', ...style }}
+    >
       <button
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
@@ -46,6 +69,7 @@ export function UserMenu({ style, className }: UserMenuProps) {
       {open && (
         <div
           role="menu"
+          className="user-menu__dropdown"
           style={{
             position: 'absolute',
             right: 0,
