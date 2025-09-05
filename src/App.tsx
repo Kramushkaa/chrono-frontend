@@ -37,6 +37,7 @@ const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
 const ProfilePage = React.lazy(() => import('features/auth/pages/ProfilePage'))
 const RegisterPage = React.lazy(() => import('features/auth/pages/RegisterPage'))
 const ManagePage = React.lazy(() => import('features/manage/pages/ManagePage'))
+const QuizPage = React.lazy(() => import('features/quiz/pages/QuizPage').then(m => ({ default: m.default })))
 const Timeline = React.lazy(() => import('features/timeline/components/Timeline').then(m => ({ default: m.Timeline })))
 const PersonPanel = React.lazy(() => import('features/persons/components/PersonPanel').then(m => ({ default: m.PersonPanel })))
 const Tooltips = React.lazy(() => import('features/timeline/components/Tooltips').then(m => ({ default: m.Tooltips })))
@@ -748,6 +749,7 @@ export default function App() {
             <Route path="/" element={<Navigate to="/timeline" replace />} />
             <Route path="/menu" element={<AppInner />} />
             <Route path="/timeline" element={<AppInner />} />
+            <Route path="/quiz" element={<QuizPage />} />
             <Route path="/lists" element={<ManagePage />} />
             <Route path="/manage" element={<Navigate to="/lists" replace />} />
             <Route path="/profile" element={<ProfilePage />} />

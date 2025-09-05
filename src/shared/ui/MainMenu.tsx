@@ -66,6 +66,24 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
           </div>
           <div 
             className="main-menu-item"
+            onClick={() => window.location.assign('/quiz')}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                window.location.assign('/quiz')
+              }
+            }}
+          >
+            <div className="main-menu-item-icon">🧠</div>
+            <div className="main-menu-item-content">
+              <h3 className="main-menu-item-title">Игра на проверку знаний</h3>
+              <p className="main-menu-item-description">Проверьте свои знания исторических личностей в увлекательной игре</p>
+            </div>
+          </div>
+          <div 
+            className="main-menu-item"
             onClick={() => window.location.assign('/lists')}
             role="button"
             tabIndex={0}

@@ -260,7 +260,7 @@ export function PersonsSection(props: PersonsSectionProps) {
       ) : (
         <>
           <ListSummary items={listItems.filter(i => i.type === 'person')} style={{ marginBottom: 8, fontSize: 12, opacity: 0.9 }} />
-          <div role="region" aria-label="Содержимое списка" style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: 6 }}>
+          <div role="region" aria-label="Содержимое списка" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto', paddingRight: 6 }}>
             {listLoading && listItems.filter(i => i.type === 'person').length === 0 && <div>Загрузка…</div>}
             {listItems.filter(i => i.type === 'person').map((it) => (
               <div key={it.key} style={{ padding: '6px 8px', borderBottom: '1px solid rgba(139,69,19,0.2)', display: 'flex', alignItems: 'center', gap: 8 }}>
