@@ -1,7 +1,7 @@
 {
   "short_name": "Хронониндзя",
   "name": "Хронониндзя — Временные линии исторических личностей",
-  "description": "Интерактивная временная линия исторических личностей. Изучайте биографии, достижения и жизненные пути выдающихся людей разных эпох и стран.",
+  "description": "Интерактивная временная линия исторических личностей с игрой на проверку знаний. Изучайте биографии, достижения и жизненные пути выдающихся людей разных эпох и стран. Проверьте свои знания в увлекательной викторине!",
   "icons": [
     {
       "src": "favicon.ico",
@@ -24,10 +24,44 @@
   "theme_color": "#2c1810",
   "background_color": "#1a0f0a",
   "orientation": "any",
-  "categories": ["education", "history", "reference"],
+  "categories": ["education", "history", "reference", "games"],
   "lang": "ru",
   "dir": "ltr",
-  "scope": "/timeline",
+  "scope": "/",
   "prefer_related_applications": false,
-  "related_applications": []
+  "related_applications": [],
+  "screenshots": [
+    {
+      "src": "og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Временная линия",
+      "short_name": "Линия",
+      "description": "Открыть интерактивную временную линию",
+      "url": "/timeline",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Игра на знания",
+      "short_name": "Викторина",
+      "description": "Проверить знания исторических личностей",
+      "url": "/quiz",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
 } 

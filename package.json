@@ -1,6 +1,6 @@
 {
   "name": "chrononinja-frontend",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Frontend for Chrono Ninja historical timeline",
   "private": true,
   "dependencies": {

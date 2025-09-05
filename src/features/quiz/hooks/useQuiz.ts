@@ -5,7 +5,9 @@ import { QuizSetupConfig, QuizQuestion, QuizAnswer, QuizResult, BirthYearQuestio
 export const useQuiz = (persons: Person[], allCategories: string[], allCountries: string[]) => {
   const [setup, setSetup] = useState<QuizSetupConfig>(() => ({
     selectedCountries: allCategories.length > 0 ? allCountries : [],
-    selectedCategories: allCategories.length > 0 ? allCategories : []
+    selectedCategories: allCategories.length > 0 ? allCategories : [],
+    questionTypes: ['birthYear', 'achievementsMatch', 'birthOrder'],
+    questionCount: 5
   }));
   
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -21,7 +23,9 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     if (allCategories.length > 0 && allCountries.length > 0) {
       setSetup(prev => ({
         selectedCountries: prev.selectedCountries.length === 0 ? allCountries : prev.selectedCountries,
-        selectedCategories: prev.selectedCategories.length === 0 ? allCategories : prev.selectedCategories
+        selectedCategories: prev.selectedCategories.length === 0 ? allCategories : prev.selectedCategories,
+        questionTypes: prev.questionTypes.length === 0 ? ['birthYear', 'achievementsMatch', 'birthOrder'] : prev.questionTypes,
+        questionCount: prev.questionCount || 5
       }));
     }
   }, [allCategories, allCountries]);
@@ -155,26 +159,32 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     };
   }, []);
 
-  // Генерируем 5 вопросов
+  // Генерируем вопросы на основе настроек
   const generateQuestions = useCallback(() => {
     if (filteredPersons.length === 0) return [];
 
-    const questionGenerators = [
-      generateBirthYearQuestion,
-      generateAchievementsMatchQuestion,
-      generateBirthOrderQuestion
-    ];
+    const questionGenerators: { [key: string]: (persons: Person[]) => QuizQuestion } = {
+      'birthYear': generateBirthYearQuestion,
+      'achievementsMatch': generateAchievementsMatchQuestion,
+      'birthOrder': generateBirthOrderQuestion
+    };
 
+    const availableTypes = setup.questionTypes.length > 0 ? setup.questionTypes : ['birthYear', 'achievementsMatch', 'birthOrder'];
+    const questionCount = setup.questionCount || 5;
+    
     const generatedQuestions: QuizQuestion[] = [];
     
-    for (let i = 0; i < 5; i++) {
-      const generator = questionGenerators[i % questionGenerators.length];
-      const question = generator(filteredPersons);
-      generatedQuestions.push(question);
+    for (let i = 0; i < questionCount; i++) {
+      const questionType = availableTypes[i % availableTypes.length];
+      const generator = questionGenerators[questionType];
+      if (generator) {
+        const question = generator(filteredPersons);
+        generatedQuestions.push(question);
+      }
     }
 
     return generatedQuestions;
-  }, [filteredPersons, generateBirthYearQuestion, generateAchievementsMatchQuestion, generateBirthOrderQuestion]);
+  }, [filteredPersons, setup.questionTypes, setup.questionCount, generateBirthYearQuestion, generateAchievementsMatchQuestion, generateBirthOrderQuestion]);
 
   // Начать игру
   const startQuiz = useCallback(() => {

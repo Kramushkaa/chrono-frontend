@@ -1,5 +1,6 @@
 import React from 'react';
 import { QuizSetupConfig } from '../types';
+import { FilterDropdown } from '../../../shared/ui/FilterDropdown';
 
 interface QuizSetupProps {
   setup: QuizSetupConfig;
@@ -10,6 +11,20 @@ interface QuizSetupProps {
   canStart: boolean;
 }
 
+const QUESTION_TYPES = [
+  { value: 'birthYear', label: 'Угадай год рождения' },
+  { value: 'achievementsMatch', label: 'Сопоставь достижения' },
+  { value: 'birthOrder', label: 'Расставь по году рождения' }
+];
+
+const QUESTION_TYPE_LABELS: { [key: string]: string } = {
+  'birthYear': 'Угадай год рождения',
+  'achievementsMatch': 'Сопоставь достижения', 
+  'birthOrder': 'Расставь по году рождения'
+};
+
+const QUESTION_COUNTS = [3, 5, 7, 10, 15, 20];
+
 export const QuizSetup: React.FC<QuizSetupProps> = ({
   setup,
   onSetupChange,
@@ -18,53 +33,31 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
   onStartQuiz,
   canStart
 }) => {
-  const handleCountryToggle = (country: string) => {
-    const newCountries = setup.selectedCountries.includes(country)
-      ? setup.selectedCountries.filter(c => c !== country)
-      : [...setup.selectedCountries, country];
-    
+  const handleCountriesChange = (countries: string[]) => {
     onSetupChange({
       ...setup,
-      selectedCountries: newCountries
+      selectedCountries: countries
     });
   };
 
-  const handleCategoryToggle = (category: string) => {
-    const newCategories = setup.selectedCategories.includes(category)
-      ? setup.selectedCategories.filter(c => c !== category)
-      : [...setup.selectedCategories, category];
-    
+  const handleCategoriesChange = (categories: string[]) => {
     onSetupChange({
       ...setup,
-      selectedCategories: newCategories
+      selectedCategories: categories
     });
   };
 
-  const selectAllCountries = () => {
+  const handleQuestionTypesChange = (types: string[]) => {
     onSetupChange({
       ...setup,
-      selectedCountries: allCountries
+      questionTypes: types
     });
   };
 
-  const selectAllCategories = () => {
+  const handleQuestionCountChange = (count: number) => {
     onSetupChange({
       ...setup,
-      selectedCategories: allCategories
-    });
-  };
-
-  const clearAllCountries = () => {
-    onSetupChange({
-      ...setup,
-      selectedCountries: []
-    });
-  };
-
-  const clearAllCategories = () => {
-    onSetupChange({
-      ...setup,
-      selectedCategories: []
+      questionCount: count
     });
   };
 
@@ -72,75 +65,90 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
     <div className="quiz-setup">
       <div className="quiz-setup-header">
         <h2>Настройка игры</h2>
-        <p>Выберите страны и категории для вопросов</p>
+        <p>Выберите параметры для создания персонализированной викторины</p>
       </div>
 
       <div className="quiz-setup-content">
-        <div className="quiz-setup-section">
-          <div className="quiz-setup-section-header">
-            <h3>Страны</h3>
-            <div className="quiz-setup-controls">
-              <button 
-                type="button" 
-                onClick={selectAllCountries}
-                className="quiz-setup-button"
-              >
-                Все
-              </button>
-              <button 
-                type="button" 
-                onClick={clearAllCountries}
-                className="quiz-setup-button"
-              >
-                Очистить
-              </button>
+        <div className="quiz-setup-filters">
+          <div className="quiz-setup-filter-group">
+            <h3>Фильтры</h3>
+            <div className="quiz-setup-filters-row">
+              <FilterDropdown
+                title="Страны"
+                items={allCountries}
+                selectedItems={setup.selectedCountries}
+                onSelectionChange={handleCountriesChange}
+                icon="🌍"
+              />
+              <FilterDropdown
+                title="Категории"
+                items={allCategories}
+                selectedItems={setup.selectedCategories}
+                onSelectionChange={handleCategoriesChange}
+                icon="📚"
+              />
             </div>
           </div>
-          <div className="quiz-setup-options">
-            {allCountries.map(country => (
-              <label key={country} className="quiz-setup-option">
-                <input
-                  type="checkbox"
-                  checked={setup.selectedCountries.includes(country)}
-                  onChange={() => handleCountryToggle(country)}
+
+          <div className="quiz-setup-filter-group">
+            <h3>Настройки вопросов</h3>
+            <div className="quiz-setup-questions-row">
+              <div className="quiz-setup-question-types">
+                <FilterDropdown
+                  title="Типы вопросов"
+                  items={QUESTION_TYPES.map(t => t.label)}
+                  selectedItems={setup.questionTypes.map(type => QUESTION_TYPE_LABELS[type] || type)}
+                  onSelectionChange={(selectedLabels) => {
+                    const selectedValues = selectedLabels.map(label => 
+                      Object.keys(QUESTION_TYPE_LABELS).find(key => QUESTION_TYPE_LABELS[key] === label) || label
+                    );
+                    handleQuestionTypesChange(selectedValues);
+                  }}
+                  icon="❓"
+                  textLabel="Типы"
                 />
-                <span>{country}</span>
-              </label>
-            ))}
+              </div>
+              <div className="quiz-setup-question-count">
+                <label className="quiz-count-label">Количество:</label>
+                <div className="quiz-setup-count-selector">
+                  {QUESTION_COUNTS.map(count => (
+                    <button
+                      key={count}
+                      className={`quiz-count-button ${setup.questionCount === count ? 'selected' : ''}`}
+                      onClick={() => handleQuestionCountChange(count)}
+                    >
+                      {count}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="quiz-setup-section">
-          <div className="quiz-setup-section-header">
-            <h3>Категории</h3>
-            <div className="quiz-setup-controls">
-              <button 
-                type="button" 
-                onClick={selectAllCategories}
-                className="quiz-setup-button"
-              >
-                Все
-              </button>
-              <button 
-                type="button" 
-                onClick={clearAllCategories}
-                className="quiz-setup-button"
-              >
-                Очистить
-              </button>
-            </div>
+        <div className="quiz-setup-summary">
+          <h3>Сводка настроек</h3>
+          <div className="quiz-summary-item">
+            <span className="quiz-summary-label">Страны:</span>
+            <span className="quiz-summary-value">
+              {setup.selectedCountries.length === 0 ? 'Все' : `${setup.selectedCountries.length} выбрано`}
+            </span>
           </div>
-          <div className="quiz-setup-options">
-            {allCategories.map(category => (
-              <label key={category} className="quiz-setup-option">
-                <input
-                  type="checkbox"
-                  checked={setup.selectedCategories.includes(category)}
-                  onChange={() => handleCategoryToggle(category)}
-                />
-                <span>{category}</span>
-              </label>
-            ))}
+          <div className="quiz-summary-item">
+            <span className="quiz-summary-label">Категории:</span>
+            <span className="quiz-summary-value">
+              {setup.selectedCategories.length === 0 ? 'Все' : `${setup.selectedCategories.length} выбрано`}
+            </span>
+          </div>
+          <div className="quiz-summary-item">
+            <span className="quiz-summary-label">Типы вопросов:</span>
+            <span className="quiz-summary-value">
+              {setup.questionTypes.length === 0 ? 'Все' : setup.questionTypes.map(type => QUESTION_TYPE_LABELS[type] || type).join(', ')}
+            </span>
+          </div>
+          <div className="quiz-summary-item">
+            <span className="quiz-summary-label">Количество вопросов:</span>
+            <span className="quiz-summary-value">{setup.questionCount}</span>
           </div>
         </div>
       </div>
@@ -151,7 +159,7 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
           disabled={!canStart}
           className="quiz-start-button"
         >
-          Начать игру
+          Начать игру ({setup.questionCount} вопросов)
         </button>
       </div>
     </div>

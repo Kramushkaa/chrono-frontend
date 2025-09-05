@@ -4,6 +4,7 @@ import { useQuizData } from '../hooks/useQuizData';
 import { useQuiz } from '../hooks/useQuiz';
 import { QuizSetup } from '../components/QuizSetup';
 import { QuizResults } from '../components/QuizResults';
+import { QuizProgress } from '../components/QuizProgress';
 import { BirthYearQuestion } from '../components/QuestionTypes/BirthYearQuestion';
 import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion';
 import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion';
@@ -44,7 +45,9 @@ const QuizPage: React.FC = () => {
   } = useQuiz(persons, allCategories, allCountries);
 
   const currentQuestion = questions[currentQuestionIndex];
-  const canStart = filteredPersons.length > 0;
+  const canStart = filteredPersons.length > 0 && 
+    setup.questionTypes.length > 0 && 
+    setup.questionCount > 0;
 
   const handleBackToMenu = () => {
     navigate('/menu');
@@ -131,8 +134,16 @@ const QuizPage: React.FC = () => {
           handleSliderMouseUp={() => {}}
           isDraggingSlider={false}
           onBackToMenu={handleBackToMenu}
-          extraFilterControls={
-            <div className="quiz-progress">
+          extraRightControls={
+            <div style={{
+              padding: '0.4rem 0.8rem',
+              background: 'rgba(139, 69, 19, 0.2)',
+              border: '1px solid rgba(139, 69, 19, 0.4)',
+              borderRadius: '6px',
+              color: '#f4e4c1',
+              fontSize: '0.9rem',
+              fontWeight: '600'
+            }}>
               Загрузка...
             </div>
           }
@@ -175,8 +186,16 @@ const QuizPage: React.FC = () => {
           handleSliderMouseUp={() => {}}
           isDraggingSlider={false}
           onBackToMenu={handleBackToMenu}
-          extraFilterControls={
-            <div className="quiz-progress">
+          extraRightControls={
+            <div style={{
+              padding: '0.4rem 0.8rem',
+              background: 'rgba(139, 69, 19, 0.2)',
+              border: '1px solid rgba(139, 69, 19, 0.4)',
+              borderRadius: '6px',
+              color: '#f4e4c1',
+              fontSize: '0.9rem',
+              fontWeight: '600'
+            }}>
               Настройка игры
             </div>
           }
@@ -225,8 +244,16 @@ const QuizPage: React.FC = () => {
           handleSliderMouseUp={() => {}}
           isDraggingSlider={false}
           onBackToMenu={handleBackToMenu}
-          extraFilterControls={
-            <div className="quiz-progress">
+          extraRightControls={
+            <div style={{
+              padding: '0.4rem 0.8rem',
+              background: 'rgba(139, 69, 19, 0.2)',
+              border: '1px solid rgba(139, 69, 19, 0.4)',
+              borderRadius: '6px',
+              color: '#f4e4c1',
+              fontSize: '0.9rem',
+              fontWeight: '600'
+            }}>
               Результаты
             </div>
           }
@@ -273,10 +300,12 @@ const QuizPage: React.FC = () => {
           handleSliderMouseUp={() => {}}
           isDraggingSlider={false}
           onBackToMenu={handleBackToMenu}
-          extraFilterControls={
-            <div className="quiz-progress">
-              {questions.length > 0 ? `Вопрос ${currentQuestionIndex + 1} из ${questions.length}` : 'Игра'}
-            </div>
+          extraRightControls={
+            <QuizProgress
+              currentQuestion={currentQuestionIndex + 1}
+              totalQuestions={questions.length}
+              isQuizActive={isQuizActive}
+            />
           }
         />
         
@@ -319,8 +348,16 @@ const QuizPage: React.FC = () => {
         handleSliderMouseUp={() => {}}
         isDraggingSlider={false}
         onBackToMenu={handleBackToMenu}
-        extraFilterControls={
-          <div className="quiz-progress">
+        extraRightControls={
+          <div style={{
+            padding: '0.4rem 0.8rem',
+            background: 'rgba(139, 69, 19, 0.2)',
+            border: '1px solid rgba(139, 69, 19, 0.4)',
+            borderRadius: '6px',
+            color: '#f4e4c1',
+            fontSize: '0.9rem',
+            fontWeight: '600'
+          }}>
             Ошибка
           </div>
         }

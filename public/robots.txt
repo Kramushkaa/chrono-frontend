@@ -7,6 +7,7 @@ Disallow: /auth
 Allow: /
 Allow: /timeline
 Allow: /lists
+Allow: /quiz
 
 # Sitemap
 Sitemap: https://chrono.ninja/sitemap.xml
@@ -22,3 +23,7 @@ Disallow: /api/
 Allow: /static/
 Allow: /images/
 Allow: /favicon.ico
+
+# Additional SEO directives
+Allow: /manifest.json
+Allow: /sw.js

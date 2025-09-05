@@ -1,6 +1,8 @@
 export interface QuizSetupConfig {
   selectedCountries: string[];
   selectedCategories: string[];
+  questionTypes: string[];
+  questionCount: number;
 }
 
 export interface QuizQuestion {
