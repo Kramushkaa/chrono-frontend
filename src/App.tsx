@@ -31,6 +31,9 @@ import { useAuth } from 'shared/context/AuthContext'
 import { DTO_VERSION as DTO_VERSION_FE } from './dto'
 import { Toasts } from 'shared/ui/Toasts'
 import { SEO } from 'shared/ui/SEO'
+import { useDtoVersionWarning } from './hooks/useDtoVersionWarning'
+import { useUnauthorizedToast } from './hooks/useUnauthorizedToast'
+import { useAchievementTooltipDismiss } from './hooks/useAchievementTooltipDismiss'
 
 // Lazy-loaded chunks to reduce initial JS on the menu route
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
@@ -256,66 +259,18 @@ function AppInner() {
     } catch {}
   }, [location.pathname, location.search, location.hash])
 
+  useDtoVersionWarning(DTO_VERSION_FE)
+  useUnauthorizedToast()
   useEffect(() => {
-    // DTO drift detection (non-blocking)
-    (async () => {
-      try {
-        const v = await getDtoVersion()
-        if (v && v !== DTO_VERSION_FE) {
-          // eslint-disable-next-line no-console
-          console.warn(`⚠️ DTO Version Mismatch: Frontend=${DTO_VERSION_FE}, Backend=${v}. Please update versions to avoid data inconsistencies.`)
-        }
-      } catch {}
-    })()
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop
       setIsScrolled(scrollTop > 50)
     }
-
     window.addEventListener('scroll', handleScroll)
-    // Global 401 handler from apiFetch
-    const onUnauthorized = () => {
-      try { showToast('Сессия истекла. Пожалуйста, войдите снова.', 'error', 5000) } catch {}
-    }
-    window.addEventListener('auth:unauthorized', onUnauthorized as any)
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('auth:unauthorized', onUnauthorized as any)
-    }
-  }, [showToast])
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
-  useEffect(() => {
-    const handleCloseAchievementTooltip = () => {
-      handleAchievementHover(null, 0, 0);
-    };
-
-    const handleClickOutside = (event: Event) => {
-      const target = event.target as Element;
-      const tooltip = document.getElementById('achievement-tooltip');
-      const isClickInsideTooltip = tooltip?.contains(target);
-      const isClickOnMarker = target.closest('.achievement-marker');
-      
-      if (!isClickInsideTooltip && !isClickOnMarker && showAchievementTooltip) {
-        if (event.type === 'touchstart') {
-          setTimeout(() => {
-            handleAchievementHover(null, 0, 0);
-          }, 100);
-        } else {
-          handleAchievementHover(null, 0, 0);
-        }
-      }
-    };
-
-    window.addEventListener('closeAchievementTooltip', handleCloseAchievementTooltip);
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
-    
-    return () => {
-      window.removeEventListener('closeAchievementTooltip', handleCloseAchievementTooltip);
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
-    };
-  }, [handleAchievementHover, showAchievementTooltip]);
+  useAchievementTooltipDismiss(showAchievementTooltip, handleAchievementHover)
 
   const { minYear, totalYears, effectiveMinYear, effectiveMaxYear } = useMemo(() => {
     const minYear = Math.min(...sortedData.map(p => p.birthYear), filters.timeRange.start)
