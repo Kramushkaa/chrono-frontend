@@ -25,7 +25,7 @@ import {
 import './App.css'
 import { ToastProvider } from 'shared/context/ToastContext'
 import { useToast } from 'shared/context/ToastContext'
-import { getDtoVersion, apiData, resolveListShare } from 'shared/api/api'
+import { apiData } from 'shared/api/api'
 import { useLists } from 'features/manage/hooks/useLists'
 import { useAuth } from 'shared/context/AuthContext'
 import { DTO_VERSION as DTO_VERSION_FE } from './dto'
@@ -34,6 +34,8 @@ import { SEO } from 'shared/ui/SEO'
 import { useDtoVersionWarning } from './hooks/useDtoVersionWarning'
 import { useUnauthorizedToast } from './hooks/useUnauthorizedToast'
 import { useAchievementTooltipDismiss } from './hooks/useAchievementTooltipDismiss'
+import { useListSelection } from 'features/timeline/hooks/useListSelection'
+import { ListSelector } from 'features/timeline/components/ListSelector'
 
 // Lazy-loaded chunks to reduce initial JS on the menu route
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
@@ -72,9 +74,7 @@ function AppInner() {
   } = useFilters()
   
   // Disable global persons fetch when a specific list is selected
-  const [selectedListId, setSelectedListId] = useState<number | null>(null)
-  const [selectedListKey, setSelectedListKey] = useState<string>('')
-  const { persons, allCategories, allCountries, isLoading } = useTimelineData(filters, isTimeline && !selectedListId)
+  const { persons, allCategories, allCountries, isLoading } = useTimelineData(filters, isTimeline)
 
   const { 
     isDraggingSlider, 
@@ -127,90 +127,15 @@ function AppInner() {
 
   // Sidebar lists (user-owned) — reuse shared hook
   const { personLists } = useLists({ isAuthenticated, userId: user?.id ? String(user.id) : null, apiData })
-
-  // Optional list persons (from /timeline?ids=p1,p2 or /timeline?list=ID) — include approved + pending + draft
-  const [listPersons, setListPersons] = useState<any[] | null>(null)
-  const [sharedListMeta, setSharedListMeta] = useState<{ code: string; title: string; listId?: number } | null>(null)
-  useEffect(() => {
-    if (!isTimeline) return
-    const usp = new URLSearchParams(window.location.search)
-    const idsParam = usp.get('ids')
-    const shareParam = usp.get('share')
-    const listParam = usp.get('list') || shareParam
-    const listId = listParam ? Number(listParam) : NaN
-    ;(async () => {
-      if (shareParam) {
-        try {
-          const resolved = await resolveListShare(shareParam)
-          if (resolved?.owner_user_id && isAuthenticated && user?.id && String(user.id) === resolved.owner_user_id && resolved.list_id) {
-            // If shared list is own, open as owned list to enable full interactions
-            setSelectedListId(resolved.list_id)
-            setListPersons(null)
-            setSharedListMeta(null)
-            setSelectedListKey(`list:${resolved.list_id}`)
-            return
-          }
-          const items: Array<{ item_type: string; person_id?: string }> = resolved?.items || []
-          const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
-          if (ids.length === 0) { setSelectedListId(null); setListPersons([]); return }
-          const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
-          setSelectedListId(null)
-          setListPersons(arr)
-          setSharedListMeta({ code: shareParam, title: resolved?.title || 'Список', listId: undefined })
-          setSelectedListKey(`share:${shareParam}`)
-          return
-        } catch (e: any) {
-          showToast(e?.message || 'Не удалось загрузить общий список', 'error')
-          setSelectedListId(null)
-          setListPersons([])
-          setSharedListMeta(null)
-          setSelectedListKey('')
-          return
-        }
-      }
-      if (idsParam && idsParam.trim().length > 0) {
-        // Public share by explicit ids (no auth required)
-        try {
-          const ids = idsParam.split(',').map(s => s.trim()).filter(Boolean)
-          if (ids.length === 0) { setListPersons([]); setSelectedListId(null); return }
-          const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
-          setSelectedListId(null)
-          setListPersons(arr)
-        } catch (e: any) { showToast(e?.message || 'Не удалось загрузить выбранных личностей', 'error'); setSelectedListId(null); setListPersons([]) }
-      } else if (Number.isFinite(listId) && listId > 0) {
-        setSelectedListId(listId)
-        try {
-          // Load list items (auth required)
-          const items = await apiData<Array<{ item_type: string; person_id?: string }>>(`/api/lists/${listId}/items`)
-          const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
-          if (ids.length === 0) { setListPersons([]); return }
-          // Load persons by ids (no approval filter)
-          const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
-          setListPersons(arr)
-        } catch (e: any) { showToast(e?.message || 'Не удалось загрузить содержимое списка', 'error'); setListPersons([]) }
-        setSharedListMeta(null)
-        setSelectedListKey(`list:${listId}`)
-      } else {
-        setSelectedListId(null)
-        setListPersons(null)
-        setSharedListMeta(null)
-        setSelectedListKey('')
-      }
-    })()
-  }, [isTimeline, location.search, isAuthenticated, user?.id, showToast])
-  // When user picks a list from the UI
-  useEffect(() => {
-    if (!selectedListId) return
-    ;(async () => {
-      try {
-        const items = await apiData<Array<{ item_type: string; person_id?: string }>>(`/api/lists/${selectedListId}/items`)
-        const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
-        if (ids.length === 0) { setListPersons([]); return }
-        const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
-        setListPersons(arr)
-      } catch (e: any) { showToast(e?.message || 'Не удалось загрузить содержимое списка', 'error'); setListPersons([]) }
-    })()
-  }, [selectedListId, showToast])
+  // Centralized list selection management
+  const {
+    selectedListId,
+    selectedListKey,
+    listPersons,
+    sharedListMeta,
+    setSelectedListId,
+    handleListChange
+  } = useListSelection(isTimeline, isAuthenticated, user?.id ? String(user.id) : null)
 
   const effectivePersons = useMemo(() => (listPersons !== null ? listPersons : persons), [listPersons, persons])
   const sortedData = sortGroupedData(effectivePersons as any, groupingType)
@@ -532,51 +457,14 @@ function AppInner() {
           isDraggingSlider={isDraggingSlider}
           onBackToMenu={handleBackToMenu}
           extraFilterControls={(
-            <select
-              value={selectedListKey || (selectedListId ? `list:${selectedListId}` : '')}
-              onChange={(e) => {
-                const v = e.target.value
-                if (!v) {
-                  setSelectedListId(null)
-                  setListPersons(null)
-                  setSharedListMeta(null)
-                  setSelectedListKey('')
-                  const usp = new URLSearchParams(window.location.search)
-                  usp.delete('list'); usp.delete('share')
-                  window.history.replaceState(null, '', `/timeline${usp.toString() ? `?${usp.toString()}` : ''}`)
-                } else {
-                  if (v.startsWith('share:')) {
-                    const code = v.slice('share:'.length)
-                    setSelectedListId(null)
-                    setSelectedListKey(v)
-                    const usp = new URLSearchParams(window.location.search)
-                    usp.set('share', code)
-                    usp.delete('list')
-                    window.history.replaceState(null, '', `/timeline?${usp.toString()}`)
-                  } else if (v.startsWith('list:')) {
-                    const id = Number(v.slice('list:'.length))
-                    if (Number.isFinite(id) && id > 0) {
-                      setSelectedListId(id)
-                      setSelectedListKey(`list:${id}`)
-                      setSharedListMeta(null)
-                      const usp = new URLSearchParams(window.location.search)
-                      usp.set('list', String(id))
-                      usp.delete('share')
-                      window.history.replaceState(null, '', `/timeline?${usp.toString()}`)
-                    }
-                  }
-                }
-              }}
-              style={{ padding: '4px 8px', minWidth: 160 }}
-            >
-              <option value="">Все</option>
-              {sharedListMeta ? (
-                <option value={`share:${sharedListMeta.code}`}>🔒 {sharedListMeta.title}</option>
-              ) : null}
-              {isAuthenticated ? personLists.map(l => (
-                <option key={l.id} value={`list:${l.id}`}>{l.title}</option>
-              )) : null}
-            </select>
+            <ListSelector
+              isAuthenticated={isAuthenticated}
+              personLists={personLists}
+              selectedListId={selectedListId}
+              selectedListKey={selectedListKey}
+              sharedListMeta={sharedListMeta}
+              onChange={handleListChange}
+            />
           )}
         />
 
