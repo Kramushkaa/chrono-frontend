@@ -39,6 +39,7 @@ import { TimelineHeaderContainer } from 'features/timeline/containers/TimelineHe
 
 // Lazy-loaded chunks to reduce initial JS on the menu route
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
+const MenuPage = React.lazy(() => import('./pages/MenuPage'))
 const ProfilePage = React.lazy(() => import('features/auth/pages/ProfilePage'))
 const RegisterPage = React.lazy(() => import('features/auth/pages/RegisterPage'))
 const ManagePage = React.lazy(() => import('features/manage/pages/ManagePage'))
@@ -414,12 +415,7 @@ function AppInner() {
 
   // Рендерим главное меню
   if (isMenu) {
-    return (
-      <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Главное меню">
-        <MainMenu onOpenTimeline={handleOpenTimeline} />
-        {/* Убрали прямые формы с меню – используем dropdown UserMenu */}
-      </div>
-    )
+    return <MenuPage />
   }
 
   // Рендерим таймлайн
@@ -435,7 +431,7 @@ export default function App() {
         <React.Suspense fallback={<div className="loading-overlay" role="status" aria-live="polite"><div className="spinner" aria-hidden="true"></div><span>Загрузка...</span></div>}>
           <Routes>
             <Route path="/" element={<Navigate to="/timeline" replace />} />
-            <Route path="/menu" element={<AppInner />} />
+            <Route path="/menu" element={<MenuPage />} />
             <Route path="/timeline" element={<TimelinePage />} />
             <Route path="/quiz" element={<QuizPage />} />
             <Route path="/lists" element={<ManagePage />} />
