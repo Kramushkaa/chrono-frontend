@@ -100,6 +100,12 @@ export const ItemCard = React.memo(function ItemCard({
         </div>
       )}
       
+      {year !== undefined && year !== null && (
+        <div style={{ fontSize: 14 }}>
+          {year}
+        </div>
+      )}
+      
       {(startYear || endYear) && (
         <div style={{ fontSize: 14 }}>
           {startYear ?? '—'} — {endYear ?? '—'}

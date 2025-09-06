@@ -1,7 +1,6 @@
 import React from 'react'
 import { LeftMenuSelection } from './LeftMenu'
 import { LeftMenuLayout } from './LeftMenuLayout'
-// import { ListItemsView } from 'shared/ui/ListItemsView'
 
 type Props = {
   // Layout control

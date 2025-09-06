@@ -267,8 +267,9 @@ export default function ManagePage() {
   }, [activeTab, menuSelection])
 
   // Состояния для списков
-  type MixedItem = { key: string; listItemId: number; type: 'person' | 'achievement' | 'period'; person?: Person | null; achievement?: any | null; periodId?: number | null; title: string; subtitle?: string }
+  type MixedItem = { key: string; listItemId: number; type: 'person' | 'achievement' | 'period'; person?: Person | null; achievement?: any | null; periodId?: number | null; period?: any | null; title: string; subtitle?: string }
   const [listItems, setListItems] = useState<MixedItem[]>([])
+  const listItemIdByDomainIdRef = useRef<Map<string, number>>(new Map())
   const [listLoading, setListLoading] = useState(false)
 
   // Подготовка опций для селектов
@@ -394,11 +395,20 @@ export default function ManagePage() {
             if (pr?.person_name) headerParts.push(pr.person_name)
             if (pr?.country_name) headerParts.push(pr.country_name)
             const header = headerParts.join(' • ')
-            return { key: `pr:${it.period_id}:${it.id}`, listItemId: it.id, type: 'period', person: null, achievement: null, periodId: it.period_id || null, title: header || `Период #${it.period_id}`, subtitle: pr ? `${pr.period_type === 'ruler' ? 'Правление' : pr.period_type === 'life' ? 'Жизнь' : pr.period_type} — ${pr.start_year}—${pr.end_year ?? '—'}` : undefined }
+            return { key: `pr:${it.period_id}:${it.id}`, listItemId: it.id, type: 'period', person: null, achievement: null, periodId: it.period_id || null, period: pr, title: header || `Период #${it.period_id}`, subtitle: pr ? `${pr.period_type === 'ruler' ? 'Правление' : pr.period_type === 'life' ? 'Жизнь' : pr.period_type} — ${pr.start_year}—${pr.end_year ?? '—'}` : undefined }
           }
           return { key: `x:${it.id}`, listItemId: it.id, type: 'person', person: null, achievement: null, periodId: null, title: '—', subtitle: undefined }
         })
-        if (!aborted) setListItems(normalized)
+        if (!aborted) {
+          setListItems(normalized)
+          const m = new Map<string, number>()
+          for (const it of normalized) {
+            if (it.type === 'person' && it.person?.id) m.set(String(it.person.id), it.listItemId)
+            if (it.type === 'achievement' && it.achievement?.id != null) m.set(String(it.achievement.id), it.listItemId)
+            if (it.type === 'period' && it.periodId != null) m.set(String(it.periodId), it.listItemId)
+          }
+          listItemIdByDomainIdRef.current = m
+        }
       } catch {
         if (!aborted) setListItems([])
       } finally {
@@ -506,14 +516,22 @@ export default function ManagePage() {
                     setSelectedListId={setSelectedListId}
                     loadUserLists={(force?: boolean) => loadUserLists.current?.(force) as any}
                     showToast={showToast}
-                    itemsAll={personsAll}
-                    isLoadingAll={isPersonsLoadingAll}
-                    hasMoreAll={personsHasMoreAll}
-                    loadMoreAll={loadMorePersonsAll}
-                    itemsMine={personsAlt}
-                    isLoadingMine={personsAltLoading}
-                    hasMoreMine={personsAltHasMore}
-                    loadMoreMine={loadMorePersonsAlt}
+                    data={((menuSelection as string).startsWith('list:')) ? {
+                      items: listItems.filter(i => i.type === 'person').map(i => i.person).filter(Boolean) as any[],
+                      isLoading: listLoading,
+                      hasMore: false,
+                      loadMore: () => {}
+                    } : (menuSelection === 'mine') ? {
+                      items: personsAlt,
+                      isLoading: personsAltLoading,
+                      hasMore: personsAltHasMore,
+                      loadMore: loadMorePersonsAlt
+                    } : {
+                      items: personsAll,
+                      isLoading: isPersonsLoadingAll,
+                      hasMore: personsHasMoreAll,
+                      loadMore: loadMorePersonsAll
+                    }}
                     searchQuery={searchPersons}
                     setSearchQuery={setSearchPersons}
                     categories={categories}
@@ -525,6 +543,7 @@ export default function ManagePage() {
                     listLoading={listLoading}
                     listItems={listItems}
                     onDeleteListItem={handleDeleteListItem}
+                    getListItemIdByDisplayId={(id) => listItemIdByDomainIdRef.current.get(String(id))}
                     onSelect={(p) => setSelected(p)}
                     onPersonSelect={(person) => setSelected(person)}
                     onAddItem={(id) => addToList.openForPerson({ id } as any)}
@@ -609,14 +628,12 @@ export default function ManagePage() {
                   setSelectedListId={setSelectedListId}
                   loadUserLists={(force?: boolean) => loadUserLists.current?.(force) as any}
                   showToast={showToast}
-                  itemsAll={achievementsData.items}
-                  isLoadingAll={achievementsData.isLoading}
-                  hasMoreAll={achievementsData.hasMore}
-                  loadMoreAll={achievementsData.loadMore}
-                  itemsMine={achievementsMineData.items}
-                  isLoadingMine={achievementsMineData.isLoading}
-                  hasMoreMine={achievementsMineData.hasMore}
-                  loadMoreMine={achievementsMineData.loadMore}
+                  data={((menuSelection as string).startsWith('list:')) ? {
+                    items: listItems.filter(i => i.type === 'achievement').map(i => i.achievement).filter(Boolean) as any[],
+                    isLoading: listLoading,
+                    hasMore: false,
+                    loadMore: () => {}
+                  } : (menuSelection === 'mine') ? achievementsMineData : achievementsData}
                   searchQuery={searchAch}
                   setSearchQuery={setSearchAch}
                   categories={[]} // TODO: добавить категории для достижений
@@ -629,6 +646,7 @@ export default function ManagePage() {
                   listItems={listItems}
                   setListItems={setListItems}
                   onDeleteListItem={handleDeleteListItem}
+                  getListItemIdByDisplayId={(id) => listItemIdByDomainIdRef.current.get(String(id))}
                   onSelect={(achievement) => {
                     // TODO: добавить обработку выбора достижения
                   }}
@@ -666,14 +684,12 @@ export default function ManagePage() {
                   setSelectedListId={setSelectedListId}
                   loadUserLists={(force?: boolean) => loadUserLists.current?.(force) as any}
                   showToast={showToast}
-                  itemsAll={periodsData.items}
-                  isLoadingAll={periodsData.isLoading}
-                  hasMoreAll={periodsData.hasMore}
-                  loadMoreAll={periodsData.loadMore}
-                  itemsMine={periodsMineData.items}
-                  isLoadingMine={periodsMineData.isLoading}
-                  hasMoreMine={periodsMineData.hasMore}
-                  loadMoreMine={periodsMineData.loadMore}
+                  data={((menuSelection as string).startsWith('list:')) ? {
+                    items: listItems.filter(i => i.type === 'period').map(i => i.period).filter(Boolean) as any[],
+                    isLoading: listLoading,
+                    hasMore: false,
+                    loadMore: () => {}
+                  } : (menuSelection === 'mine') ? periodsMineData : periodsData}
                   searchQuery={searchPeriods}
                   setSearchQuery={setSearchPeriods}
                   categories={[]} // TODO: добавить категории для периодов
@@ -686,6 +702,7 @@ export default function ManagePage() {
                   listItems={listItems}
                   setListItems={setListItems}
                   onDeleteListItem={handleDeleteListItem}
+                  getListItemIdByDisplayId={(id) => listItemIdByDomainIdRef.current.get(String(id))}
                   onSelect={(period) => {
                     // TODO: добавить обработку выбора периода
                   }}

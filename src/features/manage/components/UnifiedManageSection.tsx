@@ -26,15 +26,13 @@ interface UnifiedManageSectionProps {
   loadUserLists: (force?: boolean) => Promise<void>;
   showToast: (m: string, t?: 'success' | 'error' | 'info') => void;
 
-  // Data
-  itemsAll: any[];
-  isLoadingAll: boolean;
-  hasMoreAll: boolean;
-  loadMoreAll: () => void;
-  itemsMine: any[];
-  isLoadingMine: boolean;
-  hasMoreMine: boolean;
-  loadMoreMine: () => void;
+  // Unified data provider for current mode ("Все"/"Мои")
+  data: {
+    items: any[];
+    isLoading: boolean;
+    hasMore: boolean;
+    loadMore: () => void;
+  };
 
   // Search and filters
   searchQuery: string;
@@ -51,6 +49,7 @@ interface UnifiedManageSectionProps {
   listItems: any[];
   setListItems?: (items: any[]) => void;
   onDeleteListItem?: (listItemId: number) => Promise<void> | void;
+  getListItemIdByDisplayId?: (id: string | number) => number | undefined;
 
   // Actions
   onSelect: (item: any) => void;
@@ -84,14 +83,7 @@ export function UnifiedManageSection({
   setSelectedListId,
   loadUserLists,
   showToast,
-  itemsAll,
-  isLoadingAll,
-  hasMoreAll,
-  loadMoreAll,
-  itemsMine,
-  isLoadingMine,
-  hasMoreMine,
-  loadMoreMine,
+  data,
   searchQuery,
   setSearchQuery,
   categories,
@@ -104,6 +96,7 @@ export function UnifiedManageSection({
   listItems,
   setListItems,
   onDeleteListItem,
+  getListItemIdByDisplayId,
   onSelect,
   onPersonSelect,
   onAddItem,
@@ -226,97 +219,58 @@ export function UnifiedManageSection({
             )}
             
             <div className="search-and-filters__count" style={{ fontSize: 12, opacity: 0.8 }}>
-              Найдено: {modeIsList ? listItems.filter(i => i.type === itemType).length : 
-                       (modeIsMine ? itemsMine.length : itemsAll.length)}{!(modeIsList ? listLoading : (modeIsMine ? isLoadingMine : isLoadingAll)) && (modeIsList ? false : (modeIsMine ? hasMoreMine : hasMoreAll)) ? '+' : ''}
+              Найдено: {data.items.length}{!data.isLoading && data.hasMore ? '+' : ''}
             </div>
           </div>
         </div>
 
           <ItemsList
-            items={(() => {
-              // Выбираем источник данных в зависимости от режима
-              let sourceItems: any[]
-              if (modeIsList) {
-                // Для режима списка используем listItems
-                sourceItems = listItems.filter(i => i.type === itemType)
-              } else {
-                // Для режимов "Все" и "Мои" используем itemsAll/itemsMine
-                sourceItems = modeIsMine ? itemsMine : itemsAll
-              }
-
-              return sourceItems.map((item: any) => {
-                if (modeIsList) {
-                  // Для элементов списка используем listItemId как id
-                  return {
-                    id: item.listItemId,
-                    title: item.title,
-                    subtitle: item.subtitle,
-                    person: item.person,
-                    achievement: item.achievement,
-                    period: item.periodId ? { id: item.periodId } : undefined
-                  }
-                } else {
-                  // Для обычных элементов применяем преобразование по типу
-                  if (itemType === 'person') {
-                    return {
-                      id: item.id,
-                      title: item.name || '—',
-                      subtitle: item.country_name || item.countryName || '',
-                      startYear: item.birth_year || item.birthYear,
-                      endYear: item.death_year || item.deathYear,
-                      type: item.category || '',
-                      person: item
-                    }
-                  } else if (itemType === 'achievement') {
-                    // Формат как в AchievementsSection
-                    const title = item.title || item.person_name || item.country_name || ''
-                    return {
-                      id: item.id,
-                      title: title || '—',
-                      year: item.year,
-                      description: item.description,
-                      achievement: item
-                    }
-                  } else if (itemType === 'period') {
-                    // Формат как в PeriodsSection
-                    const personName = item.person_name ?? item.personName ?? ''
-                    const countryName = item.country_name ?? item.countryName ?? ''
-                    const type = item.period_type ?? item.periodType
-                    const start = item.start_year ?? item.startYear
-                    const end = item.end_year ?? item.endYear
-                    const headerParts: string[] = []
-                    if (personName) headerParts.push(personName)
-                    if (countryName) headerParts.push(countryName)
-                    const header = headerParts.join(' • ')
-                    
-                    return {
-                      id: item.id ?? `${personName}-${start}-${end}`,
-                      title: header || '—',
-                      type: type === 'ruler' ? 'Правление' : type === 'life' ? 'Жизнь' : (type || '—'),
-                      startYear: start,
-                      endYear: end,
-                      period: item
-                    }
-                  }
+            items={(data.items as any[]).map((item: any) => {
+              if (itemType === 'person') {
+                return {
+                  id: item.id,
+                  title: item.name || '—',
+                  subtitle: item.country || item.country_name || item.countryName || '',
+                  startYear: item.birthYear ?? item.birth_year,
+                  endYear: item.deathYear ?? item.death_year,
+                  type: item.category || '',
+                  person: item
                 }
-                return item
-              })
-            })()}
-            isLoading={modeIsList ? listLoading : (modeIsMine ? isLoadingMine : isLoadingAll)}
-            hasMore={modeIsList ? false : (modeIsMine ? hasMoreMine : hasMoreAll)}
-            onLoadMore={modeIsList ? () => {} : (modeIsMine ? loadMoreMine : loadMoreAll)}
+              } else if (itemType === 'achievement') {
+                const title = item.title || item.person_name || item.country_name || ''
+                return {
+                  id: item.id,
+                  title: title || '—',
+                  year: item.year,
+                  description: item.description,
+                  achievement: item
+                }
+              } else {
+                const personName = item.person_name ?? item.personName ?? ''
+                const countryName = item.country_name ?? item.countryName ?? ''
+                const type = item.period_type ?? item.periodType
+                const start = item.start_year ?? item.startYear
+                const end = item.end_year ?? item.endYear
+                const headerParts: string[] = []
+                if (personName) headerParts.push(personName)
+                if (countryName) headerParts.push(countryName)
+                const header = headerParts.join(' • ')
+                return {
+                  id: item.id ?? `${personName}-${start}-${end}`,
+                  title: header || '—',
+                  type: type === 'ruler' ? 'Правление' : type === 'life' ? 'Жизнь' : (type || '—'),
+                  startYear: start,
+                  endYear: end,
+                  period: item
+                }
+              }
+            })}
+            isLoading={(modeIsList ? listLoading : data.isLoading)}
+            hasMore={(modeIsList ? false : data.hasMore)}
+            onLoadMore={(modeIsList ? () => {} : data.loadMore)}
             onSelect={(id) => {
-              if (modeIsList) {
-                const item = listItems.find(i => i.listItemId === Number(id))
-                if (item && item.person && onPersonSelect) {
-                  onPersonSelect(item.person)
-                } else if (item && onSelect) {
-                  onSelect(item)
-                }
-              } else {
-                const item = (modeIsMine ? itemsMine : itemsAll).find((p: any) => p.id === id)
-                if (item) onSelect(item)
-              }
+              const item = (data.items as any[]).find((p: any) => String(p.id) === String(id))
+              if (item) onSelect(item)
             }}
             onPersonSelect={onPersonSelect}
             onAddToList={!modeIsList ? (id) => {
@@ -328,7 +282,10 @@ export function UnifiedManageSection({
             } : undefined}
             onRemoveFromList={modeIsList ? async (id) => {
               if (onDeleteListItem) {
-                await onDeleteListItem(Number(id))
+                const listItemId = (typeof getListItemIdByDisplayId === 'function') ? getListItemIdByDisplayId(id) : undefined
+                if (typeof listItemId === 'number') {
+                  await onDeleteListItem(listItemId)
+                }
               }
             } : undefined}
             isAuthenticated={isAuthenticated}
@@ -336,7 +293,7 @@ export function UnifiedManageSection({
             showAuthModal={() => setShowAuthModal(true)}
             showToast={showToast}
             isListMode={modeIsList}
-            emptyMessage={!isLoadingMine && modeIsMine && itemsMine.length === 0 
+            emptyMessage={!modeIsList && modeIsMine && !data.isLoading && data.items.length === 0 
               ? "Здесь будут отображаться созданные или отредактированные вами элементы"
               : emptyMessage
             }

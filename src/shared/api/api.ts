@@ -10,7 +10,6 @@ const getApiConfig = () => {
     ? window.localStorage.getItem('FORCE_API_URL') || undefined
     : undefined;
   const forcedApiUrl = lsForcedApiUrl || process.env.REACT_APP_FORCE_API_URL;
-  const logEnabled = process.env.REACT_APP_LOG_API_CALLS === 'true' && isDevelopment;
   
   // URL для разных окружений
   const LOCAL_BACKEND_URL = process.env.REACT_APP_LOCAL_BACKEND_URL || 'http://localhost:3001';
