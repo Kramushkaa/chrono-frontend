@@ -30,7 +30,7 @@ export function usePersonsPagedV2(query: UsePersonsPagedQuery, enabled: boolean 
     if (typeof query.startYear === 'number') params.startYear = String(query.startYear)
     if (typeof query.endYear === 'number') params.endYear = String(query.endYear)
     return params
-  }, [query, queryKey])
+  }, [query])
 
   // Обработка ошибок с fallback логикой
   const handleError = useCallback(async (error: Error, endpoint: string) => {
