@@ -65,6 +65,7 @@ export default function ManagePage() {
     personsAlt,
     personsAltLoading,
     personsAltHasMore,
+    loadMorePersonsAlt,
     searchAch,
     setSearchAch,
     searchPeriods,
@@ -512,7 +513,7 @@ export default function ManagePage() {
                     itemsMine={personsAlt}
                     isLoadingMine={personsAltLoading}
                     hasMoreMine={personsAltHasMore}
-                    loadMoreMine={() => {}} // TODO: implement
+                    loadMoreMine={loadMorePersonsAlt}
                     searchQuery={searchPersons}
                     setSearchQuery={setSearchPersons}
                     categories={categories}

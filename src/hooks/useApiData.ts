@@ -67,6 +67,22 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
   const loadingRef = useRef(false)
   const offsetRef = useRef(0)
   const cacheRef = useRef<Map<string, CacheEntry<T>>>(new Map())
+  const responseReceivedRef = useRef(false)
+
+  // Стабильная сериализация queryParams (только если enabled)
+  const queryParamsString = useMemo(() => {
+    if (!enabled) {
+      return ''
+    }
+    if (typeof queryParams !== 'object' || queryParams === null || Array.isArray(queryParams)) {
+      return ''
+    }
+    // Сортируем ключи для стабильной сериализации
+    const sortedEntries = Object.entries(queryParams)
+      .filter(([_, value]) => value !== undefined && value !== null && value !== '')
+      .sort(([a], [b]) => a.localeCompare(b))
+    return JSON.stringify(sortedEntries)
+  }, [queryParams, enabled])
 
   // Генерация ключа кэша
   const effectiveCacheKey = useMemo(() => {
@@ -74,40 +90,43 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
       return ''
     }
     
+    console.log('🔍 useApiData: effectiveCacheKey useMemo', { endpoint, enabled, queryParamsString });
+    
     if (cacheKey) {
       return cacheKey
     }
     
-    // Проверяем, что queryParams - это объект
-    if (typeof queryParams !== 'object' || queryParams === null || Array.isArray(queryParams)) {
-      console.error('🔄 useApiData: queryParams is not an object!', { queryParams, type: typeof queryParams })
-      return `${endpoint}?invalid-params`
-    }
-    
-    const params = new URLSearchParams()
-    Object.entries(queryParams).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        params.set(key, String(value))
-      }
-    })
-    const paramsString = params.toString()
-    const key = paramsString ? `${endpoint}?${paramsString}` : endpoint
+    // Если нет параметров (пустой массив), используем только endpoint
+    const key = queryParamsString && queryParamsString !== '[]' ? `${endpoint}?${queryParamsString}` : endpoint
+    console.log('🔍 useApiData: generated effectiveCacheKey', { endpoint, key, queryParamsString });
     return key
-  }, [endpoint, cacheKey, queryParams, enabled])
+  }, [endpoint, cacheKey, queryParamsString, enabled])
 
   // Функция загрузки данных
   const fetchData = useCallback(async (offset: number, isInitial = false) => {
-    if (!enabled || loadingRef.current) return
+    console.log('🔍 useApiData: fetchData called', { endpoint, offset, isInitial, enabled, loadingRef: loadingRef.current });
+    if (!enabled || loadingRef.current) {
+      console.log('🔍 useApiData: fetchData blocked', { enabled, loadingRef: loadingRef.current });
+      return
+    }
 
+    console.log('🔍 useApiData: starting fetch', { endpoint, offset, isInitial });
 
-    // Отменяем предыдущий запрос
-    if (abortControllerRef.current) {
+    // Отменяем предыдущий запрос только если он еще выполняется и не получил ответ
+    if (abortControllerRef.current && !abortControllerRef.current.signal.aborted && !responseReceivedRef.current) {
+      console.log('🔍 useApiData: aborting previous request', { endpoint });
       abortControllerRef.current.abort()
     }
 
     const controller = new AbortController()
     abortControllerRef.current = controller
     loadingRef.current = true
+    responseReceivedRef.current = false
+    
+    // Добавляем обработчик отмены
+    controller.signal.addEventListener('abort', () => {
+      console.log('🔍 useApiData: request aborted by signal', { endpoint, url: `${endpoint}?limit=${pageSize}&offset=${offset}` });
+    });
 
     setState(prev => ({
       ...prev,
@@ -117,10 +136,12 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
     }))
 
     try {
+      console.log('🔍 useApiData: checking cache', { effectiveCacheKey, isInitial, offset });
       // Проверяем кэш для первой страницы
       if (isInitial && offset === 0) {
         const cached = cacheRef.current.get(effectiveCacheKey)
         if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
+          console.log('🔍 useApiData: using cached data', { cachedLength: cached.data.length });
           setState(prev => ({
             ...prev,
             items: cached.data,
@@ -146,14 +167,32 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
       })
 
       const url = `${endpoint}?${params.toString()}`
+      console.log('🔍 useApiData: making request', { url, endpoint, queryParams });
       
       const response = await apiFetch(url, { signal: controller.signal })
+      console.log('🔍 useApiData: got response', { url, status: response.status, ok: response.ok, aborted: controller.signal.aborted });
       
-      if (controller.signal.aborted) return
+      // Отмечаем, что ответ получен
+      responseReceivedRef.current = true;
+      
+      if (controller.signal.aborted) {
+        console.log('🔍 useApiData: request aborted after response', { url });
+        return
+      }
 
-      const data = await response.json().catch(() => ({ data: [] }))
+      console.log('🔍 useApiData: parsing response', { url, status: response.status });
+      const data = await response.json().catch((error) => {
+        console.log('🔍 useApiData: json parse error', { error, url });
+        return { data: [] }
+      })
       const rawItems = data?.data || []
       const transformedItems = transformData ? transformData(rawItems) : rawItems
+      console.log('🔍 useApiData: received response', { endpoint, url, dataLength: rawItems.length, transformedLength: transformedItems.length, sampleItems: rawItems.slice(0, 2) });
+      
+      if (controller.signal.aborted) {
+        console.log('🔍 useApiData: request aborted before state update', { url });
+        return
+      }
 
 
       if (controller.signal.aborted) return
@@ -181,6 +220,7 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
         // Обновляем состояние
         const newItems = isInitial ? finalItems : []
         const hasMore = finalItems.length >= pageSize
+        console.log('🔍 useApiData: updating state', { endpoint, isInitial, newItemsLength: newItems.length, finalItemsLength: finalItems.length, hasMore });
 
         setState(prev => ({
           ...prev,
@@ -232,7 +272,7 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
     if (state.hasMore && !state.isLoading && !loadingRef.current) {
       fetchData(offsetRef.current, false)
     }
-  }, [state.hasMore, state.isLoading])
+  }, [state.hasMore, state.isLoading, fetchData])
 
   // Сброс данных
   const reset = useCallback(() => {
@@ -258,19 +298,30 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
     fetchData(0, true)
   }, [reset, fetchData])
 
-  // Сброс при изменении конфигурации
+  // Сброс при изменении конфигурации с задержкой
   useEffect(() => {
-    // Очищаем кэш при изменении ключа
-    cacheRef.current.clear()
-    reset()
-  }, [effectiveCacheKey, reset])
+    console.log('🚨 useApiData: effectiveCacheKey changed', { endpoint, effectiveCacheKey, enabled });
+    
+    // Добавляем небольшую задержку для предотвращения множественных сбросов
+    const timeoutId = setTimeout(() => {
+      console.log('🚨 useApiData: executing reset after delay', { endpoint, effectiveCacheKey });
+      // Очищаем кэш при изменении ключа
+      cacheRef.current.clear()
+      reset()
+    }, 10); // Очень короткая задержка
+    
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [effectiveCacheKey, reset, enabled, endpoint])
 
   // Начальная загрузка после сброса
   useEffect(() => {
-    if (enabled && !state.isLoading && !loadingRef.current) {
+    // Триггерим начальную загрузку, когда включено и состояние ожидает initial fetch
+    if (enabled && state.isInitialLoading && !state.isLoading && !loadingRef.current) {
       fetchData(0, true)
     }
-  }, [enabled, state.isLoading, effectiveCacheKey])
+  }, [enabled, state.isInitialLoading, state.isLoading, effectiveCacheKey, fetchData])
 
 
   // Очистка при размонтировании

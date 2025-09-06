@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useAchievements } from 'hooks/useAchievements';
 import { usePeriods } from 'hooks/usePeriods';
 import { usePersonsPagedV2 } from 'features/persons/hooks/usePersonsPagedV2';
@@ -39,27 +39,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     rejected: false
   });
 
-  // Мемоизируем объекты фильтров для предотвращения бесконечных циклов
-  const periodsStatusFiltersMemo = useMemo(() => periodsStatusFilters, [periodsStatusFilters]);
 
-  // Подготовка фильтров для каждого типа данных
-  const personsFilters = useMemo(() => ({
-    search: searchPersons,
-    categories: filters.categories,
-    countries: filters.countries,
-    status: statusFilters
-  }), [searchPersons, filters.categories, filters.countries, statusFilters]);
-
-  const achievementsFilters = useMemo(() => ({
-    search: searchAch,
-    status: achStatusFilters
-  }), [searchAch, achStatusFilters]);
-
-  const periodsFilters = useMemo(() => ({
-    search: searchPeriods,
-    type: periodType,
-    status: periodsStatusFiltersMemo
-  }), [searchPeriods, periodType, periodsStatusFiltersMemo]);
 
   // Определяем, активен ли режим 'mine' или 'pending'
   const isMineOrPendingMode = menuSelection === 'mine' || menuSelection === 'pending';
@@ -99,60 +79,109 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   );
 
   // Данные для режимов 'mine' и 'pending' (используем прямой вызов useApiData)
+  // Создаем стабильный ключ для отслеживания изменений параметров "Mine" данных
+  const personsMineQueryKey = useMemo(() => JSON.stringify({
+    search: searchPersons,
+    categories: filters.categories,
+    countries: filters.countries,
+    status: statusFilters
+  }), [searchPersons, filters.categories, filters.countries, statusFilters]);
+
   // Загружаем данные для "Моих" всегда, чтобы счетчики работали правильно
   const personsMineResult = useApiData({
     endpoint: '/api/persons/mine',
-    enabled: isAuthenticated && activeTab === 'persons' && menuSelection === 'mine',
+    enabled: isAuthenticated, // Загружаем всегда для счетчиков
     pageSize: 100,
     queryParams: useMemo(() => {
-      const params = {
-        ...(searchPersons && { search: searchPersons }),
-        ...(activeTab === 'persons' && filters.categories.length && { category: filters.categories.join(',') }),
-        ...(activeTab === 'persons' && filters.countries.length && { country: filters.countries.join(',') }),
-        ...(Object.entries(statusFilters).some(([_, checked]) => checked) && {
-          status: Object.entries(statusFilters)
-            .filter(([_, checked]) => checked)
-            .map(([status, _]) => status)
-            .join(',')
-        })
+      const params: Record<string, string> = {};
+      
+      // Для счетчиков загружаем все данные, фильтры применяем только если активна соответствующая вкладка и режим
+      const shouldApplyFilters = activeTab === 'persons' && menuSelection === 'mine';
+      
+      if (shouldApplyFilters && searchPersons) params.q = searchPersons;
+      if (shouldApplyFilters && filters.categories.length) params.category = filters.categories.join(',');
+      if (shouldApplyFilters && filters.countries.length) params.country = filters.countries.join(',');
+      if (shouldApplyFilters && Object.entries(statusFilters).some(([_, checked]) => checked)) {
+        params.status = Object.entries(statusFilters)
+          .filter(([_, checked]) => checked)
+          .map(([status, _]) => status)
+          .join(',');
       }
-      return params
-    }, [searchPersons, filters.categories, filters.countries, statusFilters, activeTab])
+      
+      console.log('🔍 useManagePageData: personsMine queryParams', { params, shouldApplyFilters, activeTab, menuSelection, searchPersons, filters, statusFilters });
+      return params;
+    }, [activeTab, menuSelection, searchPersons, filters, statusFilters])
   });
   const personsMineState = personsMineResult[0];
   const personsMineActions = personsMineResult[1];
+  
+  // Логируем состояние "Моих" данных для отладки
+  console.log('🔍 useManagePageData: personsMineState', { 
+    itemsLength: personsMineState.items.length, 
+    isLoading: personsMineState.isLoading, 
+    hasMore: personsMineState.hasMore,
+    enabled: isAuthenticated && activeTab === 'persons' && menuSelection === 'mine',
+    activeTab,
+    menuSelection,
+    items: personsMineState.items.slice(0, 3) // Показываем первые 3 элемента для проверки
+  });
+
+  // Создаем стабильный ключ для достижений
+  const achievementsMineQueryKey = useMemo(() => JSON.stringify({
+    search: searchAch,
+    status: achStatusFilters
+  }), [searchAch, achStatusFilters]);
 
   const achievementsMineResult = useApiData({
     endpoint: '/api/achievements/mine',
-    enabled: isAuthenticated && activeTab === 'achievements' && menuSelection === 'mine',
+    enabled: isAuthenticated, // Загружаем всегда для счетчиков
     pageSize: 100,
-    queryParams: useMemo(() => ({
-      ...(searchAch && { search: searchAch }),
-      ...(Object.entries(achStatusFilters).some(([_, checked]) => checked) && {
-        status: Object.entries(achStatusFilters)
+    queryParams: useMemo(() => {
+      const params: Record<string, string> = {};
+      
+      // Для счетчиков загружаем все данные, фильтры применяем только если активна соответствующая вкладка и режим
+      const shouldApplyFilters = activeTab === 'achievements' && menuSelection === 'mine';
+      
+      if (shouldApplyFilters && searchAch) params.q = searchAch;
+      if (shouldApplyFilters && Object.entries(achStatusFilters).some(([_, checked]) => checked)) {
+        params.status = Object.entries(achStatusFilters)
           .filter(([_, checked]) => checked)
           .map(([status, _]) => status)
-          .join(',')
-      })
-    }), [searchAch, achStatusFilters])
+          .join(',');
+      }
+      return params;
+    }, [activeTab, menuSelection, searchAch, achStatusFilters])
   });
   const achievementsMineState = achievementsMineResult[0];
   const achievementsMineActions = achievementsMineResult[1];
 
+  // Создаем стабильный ключ для периодов
+  const periodsMineQueryKey = useMemo(() => JSON.stringify({
+    search: searchPeriods,
+    type: periodType,
+    status: periodsStatusFilters
+  }), [searchPeriods, periodType, periodsStatusFilters]);
+
   const periodsMineResult = useApiData({
     endpoint: '/api/periods/mine',
-    enabled: isAuthenticated && activeTab === 'periods' && menuSelection === 'mine',
+    enabled: isAuthenticated, // Загружаем всегда для счетчиков
     pageSize: 100,
-    queryParams: useMemo(() => ({
-      ...(searchPeriods && { search: searchPeriods }),
-      ...(periodType && { type: periodType }),
-      ...(Object.entries(periodsStatusFilters).some(([_, checked]) => checked) && {
-        status: Object.entries(periodsStatusFilters)
+    queryParams: useMemo(() => {
+      const params: Record<string, string> = {};
+      
+      // Для счетчиков загружаем все данные, фильтры применяем только если активна соответствующая вкладка и режим
+      const shouldApplyFilters = activeTab === 'periods' && menuSelection === 'mine';
+      
+      if (shouldApplyFilters && searchPeriods) params.q = searchPeriods;
+      if (shouldApplyFilters && periodType) params.type = periodType;
+      if (shouldApplyFilters && Object.entries(periodsStatusFilters).some(([_, checked]) => checked)) {
+        params.status = Object.entries(periodsStatusFilters)
           .filter(([_, checked]) => checked)
           .map(([status, _]) => status)
-          .join(',')
-      })
-    }), [searchPeriods, periodType, periodsStatusFilters])
+          .join(',');
+      }
+      return params;
+    }, [activeTab, menuSelection, searchPeriods, periodType, periodsStatusFilters])
   });
   const periodsMineState = periodsMineResult[0];
   const periodsMineActions = periodsMineResult[1];
