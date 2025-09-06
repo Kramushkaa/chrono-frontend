@@ -103,23 +103,13 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
           .join(',');
       }
       
-      console.log('🔍 useManagePageData: personsMine queryParams', { params, shouldApplyFilters, activeTab, menuSelection, searchPersons, filters, statusFilters });
       return params;
     }, [activeTab, menuSelection, searchPersons, filters, statusFilters])
   });
   const personsMineState = personsMineResult[0];
   const personsMineActions = personsMineResult[1];
   
-  // Логируем состояние "Моих" данных для отладки
-  console.log('🔍 useManagePageData: personsMineState', { 
-    itemsLength: personsMineState.items.length, 
-    isLoading: personsMineState.isLoading, 
-    hasMore: personsMineState.hasMore,
-    enabled: isAuthenticated && activeTab === 'persons' && menuSelection === 'mine',
-    activeTab,
-    menuSelection,
-    items: personsMineState.items.slice(0, 3) // Показываем первые 3 элемента для проверки
-  });
+  // Логи для отладки убраны
 
   // Создаем стабильный ключ для достижений
   // removed unused achievementsMineQueryKey

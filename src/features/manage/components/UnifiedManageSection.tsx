@@ -116,15 +116,7 @@ export function UnifiedManageSection({
   const modeIsMine = menuSelection === 'mine';
   const modeIsList = menuSelection.startsWith('list:');
   
-  // Логируем данные для отладки
-  console.log('🔍 UnifiedManageSection: data debug', { 
-    modeIsMine, 
-    modeIsList, 
-    itemsAllLength: itemsAll.length, 
-    itemsMineLength: itemsMine.length,
-    menuSelection,
-    itemType
-  });
+  // Логи для отладки убраны
 
 
   return (

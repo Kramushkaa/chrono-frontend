@@ -90,31 +90,23 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
       return ''
     }
     
-    console.log('🔍 useApiData: effectiveCacheKey useMemo', { endpoint, enabled, queryParamsString });
-    
     if (cacheKey) {
       return cacheKey
     }
     
     // Если нет параметров (пустой массив), используем только endpoint
     const key = queryParamsString && queryParamsString !== '[]' ? `${endpoint}?${queryParamsString}` : endpoint
-    console.log('🔍 useApiData: generated effectiveCacheKey', { endpoint, key, queryParamsString });
     return key
   }, [endpoint, cacheKey, queryParamsString, enabled])
 
   // Функция загрузки данных
   const fetchData = useCallback(async (offset: number, isInitial = false) => {
-    console.log('🔍 useApiData: fetchData called', { endpoint, offset, isInitial, enabled, loadingRef: loadingRef.current });
     if (!enabled || loadingRef.current) {
-      console.log('🔍 useApiData: fetchData blocked', { enabled, loadingRef: loadingRef.current });
       return
     }
 
-    console.log('🔍 useApiData: starting fetch', { endpoint, offset, isInitial });
-
     // Отменяем предыдущий запрос только если он еще выполняется и не получил ответ
     if (abortControllerRef.current && !abortControllerRef.current.signal.aborted && !responseReceivedRef.current) {
-      console.log('🔍 useApiData: aborting previous request', { endpoint });
       abortControllerRef.current.abort()
     }
 
@@ -124,9 +116,7 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
     responseReceivedRef.current = false
     
     // Добавляем обработчик отмены
-    controller.signal.addEventListener('abort', () => {
-      console.log('🔍 useApiData: request aborted by signal', { endpoint, url: `${endpoint}?limit=${pageSize}&offset=${offset}` });
-    });
+    controller.signal.addEventListener('abort', () => {});
 
     setState(prev => ({
       ...prev,
@@ -136,12 +126,10 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
     }))
 
     try {
-      console.log('🔍 useApiData: checking cache', { effectiveCacheKey, isInitial, offset });
       // Проверяем кэш для первой страницы
       if (isInitial && offset === 0) {
         const cached = cacheRef.current.get(effectiveCacheKey)
         if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
-          console.log('🔍 useApiData: using cached data', { cachedLength: cached.data.length });
           setState(prev => ({
             ...prev,
             items: cached.data,
@@ -167,30 +155,22 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
       })
 
       const url = `${endpoint}?${params.toString()}`
-      console.log('🔍 useApiData: making request', { url, endpoint, queryParams });
       
       const response = await apiFetch(url, { signal: controller.signal })
-      console.log('🔍 useApiData: got response', { url, status: response.status, ok: response.ok, aborted: controller.signal.aborted });
       
       // Отмечаем, что ответ получен
       responseReceivedRef.current = true;
       
       if (controller.signal.aborted) {
-        console.log('🔍 useApiData: request aborted after response', { url });
         return
       }
-
-      console.log('🔍 useApiData: parsing response', { url, status: response.status });
       const data = await response.json().catch((error) => {
-        console.log('🔍 useApiData: json parse error', { error, url });
         return { data: [] }
       })
       const rawItems = data?.data || []
       const transformedItems = transformData ? transformData(rawItems) : rawItems
-      console.log('🔍 useApiData: received response', { endpoint, url, dataLength: rawItems.length, transformedLength: transformedItems.length, sampleItems: rawItems.slice(0, 2) });
       
       if (controller.signal.aborted) {
-        console.log('🔍 useApiData: request aborted before state update', { url });
         return
       }
 
@@ -220,7 +200,6 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
         // Обновляем состояние
         const newItems = isInitial ? finalItems : []
         const hasMore = finalItems.length >= pageSize
-        console.log('🔍 useApiData: updating state', { endpoint, isInitial, newItemsLength: newItems.length, finalItemsLength: finalItems.length, hasMore });
 
         setState(prev => ({
           ...prev,
@@ -300,11 +279,8 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
 
   // Сброс при изменении конфигурации с задержкой
   useEffect(() => {
-    console.log('🚨 useApiData: effectiveCacheKey changed', { endpoint, effectiveCacheKey, enabled });
-    
     // Добавляем небольшую задержку для предотвращения множественных сбросов
     const timeoutId = setTimeout(() => {
-      console.log('🚨 useApiData: executing reset after delay', { endpoint, effectiveCacheKey });
       // Очищаем кэш при изменении ключа
       cacheRef.current.clear()
       reset()
