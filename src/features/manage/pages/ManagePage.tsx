@@ -306,7 +306,7 @@ export default function ManagePage() {
     } catch {
       // Игнорируем ошибки загрузки статистики
     }
-  }, [isAuthenticated, personLists, apiData])
+  }, [isAuthenticated, personLists])
 
   // Загружаем статистику при изменении списков или аутентификации
   useEffect(() => {

@@ -108,27 +108,7 @@ export function MobileListsLayout(props: Props) {
     return getGroupColor(category)
   }
 
-  const handleDeleteListItem = async (listItemId: number) => {
-    if (!selectedListId) return
-    
-    if (onDeleteListItem) {
-      await onDeleteListItem(listItemId)
-      return
-    }
-    
-    // Default delete behavior
-    try {
-      const res = await fetch(`/api/lists/${selectedListId}/items/${listItemId}`, { method: 'DELETE' })
-      if (res.ok) {
-        await loadUserLists()
-        showToast('Удалено из списка', 'success')
-      } else {
-        showToast('Не удалось удалить', 'error')
-      }
-    } catch {
-      showToast('Не удалось удалить', 'error')
-    }
-  }
+  // Удаление элемента из списка обрабатывается в секции, здесь обработчик не используется
 
   const handleDeleteList = async (id: number) => {
     try {
