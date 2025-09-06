@@ -3,6 +3,7 @@ import { useAchievements } from 'hooks/useAchievements';
 import { usePeriods } from 'hooks/usePeriods';
 import { usePersonsPagedV2 } from 'features/persons/hooks/usePersonsPagedV2';
 import { useApiData } from 'hooks/useApiData';
+import { buildMineParams } from 'features/manage/utils/queryParams';
 
 type Tab = 'persons' | 'achievements' | 'periods';
 type MenuSelection = 'all' | 'pending' | 'mine' | `list:${number}`;
@@ -88,22 +89,13 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     enabled: isAuthenticated, // Загружаем всегда для счетчиков
     pageSize: 100,
     queryParams: useMemo(() => {
-      const params: Record<string, string> = {};
-      
-      // Для счетчиков загружаем все данные, фильтры применяем только если активна соответствующая вкладка и режим
       const shouldApplyFilters = activeTab === 'persons' && menuSelection === 'mine';
-      
-      if (shouldApplyFilters && searchPersons) params.q = searchPersons;
-      if (shouldApplyFilters && filters.categories.length) params.category = filters.categories.join(',');
-      if (shouldApplyFilters && filters.countries.length) params.country = filters.countries.join(',');
-      if (shouldApplyFilters && Object.entries(statusFilters).some(([_, checked]) => checked)) {
-        params.status = Object.entries(statusFilters)
-          .filter(([_, checked]) => checked)
-          .map(([status, _]) => status)
-          .join(',');
-      }
-      
-      return params;
+      return buildMineParams(shouldApplyFilters, {
+        q: searchPersons,
+        categoryList: filters.categories,
+        countryList: filters.countries,
+        statusMap: statusFilters
+      });
     }, [activeTab, menuSelection, searchPersons, filters, statusFilters])
   });
   const personsMineState = personsMineResult[0];
@@ -119,19 +111,11 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     enabled: isAuthenticated, // Загружаем всегда для счетчиков
     pageSize: 100,
     queryParams: useMemo(() => {
-      const params: Record<string, string> = {};
-      
-      // Для счетчиков загружаем все данные, фильтры применяем только если активна соответствующая вкладка и режим
       const shouldApplyFilters = activeTab === 'achievements' && menuSelection === 'mine';
-      
-      if (shouldApplyFilters && searchAch) params.q = searchAch;
-      if (shouldApplyFilters && Object.entries(achStatusFilters).some(([_, checked]) => checked)) {
-        params.status = Object.entries(achStatusFilters)
-          .filter(([_, checked]) => checked)
-          .map(([status, _]) => status)
-          .join(',');
-      }
-      return params;
+      return buildMineParams(shouldApplyFilters, {
+        q: searchAch,
+        statusMap: achStatusFilters
+      });
     }, [activeTab, menuSelection, searchAch, achStatusFilters])
   });
   const achievementsMineState = achievementsMineResult[0];
@@ -145,20 +129,12 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     enabled: isAuthenticated, // Загружаем всегда для счетчиков
     pageSize: 100,
     queryParams: useMemo(() => {
-      const params: Record<string, string> = {};
-      
-      // Для счетчиков загружаем все данные, фильтры применяем только если активна соответствующая вкладка и режим
       const shouldApplyFilters = activeTab === 'periods' && menuSelection === 'mine';
-      
-      if (shouldApplyFilters && searchPeriods) params.q = searchPeriods;
-      if (shouldApplyFilters && periodType) params.type = periodType;
-      if (shouldApplyFilters && Object.entries(periodsStatusFilters).some(([_, checked]) => checked)) {
-        params.status = Object.entries(periodsStatusFilters)
-          .filter(([_, checked]) => checked)
-          .map(([status, _]) => status)
-          .join(',');
-      }
-      return params;
+      return buildMineParams(shouldApplyFilters, {
+        q: searchPeriods,
+        statusMap: periodsStatusFilters,
+        extra: { type: periodType || undefined }
+      });
     }, [activeTab, menuSelection, searchPeriods, periodType, periodsStatusFilters])
   });
   const periodsMineState = periodsMineResult[0];
