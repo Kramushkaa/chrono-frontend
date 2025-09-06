@@ -1,7 +1,7 @@
 import React from 'react'
 import { LeftMenuSelection } from './LeftMenu'
 import { MobileListsHeader } from './MobileListsHeader'
-import { ListItemsView } from 'shared/ui/ListItemsView'
+// import { ListItemsView } from 'shared/ui/ListItemsView'
 
 import { Person } from 'shared/types'
 import { PersonPanel } from 'features/persons/components/PersonPanel'
@@ -66,9 +66,9 @@ export function MobileListsLayout(props: Props) {
     loadUserLists,
     showToast,
     children,
-    listLoading,
-    listItems,
-    filterType,
+    // listLoading,
+    // listItems,
+    // filterType,
     onDeleteListItem,
     openAddForPerson,
     onAddElement

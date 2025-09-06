@@ -80,12 +80,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
 
   // Данные для режимов 'mine' и 'pending' (используем прямой вызов useApiData)
   // Создаем стабильный ключ для отслеживания изменений параметров "Mine" данных
-  const personsMineQueryKey = useMemo(() => JSON.stringify({
-    search: searchPersons,
-    categories: filters.categories,
-    countries: filters.countries,
-    status: statusFilters
-  }), [searchPersons, filters.categories, filters.countries, statusFilters]);
+  // removed unused personsMineQueryKey
 
   // Загружаем данные для "Моих" всегда, чтобы счетчики работали правильно
   const personsMineResult = useApiData({
@@ -127,10 +122,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   });
 
   // Создаем стабильный ключ для достижений
-  const achievementsMineQueryKey = useMemo(() => JSON.stringify({
-    search: searchAch,
-    status: achStatusFilters
-  }), [searchAch, achStatusFilters]);
+  // removed unused achievementsMineQueryKey
 
   const achievementsMineResult = useApiData({
     endpoint: '/api/achievements/mine',
@@ -156,11 +148,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   const achievementsMineActions = achievementsMineResult[1];
 
   // Создаем стабильный ключ для периодов
-  const periodsMineQueryKey = useMemo(() => JSON.stringify({
-    search: searchPeriods,
-    type: periodType,
-    status: periodsStatusFilters
-  }), [searchPeriods, periodType, periodsStatusFilters]);
+  // removed unused periodsMineQueryKey
 
   const periodsMineResult = useApiData({
     endpoint: '/api/periods/mine',

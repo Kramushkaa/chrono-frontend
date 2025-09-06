@@ -1,7 +1,7 @@
 import React from 'react'
 import { LeftMenuSelection } from './LeftMenu'
 import { LeftMenuLayout } from './LeftMenuLayout'
-import { ListItemsView } from 'shared/ui/ListItemsView'
+// import { ListItemsView } from 'shared/ui/ListItemsView'
 
 type Props = {
   // Layout control
@@ -58,9 +58,9 @@ export function DesktopListsLayout(props: Props) {
     loadUserLists,
     showToast,
     children,
-    listLoading,
-    listItems,
-    filterType,
+    // listLoading,
+    // listItems,
+    // filterType,
     onDeleteListItem
   } = props
 
