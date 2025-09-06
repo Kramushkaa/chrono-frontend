@@ -31,7 +31,7 @@ interface ItemsListProps {
   isListMode?: boolean
 }
 
-export function ItemsList({
+export const ItemsList = React.memo(function ItemsList({
   items,
   isLoading,
   hasMore,
@@ -135,4 +135,4 @@ export function ItemsList({
       )}
     </div>
   )
-}
+})

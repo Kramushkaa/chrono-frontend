@@ -24,7 +24,7 @@ interface ItemCardProps {
   style?: React.CSSProperties
 }
 
-export function ItemCard({
+export const ItemCard = React.memo(function ItemCard({
   id,
   title,
   subtitle,
@@ -134,4 +134,4 @@ export function ItemCard({
       )}
     </div>
   )
-}
+})
