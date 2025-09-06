@@ -85,7 +85,7 @@ export function SearchAndFilters({
           id={`${itemType}-search-input`}
           className="search-and-filters__input"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => setSearchQuery(e.target.value.replace(/\s+/g, ' ').trimStart())}
           placeholder={itemType === 'person' ? 'Поиск по имени/стране' : itemType === 'achievement' ? 'Поиск по достижениям/имени/стране' : 'Поиск по имени/стране'}
         />
 

@@ -14,9 +14,10 @@ export function usePersons(query: UsePersonsQuery, enabled: boolean = true) {
   // Формируем параметры запроса
   const queryParams = useMemo(() => {
     const params: Record<string, string> = {}
-    if (query.q) params.q = query.q
-    if (query.category) params.category = query.category
-    if (query.country) params.country = query.country
+    const q = (query.q || '').trim()
+    if (q.length > 0) params.q = q
+    if (query.category && query.category.trim().length > 0) params.category = query.category
+    if (query.country && query.country.trim().length > 0) params.country = query.country
     if (typeof query.startYear === 'number') params.startYear = String(query.startYear)
     if (typeof query.endYear === 'number') params.endYear = String(query.endYear)
     return params
