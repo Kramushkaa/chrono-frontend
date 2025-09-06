@@ -12,11 +12,13 @@ type Params = {
 
 export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFetch, apiData }: Params) {
   const [isOpen, setIsOpen] = useState(false)
+  const [pendingAddPersonId, setPendingAddPersonId] = useState<string | null>(null)
   const [pendingAddAchievementId, setPendingAddAchievementId] = useState<number | null>(null)
   const [pendingAddPeriodId, setPendingAddPeriodId] = useState<number | null>(null)
   const [includeLinked, setIncludeLinked] = useState(false)
 
   const openForPerson = useCallback((person: PersonRef) => {
+    setPendingAddPersonId(person?.id || null)
     setPendingAddAchievementId(null)
     setPendingAddPeriodId(null)
     setIncludeLinked(false)
@@ -42,14 +44,14 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
   const onAdd = useCallback(async (listId: number) => {
     const addingPeriodId = pendingAddPeriodId
     const addingAchievementId = pendingAddAchievementId
-    const addingPerson = getSelectedPerson()
-    if (!addingPerson && !addingAchievementId && !addingPeriodId) return
+    const addingPersonId = pendingAddPersonId ?? getSelectedPerson()?.id ?? null
+    if (!addingPersonId && !addingAchievementId && !addingPeriodId) return
     try {
       const payload = addingPeriodId
         ? { item_type: 'period', period_id: addingPeriodId }
         : addingAchievementId
         ? { item_type: 'achievement', achievement_id: addingAchievementId }
-        : { item_type: 'person', person_id: addingPerson!.id }
+        : { item_type: 'person', person_id: addingPersonId! }
       const res = await apiFetch(`/api/lists/${listId}/items`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
       })
@@ -58,11 +60,11 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
         if (data?.message === 'already_exists') showToast('Элемент уже есть в выбранном списке', 'info')
         else showToast('Добавлено в список', 'success')
         // If person and include-linked checked, bulk add achievements and periods
-        if (addingPerson && includeLinked) {
+        if (addingPersonId && includeLinked) {
           try {
             const [achJson, perJson] = await Promise.all([
-              apiData<any[]>(`/api/persons/${encodeURIComponent(addingPerson.id)}/achievements`),
-              apiData<any[]>(`/api/persons/${encodeURIComponent(addingPerson.id)}/periods`)
+              apiData<any[]>(`/api/persons/${encodeURIComponent(addingPersonId)}/achievements`),
+              apiData<any[]>(`/api/persons/${encodeURIComponent(addingPersonId)}/periods`)
             ])
             const achs: Array<{ id: number }> = Array.isArray(achJson) ? achJson : []
             const pers: Array<{ id: number }> = Array.isArray(perJson) ? perJson : []
@@ -78,6 +80,7 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
           }
         }
         close()
+        setPendingAddPersonId(null)
         setPendingAddAchievementId(null)
         setPendingAddPeriodId(null)
         setIncludeLinked(false)
@@ -89,7 +92,7 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
     } catch (e: any) {
       showToast(e?.message || 'Ошибка', 'error')
     }
-  }, [pendingAddAchievementId, pendingAddPeriodId, getSelectedPerson, includeLinked, apiFetch, apiData, showToast, reloadLists, close])
+  }, [pendingAddPersonId, pendingAddAchievementId, pendingAddPeriodId, getSelectedPerson, includeLinked, apiFetch, apiData, showToast, reloadLists, close])
 
   return {
     isOpen,
