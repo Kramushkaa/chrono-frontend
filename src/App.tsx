@@ -35,7 +35,7 @@ import { useDtoVersionWarning } from './hooks/useDtoVersionWarning'
 import { useUnauthorizedToast } from './hooks/useUnauthorizedToast'
 import { useAchievementTooltipDismiss } from './hooks/useAchievementTooltipDismiss'
 import { useListSelection } from 'features/timeline/hooks/useListSelection'
-import { ListSelector } from 'features/timeline/components/ListSelector'
+import { TimelineHeaderContainer } from 'features/timeline/containers/TimelineHeaderContainer'
 
 // Lazy-loaded chunks to reduce initial JS on the menu route
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
@@ -434,7 +434,7 @@ function AppInner() {
         image={typeof window !== 'undefined' ? window.location.origin + '/og-image.jpg' : undefined}
       />
       <React.Suspense fallback={<div className="loading-overlay" role="status" aria-live="polite"><div className="spinner" aria-hidden="true"></div><span>Загрузка...</span></div>}>
-        <AppHeader
+        <TimelineHeaderContainer
           isScrolled={isScrolled}
           showControls={showControls}
           setShowControls={setShowControls}
@@ -456,16 +456,12 @@ function AppInner() {
           handleSliderMouseUp={handleSliderMouseUp}
           isDraggingSlider={isDraggingSlider}
           onBackToMenu={handleBackToMenu}
-          extraFilterControls={(
-            <ListSelector
-              isAuthenticated={isAuthenticated}
-              personLists={personLists}
-              selectedListId={selectedListId}
-              selectedListKey={selectedListKey}
-              sharedListMeta={sharedListMeta}
-              onChange={handleListChange}
-            />
-          )}
+          isAuthenticated={isAuthenticated}
+          personLists={personLists}
+          selectedListId={selectedListId}
+          selectedListKey={selectedListKey}
+          sharedListMeta={sharedListMeta}
+          onListChange={handleListChange}
         />
 
         <div className="timeline-wrapper">
