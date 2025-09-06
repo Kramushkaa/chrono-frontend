@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { useMobile } from 'hooks/useMobile'
 import { Person } from 'shared/types'
 import { 
@@ -113,6 +113,36 @@ export const Timeline: React.FC<TimelineProps> = ({
   const [scrollTop, setScrollTop] = useState(0)
   const [viewportHeight, setViewportHeight] = useState(0)
 
+  // Throttled setters via requestAnimationFrame to reduce re-renders on frequent events
+  const mouseRafRef = useRef<number | null>(null)
+  const pendingMousePosRef = useRef<{ x: number; y: number } | null>(null)
+  const scheduleMousePosition = useCallback((x: number, y: number) => {
+    pendingMousePosRef.current = { x, y }
+    if (mouseRafRef.current == null) {
+      mouseRafRef.current = requestAnimationFrame(() => {
+        mouseRafRef.current = null
+        const p = pendingMousePosRef.current
+        if (p) setMousePosition(p)
+      })
+    }
+  }, [setMousePosition])
+
+  const achRafRef = useRef<number | null>(null)
+  const pendingAchPosRef = useRef<{ x: number; y: number } | null>(null)
+  const scheduleAchievementPosition = useCallback((x: number, y: number) => {
+    pendingAchPosRef.current = { x, y }
+    if (achRafRef.current == null) {
+      achRafRef.current = requestAnimationFrame(() => {
+        achRafRef.current = null
+        const p = pendingAchPosRef.current
+        if (p) setAchievementTooltipPosition(p)
+      })
+    }
+  }, [setAchievementTooltipPosition])
+
+  const scrollRafRef = useRef<number | null>(null)
+  const lastScrollTopRef = useRef(0)
+
   // Compute per-row heights and prefix offsets once per data change
   const ROW_HEIGHT = 60
   const ROW_MARGIN = 10
@@ -134,10 +164,17 @@ export const Timeline: React.FC<TimelineProps> = ({
     if (!el) return
     const measure = () => {
       setViewportHeight(el.clientHeight)
-      setScrollTop(el.scrollTop)
+      const st = el.scrollTop
+      if (scrollRafRef.current == null) {
+        scrollRafRef.current = requestAnimationFrame(() => {
+          scrollRafRef.current = null
+          setScrollTop(lastScrollTopRef.current)
+        })
+      }
+      lastScrollTopRef.current = st
     }
     measure()
-    const onScroll = () => setScrollTop(el.scrollTop)
+    const onScroll = () => measure()
     window.addEventListener('resize', measure)
     el.addEventListener('scroll', onScroll, { passive: true } as any)
     return () => {
@@ -748,7 +785,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                             
                             // Запускаем таймер для показа tooltip
                             hoverTimerRef.current = setTimeout(() => {
-                              setAchievementTooltipPosition({ x: e.clientX, y: e.clientY });
+                              scheduleAchievementPosition(e.clientX, e.clientY)
                               setHoveredAchievement({ person, year: year as number, index });
                               setShowAchievementTooltip(true);
                             }, 500);
@@ -778,7 +815,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                         }}
                         onMouseMove={(e) => {
                           if (!isMobile && hoveredAchievement && hoveredAchievement.person.id === person.id && hoveredAchievement.index === index) {
-                            setAchievementTooltipPosition({ x: e.clientX, y: e.clientY });
+                            scheduleAchievementPosition(e.clientX, e.clientY)
                           }
                         }}
                         onTouchStart={(e) => {
@@ -959,7 +996,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                     }}
                     onMouseMove={(e) => {
                       if (!isMobile && hoveredPerson?.id === person.id) {
-                        setMousePosition({ x: e.clientX, y: e.clientY })
+                        scheduleMousePosition(e.clientX, e.clientY)
                       }
                     }}
                     onKeyDown={(e) => {
