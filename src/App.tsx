@@ -43,9 +43,7 @@ const ProfilePage = React.lazy(() => import('features/auth/pages/ProfilePage'))
 const RegisterPage = React.lazy(() => import('features/auth/pages/RegisterPage'))
 const ManagePage = React.lazy(() => import('features/manage/pages/ManagePage'))
 const QuizPage = React.lazy(() => import('features/quiz/pages/QuizPage').then(m => ({ default: m.default })))
-const Timeline = React.lazy(() => import('features/timeline/components/Timeline').then(m => ({ default: m.Timeline })))
-const PersonPanel = React.lazy(() => import('features/persons/components/PersonPanel').then(m => ({ default: m.PersonPanel })))
-const Tooltips = React.lazy(() => import('features/timeline/components/Tooltips').then(m => ({ default: m.Tooltips })))
+const TimelinePage = React.lazy(() => import('pages/TimelinePage').then(m => ({ default: m.default })))
 const AppHeader = React.lazy(() => import('shared/layout/AppHeader').then(m => ({ default: m.AppHeader })))
 
 function AppInner() {
@@ -426,157 +424,7 @@ function AppInner() {
 
   // Рендерим таймлайн
   return (
-    <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Интерактивная временная линия исторических личностей">
-      <SEO
-        title="Хронониндзя — Временная линия исторических личностей"
-        description="Исследуйте биографии и достижения исторических личностей на интерактивной линии времени. Фильтры по странам и категориям."
-        canonical={typeof window !== 'undefined' ? window.location.origin + '/timeline' : undefined}
-        image={typeof window !== 'undefined' ? window.location.origin + '/og-image.jpg' : undefined}
-      />
-      <React.Suspense fallback={<div className="loading-overlay" role="status" aria-live="polite"><div className="spinner" aria-hidden="true"></div><span>Загрузка...</span></div>}>
-        <TimelineHeaderContainer
-          isScrolled={isScrolled}
-          showControls={showControls}
-          setShowControls={setShowControls}
-          filters={filters}
-          setFilters={setFilters}
-          groupingType={groupingType}
-          setGroupingType={setGroupingType}
-          allCategories={allCategories}
-          allCountries={allCountries}
-          yearInputs={yearInputs}
-          setYearInputs={setYearInputs}
-          applyYearFilter={applyYearFilter}
-          handleYearKeyPress={handleYearKeyPress}
-          resetAllFilters={resetAllFilters}
-          getCategoryColor={getGroupColor}
-          sortedData={sortedData}
-          handleSliderMouseDown={handleSliderMouseDown}
-          handleSliderMouseMove={handleSliderMouseMove}
-          handleSliderMouseUp={handleSliderMouseUp}
-          isDraggingSlider={isDraggingSlider}
-          onBackToMenu={handleBackToMenu}
-          isAuthenticated={isAuthenticated}
-          personLists={personLists}
-          selectedListId={selectedListId}
-          selectedListKey={selectedListKey}
-          sharedListMeta={sharedListMeta}
-          onListChange={handleListChange}
-        />
-
-        <div className="timeline-wrapper">
-          <main 
-            ref={timelineRef}
-            className={`timeline-container ${isDragging ? 'dragging' : ''}`}
-            id="timeline-viewport" 
-            role="region" 
-            aria-label="Область просмотра временной линии"
-          >
-            {isLoading && (
-              <div className="loading-overlay" role="status" aria-live="polite">
-                <div className="spinner" aria-hidden="true"></div>
-                <span>Загрузка данных...</span>
-              </div>
-            )}
-            <Timeline
-              isLoading={false}
-              timelineWidth={timelineWidth}
-              totalHeight={totalHeight}
-              centuryBoundaries={centuryBoundaries}
-              minYear={minYear}
-              pixelsPerYear={pixelsPerYear}
-              LEFT_PADDING_PX={LEFT_PADDING_PX}
-              rowPlacement={rowPlacement}
-              filters={filters}
-              groupingType={groupingType}
-              categoryDividers={categoryDividers}
-              getGroupColor={getGroupColor}
-              getGroupColorDark={getGroupColorDark}
-              getGroupColorMuted={getGroupColorMuted}
-              getPersonGroup={(person) => getPersonGroup(person, groupingType)}
-              hoveredPerson={hoveredPerson}
-              setHoveredPerson={(person: Person | null) => {
-                if (person) {
-                  handlePersonHover(person, mousePosition.x, mousePosition.y);
-                } else {
-                  handlePersonHover(null, 0, 0);
-                }
-              }}
-              mousePosition={mousePosition}
-              setMousePosition={(position: { x: number; y: number }) => {
-                if (hoveredPerson) {
-                  handlePersonHover(hoveredPerson, position.x, position.y);
-                }
-              }}
-              showTooltip={showTooltip}
-              setShowTooltip={(show: boolean) => {
-                if (!show && hoveredPerson) {
-                  handlePersonHover(null, 0, 0);
-                }
-              }}
-              activeAchievementMarker={activeAchievementMarker}
-              setActiveAchievementMarker={setActiveAchievementMarker}
-              hoveredAchievement={hoveredAchievement}
-              setHoveredAchievement={(achievement: { person: Person; year: number; index: number } | null) => {
-                if (achievement) {
-                  handleAchievementHover(achievement, achievementTooltipPosition.x, achievementTooltipPosition.y);
-                } else {
-                  handleAchievementHover(null, 0, 0);
-                }
-              }}
-              achievementTooltipPosition={achievementTooltipPosition}
-              setAchievementTooltipPosition={(position: { x: number; y: number }) => {
-                if (hoveredAchievement) {
-                  handleAchievementHover(hoveredAchievement, position.x, position.y);
-                }
-              }}
-              showAchievementTooltip={showAchievementTooltip}
-              setShowAchievementTooltip={(show: boolean) => {
-                if (!show && hoveredAchievement) {
-                  handleAchievementHover(null, 0, 0);
-                }
-              }}
-              handlePersonHover={handlePersonHover}
-              hoverTimerRef={hoverTimerRef}
-              sortedData={sortedData}
-              selectedPerson={selectedPerson}
-              setSelectedPerson={setSelectedPerson}
-              timelineRef={timelineRef}
-              isDragging={isDragging}
-              isDraggingTimeline={isDraggingTimeline}
-              handleMouseDown={handleMouseDown}
-              handleMouseMove={handleMouseMove}
-              handleMouseUp={handleMouseUp}
-              handleTouchStart={handleTouchStart}
-              handleTouchMove={handleTouchMove}
-              handleTouchEnd={handleTouchEnd}
-            />
-          </main>
-        </div>
-
-        <aside className="tooltips-container" id="tooltips-aside" aria-label="Информационные подсказки">
-          <Tooltips
-            hoveredPerson={hoveredPerson}
-            showTooltip={showTooltip}
-            mousePosition={mousePosition}
-            hoveredAchievement={hoveredAchievement}
-            showAchievementTooltip={showAchievementTooltip}
-            achievementTooltipPosition={achievementTooltipPosition}
-            getGroupColor={getGroupColor}
-            getPersonGroup={(person) => getPersonGroup(person, groupingType)}
-            getCategoryColor={getGroupColor}
-          />
-        </aside>
-
-        <PersonPanel
-          selectedPerson={selectedPerson}
-          onClose={() => setSelectedPerson(null)}
-          getGroupColor={getGroupColor}
-          getPersonGroup={(person) => getPersonGroup(person, groupingType)}
-          getCategoryColor={getGroupColor}
-        />
-      </React.Suspense>
-    </div>
+    <TimelinePage />
   )
 }
 
@@ -588,7 +436,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/timeline" replace />} />
             <Route path="/menu" element={<AppInner />} />
-            <Route path="/timeline" element={<AppInner />} />
+            <Route path="/timeline" element={<TimelinePage />} />
             <Route path="/quiz" element={<QuizPage />} />
             <Route path="/lists" element={<ManagePage />} />
             <Route path="/manage" element={<Navigate to="/lists" replace />} />
