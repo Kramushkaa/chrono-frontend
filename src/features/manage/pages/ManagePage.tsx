@@ -547,7 +547,6 @@ export default function ManagePage() {
                     onSelect={(p) => setSelected(p)}
                     onPersonSelect={(person) => setSelected(person)}
                     onAddItem={(id) => addToList.openForPerson({ id } as any)}
-                    onAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}
                     labelAll="Все личности"
                     itemType="person"
                     emptyMessage="Личности не найдены"
@@ -644,14 +643,12 @@ export default function ManagePage() {
                   setStatusFilters={setAchStatusFilters}
                   listLoading={listLoading}
                   listItems={listItems}
-                  setListItems={setListItems}
                   onDeleteListItem={handleDeleteListItem}
                   getListItemIdByDisplayId={(id) => listItemIdByDomainIdRef.current.get(String(id))}
                   onSelect={(achievement) => {
                     // TODO: добавить обработку выбора достижения
                   }}
                   onAddItem={(id) => addToList.openForAchievement(Number(id))}
-                  onAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}
                   labelAll="Все достижения"
                   itemType="achievement"
                   emptyMessage="Достижения не найдены"
@@ -700,14 +697,12 @@ export default function ManagePage() {
                   setStatusFilters={setPeriodsStatusFilters}
                   listLoading={listLoading}
                   listItems={listItems}
-                  setListItems={setListItems}
                   onDeleteListItem={handleDeleteListItem}
                   getListItemIdByDisplayId={(id) => listItemIdByDomainIdRef.current.get(String(id))}
                   onSelect={(period) => {
                     // TODO: добавить обработку выбора периода
                   }}
                   onAddItem={(id) => addToList.openForPeriod(Number(id))}
-                  onAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}
                   labelAll="Все периоды"
                   itemType="period"
                   emptyMessage="Периоды не найдены"

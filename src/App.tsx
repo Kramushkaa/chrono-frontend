@@ -262,7 +262,8 @@ function AppInner() {
       try {
         const v = await getDtoVersion()
         if (v && v !== DTO_VERSION_FE) {
-          // Optionally surface via toast in future
+          // eslint-disable-next-line no-console
+          console.warn(`⚠️ DTO Version Mismatch: Frontend=${DTO_VERSION_FE}, Backend=${v}. Please update versions to avoid data inconsistencies.`)
         }
       } catch {}
     })()

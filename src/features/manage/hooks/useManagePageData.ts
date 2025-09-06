@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAchievements } from 'hooks/useAchievements';
 import { usePeriods } from 'hooks/usePeriods';
-import { usePersonsPagedV2 } from 'features/persons/hooks/usePersonsPagedV2';
+import { usePersons } from 'hooks/usePersons';
 import { useApiData } from 'hooks/useApiData';
 import { buildMineParams } from 'features/manage/utils/queryParams';
 
@@ -60,7 +60,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     isLoading: isPersonsLoadingAll, 
     hasMore: personsHasMoreAll, 
     loadMore: loadMorePersonsAll 
-  } = usePersonsPagedV2(personsQuery, activeTab === 'persons' && menuSelection === 'all');
+  } = usePersons(personsQuery, activeTab === 'persons' && menuSelection === 'all');
 
   const { 
     items: achItemsAll, 

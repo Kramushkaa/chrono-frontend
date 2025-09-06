@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { ItemCard } from './ItemCard'
 
 interface ItemsListProps {
@@ -50,23 +50,32 @@ export const ItemsList = React.memo(function ItemsList({
   gridMinWidth = 260,
   isListMode = false
 }: ItemsListProps) {
-  const handleAddToList = (id: number | string) => {
+  const handleAddToList = useCallback((id: number | string) => {
     if (onAddToList) {
       onAddToList(id)
     }
-  }
+  }, [onAddToList])
 
-  const handleSelect = (id: number | string) => {
+  const handleSelect = useCallback((id: number | string) => {
     if (onSelect) {
       onSelect(id)
     }
-  }
+  }, [onSelect])
 
-  const handleRemoveFromList = (id: number | string) => {
+  const handleRemoveFromList = useCallback((id: number | string) => {
     if (onRemoveFromList) {
       onRemoveFromList(id)
     }
-  }
+  }, [onRemoveFromList])
+
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget as HTMLDivElement
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
+      if (!isLoading && hasMore) {
+        onLoadMore()
+      }
+    }
+  }, [isLoading, hasMore, onLoadMore])
 
   return (
     <div
@@ -75,14 +84,7 @@ export const ItemsList = React.memo(function ItemsList({
       role="region"
       aria-label="Список элементов"
       style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto', paddingRight: 6, ...style }}
-      onScroll={(e) => {
-        const el = e.currentTarget as HTMLDivElement
-        if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
-          if (!isLoading && hasMore) {
-            onLoadMore()
-          }
-        }
-      }}
+      onScroll={handleScroll}
     >
       {isLoading && items.length === 0 && <div>{loadingMessage}</div>}
       

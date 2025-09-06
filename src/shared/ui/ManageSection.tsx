@@ -2,46 +2,36 @@ import React from 'react'
 import { AdaptiveListsLayout } from 'features/manage/components/AdaptiveListsLayout'
 
 interface ManageSectionProps {
-  // Layout control
+  // Core layout and navigation
   sidebarCollapsed: boolean
-  
-  // Menu state
   menuSelection: string
   setMenuSelection: (sel: string) => void
   
-  // User info
+  // User authentication
   isAuthenticated: boolean
   isModerator: boolean
   pendingCount?: number | null
   mineCount?: number | null
   
-  // Lists
+  // Lists management
   personLists: any[]
   sharedList?: any
   selectedListId: number | null
   setSelectedListId: (id: number | null) => void
   loadUserLists: (force?: boolean) => Promise<void>
   
-  // Modals
+  // Modal controls
   setShowAuthModal: (show: boolean) => void
   setShowCreateList: (show: boolean) => void
-  setShowCreate?: (show: boolean) => void
-  createType?: 'person' | 'achievement' | 'period'
-  setCreateType?: (type: 'person' | 'achievement' | 'period') => void
   
-  // List items (for user-defined lists)
+  // List operations (only for user-defined lists)
   listItems?: any[]
   filterType?: 'person' | 'achievement' | 'period'
   listLoading?: boolean
   onDeleteListItem?: (listItemId: number) => Promise<void> | void
   
-  // Add to list functionality
-  openAddForPerson?: (person: any) => void
-  
   // Utilities
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void
-  
-  // Create modal trigger
   onAddElement?: () => void
   
   children: React.ReactNode
