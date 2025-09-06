@@ -60,8 +60,7 @@ export function DesktopListsLayout(props: Props) {
     children,
     // listLoading,
     // listItems,
-    // filterType,
-    onDeleteListItem
+    // filterType
   } = props
 
   // Удаление элемента из списка обрабатывается в секции, здесь обработчик не используется

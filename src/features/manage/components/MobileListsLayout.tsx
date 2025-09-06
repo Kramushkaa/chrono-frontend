@@ -69,7 +69,7 @@ export function MobileListsLayout(props: Props) {
     // listLoading,
     // listItems,
     // filterType,
-    onDeleteListItem,
+    // onDeleteListItem,
     openAddForPerson,
     onAddElement
   } = props
