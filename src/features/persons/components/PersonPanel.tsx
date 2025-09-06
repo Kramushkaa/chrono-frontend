@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Person } from 'shared/types'
-import { apiFetch } from 'shared/api/api'
+import { usePersonAchievements } from '../hooks/usePersonAchievements'
 
 interface PersonPanelProps {
   selectedPerson: Person | null
@@ -19,35 +19,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
   getCategoryColor,
   openAddForPerson
 }) => {
-  const [achievementsWikiFallback, setAchievementsWikiFallback] = useState<(string | null)[] | null>(null)
-
-  useEffect(() => {
-    let isMounted = true
-    async function loadAchievementsWiki() {
-      if (!selectedPerson) {
-        if (isMounted) setAchievementsWikiFallback(null)
-        return
-      }
-      if (selectedPerson.achievementsWiki && selectedPerson.achievementsWiki.length > 0) {
-        if (isMounted) setAchievementsWikiFallback(null)
-        return
-      }
-      try {
-        const res = await apiFetch(`/api/persons/${selectedPerson.id}/achievements`)
-        const data = await res.json().catch(() => null)
-        const items: Array<{ year: number; wikipedia_url?: string | null }> = data?.data || []
-        const allWiki = items
-          .slice()
-          .sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
-          .map(a => (a.wikipedia_url && a.wikipedia_url.trim().length > 0 ? a.wikipedia_url : null))
-        if (isMounted) setAchievementsWikiFallback(allWiki)
-      } catch {
-        if (isMounted) setAchievementsWikiFallback(null)
-      }
-    }
-    loadAchievementsWiki()
-    return () => { isMounted = false }
-  }, [selectedPerson])
+  const { achievementsWiki } = usePersonAchievements(selectedPerson)
 
   if (!selectedPerson) return null
 
@@ -362,7 +334,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
                 const achievementYear = Array.isArray(selectedPerson.achievementYears)
                   ? selectedPerson.achievementYears[index]
                   : undefined
-                const wiki = (selectedPerson.achievementsWiki?.[index] ?? achievementsWikiFallback?.[index]) || null
+                const wiki = (selectedPerson.achievementsWiki?.[index] ?? achievementsWiki?.[index]) || null
                 
                 return (
                   <div 

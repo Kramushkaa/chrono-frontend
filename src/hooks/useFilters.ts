@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
 export const useFilters = () => {
-  const [filters, setFilters] = useState(() => {
+  const [filters, setFiltersState] = useState(() => {
     const savedFilters = localStorage.getItem('chrononinja-filters');
     if (savedFilters) {
       const parsed = JSON.parse(savedFilters);
@@ -46,7 +46,7 @@ export const useFilters = () => {
   const applyYearFilter = useCallback((field: 'start' | 'end', value: string) => {
     const parsed = parseInt(value);
     const numValue = isNaN(parsed) ? (field === 'start' ? -800 : 2000) : parsed;
-    setFilters(prev => ({
+    setFiltersState((prev: any) => ({
       ...prev,
       timeRange: { ...prev.timeRange, [field]: numValue }
     }))
@@ -69,7 +69,7 @@ export const useFilters = () => {
   }, [applyYearFilter])
 
   const resetAllFilters = useCallback(() => {
-    setFilters({
+    setFiltersState({
       categories: [],
       countries: [],
       timeRange: { start: -800, end: 2000 },
@@ -85,6 +85,10 @@ export const useFilters = () => {
   const parseYearValue = useCallback((value: string, defaultValue: number): number => {
     const parsed = parseInt(value);
     return isNaN(parsed) ? defaultValue : parsed;
+  }, [])
+
+  const setFilters = useCallback((updater: any) => {
+    setFiltersState(updater)
   }, [])
 
   return {

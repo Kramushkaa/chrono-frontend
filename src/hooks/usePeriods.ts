@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef } from 'react'
-import { apiFetch } from 'shared/api/api'
-import { usePagedList } from './usePagedList'
+import { useMemo } from 'react'
+import { useApiData } from './useApiData'
 
 export type PeriodTile = {
   id: number
@@ -16,39 +15,29 @@ export type PeriodTile = {
 export function usePeriods(params: { query: string; type?: 'life' | 'ruler' | '' }, enabled: boolean = true) {
   const q = useMemo(() => params.query.trim(), [params.query])
   const t = useMemo(() => (params.type || '').trim(), [params.type])
-  // Simple in-memory cache (key by q|t for first page)
-  const CACHE_TTL_MS = 120000
-  const cacheKey = `${q}|${t}`
-  const cacheRef = useRef<Map<string, { ts: number; page0: PeriodTile[] }>>(
-    (typeof window !== 'undefined' && (window as any).__periodsCache) || new Map()
-  )
-  useEffect(() => { if (typeof window !== 'undefined') (window as any).__periodsCache = cacheRef.current }, [])
-
-  const { items, isLoading, hasMore, loadMore, reset } = usePagedList<PeriodTile>({
+  
+  const queryParams = useMemo(() => {
+    const result: Record<string, string> = {}
+    if (q.length > 0) result.q = q
+    if (t === 'life' || t === 'ruler') result.type = t
+    return result
+  }, [q, t])
+  
+  const [state, actions] = useApiData<PeriodTile>({
+    endpoint: '/api/periods',
     enabled,
-    queryKey: [q, t],
-    pageSize: 100,
-    dedupeBy: (i) => i.id,
-    fetchPage: async (offset, pageSize, signal) => {
-      if (offset === 0) {
-        const cached = cacheRef.current.get(cacheKey)
-        if (cached && Date.now() - cached.ts < CACHE_TTL_MS && cached.page0.length > 0) {
-          return cached.page0
-        }
-      }
-      const usp = new URLSearchParams()
-      if (q.length > 0) usp.set('q', q)
-      if (t === 'life' || t === 'ruler') usp.set('type', t)
-      usp.set('limit', String(pageSize))
-      usp.set('offset', String(offset))
-      const res = await apiFetch(`/api/periods?${usp.toString()}`, { signal })
-      const data = await res.json().catch(() => ({ data: [] }))
-      const arr: PeriodTile[] = data?.data || []
-      if (offset === 0) cacheRef.current.set(cacheKey, { ts: Date.now(), page0: arr })
-      return arr
-    }
+    queryParams,
+    dedupeBy: (item) => item.id,
+    pageSize: 100
   })
-  return { items, isLoading, hasMore, loadMore, reset }
+
+  return {
+    items: state.items,
+    isLoading: state.isLoading,
+    hasMore: state.hasMore,
+    loadMore: actions.loadMore,
+    reset: actions.reset
+  }
 }
 
 

@@ -259,41 +259,28 @@ export function MobileListsLayout(props: Props) {
 
       {/* Основной контент */}
       <div className={"lists-mobile-content" + (filtersVisible ? "" : " filters-hidden")}>
-        {!(menuSelection as string).startsWith('list:') ? (
-          // Показываем обычный контент (личности, достижения, периоды)
-          React.Children.map(children, (child) => {
-            if (React.isValidElement(child)) {
-              // Если это фрагмент, обрабатываем его содержимое
-              if (child.type === React.Fragment) {
-                return React.cloneElement(child, {}, 
-                  React.Children.map(child.props.children, (fragmentChild) => {
-                    if (React.isValidElement(fragmentChild)) {
-                      return React.cloneElement(fragmentChild as any, { 
-                        onPersonSelect: handlePersonSelect
-                      })
-                    }
-                    return fragmentChild
-                  })
-                )
-              }
-              // Если это обычный элемент, добавляем onPersonSelect
-              return React.cloneElement(child as any, { 
-                onPersonSelect: handlePersonSelect
-              })
+        {React.Children.map(children, (child) => {
+          if (React.isValidElement(child)) {
+            // Если это фрагмент, обрабатываем его содержимое
+            if (child.type === React.Fragment) {
+              return React.cloneElement(child, {}, 
+                React.Children.map(child.props.children, (fragmentChild) => {
+                  if (React.isValidElement(fragmentChild)) {
+                    return React.cloneElement(fragmentChild as any, { 
+                      onPersonSelect: handlePersonSelect
+                    })
+                  }
+                  return fragmentChild
+                })
+              )
             }
-            return child
-          })
-        ) : (
-          // Показываем элементы списка
-          <ListItemsView
-            items={listItems || []}
-            filterType={filterType || 'person'}
-            isLoading={listLoading || false}
-            emptyText="Список пуст"
-            onDelete={handleDeleteListItem}
-            onPersonSelect={handlePersonSelect}
-          />
-        )}
+            // Если это обычный элемент, добавляем onPersonSelect
+            return React.cloneElement(child as any, { 
+              onPersonSelect: handlePersonSelect
+            })
+          }
+          return child
+        })}
       </div>
 
 

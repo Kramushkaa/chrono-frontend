@@ -199,17 +199,7 @@ export function DesktopListsLayout(props: Props) {
         showToast('Открываю на таймлайне', 'info')
       }}
     >
-      {!(menuSelection as string).startsWith('list:') ? (
-        children
-      ) : (
-        <ListItemsView
-          items={listItems || []}
-          filterType={filterType || 'person'}
-          isLoading={listLoading || false}
-          emptyText="Список пуст"
-          onDelete={handleDeleteListItem}
-        />
-      )}
+      {children}
     </LeftMenuLayout>
   )
 }

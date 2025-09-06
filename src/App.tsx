@@ -231,7 +231,7 @@ function AppInner() {
       }
       
       if (newTimeRange.start !== filters.timeRange.start || newTimeRange.end !== filters.timeRange.end) {
-        setFilters(prev => ({
+        setFilters((prev: any) => ({
           ...prev,
           timeRange: newTimeRange
         }));

@@ -11,6 +11,7 @@ interface ItemCardProps {
   type?: string
   person?: any
   onAddToList?: () => void
+  onRemoveFromList?: () => void
   onSelect?: () => void
   onPersonSelect?: (person: any) => void
   isAuthenticated?: boolean
@@ -19,6 +20,7 @@ interface ItemCardProps {
   showToast?: (message: string, type?: 'success' | 'error' | 'info') => void
   addButtonTitle?: string
   addButtonDisabled?: boolean
+  isListMode?: boolean
   style?: React.CSSProperties
 }
 
@@ -33,6 +35,7 @@ export function ItemCard({
   type,
   person,
   onAddToList,
+  onRemoveFromList,
   onSelect,
   onPersonSelect,
   isAuthenticated = true,
@@ -41,6 +44,7 @@ export function ItemCard({
   showToast,
   addButtonTitle = "Добавить в список",
   addButtonDisabled = false,
+  isListMode = false,
   style
 }: ItemCardProps) {
   
@@ -54,6 +58,10 @@ export function ItemCard({
       return
     }
     onAddToList?.()
+  }
+
+  const handleRemoveFromList = () => {
+    onRemoveFromList?.()
   }
 
   const handleSelect = () => {
@@ -102,21 +110,25 @@ export function ItemCard({
         <div style={{ fontSize: 14 }}>{description}</div>
       )}
       
-      {onAddToList && (
+      {(onAddToList || onRemoveFromList) && (
         <div style={{ position: 'absolute', top: 8, right: 8 }}>
           <button
             onClick={(e) => {
               e.stopPropagation()
-              handleAddToList()
+              if (isListMode && onRemoveFromList) {
+                handleRemoveFromList()
+              } else if (onAddToList) {
+                handleAddToList()
+              }
             }}
             disabled={addButtonDisabled}
-            title={addButtonTitle}
+            title={isListMode ? "Удалить из списка" : addButtonTitle}
             style={{
               opacity: addButtonDisabled ? 0.5 : 1,
               cursor: addButtonDisabled ? 'not-allowed' : 'pointer'
             }}
           >
-            ＋
+            {isListMode ? '✕' : '＋'}
           </button>
         </div>
       )}

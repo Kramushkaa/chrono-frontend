@@ -17,6 +17,7 @@ interface ItemsListProps {
   hasMore: boolean
   onLoadMore: () => void
   onAddToList?: (id: number | string) => void
+  onRemoveFromList?: (id: number | string) => void
   onSelect?: (id: number | string) => void
   onPersonSelect?: (person: any) => void
   isAuthenticated?: boolean
@@ -27,6 +28,7 @@ interface ItemsListProps {
   loadingMessage?: string
   style?: React.CSSProperties
   gridMinWidth?: number
+  isListMode?: boolean
 }
 
 export function ItemsList({
@@ -35,6 +37,7 @@ export function ItemsList({
   hasMore,
   onLoadMore,
   onAddToList,
+  onRemoveFromList,
   onSelect,
   onPersonSelect,
   isAuthenticated = true,
@@ -44,7 +47,8 @@ export function ItemsList({
   emptyMessage = "Элементы не найдены",
   loadingMessage = "Загрузка...",
   style,
-  gridMinWidth = 260
+  gridMinWidth = 260,
+  isListMode = false
 }: ItemsListProps) {
   const handleAddToList = (id: number | string) => {
     if (onAddToList) {
@@ -55,6 +59,12 @@ export function ItemsList({
   const handleSelect = (id: number | string) => {
     if (onSelect) {
       onSelect(id)
+    }
+  }
+
+  const handleRemoveFromList = (id: number | string) => {
+    if (onRemoveFromList) {
+      onRemoveFromList(id)
     }
   }
 
@@ -105,11 +115,13 @@ export function ItemsList({
             onPersonSelect={onPersonSelect}
             type={item.type}
             onAddToList={onAddToList ? () => handleAddToList(item.id) : undefined}
+            onRemoveFromList={onRemoveFromList ? () => handleRemoveFromList(item.id) : undefined}
             onSelect={onSelect ? () => handleSelect(item.id) : undefined}
             isAuthenticated={isAuthenticated}
             emailVerified={emailVerified}
             showAuthModal={showAuthModal}
             showToast={showToast}
+            isListMode={isListMode}
           />
         ))}
       </div>

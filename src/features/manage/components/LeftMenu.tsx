@@ -49,10 +49,13 @@ export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, min
         {userLists.map((l) => {
           const active = selectedKey === `list:${l.id}`
           return (
-            <div key={l.id} style={{ ...itemStyle(active), ...rowStyle }}>
-              <div role="button" tabIndex={0}
-                   onClick={() => onSelect({ type: 'list', listId: l.id })}
-                   onKeyDown={(e) => { if (e.key === 'Enter') onSelect({ type: 'list', listId: l.id }) }}>
+            <div key={l.id} 
+                 role="button" 
+                 tabIndex={0}
+                 style={{ ...itemStyle(active), ...rowStyle }}
+                 onClick={() => onSelect({ type: 'list', listId: l.id })}
+                 onKeyDown={(e) => { if (e.key === 'Enter') onSelect({ type: 'list', listId: l.id }) }}>
+              <div style={{ flex: 1 }}>
                 {l.title}<span style={{ opacity: 0.7, marginLeft: 6, fontSize: 12 }}>({l.items_count || 0})</span>
               </div>
               <div style={actionsStyle} aria-label="Действия со списком">
