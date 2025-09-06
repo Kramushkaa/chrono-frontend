@@ -70,14 +70,6 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
         // Отправляем ответ в том же порядке, что и правильный ответ
         const answerInCorrectOrder = data.persons.map(person => newMatches[person.id]);
         
-        // Отладочная информация
-        console.log('Achievements Match Debug:', {
-          userAnswer: answerInCorrectOrder,
-          correctAnswer: data.persons.map(person => data.correctMatches[person.id]),
-          matches: newMatches,
-          persons: data.persons.map(p => ({ id: p.id, name: p.name }))
-        });
-        
         onAnswer(answerInCorrectOrder);
       }
     }

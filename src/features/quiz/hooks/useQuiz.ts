@@ -221,19 +221,11 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
       const userAnswerArray = answer as string[];
       const correctAnswerArray = currentQuestion.correctAnswer as string[];
       
-      // Отладочная информация
-      console.log('Achievements Match Validation:', {
-        userAnswer: userAnswerArray,
-        correctAnswer: correctAnswerArray,
-        questionType: currentQuestion.type,
-        questionId: currentQuestion.id
-      });
-      
       // Проверяем, что все элементы совпадают в правильном порядке
       isCorrect = userAnswerArray.length === correctAnswerArray.length &&
         userAnswerArray.every((achievement, index) => achievement === correctAnswerArray[index]);
         
-      console.log('Validation result:', isCorrect);
+      
     } else if (Array.isArray(answer)) {
       // Для других массивов сравниваем отсортированные массивы
       isCorrect = JSON.stringify(answer.sort()) === JSON.stringify((currentQuestion.correctAnswer as string[]).sort());

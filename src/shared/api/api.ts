@@ -10,7 +10,7 @@ const getApiConfig = () => {
     ? window.localStorage.getItem('FORCE_API_URL') || undefined
     : undefined;
   const forcedApiUrl = lsForcedApiUrl || process.env.REACT_APP_FORCE_API_URL;
-  const logEnabled = process.env.REACT_APP_LOG_API_CALLS === 'true' || isDevelopment;
+  const logEnabled = process.env.REACT_APP_LOG_API_CALLS === 'true' && isDevelopment;
   
   // URL для разных окружений
   const LOCAL_BACKEND_URL = process.env.REACT_APP_LOCAL_BACKEND_URL || 'http://localhost:3001';
@@ -20,13 +20,13 @@ const getApiConfig = () => {
   let apiUrl: string;
   if (forcedApiUrl) {
     apiUrl = forcedApiUrl;
-    if (logEnabled) console.log('🚩 Принудительно задан backend:', apiUrl);
+    // silent in prod
   } else if (isDevelopment && isLocalBackend) {
     apiUrl = LOCAL_BACKEND_URL;
-    if (logEnabled) console.log('🔧 Используется локальный backend:', apiUrl);
+    // silent in prod
   } else {
     apiUrl = process.env.REACT_APP_API_URL || REMOTE_BACKEND_URL;
-    if (logEnabled) console.log('🌐 Используется удаленный backend:', apiUrl);
+    // silent in prod
   }
   
   return {
@@ -69,7 +69,7 @@ const apiRequest = async (url: string, options: RequestInit = {}): Promise<Respo
       return response;
     } catch (error) {
       lastError = error as Error;
-      console.warn(`API request attempt ${attempt + 1} failed:`, error);
+      // silent
       
       if (attempt < API_CONFIG.retries) {
         // Ждем перед повторной попыткой (экспоненциальная задержка)

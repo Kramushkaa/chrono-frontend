@@ -99,17 +99,7 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
         newOrder.splice(newTargetIndex, 0, draggedPersonId);
         setOrder(newOrder);
         
-        // Отладочная информация
-        console.log('Drop:', {
-          draggedPersonId,
-          targetPersonId,
-          draggedIndex,
-          targetIndex,
-          position: draggedOver?.position,
-          newTargetIndex,
-          oldOrder: order,
-          newOrder
-        });
+        // noop
       }
     }
     

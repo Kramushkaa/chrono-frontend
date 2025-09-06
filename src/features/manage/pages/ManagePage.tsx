@@ -631,7 +631,6 @@ export default function ManagePage() {
                   onDeleteListItem={handleDeleteListItem}
                   onSelect={(achievement) => {
                     // TODO: добавить обработку выбора достижения
-                    console.log('Selected achievement:', achievement)
                   }}
                   onAddItem={(id) => addToList.openForAchievement(Number(id))}
                   onAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}
@@ -689,7 +688,6 @@ export default function ManagePage() {
                   onDeleteListItem={handleDeleteListItem}
                   onSelect={(period) => {
                     // TODO: добавить обработку выбора периода
-                    console.log('Selected period:', period)
                   }}
                   onAddItem={(id) => addToList.openForPeriod(Number(id))}
                   onAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}

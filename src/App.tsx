@@ -262,7 +262,7 @@ function AppInner() {
       try {
         const v = await getDtoVersion()
         if (v && v !== DTO_VERSION_FE) {
-          console.warn(`DTO version mismatch: FE=${DTO_VERSION_FE}, BE=${v}`)
+          // Optionally surface via toast in future
         }
       } catch {}
     })()

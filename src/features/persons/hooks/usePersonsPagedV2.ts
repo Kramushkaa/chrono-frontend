@@ -33,8 +33,7 @@ export function usePersonsPagedV2(query: UsePersonsPagedQuery, enabled: boolean 
   }, [query])
 
   // Обработка ошибок с fallback логикой
-  const handleError = useCallback(async (error: Error, endpoint: string) => {
-    console.warn('API error, trying fallback:', error.message)
+  const handleError = useCallback(async (_error: Error, endpoint: string) => {
     
     try {
       // Пытаемся загрузить все данные и фильтровать на клиенте
