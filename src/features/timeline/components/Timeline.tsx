@@ -14,6 +14,7 @@ import { CenturyGridLinesOverlay } from './overlays/CenturyGridLinesOverlay'
 import { PersonYearLabels } from './rows/PersonYearLabels'
 import { PersonReignBars } from './rows/PersonReignBars'
 import { PersonLifeBar } from './rows/PersonLifeBar'
+import { PersonAchievementMarkers } from './rows/PersonAchievementMarkers'
 
 interface TimelineProps {
   isLoading: boolean
@@ -474,6 +475,26 @@ export const Timeline: React.FC<TimelineProps> = ({
 
                   {/* полосы правления: множественные сегменты */}
                   <PersonReignBars person={person} getAdjustedPosition={getAdjustedPosition} getAdjustedWidth={getAdjustedWidth} />
+
+                  {/* маркеры достижений */}
+                  <PersonAchievementMarkers
+                    person={person}
+                    isMobile={isMobile}
+                    showAchievements={filters.showAchievements}
+                    hoveredPerson={hoveredPerson}
+                    getAdjustedPosition={getAdjustedPosition}
+                    getGroupColor={getGroupColor}
+                    getGroupColorDark={getGroupColorDark}
+                    getPersonGroup={getPersonGroup}
+                    activeAchievementMarker={activeAchievementMarker}
+                    setActiveAchievementMarker={setActiveAchievementMarker}
+                    hoveredAchievement={hoveredAchievement}
+                    setHoveredAchievement={setHoveredAchievement}
+                    setAchievementTooltipPosition={setAchievementTooltipPosition}
+                    setShowAchievementTooltip={setShowAchievementTooltip}
+                    hoverTimerRef={hoverTimerRef}
+                    handlePersonHover={handlePersonHover}
+                  />
 
                   <PersonLifeBar
                     person={person}
