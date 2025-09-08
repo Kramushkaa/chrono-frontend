@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
+import { TimelineBackgroundOverlay } from './overlays/TimelineBackgroundOverlay'
 import { useMobile } from 'hooks/useMobile'
 import { Person } from 'shared/types'
 import { 
@@ -402,78 +403,14 @@ export const Timeline: React.FC<TimelineProps> = ({
           padding: isMobile ? '0' : '1rem 0 2rem 0'
         }}
       >
-        {/* Разноцветная заливка веков */}
-        <div 
-          className="timeline-background"
-          id="timeline-background"
-          role="presentation"
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: '0',
-            left: '0',
-            width: `${getAdjustedTimelineWidth()}px`,
-            height: `${totalHeight + 200}px`,
-            pointerEvents: 'none',
-            zIndex: 1
-          }}
-        >
-          {timelineElements.map((element, index) => {
-                         if (element.type === 'century') {
-               const year = element.year;
-               // Каждый век занимает ровно 100 лет
-               const nextYear = year + 100
-               const startPos = getAdjustedPosition(year)
-               const endPos = getAdjustedPosition(nextYear)
-               const width = endPos - startPos
-
-              // Вычисляем век на основе центра года в столетии
-              const centerYear = year + 50
-              const centuryNumber = getCenturyNumber(centerYear)
-              // Для отрицательных веков добавляем знак минус
-              const isNegativeCentury = year < 0
-              const romanNumeral = isNegativeCentury ? `-${toRomanNumeral(Math.abs(centuryNumber))}` : toRomanNumeral(centuryNumber)
-              
-              return (
-                <div 
-                  key={`century-bg-${year}`} 
-                  className="century-background"
-                  id={`century-${year}`}
-                  role="presentation"
-                  aria-label={`Век ${romanNumeral}`}
-                  style={{
-                    position: 'absolute',
-                    left: `${startPos}px`,
-                    width: `${width}px`,
-                    height: '100%',
-                    background: getCenturyColor(year, minYear),
-                    opacity: 0.3,
-                    zIndex: 1
-                  }}
-                >
-                </div>
-              )
-                                                   } else if (element.type === 'gap') {
-                // Промежуток между веками - компактный размер (1/10 века)
-                const gapWidth = pixelsPerYear * 10; // 10 лет = 1/10 века
-                const startPos = getAdjustedPosition(element.startYear)
-               
-               return (
-                 <div key={`gap-${element.startYear}`} style={{
-                   position: 'absolute',
-                   left: `${startPos}px`,
-                   width: `${gapWidth}px`,
-                   height: '100%',
-                   background: 'rgba(139, 69, 19, 0.1)',
-                   border: '1px dashed rgba(139, 69, 19, 0.3)',
-                   zIndex: 1
-                 }}>
-                </div>
-              )
-            }
-            return null;
-          })}
-        </div>
+        <TimelineBackgroundOverlay
+          elements={timelineElements as any}
+          getAdjustedPosition={getAdjustedPosition}
+          adjustedTimelineWidth={getAdjustedTimelineWidth()}
+          totalHeight={totalHeight}
+          minYear={minYear}
+          pixelsPerYear={pixelsPerYear}
+        />
 
                  {/* Границы веков и промежутков на всю высоту */}
          <div style={{
