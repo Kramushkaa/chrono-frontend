@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useApiData } from './useApiData'
+import { useApiData } from 'shared/hooks/useApiData'
 import { Person } from 'shared/types'
 
 interface UsePersonsQuery {
@@ -27,7 +27,7 @@ export function usePersons(query: UsePersonsQuery, enabled: boolean = true) {
     endpoint: '/api/persons',
     enabled,
     queryParams,
-    dedupeBy: (item) => item.id,
+    dedupeBy: (item: Person) => item.id,
     pageSize: 100
   })
 

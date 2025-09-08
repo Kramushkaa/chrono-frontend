@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAchievements } from 'shared/hooks/useAchievements';
-import { usePeriods } from 'shared/hooks/usePeriods';
-import { usePersons } from 'shared/hooks/usePersons';
+import { usePeriods } from 'shared/hooks/usePeriods'; 
+import { usePersons } from 'features/persons/hooks/usePersons'; 
 import { useApiData } from 'shared/hooks/useApiData';
 import { buildMineParams } from 'features/manage/utils/queryParams';
 
