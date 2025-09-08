@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Person } from 'shared/types'
-import { useFilters } from 'hooks/useFilters'
+import { useFilters } from '../../../shared/hooks/useFilters'
 import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils'
 import { PersonCard } from 'features/persons/components/PersonCard'
 import { getCategories, getCountries, getCountryOptions, CountryOption, apiFetch, apiData } from 'shared/api/api'
@@ -22,7 +22,7 @@ import { UnifiedManageSection } from 'features/manage/components/UnifiedManageSe
 import { ManageUIProvider } from 'features/manage/context/ManageUIContext'
 import { useManagePageData } from '../hooks/useManagePageData'
 import { slugifyIdFromName } from 'shared/utils/slug'
-import '../../../styles/manage-page.css'
+import '../styles/manage-page.css'
 
 type Tab = 'persons' | 'achievements' | 'periods'
 
@@ -547,7 +547,6 @@ export default function ManagePage() {
                     onSelect={(p) => setSelected(p)}
                     onPersonSelect={(person) => setSelected(person)}
                     onAddItem={(id) => addToList.openForPerson({ id } as any)}
-                    onAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}
                     labelAll="Все личности"
                     itemType="person"
                     emptyMessage="Личности не найдены"
@@ -644,14 +643,12 @@ export default function ManagePage() {
                   setStatusFilters={setAchStatusFilters}
                   listLoading={listLoading}
                   listItems={listItems}
-                  setListItems={setListItems}
                   onDeleteListItem={handleDeleteListItem}
                   getListItemIdByDisplayId={(id) => listItemIdByDomainIdRef.current.get(String(id))}
                   onSelect={(achievement) => {
                     // TODO: добавить обработку выбора достижения
                   }}
                   onAddItem={(id) => addToList.openForAchievement(Number(id))}
-                  onAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}
                   labelAll="Все достижения"
                   itemType="achievement"
                   emptyMessage="Достижения не найдены"
@@ -700,14 +697,12 @@ export default function ManagePage() {
                   setStatusFilters={setPeriodsStatusFilters}
                   listLoading={listLoading}
                   listItems={listItems}
-                  setListItems={setListItems}
                   onDeleteListItem={handleDeleteListItem}
                   getListItemIdByDisplayId={(id) => listItemIdByDomainIdRef.current.get(String(id))}
                   onSelect={(period) => {
                     // TODO: добавить обработку выбора периода
                   }}
                   onAddItem={(id) => addToList.openForPeriod(Number(id))}
-                  onAddForSelectedPerson={() => { if (selected) addToList.openForPerson(selected) }}
                   labelAll="Все периоды"
                   itemType="period"
                   emptyMessage="Периоды не найдены"

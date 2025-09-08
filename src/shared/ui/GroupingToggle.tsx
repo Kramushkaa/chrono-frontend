@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useMobile } from 'hooks/useMobile'
+import { useMobile } from '../hooks/useMobile'
 
 interface GroupingToggleProps {
   groupingType: 'category' | 'country' | 'none'

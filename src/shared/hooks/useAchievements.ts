@@ -1,24 +1,28 @@
 import { useMemo } from 'react'
 import { useApiData } from './useApiData'
 
-export type AchievementTile = {
+export interface AchievementTile {
   id: number
   person_id?: string | null
-  country_id?: number | null
-  year: number
-  description: string
-  wikipedia_url?: string | null
-  image_url?: string | null
+  person_name?: string | null
+  year?: number | null
   title?: string | null
+  status?: string | null
 }
 
 export function useAchievements(query: string, enabled: boolean = true) {
-  const q = useMemo(() => query.trim(), [query])
-  
+  const q = useMemo(() => (query || '').trim(), [query])
+
+  const queryParams = useMemo(() => {
+    const result: Record<string, string> = {}
+    if (q.length > 0) result.q = q
+    return result
+  }, [q])
+
   const [state, actions] = useApiData<AchievementTile>({
     endpoint: '/api/achievements',
     enabled,
-    queryParams: q.length > 0 ? { q } : {},
+    queryParams,
     dedupeBy: (item) => item.id,
     pageSize: 100
   })
@@ -27,7 +31,8 @@ export function useAchievements(query: string, enabled: boolean = true) {
     items: state.items,
     isLoading: state.isLoading,
     hasMore: state.hasMore,
-    loadMore: actions.loadMore
+    loadMore: actions.loadMore,
+    reset: actions.reset
   }
 }
 

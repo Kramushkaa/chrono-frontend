@@ -10,7 +10,7 @@ import { AchievementsMatchQuestion } from '../components/QuestionTypes/Achieveme
 import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion';
 import { SEO } from 'shared/ui/SEO';
 import { AppHeader } from 'shared/layout/AppHeader';
-import '../quiz.css';
+import '../styles/quiz.css';
 
 const QuizPage: React.FC = () => {
   const navigate = useNavigate();

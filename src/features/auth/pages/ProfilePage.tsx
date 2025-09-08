@@ -1,11 +1,11 @@
 import React, { useEffect, useEffect as ReactEffect, useState, useRef } from 'react';
 import { useAuth } from 'shared/context/AuthContext';
-import { Profile } from 'components/Profile';
+import { Profile } from '../components/Profile';
 import { apiFetch } from 'shared/api/api';
 import { useToast } from 'shared/context/ToastContext';
 import { LoginForm } from 'features/auth/components/LoginForm';
 import { RegisterForm } from 'features/auth/components/RegisterForm';
-import { useFilters } from 'hooks/useFilters';
+import { useFilters } from '../../../shared/hooks/useFilters';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { Breadcrumbs } from 'shared/ui/Breadcrumbs';
 import { getCategories, getCountries } from 'shared/api/api';

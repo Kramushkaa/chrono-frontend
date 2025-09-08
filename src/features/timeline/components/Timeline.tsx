@@ -1,13 +1,20 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { useMobile } from 'hooks/useMobile'
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
+import { TimelineBackgroundOverlay } from './overlays/TimelineBackgroundOverlay'
+import { ViewportCenturyLabelsOverlay } from './overlays/ViewportCenturyLabelsOverlay'
+import { CategoryDividersOverlay } from './overlays/CategoryDividersOverlay'
+import { useMobile } from '../../../shared/hooks/useMobile'
 import { Person } from 'shared/types'
 import { 
   getPosition, 
   getWidth, 
-  getCenturyColor, 
   getCenturyNumber, 
   toRomanNumeral
 } from '../utils/timelineUtils'
+import { CenturyGridLinesOverlay } from './overlays/CenturyGridLinesOverlay'
+import { PersonYearLabels } from './rows/PersonYearLabels'
+import { PersonReignBars } from './rows/PersonReignBars'
+import { PersonLifeBar } from './rows/PersonLifeBar'
+import { PersonAchievementMarkers } from './rows/PersonAchievementMarkers'
 
 interface TimelineProps {
   isLoading: boolean
@@ -113,6 +120,25 @@ export const Timeline: React.FC<TimelineProps> = ({
   const [scrollTop, setScrollTop] = useState(0)
   const [viewportHeight, setViewportHeight] = useState(0)
 
+  // Throttled setters via requestAnimationFrame to reduce re-renders on frequent events
+  const mouseRafRef = useRef<number | null>(null)
+  const pendingMousePosRef = useRef<{ x: number; y: number } | null>(null)
+  const scheduleMousePosition = useCallback((x: number, y: number) => {
+    pendingMousePosRef.current = { x, y }
+    if (mouseRafRef.current == null) {
+      mouseRafRef.current = requestAnimationFrame(() => {
+        mouseRafRef.current = null
+        const p = pendingMousePosRef.current
+        if (p) setMousePosition(p)
+      })
+    }
+  }, [setMousePosition])
+
+  // Removed achievement tooltip rAF scheduler after extraction
+
+  const scrollRafRef = useRef<number | null>(null)
+  const lastScrollTopRef = useRef(0)
+
   // Compute per-row heights and prefix offsets once per data change
   const ROW_HEIGHT = 60
   const ROW_MARGIN = 10
@@ -134,10 +160,17 @@ export const Timeline: React.FC<TimelineProps> = ({
     if (!el) return
     const measure = () => {
       setViewportHeight(el.clientHeight)
-      setScrollTop(el.scrollTop)
+      const st = el.scrollTop
+      if (scrollRafRef.current == null) {
+        scrollRafRef.current = requestAnimationFrame(() => {
+          scrollRafRef.current = null
+          setScrollTop(lastScrollTopRef.current)
+        })
+      }
+      lastScrollTopRef.current = st
     }
     measure()
-    const onScroll = () => setScrollTop(el.scrollTop)
+    const onScroll = () => measure()
     window.addEventListener('resize', measure)
     el.addEventListener('scroll', onScroll, { passive: true } as any)
     return () => {
@@ -365,220 +398,34 @@ export const Timeline: React.FC<TimelineProps> = ({
           padding: isMobile ? '0' : '1rem 0 2rem 0'
         }}
       >
-        {/* Разноцветная заливка веков */}
-        <div 
-          className="timeline-background"
-          id="timeline-background"
-          role="presentation"
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: '0',
-            left: '0',
-            width: `${getAdjustedTimelineWidth()}px`,
-            height: `${totalHeight + 200}px`,
-            pointerEvents: 'none',
-            zIndex: 1
-          }}
-        >
-          {timelineElements.map((element, index) => {
-                         if (element.type === 'century') {
-               const year = element.year;
-               // Каждый век занимает ровно 100 лет
-               const nextYear = year + 100
-               const startPos = getAdjustedPosition(year)
-               const endPos = getAdjustedPosition(nextYear)
-               const width = endPos - startPos
+        <TimelineBackgroundOverlay
+          elements={timelineElements as any}
+          getAdjustedPosition={getAdjustedPosition}
+          adjustedTimelineWidth={getAdjustedTimelineWidth()}
+          totalHeight={totalHeight}
+          minYear={minYear}
+          pixelsPerYear={pixelsPerYear}
+        />
 
-              // Вычисляем век на основе центра года в столетии
-              const centerYear = year + 50
-              const centuryNumber = getCenturyNumber(centerYear)
-              // Для отрицательных веков добавляем знак минус
-              const isNegativeCentury = year < 0
-              const romanNumeral = isNegativeCentury ? `-${toRomanNumeral(Math.abs(centuryNumber))}` : toRomanNumeral(centuryNumber)
-              
-              return (
-                <div 
-                  key={`century-bg-${year}`} 
-                  className="century-background"
-                  id={`century-${year}`}
-                  role="presentation"
-                  aria-label={`Век ${romanNumeral}`}
-                  style={{
-                    position: 'absolute',
-                    left: `${startPos}px`,
-                    width: `${width}px`,
-                    height: '100%',
-                    background: getCenturyColor(year, minYear),
-                    opacity: 0.3,
-                    zIndex: 1
-                  }}
-                >
-                </div>
-              )
-                                                   } else if (element.type === 'gap') {
-                // Промежуток между веками - компактный размер (1/10 века)
-                const gapWidth = pixelsPerYear * 10; // 10 лет = 1/10 века
-                const startPos = getAdjustedPosition(element.startYear)
-               
-               return (
-                 <div key={`gap-${element.startYear}`} style={{
-                   position: 'absolute',
-                   left: `${startPos}px`,
-                   width: `${gapWidth}px`,
-                   height: '100%',
-                   background: 'rgba(139, 69, 19, 0.1)',
-                   border: '1px dashed rgba(139, 69, 19, 0.3)',
-                   zIndex: 1
-                 }}>
-                </div>
-              )
-            }
-            return null;
-          })}
-        </div>
+        <CenturyGridLinesOverlay
+          elements={timelineElements as any}
+          getAdjustedPosition={getAdjustedPosition}
+          adjustedTimelineWidth={getAdjustedTimelineWidth()}
+          totalHeight={totalHeight}
+        />
 
-                 {/* Границы веков и промежутков на всю высоту */}
-         <div style={{
-           position: 'absolute',
-           top: '0',
-           left: '0',
-           width: `${getAdjustedTimelineWidth()}px`,
-           height: `${totalHeight + 200}px`,
-           pointerEvents: 'none',
-           zIndex: 5
-         }}>
-                      {timelineElements.map((element) => {
-              if (element.type === 'century') {
-                return (
-                  <div key={`century-line-${element.year}`} style={{
-                    position: 'absolute',
-                    left: `${getAdjustedPosition(element.year)}px`,
-                    width: '2px',
-                    height: '100%',
-                    background: 'linear-gradient(to bottom, #cd853f 0%, #cd853f 20%, rgba(205, 133, 63, 0.3) 100%)',
-                    zIndex: 5
-                  }} />
-                );
-              } else if (element.type === 'gap') {
-                return (
-                  <div key={`gap-line-${element.startYear}`} style={{
-                    position: 'absolute',
-                    left: `${getAdjustedPosition(element.startYear)}px`,
-                    width: '2px',
-                    height: '100%',
-                    background: 'linear-gradient(to bottom, #cd853f 0%, #cd853f 20%, rgba(205, 133, 63, 0.3) 100%)',
-                    zIndex: 5
-                  }} />
-                );
-              }
-              return null;
-            })}
-         </div>
+        <ViewportCenturyLabelsOverlay
+          labels={createViewportCenturyLabels() as any}
+          adjustedTimelineWidth={getAdjustedTimelineWidth()}
+          totalHeight={totalHeight}
+        />
 
-         {/* Метки веков в пределах текущего вьюпорта */}
-         <div style={{
-           position: 'absolute',
-           top: '0',
-           left: '0',
-           width: `${getAdjustedTimelineWidth()}px`,
-           height: `${totalHeight + 200}px`,
-           pointerEvents: 'none',
-           zIndex: 6
-         }}>
-           {createViewportCenturyLabels().map((label) => (
-             <div
-               key={label.id}
-               style={{
-                 position: 'absolute',
-                 left: `${label.left}px`,
-                 top: `${label.top}px`,
-                 transform: 'translate(-50%, -50%)',
-                  fontSize: label.type === 'century' ? '1.2rem' : '0.7rem',
-                 fontWeight: 'bold',
-                  color: label.type === 'century' 
-                    ? 'rgba(244, 228, 193, 0.28)'
-                    : 'rgba(139, 69, 19, 0.35)',
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
-                 pointerEvents: 'none',
-                 fontFamily: label.type === 'century' ? 'serif' : 'sans-serif',
-                 textAlign: 'center',
-                 maxWidth: '200px',
-                 wordWrap: 'break-word'
-               }}
-             >
-               {label.type === 'century' ? (
-                 label.romanNumeral
-               ) : (
-                 <>
-                   <div>Скрыто:</div>
-                   <div style={{ fontSize: '0.7rem', marginTop: '2px' }}>
-                     {label.romanNumeral}
-                   </div>
-                 </>
-               )}
-             </div>
-           ))}
-         </div>
-
-         {/* Разделители групп */}
-         <div 
-           className="category-dividers"
-           id="category-dividers"
-           role="presentation"
-           aria-hidden="true"
-           style={{
-             position: 'absolute',
-             top: '0',
-             left: '0',
-             width: `${getAdjustedTimelineWidth()}px`,
-             height: `${totalHeight + 200}px`,
-             pointerEvents: 'none',
-             zIndex: 8
-           }}
-         >
-          {categoryDividers.map((divider) => (
-            <div 
-              key={`category-divider-${divider.category}`} 
-              className="category-divider"
-              id={`divider-${divider.category}`}
-              role="separator"
-              aria-label={`Разделитель группы: ${divider.category}`}
-              style={{
-                position: 'absolute',
-                top: `${divider.top}px`,
-                left: '0',
-                width: '100%',
-                height: '10px',
-                background: `linear-gradient(to right, transparent 0%, ${getGroupColor(divider.category)} 20%, ${getGroupColor(divider.category)} 80%, transparent 100%)`,
-                opacity: 0.6,
-                zIndex: 8
-              }}
-            >
-              <div 
-                className="category-label" 
-                id={`category-label-${divider.category}`}
-                aria-label={`Группа: ${divider.category}`}
-                style={{
-                  position: 'absolute',
-                  left: '20px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: getGroupColor(divider.category),
-                  color: 'white',
-                  padding: '2px 8px',
-                  borderRadius: '4px',
-                  fontSize: '0.7rem',
-                  fontWeight: 'bold',
-                  whiteSpace: 'nowrap',
-                  zIndex: 9
-                }}
-              >
-                {divider.category}
-              </div>
-            </div>
-          ))}
-        </div>
+        <CategoryDividersOverlay
+          dividers={categoryDividers as any}
+          getGroupColor={getGroupColor}
+          adjustedTimelineWidth={getAdjustedTimelineWidth()}
+          totalHeight={totalHeight}
+        />
 
                  {/* Полоски жизни */}
          <div 
@@ -624,377 +471,52 @@ export const Timeline: React.FC<TimelineProps> = ({
               {row.map((person) => (
                 <React.Fragment key={person.id}>
                   {/* Годы жизни и правления над полоской */}
-                  <span 
-                    className="birth-year-label"
-                    id={`birth-year-${person.id}`}
-                    aria-label={`Год рождения: ${person.birthYear}`}
-                    style={{
-                      position: 'absolute',
-                      left: `${getAdjustedPosition(person.birthYear)}px`,
-                      top: 0,
-                      fontSize: '11px',
-                      color: 'rgba(244, 228, 193, 0.6)',
-                      fontStyle: 'italic',
-                      fontWeight: 400,
-                      transform: 'translateX(-100%) translateY(-10px)'
-                    }}
-                  >
-                    {person.birthYear}
-                  </span>
-
-                                     {person.reignStart && (
-                     <span 
-                       className="reign-label" 
-                       id={`reign-start-${person.id}`}
-                       aria-label={`Начало правления: ${person.reignStart}`}
-                       style={{
-                         position: 'absolute',
-                         left: `${getAdjustedPosition(person.reignStart)}px`,
-                         top: 0,
-                         fontSize: '11px',
-                         color: '#E57373', // Темно-красный
-                         fontStyle: 'italic',
-                         fontWeight: 'bold',
-                         transform: 'translateX(-100%) translateY(-22px)'
-                       }}
-                     >
-                       👑 {person.reignStart}
-                     </span>
-                   )}
-
-                                     {person.reignEnd && (
-                     <span 
-                       className="reign-label" 
-                       id={`reign-end-${person.id}`}
-                       aria-label={`Конец правления: ${person.reignEnd}`}
-                       style={{
-                         position: 'absolute',
-                         left: `${getAdjustedPosition(person.reignEnd)}px`,
-                         top: 0,
-                         fontSize: '11px',
-                         color: '#E57373', // Темно-красный
-                         fontStyle: 'italic',
-                         fontWeight: 'bold',
-                         transform: 'translateY(-22px)'
-                       }}
-                     >
-                       {person.reignEnd}
-                     </span>
-                   )}
-                  
-                                     <span 
-                                       className="death-year-label"
-                                       id={`death-year-${person.id}`}
-                                       aria-label={`Год смерти: ${person.deathYear}`}
-                                       style={{
-                                         position: 'absolute',
-                                         left: `${getAdjustedPosition(person.deathYear)}px`,
-                                         top: 0,
-                                         fontSize: '11px',
-                                         color: 'rgba(244, 228, 193, 0.6)',
-                                         fontStyle: 'italic',
-                                         fontWeight: 400,
-                                         transform: 'translateY(-10px)'
-                                       }}
-                                     >
-                                       {person.deathYear}
-                                     </span>
-
-                  {/* Маркеры ключевых достижений */}
-                  {filters.showAchievements && (
-                    (Array.isArray((person as any).achievementYears) && (person as any).achievementYears.length > 0
-                      ? (person as any).achievementYears
-                      : [])
-                    .filter((year: number | null | undefined) => year !== undefined && year !== null)
-                    .map((year: number, index: number) => {
-                      return (
-                        <div 
-                          key={index} 
-                          className="achievement-marker"
-                          id={`achievement-${person.id}-${index}`}
-                          role="button"
-                          aria-label={`Достижение ${index + 1} в ${year} году`}
-                          tabIndex={0}
-                          style={{
-                            position: 'absolute',
-                            left: `${getAdjustedPosition(year as number)}px`,
-                            top: '-4px',
-                            width: '2px', // Возвращаем стандартную ширину
-                            height: '15px', // Возвращаем стандартную высоту
-                            backgroundColor: getGroupColorDark(getPersonGroup(person)),
-                            zIndex: activeAchievementMarker?.personId === person.id && activeAchievementMarker?.index === index ? 10 : 3,
-                            transform: 'translateX(-50%)',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                            // Убираем псевдоэлементы, так как они не работают в inline стилях
-                          }}
-                        onMouseEnter={(e) => {
-                          if (!isMobile) {
-                            e.currentTarget.style.backgroundColor = getGroupColor(getPersonGroup(person));
-                            e.currentTarget.style.boxShadow = `0 0 3px ${getGroupColor(getPersonGroup(person))}`;
-                            
-                            // Устанавливаем активный маркер
-                            setActiveAchievementMarker({ personId: person.id, index });
-                            
-                            // Скрываем tooltip человека при наведении на маркер достижения
-                            if (hoveredPerson?.id === person.id) {
-                              handlePersonHover(null, 0, 0);
-                            }
-                            
-                            // Очищаем предыдущий таймер если он есть
-                            if (hoverTimerRef.current) {
-                              clearTimeout(hoverTimerRef.current);
-                            }
-                            
-                            // Запускаем таймер для показа tooltip
-                            hoverTimerRef.current = setTimeout(() => {
-                              setAchievementTooltipPosition({ x: e.clientX, y: e.clientY });
-                              setHoveredAchievement({ person, year: year as number, index });
-                              setShowAchievementTooltip(true);
-                            }, 500);
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isMobile) {
-                            e.currentTarget.style.backgroundColor = getGroupColorDark(getPersonGroup(person));
-                            e.currentTarget.style.boxShadow = 'none';
-                            
-                            // Сбрасываем активный маркер
-                            setActiveAchievementMarker(null);
-                            
-                            // Очищаем таймер и скрываем tooltip достижения
-                            if (hoverTimerRef.current) {
-                              clearTimeout(hoverTimerRef.current);
-                              hoverTimerRef.current = null;
-                            }
-                            setShowAchievementTooltip(false);
-                            setHoveredAchievement(null);
-                            
-                            // Также скрываем tooltip человека, если он был показан
-                            if (hoveredPerson?.id === person.id) {
-                              handlePersonHover(null, 0, 0);
-                            }
-                          }
-                        }}
-                        onMouseMove={(e) => {
-                          if (!isMobile && hoveredAchievement && hoveredAchievement.person.id === person.id && hoveredAchievement.index === index) {
-                            setAchievementTooltipPosition({ x: e.clientX, y: e.clientY });
-                          }
-                        }}
-                        onTouchStart={(e) => {
-                          if (isMobile) {
-                            e.preventDefault();
-                            e.currentTarget.style.backgroundColor = getGroupColor(getPersonGroup(person));
-                            e.currentTarget.style.boxShadow = `0 0 3px ${getGroupColor(getPersonGroup(person))}`;
-                            
-                            // Устанавливаем активный маркер
-                            setActiveAchievementMarker({ personId: person.id, index });
-                            
-                            // Скрываем tooltip человека при касании маркера достижения
-                            if (hoveredPerson?.id === person.id) {
-                              handlePersonHover(null, 0, 0);
-                            }
-                            
-                            // Показываем tooltip сразу на мобильных
-                            const touch = e.touches[0];
-                            setAchievementTooltipPosition({ x: touch.clientX, y: touch.clientY });
-                            setHoveredAchievement({ person, year: year as number, index });
-                            setShowAchievementTooltip(true);
-                          }
-                        }}
-                        onTouchEnd={(e) => {
-                          if (isMobile) {
-                            // Убираем визуальные эффекты при отпускании, но НЕ скрываем tooltip
-                            e.currentTarget.style.backgroundColor = getGroupColorDark(getPersonGroup(person));
-                            e.currentTarget.style.boxShadow = 'none';
-                            
-                            // Сбрасываем активный маркер
-                            setActiveAchievementMarker(null);
-                            
-                            // НЕ скрываем tooltip достижения - он будет скрыт только по клику вне или по кнопке закрытия
-                            // Но скрываем tooltip человека, если он был показан
-                            if (hoveredPerson?.id === person.id) {
-                              handlePersonHover(null, 0, 0);
-                            }
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            // Показываем tooltip при нажатии Enter или Space
-                            setHoveredAchievement({ person, year: year as number, index });
-                            // Используем позицию элемента для tooltip при нажатии клавиши
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            setAchievementTooltipPosition({ 
-                              x: rect.left + rect.width / 2, 
-                              y: rect.top - 10 
-                            });
-                            setShowAchievementTooltip(true);
-                          }
-                        }}
-                        >
-                          <span style={{
-                            position: 'absolute',
-                            top: '-12px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            fontSize: '8px',
-                            color: getGroupColorDark(getPersonGroup(person)),
-                            fontWeight: 'bold',
-                            whiteSpace: 'nowrap',
-                            backgroundColor: 'rgba(44, 24, 16, 0.9)',
-                            padding: '1px 3px',
-                            borderRadius: '2px',
-                            border: `1px solid ${getGroupColorDark(getPersonGroup(person))}`,
-                            transition: 'all 0.2s ease'
-                          }}>
-                            {year}
-                          </span>
-                        </div>
-                      );
-                    })
-                  )}
+                  <PersonYearLabels person={person} getAdjustedPosition={getAdjustedPosition} />
 
                   {/* полосы правления: множественные сегменты */}
-                  {Array.isArray((person as any).rulerPeriods) && (person as any).rulerPeriods.length > 0
-                    ? (person as any).rulerPeriods.map((rp: any, idx: number) => (
-                        <div
-                          key={`ruler-${person.id}-${idx}`}
-                          className="reign-bar"
-                          id={`reign-bar-${person.id}-${idx}`}
-                          role="presentation"
-                          aria-label={`Период правления: ${rp.startYear} - ${rp.endYear}${rp.countryName ? `, ${rp.countryName}` : ''}`}
-                          style={{
-                            position: 'absolute',
-                            top: '-15px',
-                            left: `${getAdjustedPosition(rp.startYear)}px`,
-                            width: `${getAdjustedWidth(rp.startYear, rp.endYear)}px`,
-                            height: '65px',
-                            backgroundColor: 'rgba(211, 47, 47, 0.25)',
-                            pointerEvents: 'none',
-                            borderLeft: '2px solid #D32F2F',
-                            borderRight: '2px solid #D32F2F',
-                            borderRadius: '3px',
-                            zIndex: 1
-                          }}
-                          title={`👑 ${rp.startYear}–${rp.endYear}${rp.countryName ? ` • ${rp.countryName}` : ''}`}
-                        />
-                      ))
-                    : (person.reignStart && person.reignEnd && (
-                        <div 
-                          className="reign-bar"
-                          id={`reign-bar-${person.id}`}
-                          role="presentation"
-                          aria-label={`Период правления: ${person.reignStart} - ${person.reignEnd}`}
-                          style={{
-                            position: 'absolute',
-                            top: '-15px',
-                            left: `${getAdjustedPosition(person.reignStart)}px`,
-                            width: `${getAdjustedWidth(person.reignStart, person.reignEnd)}px`,
-                            height: '65px',
-                            backgroundColor: 'rgba(211, 47, 47, 0.25)',
-                            pointerEvents: 'none',
-                            borderLeft: '2px solid #D32F2F',
-                            borderRight: '2px solid #D32F2F',
-                            borderRadius: '3px',
-                            zIndex: 1
-                          }} 
-                        />
-                      ))}
+                  <PersonReignBars person={person} getAdjustedPosition={getAdjustedPosition} getAdjustedWidth={getAdjustedWidth} />
 
-                                     <div
-                     className="life-bar"
-                     id={`life-bar-${person.id}`}
-                     role="button"
-                     aria-label={`${person.name}, ${person.birthYear} - ${person.deathYear}, ${person.category}`}
-                     tabIndex={0}
-                     style={{
-                       position: 'absolute',
-                       top: '10px',
-                       left: `${getAdjustedPosition(person.birthYear)}px`,
-                       width: `${getAdjustedWidth(person.birthYear, person.deathYear)}px`,
-                       height: '40px',
-                       background: `linear-gradient(135deg, ${getGroupColorMuted(getPersonGroup(person))} 0%, #6a5a3a 100%)`,
-                       borderRadius: '6px',
-                       cursor: 'pointer',
-                       display: 'flex',
-                       alignItems: 'center',
-                       padding: '0 12px',
-                       color: 'white',
-                       fontSize: '14px',
-                       fontWeight: 'bold',
-                       minWidth: '60px',
-                       boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                       border: '1.5px solid #a8926a',
-                       opacity: selectedPerson?.id === person.id ? 0.8 : 1,
-                       zIndex: 5,
-                       transform: selectedPerson?.id === person.id ? 'scale(1.05)' : 'scale(1)',
-                       transition: 'all 0.2s ease'
-                     }}
-                    onMouseEnter={(e) => {
-                      if (!isMobile) {
-                        e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'
-                        e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.4)'
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)'
-                        
-                        // Скрываем tooltip достижения при наведении на lifebar
-                        if (hoveredAchievement?.person.id === person.id) {
-                          setShowAchievementTooltip(false);
-                          setHoveredAchievement(null);
-                          setActiveAchievementMarker(null);
-                        }
-                        
-                        // Используем handlePersonHover для правильной обработки
-                        handlePersonHover(person, e.clientX, e.clientY)
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isMobile) {
-                        e.currentTarget.style.transform = selectedPerson?.id === person.id ? 'scale(1.05)' : 'translateY(0) scale(1)'
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)'
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
-                        // Используем handlePersonHover для правильной обработки с задержкой
-                        handlePersonHover(null, 0, 0)
-                      }
-                    }}
-                    onMouseMove={(e) => {
-                      if (!isMobile && hoveredPerson?.id === person.id) {
-                        setMousePosition({ x: e.clientX, y: e.clientY })
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        if (isMobile) {
-                          setSelectedPerson(person);
-                        } else {
-                          setHoveredPerson(person);
-                          setShowTooltip(true);
-                        }
-                      }
-                    }}
-                    onTouchStart={(e) => {
-                      if (isMobile) {
-                        // Скрываем tooltip достижения при касании lifebar
-                        if (hoveredAchievement?.person.id === person.id) {
-                          setShowAchievementTooltip(false);
-                          setHoveredAchievement(null);
-                          setActiveAchievementMarker(null);
-                        }
-                      }
-                    }}
-                    onClick={() => {
-                      // Открываем нижнюю панель и на десктопе, и на мобильных
-                      // но игнорируем клик после жеста перетаскивания таймлайна
-                      if (!isDragging && !isDraggingTimeline) {
-                        setSelectedPerson(person)
-                      }
-                    }}
-                  >
-                    <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
-                      <span>{person.name}</span>
-                    </div>
-                  </div>
+                  {/* маркеры достижений */}
+                  <PersonAchievementMarkers
+                    person={person}
+                    isMobile={isMobile}
+                    showAchievements={filters.showAchievements}
+                    hoveredPerson={hoveredPerson}
+                    getAdjustedPosition={getAdjustedPosition}
+                    getGroupColor={getGroupColor}
+                    getGroupColorDark={getGroupColorDark}
+                    getPersonGroup={getPersonGroup}
+                    activeAchievementMarker={activeAchievementMarker}
+                    setActiveAchievementMarker={setActiveAchievementMarker}
+                    hoveredAchievement={hoveredAchievement}
+                    setHoveredAchievement={setHoveredAchievement}
+                    setAchievementTooltipPosition={setAchievementTooltipPosition}
+                    setShowAchievementTooltip={setShowAchievementTooltip}
+                    hoverTimerRef={hoverTimerRef}
+                    handlePersonHover={handlePersonHover}
+                  />
+
+                  <PersonLifeBar
+                    person={person}
+                    isMobile={isMobile}
+                    selectedPerson={selectedPerson}
+                    hoveredPerson={hoveredPerson}
+                    isDragging={isDragging}
+                    isDraggingTimeline={isDraggingTimeline}
+                    hoveredAchievement={hoveredAchievement}
+                    getAdjustedPosition={getAdjustedPosition}
+                    getAdjustedWidth={getAdjustedWidth}
+                    getGroupColorMuted={getGroupColorMuted}
+                    getPersonGroup={getPersonGroup}
+                    handlePersonHover={handlePersonHover}
+                    scheduleMousePosition={scheduleMousePosition}
+                    setSelectedPerson={setSelectedPerson}
+                    setHoveredPerson={setHoveredPerson}
+                    setShowTooltip={setShowTooltip}
+                    setShowAchievementTooltip={setShowAchievementTooltip}
+                    setHoveredAchievement={setHoveredAchievement}
+                    setActiveAchievementMarker={setActiveAchievementMarker}
+                  />
                 </React.Fragment>
               ))}
             </div>

@@ -1,7 +1,11 @@
-/* Импорт всех стилей */
-@import './styles/global.css';
-@import './styles/header.css';
-@import './styles/timeline.css';
-@import './styles/filters.css';
-@import './styles/components.css';
-@import './styles/system.css'; 
+/* ===== ИМПОРТ ВСЕХ СТИЛЕЙ ПРИЛОЖЕНИЯ ===== */
+
+/* ВАЖНО: Глобальные стили уже импортированы в index.css! */
+
+/* Общие shared стили */
+@import './shared/styles/header.css';
+@import './shared/styles/filters.css';
+@import './shared/styles/components.css';
+@import './shared/styles/system.css';
+
+/* Стили фич теперь импортируются в соответствующих компонентах */

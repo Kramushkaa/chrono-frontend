@@ -1,5 +1,5 @@
 import React from 'react'
-import 'shared/styles/MainMenu.css'
+import '../styles/MainMenu.css'
 import { UserMenu } from 'shared/ui/UserMenu'
 import { BrandTitle } from 'shared/ui/BrandTitle'
 import { SEO } from 'shared/ui/SEO'

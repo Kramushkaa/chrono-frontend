@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { useMobile } from 'hooks/useMobile'
+import { useMobile } from '../hooks/useMobile'
 
 interface FilterDropdownProps {
   title: string

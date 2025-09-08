@@ -86,7 +86,4 @@ export const getWidth = (birthYear: number, deathYear: number, pixelsPerYear: nu
 }
 
 // Вспомогательная функция для извлечения первой страны из списка
-export const getFirstCountry = (countryString: string): string => {
-  const countries = countryString.split('/').map(c => c.trim())
-  return countries[0] || countryString
-} 
+// Перенесено в features/persons/utils/getFirstCountry

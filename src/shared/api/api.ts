@@ -1,5 +1,5 @@
 import { authStorage } from '../../features/auth/services/auth'
-import type { UpsertPersonDTO, LifePeriodItemDTO } from '../../dto'
+import type { UpsertPersonDTO, LifePeriodItemDTO } from '../dto'
 // API configuration
 const getApiConfig = () => {
   // Определяем окружение

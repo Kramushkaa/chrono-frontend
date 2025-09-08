@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
-import { useAchievements } from 'hooks/useAchievements';
-import { usePeriods } from 'hooks/usePeriods';
-import { usePersonsPagedV2 } from 'features/persons/hooks/usePersonsPagedV2';
-import { useApiData } from 'hooks/useApiData';
+import { useAchievements } from 'shared/hooks/useAchievements';
+import { usePeriods } from 'shared/hooks/usePeriods'; 
+import { usePersons } from 'features/persons/hooks/usePersons'; 
+import { useApiData } from 'shared/hooks/useApiData';
 import { buildMineParams } from 'features/manage/utils/queryParams';
 
 type Tab = 'persons' | 'achievements' | 'periods';
@@ -60,7 +60,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     isLoading: isPersonsLoadingAll, 
     hasMore: personsHasMoreAll, 
     loadMore: loadMorePersonsAll 
-  } = usePersonsPagedV2(personsQuery, activeTab === 'persons' && menuSelection === 'all');
+  } = usePersons(personsQuery, activeTab === 'persons' && menuSelection === 'all');
 
   const { 
     items: achItemsAll, 
@@ -89,14 +89,14 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     enabled: isAuthenticated, // Загружаем всегда для счетчиков
     pageSize: 100,
     queryParams: useMemo(() => {
-      const shouldApplyFilters = activeTab === 'persons' && menuSelection === 'mine';
+      const shouldApplyFilters = activeTab === 'persons' && isMineOrPendingMode;
       return buildMineParams(shouldApplyFilters, {
         q: searchPersons,
         categoryList: filters.categories,
         countryList: filters.countries,
         statusMap: statusFilters
       });
-    }, [activeTab, menuSelection, searchPersons, filters, statusFilters])
+    }, [activeTab, isMineOrPendingMode, searchPersons, filters, statusFilters])
   });
   const personsMineState = personsMineResult[0];
   const personsMineActions = personsMineResult[1];
@@ -111,12 +111,12 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     enabled: isAuthenticated, // Загружаем всегда для счетчиков
     pageSize: 100,
     queryParams: useMemo(() => {
-      const shouldApplyFilters = activeTab === 'achievements' && menuSelection === 'mine';
+      const shouldApplyFilters = activeTab === 'achievements' && isMineOrPendingMode;
       return buildMineParams(shouldApplyFilters, {
         q: searchAch,
         statusMap: achStatusFilters
       });
-    }, [activeTab, menuSelection, searchAch, achStatusFilters])
+    }, [activeTab, isMineOrPendingMode, searchAch, achStatusFilters])
   });
   const achievementsMineState = achievementsMineResult[0];
   const achievementsMineActions = achievementsMineResult[1];
@@ -129,13 +129,13 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     enabled: isAuthenticated, // Загружаем всегда для счетчиков
     pageSize: 100,
     queryParams: useMemo(() => {
-      const shouldApplyFilters = activeTab === 'periods' && menuSelection === 'mine';
+      const shouldApplyFilters = activeTab === 'periods' && isMineOrPendingMode;
       return buildMineParams(shouldApplyFilters, {
         q: searchPeriods,
         statusMap: periodsStatusFilters,
         extra: { type: periodType || undefined }
       });
-    }, [activeTab, menuSelection, searchPeriods, periodType, periodsStatusFilters])
+    }, [activeTab, isMineOrPendingMode, searchPeriods, periodType, periodsStatusFilters])
   });
   const periodsMineState = periodsMineResult[0];
   const periodsMineActions = periodsMineResult[1];

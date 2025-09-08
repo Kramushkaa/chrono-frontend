@@ -1,5 +1,5 @@
 import React from 'react'
-import { useMobile } from 'hooks/useMobile'
+import { useMobile } from '../../../shared/hooks/useMobile'
 import { Person } from 'shared/types'
 
 interface TooltipsProps {
