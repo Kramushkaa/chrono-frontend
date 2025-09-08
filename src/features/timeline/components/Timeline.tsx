@@ -9,6 +9,7 @@ import {
   getCenturyNumber, 
   toRomanNumeral
 } from '../utils/timelineUtils'
+import { CenturyGridLinesOverlay } from './overlays/CenturyGridLinesOverlay'
 
 interface TimelineProps {
   isLoading: boolean
@@ -412,43 +413,12 @@ export const Timeline: React.FC<TimelineProps> = ({
           pixelsPerYear={pixelsPerYear}
         />
 
-                 {/* Границы веков и промежутков на всю высоту */}
-         <div style={{
-           position: 'absolute',
-           top: '0',
-           left: '0',
-           width: `${getAdjustedTimelineWidth()}px`,
-           height: `${totalHeight + 200}px`,
-           pointerEvents: 'none',
-           zIndex: 5
-         }}>
-                      {timelineElements.map((element) => {
-              if (element.type === 'century') {
-                return (
-                  <div key={`century-line-${element.year}`} style={{
-                    position: 'absolute',
-                    left: `${getAdjustedPosition(element.year)}px`,
-                    width: '2px',
-                    height: '100%',
-                    background: 'linear-gradient(to bottom, #cd853f 0%, #cd853f 20%, rgba(205, 133, 63, 0.3) 100%)',
-                    zIndex: 5
-                  }} />
-                );
-              } else if (element.type === 'gap') {
-                return (
-                  <div key={`gap-line-${element.startYear}`} style={{
-                    position: 'absolute',
-                    left: `${getAdjustedPosition(element.startYear)}px`,
-                    width: '2px',
-                    height: '100%',
-                    background: 'linear-gradient(to bottom, #cd853f 0%, #cd853f 20%, rgba(205, 133, 63, 0.3) 100%)',
-                    zIndex: 5
-                  }} />
-                );
-              }
-              return null;
-            })}
-         </div>
+        <CenturyGridLinesOverlay
+          elements={timelineElements as any}
+          getAdjustedPosition={getAdjustedPosition}
+          adjustedTimelineWidth={getAdjustedTimelineWidth()}
+          totalHeight={totalHeight}
+        />
 
          {/* Метки веков в пределах текущего вьюпорта */}
          <div style={{
