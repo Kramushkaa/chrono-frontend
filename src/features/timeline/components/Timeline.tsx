@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { TimelineBackgroundOverlay } from './overlays/TimelineBackgroundOverlay'
+import { ViewportCenturyLabelsOverlay } from './overlays/ViewportCenturyLabelsOverlay'
 import { useMobile } from 'hooks/useMobile'
 import { Person } from 'shared/types'
 import { 
@@ -420,50 +421,11 @@ export const Timeline: React.FC<TimelineProps> = ({
           totalHeight={totalHeight}
         />
 
-         {/* Метки веков в пределах текущего вьюпорта */}
-         <div style={{
-           position: 'absolute',
-           top: '0',
-           left: '0',
-           width: `${getAdjustedTimelineWidth()}px`,
-           height: `${totalHeight + 200}px`,
-           pointerEvents: 'none',
-           zIndex: 6
-         }}>
-           {createViewportCenturyLabels().map((label) => (
-             <div
-               key={label.id}
-               style={{
-                 position: 'absolute',
-                 left: `${label.left}px`,
-                 top: `${label.top}px`,
-                 transform: 'translate(-50%, -50%)',
-                  fontSize: label.type === 'century' ? '1.2rem' : '0.7rem',
-                 fontWeight: 'bold',
-                  color: label.type === 'century' 
-                    ? 'rgba(244, 228, 193, 0.28)'
-                    : 'rgba(139, 69, 19, 0.35)',
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
-                 pointerEvents: 'none',
-                 fontFamily: label.type === 'century' ? 'serif' : 'sans-serif',
-                 textAlign: 'center',
-                 maxWidth: '200px',
-                 wordWrap: 'break-word'
-               }}
-             >
-               {label.type === 'century' ? (
-                 label.romanNumeral
-               ) : (
-                 <>
-                   <div>Скрыто:</div>
-                   <div style={{ fontSize: '0.7rem', marginTop: '2px' }}>
-                     {label.romanNumeral}
-                   </div>
-                 </>
-               )}
-             </div>
-           ))}
-         </div>
+        <ViewportCenturyLabelsOverlay
+          labels={createViewportCenturyLabels() as any}
+          adjustedTimelineWidth={getAdjustedTimelineWidth()}
+          totalHeight={totalHeight}
+        />
 
          {/* Разделители групп */}
          <div 
