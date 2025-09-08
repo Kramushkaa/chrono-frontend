@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
-import { useAchievements } from 'hooks/useAchievements';
-import { usePeriods } from 'hooks/usePeriods';
-import { usePersons } from 'hooks/usePersons';
-import { useApiData } from 'hooks/useApiData';
+import { useAchievements } from 'shared/hooks/useAchievements';
+import { usePeriods } from 'shared/hooks/usePeriods';
+import { usePersons } from 'shared/hooks/usePersons';
+import { useApiData } from 'shared/hooks/useApiData';
 import { buildMineParams } from 'features/manage/utils/queryParams';
 
 type Tab = 'persons' | 'achievements' | 'periods';

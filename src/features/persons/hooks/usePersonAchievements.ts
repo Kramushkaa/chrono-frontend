@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useApiDataSimple } from 'hooks/useApiData'
+import { useApiDataSimple } from 'shared/hooks/useApiData'
 import { Person } from 'shared/types'
 
 interface Achievement {

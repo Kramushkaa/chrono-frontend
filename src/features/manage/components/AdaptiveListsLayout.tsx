@@ -1,5 +1,5 @@
 import React from 'react'
-import { useMobileLayout } from 'hooks/useMobileLayout'
+import { useMobileLayout } from 'shared/hooks/useMobileLayout'
 import { MobileListsLayout } from './MobileListsLayout'
 import { DesktopListsLayout } from './DesktopListsLayout'
 
