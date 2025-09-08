@@ -13,6 +13,7 @@ import {
 import { CenturyGridLinesOverlay } from './overlays/CenturyGridLinesOverlay'
 import { PersonYearLabels } from './rows/PersonYearLabels'
 import { PersonReignBars } from './rows/PersonReignBars'
+import { PersonLifeBar } from './rows/PersonLifeBar'
 
 interface TimelineProps {
   isLoading: boolean
@@ -485,99 +486,27 @@ export const Timeline: React.FC<TimelineProps> = ({
                   {/* полосы правления: множественные сегменты */}
                   <PersonReignBars person={person} getAdjustedPosition={getAdjustedPosition} getAdjustedWidth={getAdjustedWidth} />
 
-                                     <div
-                     className="life-bar"
-                     id={`life-bar-${person.id}`}
-                     role="button"
-                     aria-label={`${person.name}, ${person.birthYear} - ${person.deathYear}, ${person.category}`}
-                     tabIndex={0}
-                     style={{
-                       position: 'absolute',
-                       top: '10px',
-                       left: `${getAdjustedPosition(person.birthYear)}px`,
-                       width: `${getAdjustedWidth(person.birthYear, person.deathYear)}px`,
-                       height: '40px',
-                       background: `linear-gradient(135deg, ${getGroupColorMuted(getPersonGroup(person))} 0%, #6a5a3a 100%)`,
-                       borderRadius: '6px',
-                       cursor: 'pointer',
-                       display: 'flex',
-                       alignItems: 'center',
-                       padding: '0 12px',
-                       color: 'white',
-                       fontSize: '14px',
-                       fontWeight: 'bold',
-                       minWidth: '60px',
-                       boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                       border: '1.5px solid #a8926a',
-                       opacity: selectedPerson?.id === person.id ? 0.8 : 1,
-                       zIndex: 5,
-                       transform: selectedPerson?.id === person.id ? 'scale(1.05)' : 'scale(1)',
-                       transition: 'all 0.2s ease'
-                     }}
-                    onMouseEnter={(e) => {
-                      if (!isMobile) {
-                        e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'
-                        e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.4)'
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)'
-                        
-                        // Скрываем tooltip достижения при наведении на lifebar
-                        if (hoveredAchievement?.person.id === person.id) {
-                          setShowAchievementTooltip(false);
-                          setHoveredAchievement(null);
-                          setActiveAchievementMarker(null);
-                        }
-                        
-                        // Используем handlePersonHover для правильной обработки
-                        handlePersonHover(person, e.clientX, e.clientY)
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isMobile) {
-                        e.currentTarget.style.transform = selectedPerson?.id === person.id ? 'scale(1.05)' : 'translateY(0) scale(1)'
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)'
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
-                        // Используем handlePersonHover для правильной обработки с задержкой
-                        handlePersonHover(null, 0, 0)
-                      }
-                    }}
-                    onMouseMove={(e) => {
-                      if (!isMobile && hoveredPerson?.id === person.id) {
-                        scheduleMousePosition(e.clientX, e.clientY)
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        if (isMobile) {
-                          setSelectedPerson(person);
-                        } else {
-                          setHoveredPerson(person);
-                          setShowTooltip(true);
-                        }
-                      }
-                    }}
-                    onTouchStart={(e) => {
-                      if (isMobile) {
-                        // Скрываем tooltip достижения при касании lifebar
-                        if (hoveredAchievement?.person.id === person.id) {
-                          setShowAchievementTooltip(false);
-                          setHoveredAchievement(null);
-                          setActiveAchievementMarker(null);
-                        }
-                      }
-                    }}
-                    onClick={() => {
-                      // Открываем нижнюю панель и на десктопе, и на мобильных
-                      // но игнорируем клик после жеста перетаскивания таймлайна
-                      if (!isDragging && !isDraggingTimeline) {
-                        setSelectedPerson(person)
-                      }
-                    }}
-                  >
-                    <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
-                      <span>{person.name}</span>
-                    </div>
-                  </div>
+                  <PersonLifeBar
+                    person={person}
+                    isMobile={isMobile}
+                    selectedPerson={selectedPerson}
+                    hoveredPerson={hoveredPerson}
+                    isDragging={isDragging}
+                    isDraggingTimeline={isDraggingTimeline}
+                    hoveredAchievement={hoveredAchievement}
+                    getAdjustedPosition={getAdjustedPosition}
+                    getAdjustedWidth={getAdjustedWidth}
+                    getGroupColorMuted={getGroupColorMuted}
+                    getPersonGroup={getPersonGroup}
+                    handlePersonHover={handlePersonHover}
+                    scheduleMousePosition={scheduleMousePosition}
+                    setSelectedPerson={setSelectedPerson}
+                    setHoveredPerson={setHoveredPerson}
+                    setShowTooltip={setShowTooltip}
+                    setShowAchievementTooltip={setShowAchievementTooltip}
+                    setHoveredAchievement={setHoveredAchievement}
+                    setActiveAchievementMarker={setActiveAchievementMarker}
+                  />
                 </React.Fragment>
               ))}
             </div>
