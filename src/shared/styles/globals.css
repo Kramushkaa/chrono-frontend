@@ -26,6 +26,13 @@ body {
   line-height: 1.6;
 }
 
+/* Ensure app layout fills the viewport so inner containers can scroll */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
 /* Code styling */
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;

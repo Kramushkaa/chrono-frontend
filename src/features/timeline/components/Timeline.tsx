@@ -393,7 +393,8 @@ export const Timeline: React.FC<TimelineProps> = ({
         aria-hidden="true"
         style={{ 
           position: 'relative', 
-          height: '100%',
+          minHeight: '100%',
+          height: 'auto',
           overflow: 'visible',
           padding: isMobile ? '0' : '1rem 0 2rem 0'
         }}
@@ -428,27 +429,25 @@ export const Timeline: React.FC<TimelineProps> = ({
         />
 
                  {/* Полоски жизни */}
-         <div 
-           ref={timelineRef}
-           className="person-timeline"
-           id="person-timeline"
-           role="list"
-           aria-label="Временные линии исторических личностей"
-           style={{ 
-             position: 'relative',
-             width: `${getAdjustedTimelineWidth()}px`,
-             height: `${totalHeight + 60}px`,
-             zIndex: 10
-           }}
-           onScroll={(e) => setScrollTop((e.currentTarget as HTMLDivElement).scrollTop)}
-           onMouseDown={!isMobile ? handleMouseDown : undefined}
-           onMouseMove={!isMobile ? handleMouseMove : undefined}
-           onMouseUp={!isMobile ? handleMouseUp : undefined}
-           onMouseLeave={!isMobile ? handleMouseUp : undefined}
-           onTouchStart={!isMobile ? handleTouchStart : undefined}
-           onTouchMove={!isMobile ? handleTouchMove : undefined}
-           onTouchEnd={!isMobile ? handleTouchEnd : undefined}
-         >
+        <div 
+          className="person-timeline"
+          id="person-timeline"
+          role="list"
+          aria-label="Временные линии исторических личностей"
+          style={{ 
+            position: 'relative',
+            width: `${getAdjustedTimelineWidth()}px`,
+            height: `${totalHeight + 60}px`,
+            zIndex: 10
+          }}
+          onMouseDown={!isMobile ? handleMouseDown : undefined}
+          onMouseMove={!isMobile ? handleMouseMove : undefined}
+          onMouseUp={!isMobile ? handleMouseUp : undefined}
+          onMouseLeave={!isMobile ? handleMouseUp : undefined}
+          onTouchStart={!isMobile ? handleTouchStart : undefined}
+          onTouchMove={!isMobile ? handleTouchMove : undefined}
+          onTouchEnd={!isMobile ? handleTouchEnd : undefined}
+        >
           {/* Top spacer to keep scroll position */}
           {topSpacer > 0 && (
             <div style={{ height: `${topSpacer}px` }} aria-hidden="true" />

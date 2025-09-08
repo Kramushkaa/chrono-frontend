@@ -270,6 +270,41 @@ export default function TimelinePage() {
     [rowPlacement]
   )
 
+  // Lock body scroll while timeline is mounted
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prevOverflow
+    }
+  }, [])
+
+  // Вычисление разделителей категорий/стран по началу каждой группы
+  const categoryDividers = useMemo(() => {
+    if (groupingType === 'none') return [] as { category: string; top: number }[]
+    const dividers: { category: string; top: number }[] = []
+
+    let runningTop = 0
+    let lastGroup: string | null = null
+
+    for (let i = 0; i < rowPlacement.length; i++) {
+      const row = rowPlacement[i]
+      const rowHeight = row.length === 0 ? 20 : 70
+
+      if (row.length > 0) {
+        const currentGroup = getPersonGroup(row[0], groupingType)
+        if (lastGroup === null || currentGroup !== lastGroup) {
+          dividers.push({ category: currentGroup, top: runningTop })
+          lastGroup = currentGroup
+        }
+      }
+
+      runningTop += rowHeight
+    }
+
+    return dividers
+  }, [rowPlacement, groupingType])
+
   return (
     <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Интерактивная временная линия исторических личностей">
       <SEO
@@ -334,7 +369,7 @@ export default function TimelinePage() {
               rowPlacement={rowPlacement}
               filters={filters}
               groupingType={groupingType}
-              categoryDividers={[]}
+              categoryDividers={categoryDividers}
               getGroupColor={getGroupColor}
               getGroupColorDark={getGroupColorDark}
               getGroupColorMuted={getGroupColorMuted}

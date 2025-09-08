@@ -79,7 +79,7 @@ export const PersonAchievementMarkers: React.FC<PersonAchievementMarkersProps> =
             width: '2px',
             height: '15px',
             backgroundColor: getGroupColorDark(getPersonGroup(person)),
-            zIndex: activeAchievementMarker?.personId === person.id && activeAchievementMarker?.index === index ? 10 : 3,
+            zIndex: activeAchievementMarker?.personId === person.id && activeAchievementMarker?.index === index ? 12 : 7,
             transform: 'translateX(-50%)',
             cursor: 'pointer',
             transition: 'all 0.2s ease'
@@ -90,6 +90,12 @@ export const PersonAchievementMarkers: React.FC<PersonAchievementMarkersProps> =
               ;(e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 3px ${getGroupColor(getPersonGroup(person))}`
 
               setActiveAchievementMarker({ personId: person.id, index })
+              // Raise label above on hover
+              const label = (e.currentTarget as HTMLDivElement).querySelector('.achievement-year-label') as HTMLDivElement | null
+              if (label) {
+                label.style.zIndex = '13'
+                label.style.borderColor = getGroupColor(getPersonGroup(person))
+              }
 
               if (hoveredPerson?.id === person.id) {
                 handlePersonHover(null, 0, 0)
@@ -117,6 +123,11 @@ export const PersonAchievementMarkers: React.FC<PersonAchievementMarkersProps> =
               if (hoveredPerson?.id === person.id) {
                 handlePersonHover(null, 0, 0)
               }
+              const label = (e.currentTarget as HTMLDivElement).querySelector('.achievement-year-label') as HTMLDivElement | null
+              if (label) {
+                label.style.zIndex = '6'
+                label.style.borderColor = getGroupColorDark(getPersonGroup(person))
+              }
             }
           }}
           onMouseMove={(e) => {
@@ -132,7 +143,89 @@ export const PersonAchievementMarkers: React.FC<PersonAchievementMarkersProps> =
               setShowAchievementTooltip(true)
             }
           }}
-        />
+        >
+          <div
+            className="achievement-year-label"
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '0',
+              transform: 'translate(-50%, -100%)',
+              backgroundColor: '#000',
+              color: '#fff',
+              padding: '0 4px',
+              borderRadius: '3px',
+              border: `1px solid ${getGroupColor(getPersonGroup(person))}`,
+              fontSize: '10px',
+              lineHeight: '14px',
+              height: '14px',
+              whiteSpace: 'nowrap',
+              pointerEvents: 'auto',
+              zIndex: 8,
+              boxShadow: '0 1px 2px rgba(0,0,0,0.35)'
+            }}
+            onMouseEnter={(e) => {
+              if (!isMobile) {
+                const parent = (e.currentTarget as HTMLDivElement).parentElement as HTMLDivElement
+                if (parent) {
+                  parent.style.backgroundColor = getGroupColor(getPersonGroup(person))
+                  parent.style.boxShadow = `0 0 3px ${getGroupColor(getPersonGroup(person))}`
+                }
+                (e.currentTarget as HTMLDivElement).style.zIndex = '13'
+                setActiveAchievementMarker({ personId: person.id, index })
+                if (hoveredPerson?.id === person.id) {
+                  handlePersonHover(null, 0, 0)
+                }
+                if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
+                const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
+                const px = rect.left + rect.width / 2
+                const py = rect.top
+                hoverTimerRef.current = setTimeout(() => {
+                  scheduleTooltipPosition(px, py)
+                  setHoveredAchievement({ person, year, index })
+                  setShowAchievementTooltip(true)
+                }, 500)
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isMobile) {
+                const parent = (e.currentTarget as HTMLDivElement).parentElement as HTMLDivElement
+                if (parent) {
+                  parent.style.backgroundColor = getGroupColorDark(getPersonGroup(person))
+                  parent.style.boxShadow = 'none'
+                }
+                (e.currentTarget as HTMLDivElement).style.zIndex = '8'
+                setActiveAchievementMarker(null)
+                if (hoverTimerRef.current) {
+                  clearTimeout(hoverTimerRef.current)
+                  hoverTimerRef.current = null
+                }
+                setShowAchievementTooltip(false)
+                setHoveredAchievement(null)
+                if (hoveredPerson?.id === person.id) {
+                  handlePersonHover(null, 0, 0)
+                }
+              }
+            }}
+            onMouseMove={(e) => {
+              if (!isMobile && hoveredAchievement && hoveredAchievement.person.id === person.id && hoveredAchievement.index === index) {
+                const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
+                scheduleTooltipPosition(rect.left + rect.width / 2, rect.top)
+              }
+            }}
+            onTouchStart={(e) => {
+              if (isMobile) {
+                const touch = e.touches[0]
+                setAchievementTooltipPosition({ x: touch.clientX, y: touch.clientY })
+                setHoveredAchievement({ person, year, index })
+                setShowAchievementTooltip(true)
+              }
+            }}
+          >
+            {year}
+          </div>
+        </div>
       ))}
     </>
   )
