@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Person } from 'shared/types'
-import { useFilters } from 'shared/hooks/useFilters'
+import { useFilters } from '../../../shared/hooks/useFilters'
 import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils'
 import { PersonCard } from 'features/persons/components/PersonCard'
 import { getCategories, getCountries, getCountryOptions, CountryOption, apiFetch, apiData } from 'shared/api/api'

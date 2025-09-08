@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { TimelineBackgroundOverlay } from './overlays/TimelineBackgroundOverlay'
 import { ViewportCenturyLabelsOverlay } from './overlays/ViewportCenturyLabelsOverlay'
 import { CategoryDividersOverlay } from './overlays/CategoryDividersOverlay'
-import { useMobile } from 'shared/hooks/useMobile'
+import { useMobile } from '../../../shared/hooks/useMobile'
 import { Person } from 'shared/types'
 import { 
   getPosition, 

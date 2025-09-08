@@ -3,7 +3,7 @@ import { RegisterForm } from 'features/auth/components/RegisterForm';
 import { useNavigate } from 'react-router-dom';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { Breadcrumbs } from 'shared/ui/Breadcrumbs';
-import { useFilters } from 'shared/hooks/useFilters';
+import { useFilters } from '../../../shared/hooks/useFilters';
 import { getCategories, getCountries } from 'shared/api/api';
 import { getGroupColor } from 'features/persons/utils/groupingUtils';
 
