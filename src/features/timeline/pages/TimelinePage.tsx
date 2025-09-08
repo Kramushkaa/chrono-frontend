@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from 'shared/context/AuthContext'
 import { useFilters } from '../../../shared/hooks/useFilters'
 import { useTimelineData } from 'features/timeline/hooks/useTimelineData'
@@ -21,6 +22,7 @@ const Tooltips = React.lazy(() => import('features/timeline/components/Tooltips'
 const PersonPanel = React.lazy(() => import('features/persons/components/PersonPanel').then(m => ({ default: m.PersonPanel })))
 
 export default function TimelinePage() {
+  const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth();
 
   const [isScrolled, setIsScrolled] = useState(false)
@@ -298,7 +300,7 @@ export default function TimelinePage() {
           handleSliderMouseMove={handleSliderMouseMove}
           handleSliderMouseUp={handleSliderMouseUp}
           isDraggingSlider={isDraggingSlider}
-          onBackToMenu={() => window.history.replaceState(null, '', '/menu')}
+          onBackToMenu={() => navigate('/menu')}
           isAuthenticated={isAuthenticated}
           personLists={personLists}
           selectedListId={selectedListId}

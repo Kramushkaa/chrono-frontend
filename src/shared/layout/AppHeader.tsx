@@ -118,162 +118,10 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
           <BrandTitle asLink />
         </h1>
         
-        {/* Профиль и, опционально, кнопка "Назад в меню" рядом */}
-        {onBackToMenu && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginLeft: '0.25rem' }}>
-            <button
-              onClick={onBackToMenu}
-              style={{
-                padding: '0.4rem 0.8rem',
-                background: 'rgba(205, 133, 63, 0.2)',
-                border: '1px solid rgba(205, 133, 63, 0.4)',
-                borderRadius: '6px',
-                color: '#cd853f',
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                fontWeight: 'bold'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(205, 133, 63, 0.3)'
-                e.currentTarget.style.borderColor = 'rgba(205, 133, 63, 0.6)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(205, 133, 63, 0.2)'
-                e.currentTarget.style.borderColor = 'rgba(205, 133, 63, 0.4)'
-              }}
-              title="Вернуться в главное меню"
-              aria-label="Вернуться в главное меню"
-            >
-              ← Меню
-            </button>
-            <UserMenu />
-          </div>
-        )}
-
-        {/* Профиль справа, если нет кнопки назад */}
-        {!onBackToMenu && (
-          <div style={{ marginLeft: 'auto' }}>
-            <UserMenu />
-          </div>
-        )}
-
         {extraRightControls && (
           <div style={{ marginLeft: '0.5rem' }}>
             {extraRightControls}
           </div>
-        )}
-        {mode === 'full' && (
-        <div className="share-buttons" style={{
-          display: 'none',
-          gap: '0.5rem',
-          alignItems: 'center',
-          marginLeft: 'auto',
-          marginRight: '1rem'
-        }}>
-          <button
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({
-                  title: 'Хронониндзя — Временные линии исторических личностей',
-                  text: 'Изучайте биографии и достижения выдающихся личностей разных эпох',
-                  url: window.location.href
-                });
-              } else {
-                // Fallback для браузеров без Web Share API
-                navigator.clipboard.writeText(window.location.href);
-                showToast('Ссылка скопирована в буфер обмена', 'info')
-              }
-            }}
-            style={{
-              padding: '0.4rem 0.6rem',
-              background: 'rgba(52, 152, 219, 0.2)',
-              border: '1px solid rgba(52, 152, 219, 0.4)',
-              borderRadius: '4px',
-              color: '#3498db',
-              fontSize: '0.7rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem'
-            }}
-            title="Поделиться"
-            aria-label="Поделиться ссылкой на приложение"
-          >
-            📤 Поделиться
-          </button>
-          
-              <button
-            onClick={() => {
-                const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent('Изучаю исторические личности с Хронониндзя!')}&url=${encodeURIComponent(window.location.href)}`;
-              window.open(url, '_blank');
-            }}
-            style={{
-              padding: '0.4rem 0.6rem',
-              background: 'rgba(29, 161, 242, 0.2)',
-              border: '1px solid rgba(29, 161, 242, 0.4)',
-              borderRadius: '4px',
-              color: '#1da1f2',
-              fontSize: '0.7rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            title="Поделиться в Twitter"
-            aria-label="Поделиться в Twitter"
-          >
-            🐦
-          </button>
-          
-          <button
-            onClick={() => {
-              const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
-              window.open(url, '_blank');
-            }}
-            style={{
-              padding: '0.4rem 0.6rem',
-              background: 'rgba(66, 103, 178, 0.2)',
-              border: '1px solid rgba(66, 103, 178, 0.4)',
-              borderRadius: '4px',
-              color: '#4267b2',
-              fontSize: '0.7rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            title="Поделиться в Facebook"
-            aria-label="Поделиться в Facebook"
-          >
-            📘
-          </button>
-        </div>
-        )}
-        
-        {mode === 'full' && (
-        <button
-          className="filters-toggle-btn"
-          id="filters-toggle"
-          aria-label={showControls ? 'Скрыть фильтры' : 'Показать фильтры'}
-          aria-expanded={showControls}
-          aria-controls="header-controls-mobile"
-          onClick={() => setShowControls(!showControls)}
-          style={{
-            padding: '0.3rem 0.6rem',
-            background: showControls ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
-            border: `1px solid ${showControls ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
-            borderRadius: '4px',
-            color: '#f4e4c1',
-            fontSize: '0.7rem',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            opacity: showControls ? 1 : 0.6
-          }}
-          title={showControls ? 'Скрыть фильтры' : 'Показать фильтры'}
-        >
-          ⚙️
-        </button>
         )}
 
         {mode === 'full' && (
@@ -435,6 +283,158 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
               </button>
             </div>
           </div>
+        </div>
+        )}
+
+        {mode === 'full' && (
+        <button
+          className="filters-toggle-btn"
+          id="filters-toggle"
+          aria-label={showControls ? 'Скрыть фильтры' : 'Показать фильтры'}
+          aria-expanded={showControls}
+          aria-controls="header-controls-mobile"
+          onClick={() => setShowControls(!showControls)}
+          style={{
+            padding: '0.3rem 0.6rem',
+            background: showControls ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
+            border: `1px solid ${showControls ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
+            borderRadius: '4px',
+            color: '#f4e4c1',
+            fontSize: '0.7rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            opacity: showControls ? 1 : 0.6
+          }}
+          title={showControls ? 'Скрыть фильтры' : 'Показать фильтры'}
+        >
+          ⚙️
+        </button>
+        )}
+
+        {/* Профиль и, опционально, кнопка "Назад в меню" справа */}
+        {onBackToMenu && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginLeft: 'auto' }}>
+            <button
+              onClick={onBackToMenu}
+              style={{
+                padding: '0.4rem 0.8rem',
+                background: 'rgba(205, 133, 63, 0.2)',
+                border: '1px solid rgba(205, 133, 63, 0.4)',
+                borderRadius: '6px',
+                color: '#cd853f',
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                fontWeight: 'bold'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(205, 133, 63, 0.3)'
+                e.currentTarget.style.borderColor = 'rgba(205, 133, 63, 0.6)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(205, 133, 63, 0.2)'
+                e.currentTarget.style.borderColor = 'rgba(205, 133, 63, 0.4)'
+              }}
+              title="Вернуться в главное меню"
+              aria-label="Вернуться в главное меню"
+            >
+              Меню
+            </button>
+            <UserMenu />
+          </div>
+        )}
+
+        {/* Профиль справа, если нет кнопки назад */}
+        {!onBackToMenu && (
+          <div style={{ marginLeft: 'auto' }}>
+            <UserMenu />
+          </div>
+        )}
+        {mode === 'full' && (
+        <div className="share-buttons" style={{
+          display: 'none',
+          gap: '0.5rem',
+          alignItems: 'center',
+          marginLeft: 'auto',
+          marginRight: '1rem'
+        }}>
+          <button
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: 'Хронониндзя — Временные линии исторических личностей',
+                  text: 'Изучайте биографии и достижения выдающихся личностей разных эпох',
+                  url: window.location.href
+                });
+              } else {
+                // Fallback для браузеров без Web Share API
+                navigator.clipboard.writeText(window.location.href);
+                showToast('Ссылка скопирована в буфер обмена', 'info')
+              }
+            }}
+            style={{
+              padding: '0.4rem 0.6rem',
+              background: 'rgba(52, 152, 219, 0.2)',
+              border: '1px solid rgba(52, 152, 219, 0.4)',
+              borderRadius: '4px',
+              color: '#3498db',
+              fontSize: '0.7rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}
+            title="Поделиться"
+            aria-label="Поделиться ссылкой на приложение"
+          >
+            📤 Поделиться
+          </button>
+          
+              <button
+            onClick={() => {
+                const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent('Изучаю исторические личности с Хронониндзя!')}&url=${encodeURIComponent(window.location.href)}`;
+              window.open(url, '_blank');
+            }}
+            style={{
+              padding: '0.4rem 0.6rem',
+              background: 'rgba(29, 161, 242, 0.2)',
+              border: '1px solid rgba(29, 161, 242, 0.4)',
+              borderRadius: '4px',
+              color: '#1da1f2',
+              fontSize: '0.7rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            title="Поделиться в Twitter"
+            aria-label="Поделиться в Twitter"
+          >
+            🐦
+          </button>
+          
+          <button
+            onClick={() => {
+              const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+              window.open(url, '_blank');
+            }}
+            style={{
+              padding: '0.4rem 0.6rem',
+              background: 'rgba(66, 103, 178, 0.2)',
+              border: '1px solid rgba(66, 103, 178, 0.4)',
+              borderRadius: '4px',
+              color: '#4267b2',
+              fontSize: '0.7rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            title="Поделиться в Facebook"
+            aria-label="Поделиться в Facebook"
+          >
+            📘
+          </button>
         </div>
         )}
       </div>
