@@ -14,6 +14,7 @@ import { apiData } from 'shared/api/api'
 import { TimelineHeaderContainer } from 'features/timeline/containers/TimelineHeaderContainer'
 import { SEO } from 'shared/ui/SEO'
 import { Person } from 'shared/types'
+import '../styles/timeline.css'
 
 const Timeline = React.lazy(() => import('features/timeline/components/Timeline').then(m => ({ default: m.Timeline })))
 const Tooltips = React.lazy(() => import('features/timeline/components/Tooltips').then(m => ({ default: m.Tooltips })))

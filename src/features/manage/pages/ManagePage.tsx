@@ -22,7 +22,7 @@ import { UnifiedManageSection } from 'features/manage/components/UnifiedManageSe
 import { ManageUIProvider } from 'features/manage/context/ManageUIContext'
 import { useManagePageData } from '../hooks/useManagePageData'
 import { slugifyIdFromName } from 'shared/utils/slug'
-import '../../../styles/manage-page.css'
+import '../styles/manage-page.css'
 
 type Tab = 'persons' | 'achievements' | 'periods'
 
