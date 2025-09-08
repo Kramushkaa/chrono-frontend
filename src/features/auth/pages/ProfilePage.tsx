@@ -1,6 +1,6 @@
 import React, { useEffect, useEffect as ReactEffect, useState, useRef } from 'react';
 import { useAuth } from 'shared/context/AuthContext';
-import { Profile } from 'components/Profile';
+import { Profile } from '../components/Profile';
 import { apiFetch } from 'shared/api/api';
 import { useToast } from 'shared/context/ToastContext';
 import { LoginForm } from 'features/auth/components/LoginForm';

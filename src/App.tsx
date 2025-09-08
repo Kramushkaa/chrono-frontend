@@ -14,7 +14,7 @@ const ProfilePage = React.lazy(() => import('features/auth/pages/ProfilePage'))
 const RegisterPage = React.lazy(() => import('features/auth/pages/RegisterPage'))
 const ManagePage = React.lazy(() => import('features/manage/pages/ManagePage'))
 const QuizPage = React.lazy(() => import('features/quiz/pages/QuizPage').then(m => ({ default: m.default })))
-const TimelinePage = React.lazy(() => import('pages/TimelinePage').then(m => ({ default: m.default })))
+const TimelinePage = React.lazy(() => import('features/timeline/pages/TimelinePage').then(m => ({ default: m.default })))
 
 export default function App() {
   return (

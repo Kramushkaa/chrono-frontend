@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getBackendInfo, testBackendConnection, getApiCandidates, applyBackendOverride, getDtoVersion } from 'shared/api/api';
-import { DTO_VERSION as DTO_VERSION_FE } from 'dto';
+import { DTO_VERSION as DTO_VERSION_FE } from '../dto';
 import 'shared/styles/BackendInfo.css';
 
 interface BackendInfoProps {
