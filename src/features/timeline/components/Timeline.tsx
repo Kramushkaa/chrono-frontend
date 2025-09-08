@@ -133,18 +133,7 @@ export const Timeline: React.FC<TimelineProps> = ({
     }
   }, [setMousePosition])
 
-  const achRafRef = useRef<number | null>(null)
-  const pendingAchPosRef = useRef<{ x: number; y: number } | null>(null)
-  const scheduleAchievementPosition = useCallback((x: number, y: number) => {
-    pendingAchPosRef.current = { x, y }
-    if (achRafRef.current == null) {
-      achRafRef.current = requestAnimationFrame(() => {
-        achRafRef.current = null
-        const p = pendingAchPosRef.current
-        if (p) setAchievementTooltipPosition(p)
-      })
-    }
-  }, [setAchievementTooltipPosition])
+  // Removed achievement tooltip rAF scheduler after extraction
 
   const scrollRafRef = useRef<number | null>(null)
   const lastScrollTopRef = useRef(0)
