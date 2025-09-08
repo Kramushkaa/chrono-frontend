@@ -1,11 +1,14 @@
 .main-menu {
-  min-height: 100vh;
+  /* Occupy full viewport and enable internal scrolling on mobile */
+  height: 100vh;
   background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 50%, #6a4c2a 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .main-menu-container {

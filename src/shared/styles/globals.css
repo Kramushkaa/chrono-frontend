@@ -11,7 +11,9 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden;
+  /* Allow pages that manage their own scroll (like .main-menu) to scroll;
+     we disable global overflow only on timeline screens when needed */
+  overflow: auto;
 }
 
 /* Основные стили body */
