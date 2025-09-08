@@ -30,3 +30,25 @@ export interface Person {
     // Поля для модерации (не всегда присутствуют)
     status?: 'draft' | 'pending' | 'approved' | 'rejected';
   } 
+
+// Filters and UI shared types
+export type GroupingType = 'category' | 'country' | 'none'
+
+export interface TimeRange {
+  start: number
+  end: number
+}
+
+export interface FiltersState {
+  showAchievements: boolean
+  hideEmptyCenturies: boolean
+  categories: string[]
+  countries: string[]
+  timeRange: TimeRange
+}
+
+export type SetFilters = (
+  next:
+    | FiltersState
+    | ((prev: FiltersState) => FiltersState)
+) => void

@@ -376,28 +376,30 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
 }
 
 // --- Unified JSON parsing helpers ---
-type ApiError = Error & { status?: number; payload?: any };
+type ApiErrorPayload = { message?: string; error?: string; error_message?: string } & Record<string, unknown>
+type ApiError = Error & { status?: number; payload?: ApiErrorPayload };
 
-async function parseResponseJson(res: Response): Promise<any> {
-  let body: any = null;
+async function parseResponseJson<T = unknown>(res: Response): Promise<T> {
+  let body: unknown = null;
   try {
     body = await (res.clone ? res.clone().json() : res.json());
   } catch {
     try {
       const text = await res.text();
-      try { body = JSON.parse(text); } catch { body = { message: text } }
+      try { body = JSON.parse(text); } catch { body = { message: text } as ApiErrorPayload }
     } catch {}
   }
   if (!res.ok) {
+    const payload = (body || {}) as ApiErrorPayload
     const message =
-      (body && (body.message || body.error || body.error_message)) ||
+      (payload && (payload.message || payload.error || payload.error_message)) ||
       `HTTP ${res.status}`;
     const err: ApiError = new Error(typeof message === 'string' ? message : 'Request failed');
     err.status = res.status;
-    (err as any).payload = body;
+    err.payload = payload;
     throw err;
   }
-  return body;
+  return body as T;
 }
 
 export async function apiJson<T = any>(path: string, init: RequestInit = {}): Promise<T> {

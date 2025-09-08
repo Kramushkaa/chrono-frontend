@@ -1,6 +1,7 @@
 import React from 'react'
 import { AppHeader } from 'shared/layout/AppHeader'
 import { ListSelector } from 'features/timeline/components/ListSelector'
+import type { FiltersState, GroupingType, Person } from 'shared/types'
 
 interface Props {
   // header state
@@ -9,19 +10,19 @@ interface Props {
   setShowControls: (v: boolean) => void
 
   // filters
-  filters: any
-  setFilters: any
-  groupingType: 'category' | 'country' | 'none'
-  setGroupingType: (v: 'category' | 'country' | 'none') => void
+  filters: FiltersState
+  setFilters: (next: FiltersState | ((prev: FiltersState) => FiltersState)) => void
+  groupingType: GroupingType
+  setGroupingType: (v: GroupingType) => void
   allCategories: string[]
   allCountries: string[]
   yearInputs: { start: string; end: string }
   setYearInputs: (inputs: { start: string; end: string } | ((prev: { start: string; end: string }) => { start: string; end: string })) => void
   applyYearFilter: (field: 'start' | 'end', value: string) => void
-  handleYearKeyPress: (field: 'start' | 'end', e: any) => void
+  handleYearKeyPress: (field: 'start' | 'end', e: React.KeyboardEvent<HTMLInputElement>) => void
   resetAllFilters: () => void
   getCategoryColor: (groupName: string) => string
-  sortedData: any[]
+  sortedData: Person[]
 
   // slider
   handleSliderMouseDown: (e: React.MouseEvent | React.TouchEvent, handle: 'start' | 'end') => void

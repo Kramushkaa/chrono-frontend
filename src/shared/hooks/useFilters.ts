@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
+import type { FiltersState, GroupingType } from 'shared/types'
 
 export const useFilters = () => {
-  const [filters, setFiltersState] = useState(() => {
+  const [filters, setFiltersState] = useState<FiltersState>(() => {
     const savedFilters = localStorage.getItem('chrononinja-filters');
     if (savedFilters) {
       const parsed = JSON.parse(savedFilters);
@@ -22,12 +23,12 @@ export const useFilters = () => {
     };
   })
 
-  const [groupingType, setGroupingType] = useState<'category' | 'country' | 'none'>(() => {
+  const [groupingType, setGroupingType] = useState<GroupingType>(() => {
     const savedGrouping = localStorage.getItem('chrononinja-grouping');
     return savedGrouping as 'category' | 'country' | 'none' || 'category';
   })
 
-  const [yearInputs, setYearInputs] = useState({
+  const [yearInputs, setYearInputs] = useState<{ start: string; end: string }>({
     start: filters.timeRange.start.toString(),
     end: filters.timeRange.end.toString()
   })
@@ -46,7 +47,7 @@ export const useFilters = () => {
   const applyYearFilter = useCallback((field: 'start' | 'end', value: string) => {
     const parsed = parseInt(value);
     const numValue = isNaN(parsed) ? (field === 'start' ? -800 : 2000) : parsed;
-    setFiltersState((prev: any) => ({
+    setFiltersState((prev: FiltersState) => ({
       ...prev,
       timeRange: { ...prev.timeRange, [field]: numValue }
     }))
@@ -87,7 +88,7 @@ export const useFilters = () => {
     return isNaN(parsed) ? defaultValue : parsed;
   }, [])
 
-  const setFilters = useCallback((updater: any) => {
+  const setFilters = useCallback((updater: FiltersState | ((prev: FiltersState) => FiltersState)) => {
     setFiltersState(updater)
   }, [])
 
