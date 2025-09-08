@@ -16,7 +16,7 @@ interface Props {
   allCategories: string[]
   allCountries: string[]
   yearInputs: { start: string; end: string }
-  setYearInputs: (v: { start: string; end: string }) => void
+  setYearInputs: (inputs: { start: string; end: string } | ((prev: { start: string; end: string }) => { start: string; end: string })) => void
   applyYearFilter: (field: 'start' | 'end', value: string) => void
   handleYearKeyPress: (field: 'start' | 'end', e: any) => void
   resetAllFilters: () => void

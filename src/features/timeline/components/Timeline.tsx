@@ -7,7 +7,6 @@ import { Person } from 'shared/types'
 import { 
   getPosition, 
   getWidth, 
-  getCenturyColor, 
   getCenturyNumber, 
   toRomanNumeral
 } from '../utils/timelineUtils'

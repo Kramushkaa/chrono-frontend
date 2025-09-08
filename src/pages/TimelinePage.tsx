@@ -44,7 +44,6 @@ export default function TimelinePage() {
     selectedListKey,
     listPersons,
     sharedListMeta,
-    setSelectedListId,
     handleListChange
   } = useListSelection(true, isAuthenticated, user?.id ? String(user.id) : null)
 
