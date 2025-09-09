@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { BirthOrderQuestionData, QuizAnswer } from '../../types';
 
 interface BirthOrderQuestionProps {
@@ -24,6 +24,7 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   );
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [draggedOver, setDraggedOver] = useState<{ personId: string; position: 'above' | 'below' } | null>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
   const dragCounter = useRef(0);
 
   
@@ -32,6 +33,24 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const draggedElementRef = useRef<HTMLDivElement | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Reset state when question data changes (e.g., next question)
+  useEffect(() => {
+    // Reinitialize order with new persons
+    setOrder(data.persons.map(p => p.id).sort(() => Math.random() - 0.5));
+    // Clear any drag-related state
+    setDraggedItem(null);
+    setDraggedOver(null);
+    setIsDragActive(false);
+    setIsDragging(false);
+    setTouchStartPos(null);
+    // Reset any transient DOM transform on a previously dragged element
+    if (draggedElementRef.current) {
+      draggedElementRef.current.style.transform = '';
+      draggedElementRef.current.style.zIndex = '';
+      draggedElementRef.current.style.pointerEvents = '';
+    }
+  }, [data]);
 
   // Определяем мобильное устройство
   useEffect(() => {
@@ -48,31 +67,23 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   // Touch event handlers
   const handleTouchStart = (e: React.TouchEvent, personId: string) => {
     if (showFeedback || !isMobile) return;
-    
-    e.preventDefault();
     const touch = e.touches[0];
     setTouchStartPos({ x: touch.clientX, y: touch.clientY });
     setDraggedItem(personId);
     setIsDragging(true);
-    
-    // Предотвращаем скролл страницы
-    document.body.style.overflow = 'hidden';
-    
-    // Сохраняем ссылку на элемент для позиционирования
+    setIsDragActive(true);
+
     const target = e.currentTarget as HTMLDivElement;
     draggedElementRef.current = target;
-    // Чтобы elementFromPoint видел элементы под карточкой во время перетаскивания
     target.style.pointerEvents = 'none';
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging || !touchStartPos || !isMobile) return;
-    
-    e.preventDefault();
     const touch = e.touches[0];
     const deltaX = touch.clientX - touchStartPos.x;
     const deltaY = touch.clientY - touchStartPos.y;
-    
+
     // Определяем, что это действительно перетаскивание, а не просто касание
     if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
       // Обновляем позицию элемента
@@ -80,7 +91,7 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
         draggedElementRef.current.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
         draggedElementRef.current.style.zIndex = '1000';
       }
-      
+
       // Находим элемент под курсором
       const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
       if (elementBelow) {
@@ -93,7 +104,6 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
             const rect = personCard.getBoundingClientRect();
             const midpoint = rect.top + rect.height / 2;
             const isAbove = touch.clientY < midpoint;
-            
             setDraggedOver({ personId, position: isAbove ? 'above' : 'below' });
           }
         } else if (dropZone) {
@@ -109,10 +119,8 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!isDragging || !isMobile) return;
-    
-    e.preventDefault();
     const touch = e.changedTouches[0];
-    
+
     // Находим элемент под курсором
     const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
     if (elementBelow) {
@@ -135,7 +143,7 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
         }
       }
     }
-    
+
     // Сбрасываем состояние
     resetDragState();
   };
@@ -146,12 +154,9 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
       draggedElementRef.current.style.zIndex = '';
       draggedElementRef.current.style.pointerEvents = '';
     }
-    
-    // Восстанавливаем скролл страницы
-    document.body.style.overflow = '';
-    
     setTouchStartPos(null);
     setIsDragging(false);
+    setIsDragActive(false);
     setDraggedItem(null);
     setDraggedOver(null);
   };
@@ -159,6 +164,7 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   const handleDragStart = (e: React.DragEvent, personId: string) => {
     if (showFeedback) return;
     setDraggedItem(personId);
+    setIsDragActive(true);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', personId);
   };
@@ -166,6 +172,7 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   const handleDragEnd = () => {
     setDraggedItem(null);
     setDraggedOver(null);
+    setIsDragActive(false);
   };
 
   const handleDragOver = (e: React.DragEvent, personId: string) => {
@@ -177,7 +184,6 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
       const rect = e.currentTarget.getBoundingClientRect();
       const midpoint = rect.top + rect.height / 2;
       const isAbove = e.clientY < midpoint;
-      
       setDraggedOver({ personId, position: isAbove ? 'above' : 'below' });
     }
   };
@@ -269,8 +275,6 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
       } else if (correctIndex !== -1) {
         className += ' correct-answer';
       }
-    } else if (order.includes(personId)) {
-      className += ' selected';
     }
     
     // Добавляем классы для drag and drop
@@ -282,12 +286,18 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   };
 
   const shouldShowDropZone = (personId: string, position: 'above' | 'below') => {
-    if (!draggedItem) return true;
+    // Показываем дроп-зоны только когда активно перетаскивание
+    if (!isDragActive || !draggedItem) return false;
     
     const draggedIndex = order.indexOf(draggedItem);
     const targetIndex = order.indexOf(personId);
     
     if (draggedIndex === -1 || targetIndex === -1) return true;
+    
+    // Скрываем обе дроп-зоны вокруг перетаскиваемой карточки
+    if (personId === draggedItem) {
+      return false;
+    }
     
     // Не показываем зону выше, если перетаскиваемый элемент находится прямо перед целевым
     if (position === 'above' && draggedIndex === targetIndex - 1) {
@@ -378,7 +388,6 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
                       )}
                     </p>
                   </div>
-                  <div className="drag-handle">⋮⋮</div>
                 </div>
               </React.Fragment>
             );
