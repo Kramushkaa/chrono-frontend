@@ -160,6 +160,24 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
   }, []);
 
   // Генерируем вопросы на основе настроек
+  // Вспомогательная функция для прокрутки к началу контента
+  const scrollToContentStart = useCallback(() => {
+    // На мобильных устройствах используем более надежный метод
+    const quizContent = document.querySelector('.quiz-content');
+    if (quizContent) {
+      quizContent.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start',
+        inline: 'nearest'
+      });
+    } else {
+      // Fallback для десктопа
+      const header = document.querySelector('.app-header');
+      const headerHeight = header ? header.getBoundingClientRect().height : 0;
+      window.scrollTo(0, headerHeight);
+    }
+  }, []);
+
   const generateQuestions = useCallback(() => {
     if (filteredPersons.length === 0) return [];
 
@@ -196,8 +214,13 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     setAnswers([]);
     setIsQuizActive(true);
     setQuestionStartTime(Date.now());
+    // Прокрутить к началу страницы при старте квиза
+    // Небольшая задержка для корректного рендеринга на мобильных
+    setTimeout(() => {
+      scrollToContentStart();
+    }, 100);
     return true;
-  }, [generateQuestions]);
+  }, [generateQuestions, scrollToContentStart]);
 
   // Ответить на вопрос
   const answerQuestion = useCallback((answer: string | string[]) => {
@@ -254,11 +277,16 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setQuestionStartTime(Date.now());
+      // Прокрутить к началу страницы при переходе к новому вопросу
+      // Небольшая задержка для корректного рендеринга на мобильных
+      setTimeout(() => {
+        scrollToContentStart();
+      }, 100);
     } else {
       // Игра окончена
       setIsQuizActive(false);
     }
-  }, [currentQuestionIndex, questions.length]);
+  }, [currentQuestionIndex, questions.length, scrollToContentStart]);
 
   // Получить результаты
   const getResults = useCallback((): QuizResult => {
@@ -283,7 +311,9 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     setIsQuizActive(false);
     setShowAnswer(false);
     setLastAnswer(null);
-  }, []);
+    // Прокрутить к началу страницы при сбросе квиза
+    scrollToContentStart();
+  }, [scrollToContentStart]);
 
   return {
     setup,

@@ -25,6 +25,7 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [draggedOver, setDraggedOver] = useState<{ personId: string; position: 'above' | 'below' } | null>(null);
   const dragCounter = useRef(0);
+
   
   // Touch events state
   const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
@@ -304,17 +305,19 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   return (
     <div className="quiz-question birth-order-question">
       <div className="quiz-question-content">
-        <h3>Расставьте личности по году рождения:</h3>
+        <h3>Расставьте по году рождения:</h3>
         
-        <div className="birth-order-instructions">
-          <p>Перетащите личности в правильном порядке от самого раннего к самому позднему году рождения</p>
-          <p className="instruction-hint">
-            {isMobile 
-              ? "Нажмите и удерживайте карточку, затем перетащите её в нужное место между другими карточками"
-              : "Перетащите карточку в зоны между карточками для изменения порядка"
-            }
-          </p>
-        </div>
+        {!showFeedback && (
+          <div className="birth-order-instructions">
+            <p>Перетащите личности в правильном порядке от самого раннего к самому позднему году рождения</p>
+            <p className="instruction-hint">
+              {isMobile 
+                ? "Нажмите и удерживайте карточку, затем перетащите её в нужное место между другими карточками"
+                : "Перетащите карточку в зоны между карточками для изменения порядка"
+              }
+            </p>
+          </div>
+        )}
 
         <div className="birth-order-persons-vertical">
           {order.map((personId, index) => {
@@ -349,9 +352,9 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
                   onDragEnter={handleDragEnter}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, person.id)}
-                  onTouchStart={(e) => handleTouchStart(e, person.id)}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
+                  onTouchStart={!showFeedback ? (e) => handleTouchStart(e, person.id) : undefined}
+                  onTouchMove={!showFeedback ? handleTouchMove : undefined}
+                  onTouchEnd={!showFeedback ? handleTouchEnd : undefined}
                   className={getPersonClass(person.id)}
                 >
                   <div className="birth-order-position">

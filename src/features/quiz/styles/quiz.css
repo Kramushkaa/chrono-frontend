@@ -9,6 +9,15 @@
   height: 100vh; /* Устанавливаем высоту для корректной прокрутки */
 }
 
+/* Улучшенная прокрутка для мобильных устройств */
+@media (max-width: 768px) {
+  .quiz-page {
+    height: auto; /* На мобильных позволяем контенту определять высоту */
+    min-height: 100vh;
+    -webkit-overflow-scrolling: touch; /* Плавная прокрутка на iOS */
+  }
+}
+
 .quiz-content {
   padding: 0;
   max-width: 1200px;
@@ -497,7 +506,8 @@
   }
   .quiz-setup-content { justify-items: center; }
   .quiz-setup-filters { align-items: center; }
-  .achievements-match-question .quiz-question-content h3 {
+  .achievements-match-question .quiz-question-content h3,
+  .birth-order-question .quiz-question-content h3 {
     font-size: 1rem;
     margin: 0.5rem 0 0.75rem 0;
   }
@@ -1288,6 +1298,10 @@
   transition: all 0.2s ease;
   /* Убеждаемся, что handle не наезжает на порядковый номер */
   max-width: calc(100% - 3rem);
+}
+
+.birth-order-person.feedback-mode {
+  pointer-events: none;
 }
 
 .birth-order-person.feedback-mode .drag-handle {

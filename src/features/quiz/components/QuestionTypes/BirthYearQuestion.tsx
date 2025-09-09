@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BirthYearQuestionData, QuizAnswer } from '../../types';
 
 interface BirthYearQuestionProps {
@@ -19,6 +19,7 @@ export const BirthYearQuestion: React.FC<BirthYearQuestionProps> = ({
   isLastQuestion = false 
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
+
 
   const handleAnswer = (year: number) => {
     if (showFeedback) return; // Не позволяем отвечать, если показываем обратную связь
@@ -65,21 +66,23 @@ export const BirthYearQuestion: React.FC<BirthYearQuestionProps> = ({
           </div>
         </div>
         
-        <div className="quiz-question-options">
-          <h4>В каком году родился {data.person.name}?</h4>
-          <div className="quiz-options-grid">
-            {data.options.map((year, index) => (
-              <button
-                key={year}
-                onClick={() => handleAnswer(year)}
-                className={getOptionClass(year)}
-                disabled={showFeedback}
-              >
-                {year}
-              </button>
-            ))}
+        {!showFeedback && (
+          <div className="quiz-question-options">
+            <h4>В каком году родился {data.person.name}?</h4>
+            <div className="quiz-options-grid">
+              {data.options.map((year, index) => (
+                <button
+                  key={year}
+                  onClick={() => handleAnswer(year)}
+                  className={getOptionClass(year)}
+                  disabled={showFeedback}
+                >
+                  {year}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {showFeedback && userAnswer && (
           <div className="question-feedback">
@@ -93,6 +96,7 @@ export const BirthYearQuestion: React.FC<BirthYearQuestionProps> = ({
             </div>
             
             <div className="feedback-details">
+              <p><strong>Ваш ответ:</strong> {userAnswer.answer}</p>
               <p><strong>Правильный ответ:</strong> {data.correctBirthYear}</p>
               <p><strong>Время:</strong> {Math.round(userAnswer.timeSpent / 1000)}с</p>
             </div>
