@@ -60,6 +60,8 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
     // Сохраняем ссылку на элемент для позиционирования
     const target = e.currentTarget as HTMLDivElement;
     draggedElementRef.current = target;
+    // Чтобы elementFromPoint видел элементы под карточкой во время перетаскивания
+    target.style.pointerEvents = 'none';
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -141,6 +143,7 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
     if (draggedElementRef.current) {
       draggedElementRef.current.style.transform = '';
       draggedElementRef.current.style.zIndex = '';
+      draggedElementRef.current.style.pointerEvents = '';
     }
     
     // Восстанавливаем скролл страницы
@@ -301,7 +304,7 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   return (
     <div className="quiz-question birth-order-question">
       <div className="quiz-question-content">
-        <h3>Расставьте личности по году рождения (от самого раннего к самому позднему):</h3>
+        <h3>Расставьте личности по году рождения:</h3>
         
         <div className="birth-order-instructions">
           <p>Перетащите личности в правильном порядке от самого раннего к самому позднему году рождения</p>
