@@ -64,7 +64,7 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
   return (
     <div className="quiz-setup">
       <div className="quiz-setup-header">
-        <h2>Настройка игры</h2>
+        <h2 className="visually-hidden">Настройка игры</h2>
         <p>Выберите параметры для создания персонализированной викторины</p>
       </div>
 

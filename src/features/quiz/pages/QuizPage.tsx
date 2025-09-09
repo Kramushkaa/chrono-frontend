@@ -186,19 +186,7 @@ const QuizPage: React.FC = () => {
           handleSliderMouseUp={() => {}}
           isDraggingSlider={false}
           onBackToMenu={handleBackToMenu}
-          extraRightControls={
-            <div style={{
-              padding: '0.4rem 0.8rem',
-              background: 'rgba(139, 69, 19, 0.2)',
-              border: '1px solid rgba(139, 69, 19, 0.4)',
-              borderRadius: '6px',
-              color: '#f4e4c1',
-              fontSize: '0.9rem',
-              fontWeight: '600'
-            }}>
-              Настройка игры
-            </div>
-          }
+          extraRightControls={null}
         />
         <div className="quiz-content">
           <QuizSetup
