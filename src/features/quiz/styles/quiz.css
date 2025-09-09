@@ -10,11 +10,11 @@
 }
 
 .quiz-content {
-  padding: 2rem;
+  padding: 0;
   max-width: 1200px;
   margin: 0 auto;
   min-height: calc(100vh - 60px); /* Вычитаем высоту хедера */
-  padding-bottom: 4rem; /* Дополнительный отступ снизу */
+  padding-bottom: 0; /* Убрали дополнительный отступ снизу */
 }
 
 /* Quiz Setup Styles */
@@ -398,9 +398,16 @@
 }
 
 .achievements-draggable-card.dragging {
-  opacity: 0.5;
-  transform: rotate(5deg);
-  z-index: 1000;
+  opacity: 0.9;
+  z-index: 99999 !important;
+  position: relative !important;
+}
+
+/* Enable better touch dragging behavior for achievements */
+.achievements-draggable-card {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .achievements-draggable-card.correct {
@@ -467,16 +474,108 @@
   top: 0.5rem;
   right: 0.5rem;
   background: rgba(76, 175, 80, 0.9);
-  color: white;
+  color: #1a1a1a;
   width: 20px;
   height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 0.9rem;
   z-index: 5;
+}
+
+/* Mobile compaction for Achievements Match */
+@media (max-width: 768px) {
+  .achievements-match-question .quiz-question-content h3 {
+    font-size: 1rem;
+    margin: 0.5rem 0 0.75rem 0;
+  }
+
+  .achievements-persons-section,
+  .achievements-draggable-section {
+    margin: 0.75rem 0;
+  }
+
+  .achievements-persons-section h4,
+  .achievements-draggable-section h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .achievements-persons-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .achievements-person-card {
+    padding: 0.6rem;
+  }
+
+  .achievements-person-info {
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .achievements-person-image {
+    width: 36px;
+    height: 36px;
+    border-width: 1px;
+  }
+
+  .achievements-person-info h5 {
+    font-size: 0.95rem;
+  }
+
+  .achievements-slot {
+    min-height: 44px;
+    padding: 0.6rem;
+  }
+
+  .achievements-slot-placeholder {
+    font-size: 0.85rem;
+  }
+
+  .achievements-slot-text {
+    font-size: 0.9rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .achievements-remove-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 1rem;
+  }
+
+  .achievements-draggable-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    max-height: 28vh;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+
+  .achievements-draggable-card {
+    padding: 0.6rem;
+  }
+
+  .achievements-draggable-text {
+    font-size: 0.9rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .achievements-drag-handle {
+    font-size: 0.9rem;
+    padding: 0.2rem 0.3rem;
+  }
 }
 
 /* Birth Order Styles */
@@ -982,6 +1081,12 @@
   backdrop-filter: blur(10px);
 }
 
+@media (max-width: 768px) {
+  .question-feedback {
+    margin-top: 0.75rem;
+  }
+}
+
 .feedback-status {
   display: flex;
   align-items: center;
@@ -1290,8 +1395,8 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .quiz-content {
-    padding: 1rem;
-    padding-bottom: 6rem; /* Больше места снизу на мобильных */
+    padding: 0;
+    padding-bottom: 0; /* Убрали отступы на мобильных */
   }
   
   .quiz-setup-content {
@@ -1464,6 +1569,41 @@
     flex-direction: column;
     gap: 0.8rem;
   }
+  /* BirthYearQuestion mobile layout */
+  .birth-year-question .quiz-question-person {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    column-gap: 0.75rem;
+    align-items: flex-start;
+    width: 100%;
+  }
+  .birth-year-question .quiz-question-image {
+    width: 48px;
+    height: 48px;
+    margin: 0;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  /* Allow children (h3, p) to participate in the grid */
+  .birth-year-question .quiz-question-person-info {
+    display: contents;
+  }
+  .birth-year-question .quiz-question-person-info h3 {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .birth-year-question .quiz-question-person-info p {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+  .birth-year-question .quiz-question-options h4 {
+    font-size: 1rem;
+    margin: 0.75rem 0;
+  }
   
   .quiz-setup-questions-row {
     flex-direction: column;
@@ -1480,5 +1620,71 @@
     padding: 0.6rem 1rem;
     font-size: 0.9rem;
     min-width: 45px;
+  }
+  
+  /* Mobile drag and drop improvements */
+  .birth-order-person {
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    min-height: 80px;
+    padding: 1.2rem;
+  }
+  
+  .birth-order-person.dragging {
+    transform: rotate(2deg) scale(1.05);
+    opacity: 0.8;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
+  
+  .drop-zone {
+    min-height: 2rem;
+    margin: 0.5rem 0;
+  }
+  
+  .drop-zone:hover {
+    min-height: 2.5rem;
+  }
+  
+  .drop-zone.active {
+    min-height: 3rem;
+    background: rgba(205, 133, 63, 0.3);
+    border-color: #cd853f;
+    box-shadow: 0 0 15px rgba(205, 133, 63, 0.4);
+  }
+  
+  .drop-zone.active::before {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.8rem;
+  }
+  
+  .drag-handle {
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    right: 0.5rem;
+    background: rgba(205, 133, 63, 0.2);
+    border: 2px solid rgba(205, 133, 63, 0.4);
+  }
+  
+  .birth-order-person:hover .drag-handle {
+    background: rgba(205, 133, 63, 0.3);
+    border-color: rgba(205, 133, 63, 0.6);
+  }
+  
+  .birth-order-instructions {
+    margin-bottom: 1.5rem;
+  }
+  
+  .birth-order-instructions p {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  
+  .instruction-hint {
+    font-size: 0.85rem;
+    color: #cd853f;
+    margin-top: 0.8rem;
+    font-style: italic;
   }
 }

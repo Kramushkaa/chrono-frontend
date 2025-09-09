@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface QuizProgressProps {
   currentQuestion: number;
@@ -11,6 +11,15 @@ export const QuizProgress: React.FC<QuizProgressProps> = ({
   totalQuestions,
   isQuizActive
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!isQuizActive) return null;
 
   const progress = totalQuestions > 0 ? (currentQuestion / totalQuestions) * 100 : 0;
@@ -19,21 +28,21 @@ export const QuizProgress: React.FC<QuizProgressProps> = ({
     <div className="quiz-progress" style={{
       display: 'flex',
       alignItems: 'center',
-      gap: '0.5rem',
-      padding: '0.4rem 0.8rem',
+      gap: isMobile ? '0.35rem' : '0.5rem',
+      padding: isMobile ? '0.25rem 0.5rem' : '0.4rem 0.8rem',
       background: 'rgba(139, 69, 19, 0.2)',
       border: '1px solid rgba(139, 69, 19, 0.4)',
       borderRadius: '6px',
       color: '#f4e4c1',
-      fontSize: '0.9rem',
-      fontWeight: '600'
+      fontSize: isMobile ? '0.8rem' : '0.9rem',
+      fontWeight: 600
     }}>
       <span className="quiz-progress-text">
-        Вопрос {currentQuestion} из {totalQuestions}
+        {isMobile ? `${currentQuestion}/${totalQuestions}` : `Вопрос ${currentQuestion} из ${totalQuestions}`}
       </span>
       <div className="quiz-progress-bar" style={{
-        width: '60px',
-        height: '6px',
+        width: isMobile ? '44px' : '60px',
+        height: isMobile ? '4px' : '6px',
         background: 'rgba(44, 24, 16, 0.6)',
         borderRadius: '3px',
         overflow: 'hidden',

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { BirthOrderQuestionData, QuizAnswer } from '../../types';
 
 interface BirthOrderQuestionProps {
@@ -25,6 +25,132 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [draggedOver, setDraggedOver] = useState<{ personId: string; position: 'above' | 'below' } | null>(null);
   const dragCounter = useRef(0);
+  
+  // Touch events state
+  const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const draggedElementRef = useRef<HTMLDivElement | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Определяем мобильное устройство
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Touch event handlers
+  const handleTouchStart = (e: React.TouchEvent, personId: string) => {
+    if (showFeedback || !isMobile) return;
+    
+    e.preventDefault();
+    const touch = e.touches[0];
+    setTouchStartPos({ x: touch.clientX, y: touch.clientY });
+    setDraggedItem(personId);
+    setIsDragging(true);
+    
+    // Предотвращаем скролл страницы
+    document.body.style.overflow = 'hidden';
+    
+    // Сохраняем ссылку на элемент для позиционирования
+    const target = e.currentTarget as HTMLDivElement;
+    draggedElementRef.current = target;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !touchStartPos || !isMobile) return;
+    
+    e.preventDefault();
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartPos.x;
+    const deltaY = touch.clientY - touchStartPos.y;
+    
+    // Определяем, что это действительно перетаскивание, а не просто касание
+    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+      // Обновляем позицию элемента
+      if (draggedElementRef.current) {
+        draggedElementRef.current.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+        draggedElementRef.current.style.zIndex = '1000';
+      }
+      
+      // Находим элемент под курсором
+      const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (elementBelow) {
+        const personCard = elementBelow.closest('.birth-order-person');
+        const dropZone = elementBelow.closest('.drop-zone');
+        
+        if (personCard && personCard !== draggedElementRef.current) {
+          const personId = personCard.getAttribute('data-person-id');
+          if (personId) {
+            const rect = personCard.getBoundingClientRect();
+            const midpoint = rect.top + rect.height / 2;
+            const isAbove = touch.clientY < midpoint;
+            
+            setDraggedOver({ personId, position: isAbove ? 'above' : 'below' });
+          }
+        } else if (dropZone) {
+          const personId = dropZone.getAttribute('data-person-id');
+          const position = dropZone.getAttribute('data-position') as 'above' | 'below';
+          if (personId) {
+            setDraggedOver({ personId, position });
+          }
+        }
+      }
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isDragging || !isMobile) return;
+    
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    
+    // Находим элемент под курсором
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (elementBelow) {
+      const personCard = elementBelow.closest('.birth-order-person');
+      const dropZone = elementBelow.closest('.drop-zone');
+      
+      if (personCard && personCard !== draggedElementRef.current) {
+        const personId = personCard.getAttribute('data-person-id');
+        if (personId) {
+          const rect = personCard.getBoundingClientRect();
+          const midpoint = rect.top + rect.height / 2;
+          const isAbove = touch.clientY < midpoint;
+          handleDrop(null, personId, isAbove ? 'above' : 'below');
+        }
+      } else if (dropZone) {
+        const personId = dropZone.getAttribute('data-person-id');
+        const position = dropZone.getAttribute('data-position') as 'above' | 'below';
+        if (personId) {
+          handleDrop(null, personId, position);
+        }
+      }
+    }
+    
+    // Сбрасываем состояние
+    resetDragState();
+  };
+
+  const resetDragState = () => {
+    if (draggedElementRef.current) {
+      draggedElementRef.current.style.transform = '';
+      draggedElementRef.current.style.zIndex = '';
+    }
+    
+    // Восстанавливаем скролл страницы
+    document.body.style.overflow = '';
+    
+    setTouchStartPos(null);
+    setIsDragging(false);
+    setDraggedItem(null);
+    setDraggedOver(null);
+  };
 
   const handleDragStart = (e: React.DragEvent, personId: string) => {
     if (showFeedback) return;
@@ -63,9 +189,10 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
     dragCounter.current++;
   };
 
-  const handleDrop = (e: React.DragEvent, targetPersonId: string) => {
-    e.preventDefault();
-    const draggedPersonId = e.dataTransfer.getData('text/html');
+  const handleDrop = (e: React.DragEvent | null, targetPersonId: string, position?: 'above' | 'below') => {
+    if (e) e.preventDefault();
+    
+    const draggedPersonId = e ? e.dataTransfer?.getData('text/html') : draggedItem;
     
     if (draggedPersonId && draggedPersonId !== targetPersonId) {
       const newOrder = [...order];
@@ -76,14 +203,16 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
         // Удаляем перетаскиваемый элемент
         newOrder.splice(draggedIndex, 1);
         
-        // Определяем новую позицию на основе draggedOver состояния
+        // Определяем новую позицию на основе draggedOver состояния или переданной позиции
         let newTargetIndex = targetIndex;
-        if (draggedOver?.position === 'above') {
+        const finalPosition = position || draggedOver?.position;
+        
+        if (finalPosition === 'above') {
           newTargetIndex = targetIndex;
-        } else if (draggedOver?.position === 'below') {
+        } else if (finalPosition === 'below') {
           newTargetIndex = targetIndex + 1;
-        } else {
-          // Fallback: определяем по координатам курсора
+        } else if (e) {
+          // Fallback: определяем по координатам курсора (только для drag events)
           const rect = e.currentTarget.getBoundingClientRect();
           const midpoint = rect.top + rect.height / 2;
           const isAbove = e.clientY < midpoint;
@@ -176,7 +305,12 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
         
         <div className="birth-order-instructions">
           <p>Перетащите личности в правильном порядке от самого раннего к самому позднему году рождения</p>
-          <p className="instruction-hint">Перетащите карточку в зоны между карточками для изменения порядка</p>
+          <p className="instruction-hint">
+            {isMobile 
+              ? "Нажмите и удерживайте карточку, затем перетащите её в нужное место между другими карточками"
+              : "Перетащите карточку в зоны между карточками для изменения порядка"
+            }
+          </p>
         </div>
 
         <div className="birth-order-persons-vertical">
@@ -190,6 +324,8 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
                 {!showFeedback && (
                   <div
                     className={`drop-zone ${!shouldShowDropZone(person.id, 'above') ? 'hidden' : ''} ${draggedOver?.personId === person.id && draggedOver?.position === 'above' ? 'active' : ''}`}
+                    data-person-id={person.id}
+                    data-position="above"
                     onDragOver={(e) => {
                       e.preventDefault();
                       e.dataTransfer.dropEffect = 'move';
@@ -202,13 +338,17 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
                 )}
                 
                 <div
-                  draggable={!showFeedback}
+                  draggable={!showFeedback && !isMobile}
+                  data-person-id={person.id}
                   onDragStart={(e) => handleDragStart(e, person.id)}
                   onDragEnd={handleDragEnd}
                   onDragOver={(e) => handleDragOver(e, person.id)}
                   onDragEnter={handleDragEnter}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, person.id)}
+                  onTouchStart={(e) => handleTouchStart(e, person.id)}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                   className={getPersonClass(person.id)}
                 >
                   <div className="birth-order-position">
@@ -242,6 +382,8 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
           {!showFeedback && (
             <div
               className={`drop-zone ${!shouldShowDropZone(order[order.length - 1], 'below') ? 'hidden' : ''} ${draggedOver?.personId === order[order.length - 1] && draggedOver?.position === 'below' ? 'active' : ''}`}
+              data-person-id={order[order.length - 1]}
+              data-position="below"
               onDragOver={(e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
@@ -277,10 +419,6 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
             </div>
             
             <div className="feedback-details">
-              <p><strong>Ваш ответ:</strong> {(userAnswer.answer as string[]).map((id, index) => {
-                const person = getPersonById(id);
-                return person ? `${index + 1}. ${person.name}` : '';
-              }).join(', ')}</p>
               <p><strong>Правильный ответ:</strong> {data.correctOrder.map((id, index) => {
                 const person = getPersonById(id);
                 return person ? `${index + 1}. ${person.name}` : '';

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AchievementsMatchQuestionData, QuizAnswer } from '../../types';
 
 interface AchievementsMatchQuestionProps {
@@ -22,6 +22,24 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
   const [draggedAchievement, setDraggedAchievement] = useState<string | null>(null);
   const [draggedOverSlot, setDraggedOverSlot] = useState<string | null>(null);
   const dragCounter = useRef(0);
+
+  // Touch DnD support
+  const [isMobile, setIsMobile] = useState(false);
+  const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
+  const [isTouchDragging, setIsTouchDragging] = useState(false);
+  const draggedElementRef = useRef<HTMLDivElement | null>(null);
+  const draggedAchievementRef = useRef<string | null>(null);
+  const touchOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const originalRectRef = useRef<{ width: number; height: number }>({ width: 0, height: 0 });
+  const ghostElRef = useRef<HTMLDivElement | null>(null);
+  const originalOpacityRef = useRef<string>('');
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleDragStart = (e: React.DragEvent, achievement: string) => {
     if (showFeedback) return;
@@ -79,6 +97,114 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
     dragCounter.current = 0;
   };
 
+  // Touch handlers
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>, achievement: string) => {
+    if (showFeedback || !isMobile) return;
+    
+    e.preventDefault();
+    const touch = e.touches[0];
+    setTouchStartPos({ x: touch.clientX, y: touch.clientY });
+    setIsTouchDragging(true);
+    setDraggedAchievement(achievement);
+    draggedAchievementRef.current = achievement;
+    draggedElementRef.current = e.currentTarget;
+    document.body.style.overflow = 'hidden';
+    
+    // Подготавливаем клон-элемент, добавляем под document.body
+    const rect = e.currentTarget.getBoundingClientRect();
+    touchOffsetRef.current = { 
+      x: touch.clientX - rect.left, 
+      y: touch.clientY - rect.top 
+    };
+    originalRectRef.current = { width: rect.width, height: rect.height };
+
+    const sourceEl = e.currentTarget as HTMLDivElement;
+    originalOpacityRef.current = sourceEl.style.opacity;
+    sourceEl.style.opacity = '0.3';
+
+    const ghost = sourceEl.cloneNode(true) as HTMLDivElement;
+    ghost.style.position = 'fixed';
+    ghost.style.left = `${rect.left}px`;
+    ghost.style.top = `${rect.top}px`;
+    ghost.style.width = `${rect.width}px`;
+    ghost.style.height = `${rect.height}px`;
+    ghost.style.zIndex = '2147483647';
+    ghost.style.pointerEvents = 'none';
+    ghost.style.margin = '0';
+    ghost.style.transform = 'none';
+    ghost.style.boxSizing = 'border-box';
+    document.body.appendChild(ghost);
+    ghostElRef.current = ghost;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isTouchDragging || !isMobile) return;
+    
+    e.preventDefault();
+    const touch = e.touches[0];
+    
+    // Перемещаем клон под пальцем в координатах viewport
+    if (ghostElRef.current) {
+      const ghost = ghostElRef.current;
+      ghost.style.left = `${touch.clientX - touchOffsetRef.current.x}px`;
+      ghost.style.top = `${touch.clientY - touchOffsetRef.current.y}px`;
+    }
+    
+    // Находим элемент под курсором
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (elementBelow) {
+      const slot = elementBelow.closest('.achievements-slot') as HTMLElement | null;
+      if (slot) {
+        const personId = slot.getAttribute('data-person-id');
+        if (personId) setDraggedOverSlot(personId);
+      } else {
+        setDraggedOverSlot(null);
+      }
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isTouchDragging || !isMobile) return;
+    
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    const achievement = draggedAchievementRef.current;
+    
+    // Находим элемент под курсором
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (elementBelow && achievement && !showFeedback) {
+      const slot = elementBelow.closest('.achievements-slot') as HTMLElement | null;
+      if (slot) {
+        const personId = slot.getAttribute('data-person-id');
+        if (personId) {
+          const newMatches = { ...matches, [personId]: achievement };
+          setMatches(newMatches);
+          if (Object.keys(newMatches).length === data.persons.length) {
+            const answerInCorrectOrder = data.persons.map(person => newMatches[person.id]);
+            onAnswer(answerInCorrectOrder);
+          }
+        }
+      }
+    }
+    
+    // Сбрасываем состояние
+    if (ghostElRef.current) {
+      ghostElRef.current.remove();
+      ghostElRef.current = null;
+    }
+    if (draggedElementRef.current) {
+      const src = draggedElementRef.current;
+      src.style.opacity = originalOpacityRef.current;
+    }
+    document.body.style.overflow = '';
+    setIsTouchDragging(false);
+    setTouchStartPos(null);
+    setDraggedOverSlot(null);
+    setDraggedAchievement(null);
+    draggedAchievementRef.current = null;
+    dragCounter.current = 0;
+  };
+
   const getAvailableAchievements = () => {
     // Всегда показываем все достижения, но помечаем использованные
     return data.achievements;
@@ -132,7 +258,6 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
         
         {/* Фиксированные личности */}
         <div className="achievements-persons-section">
-          <h4>Личности:</h4>
           <div className="achievements-persons-grid">
             {data.persons.map(person => (
               <div key={person.id} className="achievements-person-card">
@@ -150,6 +275,7 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
                 {/* Слот для достижения */}
                 <div 
                   className={`achievements-slot ${draggedOverSlot === person.id ? 'drag-over' : ''} ${getMatchClass(person.id)}`}
+                  data-person-id={person.id}
                   onDragOver={(e) => handleDragOver(e, person.id)}
                   onDragEnter={handleDragEnter}
                   onDragLeave={handleDragLeave}
@@ -183,35 +309,34 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
         </div>
 
         {/* Достижения для перетаскивания */}
-        <div className="achievements-draggable-section">
-          <h4>Достижения:</h4>
-          <div className="achievements-draggable-grid">
-            {getAvailableAchievements().map(achievement => {
-              const isUsed = isAchievementUsed(achievement);
-              const isDraggable = !showFeedback && !isUsed;
-              
-              return (
-                <div
-                  key={achievement}
-                  className={`achievements-draggable-card ${draggedAchievement === achievement ? 'dragging' : ''} ${isUsed ? 'used' : ''} ${getAchievementClass(achievement)}`}
-                  draggable={isDraggable}
-                  onDragStart={isDraggable ? (e) => handleDragStart(e, achievement) : undefined}
-                  onDragEnd={isDraggable ? handleDragEnd : undefined}
-                >
-                  <div className="achievements-draggable-content">
-                    <span className="achievements-draggable-text">{achievement}</span>
-                    {isDraggable && (
-                      <div className="achievements-drag-handle">⋮⋮</div>
-                    )}
-                    {isUsed && !showFeedback && (
-                      <div className="achievements-used-indicator">✓</div>
-                    )}
+        {!showFeedback && (
+          <div className="achievements-draggable-section">
+            <div className="achievements-draggable-grid">
+              {getAvailableAchievements().map(achievement => {
+                const isUsed = isAchievementUsed(achievement);
+                const isDraggable = !showFeedback && !isUsed;
+                
+                return (
+                  <div
+                    key={achievement}
+                    className={`achievements-draggable-card ${draggedAchievement === achievement ? 'dragging' : ''} ${isUsed ? 'used' : ''} ${getAchievementClass(achievement)}`}
+                    draggable={isDraggable}
+                    onDragStart={isDraggable ? (e) => handleDragStart(e, achievement) : undefined}
+                    onDragEnd={isDraggable ? handleDragEnd : undefined}
+                    onTouchStart={isDraggable ? (e) => handleTouchStart(e, achievement) : undefined}
+                    onTouchMove={isDraggable ? handleTouchMove : undefined}
+                    onTouchEnd={isDraggable ? handleTouchEnd : undefined}
+                  >
+                    <div className="achievements-draggable-content">
+                      <span className="achievements-draggable-text">{achievement}</span>
+                      {/* Removed used indicator to keep only opacity feedback */}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {showFeedback && userAnswer && (
           <div className="question-feedback">
@@ -225,8 +350,7 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
             </div>
             
             <div className="feedback-details">
-              <p><strong>Ваш ответ:</strong> {(userAnswer.answer as string[]).join(', ')}</p>
-              <p><strong>Правильный ответ:</strong> {Object.values(data.correctMatches).join(', ')}</p>
+              <p><strong>Правильный ответ:</strong> {data.persons.map(p => `${p.name}: ${data.correctMatches[p.id]}`).join(', ')}</p>
               <p><strong>Время:</strong> {Math.round(userAnswer.timeSpent / 1000)}с</p>
             </div>
 

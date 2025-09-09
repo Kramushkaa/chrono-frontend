@@ -93,7 +93,6 @@ export const BirthYearQuestion: React.FC<BirthYearQuestionProps> = ({
             </div>
             
             <div className="feedback-details">
-              <p><strong>Ваш ответ:</strong> {userAnswer.answer}</p>
               <p><strong>Правильный ответ:</strong> {data.correctBirthYear}</p>
               <p><strong>Время:</strong> {Math.round(userAnswer.timeSpent / 1000)}с</p>
             </div>
