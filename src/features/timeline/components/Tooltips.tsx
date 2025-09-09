@@ -8,7 +8,6 @@ interface TooltipsProps {
   mousePosition: { x: number; y: number }
   hoveredAchievement: { person: Person; year: number; index: number } | null
   showAchievementTooltip: boolean
-  achievementTooltipPosition: { x: number; y: number }
   getGroupColor: (groupName: string) => string
   getPersonGroup: (person: Person) => string
   getCategoryColor: (category: string) => string
@@ -20,7 +19,6 @@ export const Tooltips: React.FC<TooltipsProps> = ({
   mousePosition,
   hoveredAchievement,
   showAchievementTooltip,
-  achievementTooltipPosition,
   getGroupColor,
   getPersonGroup,
   getCategoryColor
@@ -50,8 +48,8 @@ export const Tooltips: React.FC<TooltipsProps> = ({
       boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)'
     } : {
       position: 'fixed' as const,
-      left: `${achievementTooltipPosition.x + 15}px`,
-      top: `${achievementTooltipPosition.y - 10}px`,
+      left: `${mousePosition.x + 15}px`,
+      top: `${mousePosition.y - 10}px`,
       padding: '0.75rem',
       zIndex: 1001,
       maxWidth: '250px',

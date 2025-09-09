@@ -46,11 +46,10 @@ interface TimelineProps {
   setActiveAchievementMarker: (marker: { personId: string; index: number } | null) => void
   hoveredAchievement: { person: Person; year: number; index: number } | null
   setHoveredAchievement: (achievement: { person: Person; year: number; index: number } | null) => void
-  achievementTooltipPosition: { x: number; y: number }
-  setAchievementTooltipPosition: (position: { x: number; y: number }) => void
   showAchievementTooltip: boolean
   setShowAchievementTooltip: (show: boolean) => void
   hoverTimerRef: React.MutableRefObject<NodeJS.Timeout | null>
+  handleAchievementHover: (achievement: { person: Person; year: number; index: number } | null, x: number, y: number) => void
   sortedData: Person[]
   selectedPerson: Person | null
   setSelectedPerson: (person: Person | null) => void
@@ -97,11 +96,10 @@ export const Timeline: React.FC<TimelineProps> = ({
   setActiveAchievementMarker,
   hoveredAchievement,
   setHoveredAchievement,
-  achievementTooltipPosition,
-  setAchievementTooltipPosition,
   showAchievementTooltip,
   setShowAchievementTooltip,
   hoverTimerRef,
+  handleAchievementHover,
   sortedData,
   selectedPerson,
   setSelectedPerson,
@@ -489,10 +487,10 @@ export const Timeline: React.FC<TimelineProps> = ({
                     setActiveAchievementMarker={setActiveAchievementMarker}
                     hoveredAchievement={hoveredAchievement}
                     setHoveredAchievement={setHoveredAchievement}
-                    setAchievementTooltipPosition={setAchievementTooltipPosition}
                     setShowAchievementTooltip={setShowAchievementTooltip}
                     hoverTimerRef={hoverTimerRef}
                     handlePersonHover={handlePersonHover}
+                    handleAchievementHover={handleAchievementHover}
                   />
 
                   <PersonLifeBar

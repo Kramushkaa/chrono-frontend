@@ -65,7 +65,6 @@ export default function TimelinePage() {
     mousePosition,
     showTooltip,
     hoveredAchievement,
-    achievementTooltipPosition,
     showAchievementTooltip,
     hoverTimerRef,
     handlePersonHover,
@@ -399,15 +398,9 @@ export default function TimelinePage() {
               hoveredAchievement={hoveredAchievement}
               setHoveredAchievement={(achievement: { person: Person; year: number; index: number } | null) => {
                 if (achievement) {
-                  handleAchievementHover(achievement, achievementTooltipPosition.x, achievementTooltipPosition.y);
+                  handleAchievementHover(achievement, mousePosition.x, mousePosition.y);
                 } else {
                   handleAchievementHover(null, 0, 0);
-                }
-              }}
-              achievementTooltipPosition={achievementTooltipPosition}
-              setAchievementTooltipPosition={(position: { x: number; y: number }) => {
-                if (hoveredAchievement) {
-                  handleAchievementHover(hoveredAchievement, position.x, position.y);
                 }
               }}
               showAchievementTooltip={showAchievementTooltip}
@@ -417,6 +410,7 @@ export default function TimelinePage() {
                 }
               }}
               handlePersonHover={handlePersonHover}
+              handleAchievementHover={handleAchievementHover}
               hoverTimerRef={hoverTimerRef}
               sortedData={sortedData}
               selectedPerson={selectedPerson}
@@ -441,7 +435,6 @@ export default function TimelinePage() {
             mousePosition={mousePosition}
             hoveredAchievement={hoveredAchievement}
             showAchievementTooltip={showAchievementTooltip}
-            achievementTooltipPosition={achievementTooltipPosition}
             getGroupColor={getGroupColor}
             getPersonGroup={(person) => getPersonGroup(person, groupingType)}
             getCategoryColor={getGroupColor}

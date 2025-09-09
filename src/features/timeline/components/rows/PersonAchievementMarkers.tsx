@@ -16,10 +16,10 @@ interface PersonAchievementMarkersProps {
   hoveredAchievement: { person: Person; year: number; index: number } | null
   setHoveredAchievement: (achievement: { person: Person; year: number; index: number } | null) => void
 
-  setAchievementTooltipPosition: (pos: { x: number; y: number }) => void
   setShowAchievementTooltip: (show: boolean) => void
   hoverTimerRef: React.MutableRefObject<NodeJS.Timeout | null>
   handlePersonHover: (person: Person | null, x: number, y: number) => void
+  handleAchievementHover: (achievement: { person: Person; year: number; index: number } | null, x: number, y: number) => void
 }
 
 export const PersonAchievementMarkers: React.FC<PersonAchievementMarkersProps> = ({
@@ -35,24 +35,11 @@ export const PersonAchievementMarkers: React.FC<PersonAchievementMarkersProps> =
   setActiveAchievementMarker,
   hoveredAchievement,
   setHoveredAchievement,
-  setAchievementTooltipPosition,
   setShowAchievementTooltip,
   hoverTimerRef,
-  handlePersonHover
+  handlePersonHover,
+  handleAchievementHover
 }) => {
-  const rafRef = useRef<number | null>(null)
-  const pendingPosRef = useRef<{ x: number; y: number } | null>(null)
-
-  const scheduleTooltipPosition = useCallback((x: number, y: number) => {
-    pendingPosRef.current = { x, y }
-    if (rafRef.current == null) {
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = null
-        const p = pendingPosRef.current
-        if (p) setAchievementTooltipPosition(p)
-      })
-    }
-  }, [setAchievementTooltipPosition])
 
   if (!showAchievements) return null
 
@@ -103,9 +90,7 @@ export const PersonAchievementMarkers: React.FC<PersonAchievementMarkersProps> =
 
               if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
               hoverTimerRef.current = setTimeout(() => {
-                scheduleTooltipPosition(e.clientX, e.clientY)
-                setHoveredAchievement({ person, year, index })
-                setShowAchievementTooltip(true)
+                handleAchievementHover({ person, year, index }, e.clientX, e.clientY)
               }, 500)
             }
           }}
@@ -132,15 +117,13 @@ export const PersonAchievementMarkers: React.FC<PersonAchievementMarkersProps> =
           }}
           onMouseMove={(e) => {
             if (!isMobile && hoveredAchievement && hoveredAchievement.person.id === person.id && hoveredAchievement.index === index) {
-              scheduleTooltipPosition(e.clientX, e.clientY)
+              handleAchievementHover({ person, year, index }, e.clientX, e.clientY)
             }
           }}
           onTouchStart={(e) => {
             if (isMobile) {
               const touch = e.touches[0]
-              setAchievementTooltipPosition({ x: touch.clientX, y: touch.clientY })
-              setHoveredAchievement({ person, year, index })
-              setShowAchievementTooltip(true)
+              handleAchievementHover({ person, year, index }, touch.clientX, touch.clientY)
             }
           }}
         >
@@ -182,9 +165,7 @@ export const PersonAchievementMarkers: React.FC<PersonAchievementMarkersProps> =
                 const px = rect.left + rect.width / 2
                 const py = rect.top
                 hoverTimerRef.current = setTimeout(() => {
-                  scheduleTooltipPosition(px, py)
-                  setHoveredAchievement({ person, year, index })
-                  setShowAchievementTooltip(true)
+                  handleAchievementHover({ person, year, index }, px, py)
                 }, 500)
               }
             }}
@@ -211,15 +192,13 @@ export const PersonAchievementMarkers: React.FC<PersonAchievementMarkersProps> =
             onMouseMove={(e) => {
               if (!isMobile && hoveredAchievement && hoveredAchievement.person.id === person.id && hoveredAchievement.index === index) {
                 const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
-                scheduleTooltipPosition(rect.left + rect.width / 2, rect.top)
+                handleAchievementHover({ person, year, index }, rect.left + rect.width / 2, rect.top)
               }
             }}
             onTouchStart={(e) => {
               if (isMobile) {
                 const touch = e.touches[0]
-                setAchievementTooltipPosition({ x: touch.clientX, y: touch.clientY })
-                setHoveredAchievement({ person, year, index })
-                setShowAchievementTooltip(true)
+                handleAchievementHover({ person, year, index }, touch.clientX, touch.clientY)
               }
             }}
           >

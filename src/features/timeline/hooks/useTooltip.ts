@@ -6,7 +6,6 @@ export const useTooltip = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [showTooltip, setShowTooltip] = useState(false)
   const [hoveredAchievement, setHoveredAchievement] = useState<{ person: Person; year: number; index: number } | null>(null)
-  const [achievementTooltipPosition, setAchievementTooltipPosition] = useState({ x: 0, y: 0 })
   const [showAchievementTooltip, setShowAchievementTooltip] = useState(false)
   const hoverTimerRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -40,7 +39,7 @@ export const useTooltip = () => {
   const handleAchievementHover = useCallback((achievement: { person: Person; year: number; index: number } | null, x: number, y: number) => {
     if (achievement) {
       setHoveredAchievement(achievement);
-      setAchievementTooltipPosition({ x, y });
+      setMousePosition({ x, y });
       setShowAchievementTooltip(true);
     } else {
       setShowAchievementTooltip(false);
@@ -53,7 +52,6 @@ export const useTooltip = () => {
     mousePosition,
     showTooltip,
     hoveredAchievement,
-    achievementTooltipPosition,
     showAchievementTooltip,
     hoverTimerRef,
     handlePersonHover,
