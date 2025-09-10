@@ -25,7 +25,6 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
 
   // Touch DnD support
   const [isMobile, setIsMobile] = useState(false);
-  const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
   const [isTouchDragging, setIsTouchDragging] = useState(false);
   const draggedElementRef = useRef<HTMLDivElement | null>(null);
   const draggedAchievementRef = useRef<string | null>(null);
@@ -103,7 +102,6 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
     
     e.preventDefault();
     const touch = e.touches[0];
-    setTouchStartPos({ x: touch.clientX, y: touch.clientY });
     setIsTouchDragging(true);
     setDraggedAchievement(achievement);
     draggedAchievementRef.current = achievement;
@@ -198,7 +196,6 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
     }
     document.body.style.overflow = '';
     setIsTouchDragging(false);
-    setTouchStartPos(null);
     setDraggedOverSlot(null);
     setDraggedAchievement(null);
     draggedAchievementRef.current = null;

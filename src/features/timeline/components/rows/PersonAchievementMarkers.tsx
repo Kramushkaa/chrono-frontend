@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React from 'react'
 import { Person } from 'shared/types'
 
 interface PersonAchievementMarkersProps {

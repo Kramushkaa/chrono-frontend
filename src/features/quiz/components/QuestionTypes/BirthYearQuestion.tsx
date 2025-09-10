@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BirthYearQuestionData, QuizAnswer } from '../../types';
+import { hideYearsInText } from '../../utils/textUtils';
 
 interface BirthYearQuestionProps {
   data: BirthYearQuestionData;
@@ -62,7 +63,12 @@ export const BirthYearQuestion: React.FC<BirthYearQuestionProps> = ({
           )}
           <div className="quiz-question-person-info">
             <h3>{data.person.name}</h3>
-            <p>{data.person.description}</p>
+            <p>
+              {showFeedback 
+                ? data.person.description 
+                : hideYearsInText(data.person.description)
+              }
+            </p>
           </div>
         </div>
         

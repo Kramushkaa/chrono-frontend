@@ -50,7 +50,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     // Генерируем неправильные варианты
     const options = [birthYear];
     while (options.length < 4) {
-      const randomYear = birthYear + Math.floor(Math.random() * 200) - 100;
+      const randomYear = birthYear + Math.floor(Math.random() * 300) - 200;
       if (!options.includes(randomYear)) {
         options.push(randomYear);
       }
@@ -130,9 +130,34 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
 
   // Генерируем вопрос "Расставь по году рождения"
   const generateBirthOrderQuestion = useCallback((persons: Person[]): QuizQuestion => {
-    const selectedPersons = persons
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 4);
+    // Группируем людей по годам рождения для быстрого поиска
+    const personsByBirthYear = new Map<number, Person[]>();
+    persons.forEach(person => {
+      if (!personsByBirthYear.has(person.birthYear)) {
+        personsByBirthYear.set(person.birthYear, []);
+      }
+      personsByBirthYear.get(person.birthYear)!.push(person);
+    });
+
+    // Получаем все уникальные годы рождения
+    const uniqueBirthYears = Array.from(personsByBirthYear.keys()).sort(() => Math.random() - 0.5);
+    
+    // Выбираем 4 уникальных года рождения
+    const selectedBirthYears = uniqueBirthYears.slice(0, 4);
+    
+    // Если уникальных годов меньше 4, берем столько, сколько есть
+    if (selectedBirthYears.length < 2) {
+      // Если уникальных годов меньше 2, генерируем вопрос другого типа
+      return generateBirthYearQuestion(persons);
+    }
+
+    // Выбираем по одному человеку из каждого выбранного года
+    const selectedPersons: Person[] = [];
+    selectedBirthYears.forEach(year => {
+      const personsInYear = personsByBirthYear.get(year)!;
+      const randomPerson = personsInYear[Math.floor(Math.random() * personsInYear.length)];
+      selectedPersons.push(randomPerson);
+    });
     
     const correctOrder = selectedPersons
       .sort((a, b) => a.birthYear - b.birthYear)
@@ -157,7 +182,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
       correctAnswer: correctOrder,
       data
     };
-  }, []);
+  }, [generateBirthYearQuestion]);
 
   // Генерируем вопросы на основе настроек
   // Вспомогательная функция для прокрутки к началу контента
