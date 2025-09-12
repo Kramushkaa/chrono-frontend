@@ -3,8 +3,8 @@ import React from 'react'
 export const ContactFooter: React.FC = () => {
   return (
     <footer style={{
-      marginTop: 16,
-      padding: '12px 16px',
+      marginTop: 8,
+      padding: '8px 12px',
       borderTop: '1px solid rgba(139,69,19,0.2)',
       color: '#ccbfa3',
       fontSize: 14,
