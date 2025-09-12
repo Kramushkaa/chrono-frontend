@@ -12,7 +12,7 @@ export const hideYearsInText = (text: string): string => {
   // Римские числа как отдельные токены, ограниченные пробелом, началом/концом строки или пунктуацией
   // Пример совпадений: "X", "XIX", "XVIII", в контексте: "X век", ", XIX,", "(VI)"
   // Не трогает встраивания внутри слов, так как требуется разделитель до/после
-  const romanTokenRegex = /(^|[\s.,;:!?()\]{}"'«»\-–—\[])([IVXLCDM]+)(?=($|[\s.,;:!?()\]{}"'«»\-–—\[]))/g;
+  const romanTokenRegex = /(^|[\s.,;:!?()\]{}"'«»\-–—[])([IVXLCDM]+)(?=($|[\s.,;:!?()\]{}"'«»\-–—[]))/g;
   
   // Сначала скрываем римские числа, заменяя сам токен на "**" и сохраняя ведущий разделитель
   let result = text.replace(romanTokenRegex, (_match, leading) => `${leading}**`);
@@ -30,6 +30,6 @@ export const hideYearsInText = (text: string): string => {
  */
 export const hasYearsInText = (text: string): boolean => {
   const yearRegex = /\b\d{4}\b/g;
-  const romanTokenRegex = /(^|[\s.,;:!?()\]{}"'«»\-–—\[])[IVXLCDM]+(?=($|[\s.,;:!?()\]{}"'«»\-–—\[]))/g;
+  const romanTokenRegex = /(^|[\s.,;:!?()\]{}"'«»\-–—[])[IVXLCDM]+(?=($|[\s.,;:!?()\]{}"'«»\-–—[]))/g;
   return yearRegex.test(text) || romanTokenRegex.test(text);
 };

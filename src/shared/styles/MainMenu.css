@@ -19,67 +19,41 @@
 
 /* Заголовок */
 .main-menu-header {
-  margin-bottom: 4rem;
+  margin-bottom: 2rem;
 }
 
 .main-menu-title {
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: bold;
   color: #f4e4c1;
-  margin: 0 0 1rem 0;
+  margin: 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  letter-spacing: 2px;
 }
 
-.main-menu-subtitle {
-  font-size: 1.2rem;
-  color: #cd853f;
-  margin: 0;
-  font-style: italic;
-  opacity: 0.8;
-}
 
 /* Сетка плиточек */
 .main-menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 4rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 /* Плиточка меню */
 .main-menu-item {
   background: linear-gradient(135deg, rgba(244, 228, 193, 0.1) 0%, rgba(205, 133, 63, 0.2) 100%);
   border: 2px solid rgba(205, 133, 63, 0.3);
-  border-radius: 16px;
-  padding: 2rem;
+  border-radius: 12px;
+  padding: 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-  position: relative;
-  overflow: hidden;
-}
-
-.main-menu-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(205, 133, 63, 0.1) 0%, transparent 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
 }
 
 .main-menu-item:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   border-color: rgba(205, 133, 63, 0.6);
-}
-
-.main-menu-item:hover::before {
-  opacity: 1;
 }
 
 .main-menu-item:focus {
@@ -89,9 +63,8 @@
 
 /* Иконка */
 .main-menu-item-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
 }
 
 /* Контент плиточки */
@@ -101,7 +74,7 @@
 }
 
 .main-menu-item-title {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: bold;
   color: #f4e4c1;
   margin: 0 0 0.5rem 0;
@@ -109,26 +82,18 @@
 }
 
 .main-menu-item-description {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #cd853f;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.4;
   opacity: 0.9;
 }
 
 /* Футер */
 .main-menu-footer {
-  border-top: 1px solid rgba(205, 133, 63, 0.3);
-  padding-top: 2rem;
+  padding-top: 1rem;
 }
 
-.main-menu-footer-text {
-  font-size: 1rem;
-  color: #cd853f;
-  margin: 0;
-  font-style: italic;
-  opacity: 0.7;
-}
 
 /* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
@@ -142,57 +107,53 @@
   }
 
   .main-menu-header {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 
   .main-menu-title {
     font-size: clamp(2rem, 7vw, 2.5rem);
   }
 
-  .main-menu-subtitle {
-    font-size: 1rem;
-  }
-
   .main-menu-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 
   .main-menu-item {
-    padding: 1.25rem;
+    padding: 1rem;
   }
 
   .main-menu-item-icon {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
 
   .main-menu-item-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 
   .main-menu-item-description {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 }
 
 /* Очень узкие экраны телефонов */
 @media (max-width: 380px) {
   .main-menu-container { margin-top: 48px; }
-  .main-menu-header { margin-bottom: 1.25rem; }
+  .main-menu-header { margin-bottom: 1rem; }
   .main-menu-title { font-size: clamp(1.8rem, 8vw, 2.2rem); }
-  .main-menu-grid { gap: 0.75rem; margin-bottom: 1.25rem; }
-  .main-menu-item { padding: 1rem; }
-  .main-menu-item-icon { font-size: 2rem; }
-  .main-menu-item-title { font-size: 1.1rem; }
-  .main-menu-item-description { font-size: 0.85rem; }
+  .main-menu-grid { gap: 0.75rem; margin-bottom: 1rem; }
+  .main-menu-item { padding: 0.75rem; }
+  .main-menu-item-icon { font-size: 1.8rem; }
+  .main-menu-item-title { font-size: 1rem; }
+  .main-menu-item-description { font-size: 0.8rem; }
 }
 
 /* Невысокие экраны: уменьшить вертикальные отступы, чтобы всё помещалось */
 @media (max-height: 700px) {
-  .main-menu-header { margin-bottom: 1.25rem; }
+  .main-menu-header { margin-bottom: 1rem; }
   .main-menu-grid { margin-bottom: 1rem; }
-  .main-menu-footer { padding-top: 1rem; }
+  .main-menu-footer { padding-top: 0.5rem; }
 }
 
 /* Анимация появления */

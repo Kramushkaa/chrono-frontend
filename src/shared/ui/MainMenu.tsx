@@ -38,7 +38,6 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
           <h1 className="main-menu-title">
             <BrandTitle />
           </h1>
-          <p className="main-menu-subtitle">Историческая временная линия</p>
         </div>
 
         {/* Плиточки меню */}
