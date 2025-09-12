@@ -1,9 +1,13 @@
 import React from 'react'
 
-export const ContactFooter: React.FC = () => {
+type ContactFooterProps = {
+  fixed?: boolean
+}
+
+export const ContactFooter: React.FC<ContactFooterProps> = ({ fixed = false }) => {
   return (
     <footer style={{
-      marginTop: 8,
+      marginTop: fixed ? 0 : 8,
       padding: '8px 12px',
       borderTop: '1px solid rgba(139,69,19,0.2)',
       color: '#ccbfa3',
@@ -12,7 +16,14 @@ export const ContactFooter: React.FC = () => {
       flexWrap: 'wrap',
       gap: 12,
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      position: fixed ? 'fixed' as const : 'static' as const,
+      left: fixed ? 0 : undefined,
+      right: fixed ? 0 : undefined,
+      bottom: fixed ? 0 : undefined,
+      zIndex: fixed ? 5 : undefined,
+      background: fixed ? 'rgba(24, 17, 9, 0.92)' : 'transparent',
+      backdropFilter: fixed ? 'blur(2px)' as any : undefined
     }}>
       <span>Связь:</span>
       <a href="mailto:admin@chrono.ninja" style={{ color: '#e6d7b2' }}>admin@chrono.ninja</a>
