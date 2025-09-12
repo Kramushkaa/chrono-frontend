@@ -199,8 +199,8 @@ const QuizPage: React.FC = () => {
             onStartQuiz={startQuiz}
             canStart={canStart}
           />
+          <ContactFooter />
         </div>
-        <ContactFooter />
       </div>
     );
   }
@@ -255,8 +255,8 @@ const QuizPage: React.FC = () => {
             onRestart={handleRestart}
             onBackToMenu={handleBackToMenu}
           />
+          <ContactFooter />
         </div>
-        <ContactFooter />
       </div>
     );
   }
@@ -305,8 +305,8 @@ const QuizPage: React.FC = () => {
           <div className="quiz-question-container">
             {renderQuestion()}
           </div>
+          <ContactFooter />
         </div>
-        <ContactFooter />
       </div>
     );
   }
