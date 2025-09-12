@@ -23,6 +23,7 @@ import { ManageUIProvider } from 'features/manage/context/ManageUIContext'
 import { useManagePageData } from '../hooks/useManagePageData'
 import { slugifyIdFromName } from 'shared/utils/slug'
 import '../styles/manage-page.css'
+import { ContactFooter } from 'shared/ui/ContactFooter'
 
 type Tab = 'persons' | 'achievements' | 'periods'
 
@@ -928,6 +929,7 @@ export default function ManagePage() {
           </div>
         </ManageUIProvider>
       </div>
+      <ContactFooter />
     </div>
   )
 }

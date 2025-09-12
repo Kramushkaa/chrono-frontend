@@ -10,6 +10,7 @@ import { AchievementsMatchQuestion } from '../components/QuestionTypes/Achieveme
 import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion';
 import { SEO } from 'shared/ui/SEO';
 import { AppHeader } from 'shared/layout/AppHeader';
+import { ContactFooter } from 'shared/ui/ContactFooter';
 import '../styles/quiz.css';
 
 const QuizPage: React.FC = () => {
@@ -152,6 +153,7 @@ const QuizPage: React.FC = () => {
           <div className="spinner"></div>
           <p>Загрузка данных...</p>
         </div>
+        <ContactFooter />
       </div>
     );
   }
@@ -198,6 +200,7 @@ const QuizPage: React.FC = () => {
             canStart={canStart}
           />
         </div>
+        <ContactFooter />
       </div>
     );
   }
@@ -253,6 +256,7 @@ const QuizPage: React.FC = () => {
             onBackToMenu={handleBackToMenu}
           />
         </div>
+        <ContactFooter />
       </div>
     );
   }
@@ -302,6 +306,7 @@ const QuizPage: React.FC = () => {
             {renderQuestion()}
           </div>
         </div>
+        <ContactFooter />
       </div>
     );
   }
