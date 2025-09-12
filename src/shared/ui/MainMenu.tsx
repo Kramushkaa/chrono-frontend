@@ -3,6 +3,7 @@ import '../styles/MainMenu.css'
 import { UserMenu } from 'shared/ui/UserMenu'
 import { BrandTitle } from 'shared/ui/BrandTitle'
 import { SEO } from 'shared/ui/SEO'
+import { ContactFooter } from 'shared/ui/ContactFooter'
 
 interface MainMenuProps {
   onOpenTimeline: () => void
@@ -104,9 +105,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
 
         {/* Футер */}
         <div className="main-menu-footer">
-          <p className="main-menu-footer-text">
-            Исследуйте историю через призму времени
-          </p>
+          <ContactFooter />
         </div>
       </div>
     </div>
