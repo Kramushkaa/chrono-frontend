@@ -929,7 +929,6 @@ export default function ManagePage() {
           </div>
         </ManageUIProvider>
       </div>
-      <div style={{ height: 56 }} />
       <ContactFooter fixed />
     </div>
   )
