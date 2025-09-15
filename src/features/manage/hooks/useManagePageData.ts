@@ -84,9 +84,10 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   // removed unused personsMineQueryKey
 
   // Загружаем элементы "Моих" только когда вкладка открыта
+  const enablePersonsMine = isAuthenticated && menuSelection === 'mine' && activeTab === 'persons'
   const personsMineResult = useApiData({
     endpoint: '/api/persons/mine',
-    enabled: isAuthenticated && menuSelection === 'mine' && activeTab === 'persons',
+    enabled: enablePersonsMine,
     pageSize: 100,
     queryParams: useMemo(() => {
       const shouldApplyFilters = activeTab === 'persons' && isMineOrPendingMode;
@@ -106,9 +107,10 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   // Создаем стабильный ключ для достижений
   // removed unused achievementsMineQueryKey
 
+  const enableAchievementsMine = isAuthenticated && menuSelection === 'mine' && activeTab === 'achievements'
   const achievementsMineResult = useApiData({
     endpoint: '/api/achievements/mine',
-    enabled: isAuthenticated && menuSelection === 'mine' && activeTab === 'achievements',
+    enabled: enableAchievementsMine,
     pageSize: 100,
     queryParams: useMemo(() => {
       const shouldApplyFilters = activeTab === 'achievements' && isMineOrPendingMode;
@@ -124,9 +126,10 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   // Создаем стабильный ключ для периодов
   // removed unused periodsMineQueryKey
 
+  const enablePeriodsMine = isAuthenticated && menuSelection === 'mine' && activeTab === 'periods'
   const periodsMineResult = useApiData({
     endpoint: '/api/periods/mine',
-    enabled: isAuthenticated && menuSelection === 'mine' && activeTab === 'periods',
+    enabled: enablePeriodsMine,
     pageSize: 100,
     queryParams: useMemo(() => {
       const shouldApplyFilters = activeTab === 'periods' && isMineOrPendingMode;
@@ -181,6 +184,11 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   };
 
   return {
+    // Флаги активности mine
+    enablePersonsMine,
+    enableAchievementsMine,
+    enablePeriodsMine,
+
     // Состояния поиска
     searchPersons,
     setSearchPersons,
@@ -208,6 +216,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     // Данные для режима "Мои"
     personsAlt: personsMineState.items,
     personsAltLoading: personsMineState.isLoading,
+    personsAltInitialLoading: personsMineState.isInitialLoading,
     personsAltHasMore: personsMineState.hasMore,
     loadMorePersonsAlt: personsMineActions.loadMore,
 
@@ -218,13 +227,15 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     // Данные для режима "Мои"
     achievementsMineData: {
       items: achievementsMineState.items,
-      isLoading: achievementsMineState.isLoading,
+      isLoading: achievementsMineState.isLoading || achievementsMineState.isInitialLoading,
+      isInitialLoading: achievementsMineState.isInitialLoading,
       hasMore: achievementsMineState.hasMore,
       loadMore: achievementsMineActions.loadMore
     },
     periodsMineData: {
       items: periodsMineState.items,
-      isLoading: periodsMineState.isLoading,
+      isLoading: periodsMineState.isLoading || periodsMineState.isInitialLoading,
+      isInitialLoading: periodsMineState.isInitialLoading,
       hasMore: periodsMineState.hasMore,
       loadMore: periodsMineActions.loadMore
     },

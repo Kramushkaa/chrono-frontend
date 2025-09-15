@@ -68,6 +68,7 @@ export default function ManagePage() {
     loadMorePersonsAll,
     personsAlt,
     personsAltLoading,
+    personsAltInitialLoading,
     personsAltHasMore,
     loadMorePersonsAlt,
     searchAch,
@@ -86,6 +87,8 @@ export default function ManagePage() {
     resetAchievements,
     resetPeriods
   } = useManagePageData(activeTab, menuSelection, isAuthenticated, filters)
+
+  // Убираем фолбэк: источник данных один — useManagePageData/useApiData
 
   // Состояния для модальных окон
   const [isEditing, setIsEditing] = useState(false)
@@ -146,9 +149,10 @@ export default function ManagePage() {
     if (!isAuthenticated || !user?.id) { setMineCounts({ persons: 0, achievements: 0, periods: 0 }); return }
     const key = String(user.id)
     const now = Date.now()
-    // Throttle duplicate triggers (e.g., React StrictMode double-invoke in dev)
+    // Лёгкая защита от частых вызовов в dev, но не блокируем загрузку, если счётчик еще не заполнен
     if (countsLoadKeyRef.current === key && now - countsLastTsRef.current < 1500) {
-      return
+      const haveCounts = (mineCounts.persons > 0 || mineCounts.achievements > 0 || mineCounts.periods > 0)
+      if (haveCounts) return
     }
     countsLoadKeyRef.current = key
     countsLastTsRef.current = now
@@ -165,7 +169,7 @@ export default function ManagePage() {
     return () => { cancelled = true }
   }, [isAuthenticated, user?.id])
 
-  // Сброс данных при смене вкладки или режима
+  // Сброс данных и триггер обновления при смене вкладки
   useEffect(() => {
     if (activeTab === 'persons') {
       resetPersons()
@@ -174,7 +178,7 @@ export default function ManagePage() {
     } else if (activeTab === 'periods') {
       resetPeriods()
     }
-  }, [activeTab, menuSelection, resetPersons, resetAchievements, resetPeriods])
+  }, [activeTab, resetPersons, resetAchievements, resetPeriods])
 
   // Обработка выбранной личности
   const fetchedDetailsIdsRef = useRef<Set<string>>(new Set())
@@ -471,7 +475,7 @@ export default function ManagePage() {
                     setMenuSelection={setMenuSelection as any}
                     isModerator={isModerator}
                     pendingCount={null}
-                    mineCount={mineCounts.persons}
+                    mineCount={(activeTab as string) === 'persons' ? mineCounts.persons : (activeTab as string) === 'achievements' ? mineCounts.achievements : mineCounts.periods}
                     personLists={[
                       ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
                       ...(isAuthenticated ? personLists : [])
@@ -494,7 +498,7 @@ export default function ManagePage() {
                       loadMore: () => {}
                     } : (menuSelection === 'mine') ? {
                       items: personsAlt,
-                      isLoading: personsAltLoading,
+                      isLoading: personsAltLoading || personsAltInitialLoading,
                       hasMore: personsAltHasMore,
                       loadMore: loadMorePersonsAlt
                     } : {
@@ -582,7 +586,7 @@ export default function ManagePage() {
                   setMenuSelection={setMenuSelection as any}
                   isModerator={isModerator}
                   pendingCount={null}
-                  mineCount={mineCounts.achievements}
+                  mineCount={(activeTab as string) === 'persons' ? mineCounts.persons : (activeTab as string) === 'achievements' ? mineCounts.achievements : mineCounts.periods}
                   personLists={[
                     ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
                     ...(isAuthenticated ? personLists : [])
@@ -636,7 +640,7 @@ export default function ManagePage() {
                   setMenuSelection={setMenuSelection as any}
                   isModerator={isModerator}
                   pendingCount={null}
-                  mineCount={mineCounts.periods}
+                  mineCount={(activeTab as string) === 'persons' ? mineCounts.persons : (activeTab as string) === 'achievements' ? mineCounts.achievements : mineCounts.periods}
                   personLists={[
                     ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
                     ...(isAuthenticated ? personLists : [])

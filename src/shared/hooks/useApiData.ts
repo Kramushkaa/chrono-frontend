@@ -162,6 +162,8 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
       responseReceivedRef.current = true;
       
       if (controller.signal.aborted) {
+        loadingRef.current = false
+        setState(prev => ({ ...prev, isLoading: false }))
         return
       }
       const data = await response.json().catch((error) => {
@@ -171,11 +173,17 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
       const transformedItems = transformData ? transformData(rawItems) : rawItems
       
       if (controller.signal.aborted) {
+        loadingRef.current = false
+        setState(prev => ({ ...prev, isLoading: false }))
         return
       }
 
 
-      if (controller.signal.aborted) return
+      if (controller.signal.aborted) { 
+        loadingRef.current = false
+        setState(prev => ({ ...prev, isLoading: false }))
+        return
+      }
 
       // Дедупликация
       let finalItems = transformedItems
@@ -277,19 +285,22 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
     fetchData(0, true)
   }, [reset, fetchData])
 
-  // Сброс при изменении конфигурации с задержкой
+  // Инициируем первичную загрузку при включении или смене ключа
+  const prevEnabledRef = useRef(enabled)
+  const prevKeyRef = useRef(effectiveCacheKey)
   useEffect(() => {
-    // Добавляем небольшую задержку для предотвращения множественных сбросов
-    const timeoutId = setTimeout(() => {
-      // Очищаем кэш при изменении ключа
+    const enabledBecameTrue = !prevEnabledRef.current && enabled
+    const keyChanged = prevKeyRef.current !== effectiveCacheKey
+    if (enabled && (enabledBecameTrue || keyChanged) && !loadingRef.current) {
+      // сбрасываем состояние и сразу стартуем первую страницу без задержек
+      setState({ items: [], isLoading: false, hasMore: true, error: null, isInitialLoading: true })
+      offsetRef.current = 0
       cacheRef.current.clear()
-      reset()
-    }, 10); // Очень короткая задержка
-    
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [effectiveCacheKey, reset, enabled, endpoint])
+      fetchData(0, true)
+    }
+    prevEnabledRef.current = enabled
+    prevKeyRef.current = effectiveCacheKey
+  }, [enabled, effectiveCacheKey, fetchData])
 
   // Начальная загрузка после сброса
   useEffect(() => {
@@ -308,6 +319,17 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
       }
     }
   }, [])
+
+  // Когда источник выключается (enabled=false), гарантированно снимаем загрузку
+  useEffect(() => {
+    if (!enabled) {
+      if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+        abortControllerRef.current.abort()
+      }
+      loadingRef.current = false
+      setState(prev => ({ ...prev, isLoading: false, isInitialLoading: false }))
+    }
+  }, [enabled])
 
   return [state, { loadMore, reset, refetch }]
 }

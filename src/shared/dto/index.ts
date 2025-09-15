@@ -1,6 +1,6 @@
 // Manually duplicated DTO types/descriptors (keep in sync with backend)
 
-export const DTO_VERSION = '2025-08-26-1'
+export const DTO_VERSION = '2025-09-15-1'
 
 export type UpsertPersonDTO = {
   id: string
