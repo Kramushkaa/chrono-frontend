@@ -3,7 +3,7 @@ import { Person } from 'shared/types'
 import { useFilters } from '../../../shared/hooks/useFilters'
 import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils'
 import { PersonCard } from 'features/persons/components/PersonCard'
-import { getCategories, getCountries, getCountryOptions, CountryOption, apiFetch, apiData } from 'shared/api/api'
+import { getCategories, getCountries, getCountryOptions, CountryOption, apiFetch, apiData, getMyPersonsCount, getMyAchievementsCount, getMyPeriodsCount } from 'shared/api/api'
 import { AppHeader } from 'shared/layout/AppHeader'
 import { useNavigate } from 'react-router-dom'
 import { PersonEditModal } from '../components/PersonEditModal'
@@ -44,6 +44,7 @@ export default function ManagePage() {
   const [showControls, setShowControls] = useState(false)
   const [activeTab, setActiveTab] = useState<Tab>('persons')
   const [selectedListId, setSelectedListId] = useState<number | null>(null)
+  const [mineCounts, setMineCounts] = useState<{ persons: number; achievements: number; periods: number }>({ persons: 0, achievements: 0, periods: 0 })
   
   type MenuSelection = 'all' | 'pending' | 'mine' | `list:${number}`
   const [menuSelection, setMenuSelection] = useState<MenuSelection>('all')
@@ -136,6 +137,23 @@ export default function ManagePage() {
     })()
     return () => { mounted = false }
   }, [])
+
+  // Загрузка стабильных счётчиков "Мои" (без фильтров/пагинации)
+  useEffect(() => {
+    let cancelled = false
+    if (!isAuthenticated) { setMineCounts({ persons: 0, achievements: 0, periods: 0 }); return }
+    ;(async () => {
+      try {
+        const [pc, ac, prc] = await Promise.all([
+          getMyPersonsCount().catch(() => 0),
+          getMyAchievementsCount().catch(() => 0),
+          getMyPeriodsCount().catch(() => 0)
+        ])
+        if (!cancelled) setMineCounts({ persons: pc, achievements: ac, periods: prc })
+      } catch {}
+    })()
+    return () => { cancelled = true }
+  }, [isAuthenticated])
 
   // Сброс данных при смене вкладки или режима
   useEffect(() => {
@@ -500,8 +518,8 @@ export default function ManagePage() {
                     menuSelection={menuSelection as any}
                     setMenuSelection={setMenuSelection as any}
                     isModerator={isModerator}
-                    pendingCount={null} // TODO: добавить загрузку счетчиков
-                    mineCount={personsAlt.length}
+                    pendingCount={null}
+                    mineCount={mineCounts.persons}
                     personLists={[
                       ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
                       ...(isAuthenticated ? modifiedPersonLists : [])
@@ -611,8 +629,8 @@ export default function ManagePage() {
                   menuSelection={menuSelection as any}
                   setMenuSelection={setMenuSelection as any}
                   isModerator={isModerator}
-                  pendingCount={null} // TODO: добавить загрузку счетчиков
-                  mineCount={achievementsMineData.items.length}
+                  pendingCount={null}
+                  mineCount={mineCounts.achievements}
                   personLists={[
                     ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
                     ...(isAuthenticated ? modifiedPersonLists : [])
@@ -665,8 +683,8 @@ export default function ManagePage() {
                   menuSelection={menuSelection as any}
                   setMenuSelection={setMenuSelection as any}
                   isModerator={isModerator}
-                  pendingCount={null} // TODO: добавить загрузку счетчиков
-                  mineCount={periodsMineData.items.length}
+                  pendingCount={null}
+                  mineCount={mineCounts.periods}
                   personLists={[
                     ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
                     ...(isAuthenticated ? modifiedPersonLists : [])

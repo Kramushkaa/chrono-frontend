@@ -481,6 +481,31 @@ export async function getMyAchievements(limit?: number, offset?: number) {
   return data;
 }
 
+// Count-only helpers for "mine"
+export async function getMyPersonsCount(): Promise<number> {
+  const res = await apiFetch(`/api/persons/mine?count=true`)
+  const data = await res.json().catch(() => null) as any
+  if (!res.ok) throw new Error(data?.message || 'Не удалось получить счётчик моих личностей')
+  const c = data?.data?.count
+  return typeof c === 'number' ? c : 0
+}
+
+export async function getMyAchievementsCount(): Promise<number> {
+  const res = await apiFetch(`/api/achievements/mine?count=true`)
+  const data = await res.json().catch(() => null) as any
+  if (!res.ok) throw new Error(data?.message || 'Не удалось получить счётчик моих достижений')
+  const c = data?.data?.count
+  return typeof c === 'number' ? c : 0
+}
+
+export async function getMyPeriodsCount(): Promise<number> {
+  const res = await apiFetch(`/api/periods/mine?count=true`)
+  const data = await res.json().catch(() => null) as any
+  if (!res.ok) throw new Error(data?.message || 'Не удалось получить счётчик моих периодов')
+  const c = data?.data?.count
+  return typeof c === 'number' ? c : 0
+}
+
 // Get pending achievements (for moderators)
 export async function getPendingAchievements(limit?: number, offset?: number) {
   const params = new URLSearchParams();
