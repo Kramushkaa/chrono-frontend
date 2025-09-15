@@ -28,7 +28,7 @@ export default function TimelinePage() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeAchievementMarker, setActiveAchievementMarker] = useState<{ personId: string; index: number } | null>(null)
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
-  const [showControls, setShowControls] = useState(true)
+  const [showControls, setShowControls] = useState(false)
 
   const {
     filters,

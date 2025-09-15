@@ -1,4 +1,5 @@
 import React from 'react'
+import { apiFetch, apiData } from 'shared/api/api'
 import { LeftMenuSelection } from './LeftMenu'
 import { LeftMenuLayout } from './LeftMenuLayout'
 
@@ -108,7 +109,7 @@ export function DesktopListsLayout(props: Props) {
           }
           
           const title = sharedList?.title || 'Импортированный список'
-          const res = await fetch(`/api/lists/copy-from-share`, { 
+          const res = await apiFetch(`/api/lists/copy-from-share`, { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify({ code, title }) 
@@ -137,7 +138,7 @@ export function DesktopListsLayout(props: Props) {
       }}
       onDeleteList={async (id) => {
         try {
-          const res = await fetch(`/api/lists/${id}`, { method: 'DELETE' })
+          const res = await apiFetch(`/api/lists/${id}`, { method: 'DELETE' })
           if (res.ok) {
             if (selectedListId === id) { 
               setSelectedListId(null)
@@ -154,15 +155,12 @@ export function DesktopListsLayout(props: Props) {
       }}
       onShareList={async (id) => {
         try {
-          const res = await fetch(`/api/lists/${id}/share`, { method: 'POST' })
-          if (res.ok) {
-            const data = await res.json()
-            const shareUrl = `${window.location.origin}${window.location.pathname}?share=${data.code}`
-            await navigator.clipboard.writeText(shareUrl)
-            showToast('Ссылка скопирована в буфер обмена', 'success')
-          } else {
-            showToast('Не удалось создать ссылку', 'error')
-          }
+          const payload = await apiData<{ code?: string }>(`/api/lists/${id}/share`, { method: 'POST' })
+          const code = payload?.code
+          if (!code) { showToast('Не удалось создать ссылку', 'error'); return }
+          const shareUrl = `${window.location.origin}${window.location.pathname}?share=${encodeURIComponent(code)}`
+          await navigator.clipboard.writeText(shareUrl)
+          showToast('Ссылка скопирована в буфер обмена', 'success')
         } catch {
           showToast('Ошибка создания ссылки', 'error')
         }
@@ -170,7 +168,10 @@ export function DesktopListsLayout(props: Props) {
       onShowOnTimeline={async (id) => {
         const isShared = sharedList?.id === id
         const url = isShared 
-          ? `/timeline?share=${encodeURIComponent(window.location.search)}`
+          ? (() => {
+              const code = (new URLSearchParams(window.location.search)).get('share') || ''
+              return `/timeline?share=${encodeURIComponent(code)}`
+            })()
           : `/timeline?list=${id}`
         
         window.open(url, '_blank')
