@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Person } from 'shared/types'
 import { useFilters } from '../../../shared/hooks/useFilters'
 import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils'
@@ -45,6 +45,8 @@ export default function ManagePage() {
   const [activeTab, setActiveTab] = useState<Tab>('persons')
   const [selectedListId, setSelectedListId] = useState<number | null>(null)
   const [mineCounts, setMineCounts] = useState<{ persons: number; achievements: number; periods: number }>({ persons: 0, achievements: 0, periods: 0 })
+  const countsLoadKeyRef = useRef<string | null>(null)
+  const countsLastTsRef = useRef(0)
   
   type MenuSelection = 'all' | 'pending' | 'mine' | `list:${number}`
   const [menuSelection, setMenuSelection] = useState<MenuSelection>('all')
@@ -141,7 +143,15 @@ export default function ManagePage() {
   // Загрузка стабильных счётчиков "Мои" (без фильтров/пагинации)
   useEffect(() => {
     let cancelled = false
-    if (!isAuthenticated) { setMineCounts({ persons: 0, achievements: 0, periods: 0 }); return }
+    if (!isAuthenticated || !user?.id) { setMineCounts({ persons: 0, achievements: 0, periods: 0 }); return }
+    const key = String(user.id)
+    const now = Date.now()
+    // Throttle duplicate triggers (e.g., React StrictMode double-invoke in dev)
+    if (countsLoadKeyRef.current === key && now - countsLastTsRef.current < 1500) {
+      return
+    }
+    countsLoadKeyRef.current = key
+    countsLastTsRef.current = now
     ;(async () => {
       try {
         const [pc, ac, prc] = await Promise.all([
@@ -153,7 +163,7 @@ export default function ManagePage() {
       } catch {}
     })()
     return () => { cancelled = true }
-  }, [isAuthenticated])
+  }, [isAuthenticated, user?.id])
 
   // Сброс данных при смене вкладки или режима
   useEffect(() => {
@@ -295,64 +305,8 @@ export default function ManagePage() {
   const countrySelectOptions = useMemo(() => countryOptions.map(c => ({ value: String(c.id), label: c.name })), [countryOptions])
   const categorySelectOptions = useMemo(() => categories.map(c => ({ value: c, label: c })), [categories])
 
-  // Состояние для хранения статистики по всем спискам
-  const [listStats, setListStats] = useState<Record<number, { person: number; achievement: number; period: number }>>({})
-
-  // Функция для загрузки статистики по всем спискам
-  const loadListStats = useCallback(async () => {
-    if (!isAuthenticated || personLists.length === 0) return
-
-    try {
-      const statsPromises = personLists.map(async (list) => {
-        try {
-          const items: Array<{ item_type: string }> = await apiData(`/api/lists/${list.id}/items`)
-          const stats = {
-            person: items.filter(i => i.item_type === 'person').length,
-            achievement: items.filter(i => i.item_type === 'achievement').length,
-            period: items.filter(i => i.item_type === 'period').length
-          }
-          return { listId: list.id, stats }
-        } catch {
-          return { listId: list.id, stats: { person: 0, achievement: 0, period: 0 } }
-        }
-      })
-
-      const results = await Promise.all(statsPromises)
-      const newStats: Record<number, { person: number; achievement: number; period: number }> = {}
-      results.forEach(({ listId, stats }) => {
-        newStats[listId] = stats
-      })
-      setListStats(newStats)
-    } catch {
-      // Игнорируем ошибки загрузки статистики
-    }
-  }, [isAuthenticated, personLists])
-
-  // Загружаем статистику при изменении списков или аутентификации
-  useEffect(() => {
-    loadListStats()
-  }, [loadListStats])
-
-  // Функция для получения количества элементов текущего типа в списке
-  const getListItemsCountByType = useCallback((listId: number, type: 'person' | 'achievement' | 'period') => {
-    const stats = listStats[listId]
-    if (!stats) return 0
-    
-    switch (type) {
-      case 'person': return stats.person
-      case 'achievement': return stats.achievement
-      case 'period': return stats.period
-      default: return 0
-    }
-  }, [listStats])
-
-  // Модифицированные списки с правильными счетчиками для текущего типа
-  const modifiedPersonLists = useMemo(() => {
-    return personLists.map(list => ({
-      ...list,
-      items_count: getListItemsCountByType(list.id, activeTab === 'persons' ? 'person' : activeTab === 'achievements' ? 'achievement' : 'period')
-    }))
-  }, [personLists, getListItemsCountByType, activeTab])
+  // Для меню используем items_count, которое приходит с /api/lists (общий счётчик);
+  // не загружаем элементы списков до явного выбора пользователем.
 
   // Функция удаления элемента из списка
   const handleDeleteListItem = async (listItemId: number) => {
@@ -362,8 +316,6 @@ export default function ManagePage() {
       if (ok.ok) { 
         setListItems(prev => prev.filter(x => x.listItemId !== listItemId))
         await loadUserLists.current?.(true)
-        // Обновляем статистику после удаления
-        await loadListStats()
         showToast('Удалено из списка', 'success')
       } else { 
         showToast('Не удалось удалить', 'error')
@@ -522,7 +474,7 @@ export default function ManagePage() {
                     mineCount={mineCounts.persons}
                     personLists={[
                       ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
-                      ...(isAuthenticated ? modifiedPersonLists : [])
+                      ...(isAuthenticated ? personLists : [])
                     ]}
                     isAuthenticated={isAuthenticated}
                     setShowAuthModal={setShowAuthModal}
@@ -633,7 +585,7 @@ export default function ManagePage() {
                   mineCount={mineCounts.achievements}
                   personLists={[
                     ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
-                    ...(isAuthenticated ? modifiedPersonLists : [])
+                    ...(isAuthenticated ? personLists : [])
                   ]}
                   isAuthenticated={isAuthenticated}
                   setShowAuthModal={setShowAuthModal}
@@ -687,7 +639,7 @@ export default function ManagePage() {
                   mineCount={mineCounts.periods}
                   personLists={[
                     ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
-                    ...(isAuthenticated ? modifiedPersonLists : [])
+                    ...(isAuthenticated ? personLists : [])
                   ]}
                   isAuthenticated={isAuthenticated}
                   setShowAuthModal={setShowAuthModal}
@@ -912,7 +864,7 @@ export default function ManagePage() {
               <AddToListModal
                 isOpen={addToList.isOpen}
                 onClose={() => addToList.close()}
-                lists={isAuthenticated ? modifiedPersonLists : []}
+                lists={isAuthenticated ? personLists : []}
                 onCreateList={() => { addToList.close(); setShowCreateList(true) }}
                 extraControls={selected ? (
                   <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>

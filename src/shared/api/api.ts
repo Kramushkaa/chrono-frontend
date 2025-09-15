@@ -206,7 +206,9 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
     
     return transformedData;
   } catch (error) {
-    console.error('Error fetching persons:', error);
+    /* eslint-disable no-console */
+    if (process.env.NODE_ENV !== 'production') console.error('Error fetching persons:', error);
+    /* eslint-enable no-console */
     throw error;
   }
 };
@@ -251,7 +253,9 @@ export const testBackendConnection = async (): Promise<boolean> => {
     const response = await apiRequest(`${API_BASE_URL}/api/health`);
     return response.ok;
   } catch (error) {
-    console.error('Backend connection test failed:', error);
+    /* eslint-disable no-console */
+    if (process.env.NODE_ENV !== 'production') console.error('Backend connection test failed:', error);
+    /* eslint-enable no-console */
     return false;
   }
 };
@@ -420,7 +424,9 @@ type UpsertPersonPayload = UpsertPersonDTO
 export async function adminUpsertPerson(payload: UpsertPersonPayload) {
   if (process.env.NODE_ENV !== 'production') {
     const v = validateDto('UpsertPerson', payload)
+    /* eslint-disable no-console */
     if (!v.ok) console.warn('DTO validation failed (UpsertPerson):', v.errors)
+    /* eslint-enable no-console */
   }
   const res = await apiFetch(`/api/admin/persons`, {
     method: 'POST',
@@ -457,7 +463,9 @@ export async function proposeNewPerson(payload: UpsertPersonPayload) {
 export async function addAchievement(personId: string, payload: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null }) {
   if (process.env.NODE_ENV !== 'production') {
     const v = validateDto('AchievementPerson', payload as any)
+    /* eslint-disable no-console */
     if (!v.ok) console.warn('DTO validation failed (AchievementPerson):', v.errors)
+    /* eslint-enable no-console */
   }
   const res = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/achievements`, {
     method: 'POST',
@@ -483,27 +491,24 @@ export async function getMyAchievements(limit?: number, offset?: number) {
 
 // Count-only helpers for "mine"
 export async function getMyPersonsCount(): Promise<number> {
-  const res = await apiFetch(`/api/persons/mine?count=true`)
-  const data = await res.json().catch(() => null) as any
-  if (!res.ok) throw new Error(data?.message || 'Не удалось получить счётчик моих личностей')
-  const c = data?.data?.count
-  return typeof c === 'number' ? c : 0
+  const payload = await apiData<{ count: number }>(`/api/persons/mine?count=true`)
+  const c = (payload as any)?.count
+  const n = Number(c)
+  return Number.isFinite(n) ? n : 0
 }
 
 export async function getMyAchievementsCount(): Promise<number> {
-  const res = await apiFetch(`/api/achievements/mine?count=true`)
-  const data = await res.json().catch(() => null) as any
-  if (!res.ok) throw new Error(data?.message || 'Не удалось получить счётчик моих достижений')
-  const c = data?.data?.count
-  return typeof c === 'number' ? c : 0
+  const payload = await apiData<{ count: number }>(`/api/achievements/mine?count=true`)
+  const c = (payload as any)?.count
+  const n = Number(c)
+  return Number.isFinite(n) ? n : 0
 }
 
 export async function getMyPeriodsCount(): Promise<number> {
-  const res = await apiFetch(`/api/periods/mine?count=true`)
-  const data = await res.json().catch(() => null) as any
-  if (!res.ok) throw new Error(data?.message || 'Не удалось получить счётчик моих периодов')
-  const c = data?.data?.count
-  return typeof c === 'number' ? c : 0
+  const payload = await apiData<{ count: number }>(`/api/periods/mine?count=true`)
+  const c = (payload as any)?.count
+  const n = Number(c)
+  return Number.isFinite(n) ? n : 0
 }
 
 // Get pending achievements (for moderators)
@@ -534,7 +539,9 @@ export async function reviewAchievement(achievementId: number, action: 'approve'
 export async function addGenericAchievement(payload: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null; country_id?: number | null }) {
   if (process.env.NODE_ENV !== 'production') {
     const v = validateDto('AchievementGeneric', payload as any)
+    /* eslint-disable no-console */
     if (!v.ok) console.warn('DTO validation failed (AchievementGeneric):', v.errors)
+    /* eslint-enable no-console */
   }
   const res = await apiFetch(`/api/achievements`, {
     method: 'POST',
@@ -613,7 +620,9 @@ export async function saveLifePeriods(personId: string, periods: LifePeriodInput
   if (process.env.NODE_ENV !== 'production') {
     const pack = { periods: periods.map(p => ({ country_id: p.country_id, start_year: p.start_year, end_year: p.end_year })) }
     const v = validateDto('LifePeriods', pack)
+    /* eslint-disable no-console */
     if (!v.ok) console.warn('DTO validation failed (LifePeriods):', v.errors)
+    /* eslint-enable no-console */
   }
   const data = await apiJson(`/api/persons/${encodeURIComponent(personId)}/life-periods`, {
     method: 'POST',
