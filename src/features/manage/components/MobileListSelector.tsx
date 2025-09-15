@@ -39,7 +39,7 @@ export function MobileListSelector({
   const getSelectedLabel = () => {
     if (selectedKey === 'all') return labelAll
     if (selectedKey === 'pending') return `Ожидают (${pendingCount || 0})`
-    if (selectedKey === 'mine') return `Мои ${mineCount ? `(${mineCount})` : ''}`
+    if (selectedKey === 'mine') return `Мои ${mineCount != null ? `(${mineCount})` : ''}`
     if (selectedKey.startsWith('list:')) {
       const listId = Number(selectedKey.split(':')[1])
       const list = userLists.find(l => l.id === listId)
@@ -89,7 +89,7 @@ export function MobileListSelector({
               onClick={() => handleSelect({ type: 'mine' })}
               className={`lists-mobile-selector__option ${selectedKey === 'mine' ? 'lists-mobile-selector__option--active' : ''}`}
             >
-              Мои {mineCount ? `(${mineCount})` : ''}
+              Мои {mineCount != null ? `(${mineCount})` : ''}
             </button>
 
             {/* Разделитель */}

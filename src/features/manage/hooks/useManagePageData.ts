@@ -83,10 +83,10 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   // Создаем стабильный ключ для отслеживания изменений параметров "Mine" данных
   // removed unused personsMineQueryKey
 
-  // Загружаем данные для "Моих" всегда, чтобы счетчики работали правильно
+  // Загружаем элементы "Моих" только когда вкладка открыта
   const personsMineResult = useApiData({
     endpoint: '/api/persons/mine',
-    enabled: isAuthenticated, // Загружаем всегда для счетчиков
+    enabled: isAuthenticated && menuSelection === 'mine' && activeTab === 'persons',
     pageSize: 100,
     queryParams: useMemo(() => {
       const shouldApplyFilters = activeTab === 'persons' && isMineOrPendingMode;
@@ -108,7 +108,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
 
   const achievementsMineResult = useApiData({
     endpoint: '/api/achievements/mine',
-    enabled: isAuthenticated, // Загружаем всегда для счетчиков
+    enabled: isAuthenticated && menuSelection === 'mine' && activeTab === 'achievements',
     pageSize: 100,
     queryParams: useMemo(() => {
       const shouldApplyFilters = activeTab === 'achievements' && isMineOrPendingMode;
@@ -126,7 +126,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
 
   const periodsMineResult = useApiData({
     endpoint: '/api/periods/mine',
-    enabled: isAuthenticated, // Загружаем всегда для счетчиков
+    enabled: isAuthenticated && menuSelection === 'mine' && activeTab === 'periods',
     pageSize: 100,
     queryParams: useMemo(() => {
       const shouldApplyFilters = activeTab === 'periods' && isMineOrPendingMode;
