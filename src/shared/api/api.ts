@@ -1,5 +1,6 @@
 import { authStorage } from '../../features/auth/services/auth'
 import type { UpsertPersonDTO, LifePeriodItemDTO } from '../dto'
+import { validateDto } from '../dto'
 // API configuration
 const getApiConfig = () => {
   // Определяем окружение
@@ -417,6 +418,10 @@ export async function apiData<T = any>(path: string, init: RequestInit = {}): Pr
 type UpsertPersonPayload = UpsertPersonDTO
 
 export async function adminUpsertPerson(payload: UpsertPersonPayload) {
+  if (process.env.NODE_ENV !== 'production') {
+    const v = validateDto('UpsertPerson', payload)
+    if (!v.ok) console.warn('DTO validation failed (UpsertPerson):', v.errors)
+  }
   const res = await apiFetch(`/api/admin/persons`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -450,6 +455,10 @@ export async function proposeNewPerson(payload: UpsertPersonPayload) {
 }
 
 export async function addAchievement(personId: string, payload: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null }) {
+  if (process.env.NODE_ENV !== 'production') {
+    const v = validateDto('AchievementPerson', payload as any)
+    if (!v.ok) console.warn('DTO validation failed (AchievementPerson):', v.errors)
+  }
   const res = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/achievements`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -498,6 +507,10 @@ export async function reviewAchievement(achievementId: number, action: 'approve'
 
 // Create achievement not bound to person (optionally bound to country via country_id)
 export async function addGenericAchievement(payload: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null; country_id?: number | null }) {
+  if (process.env.NODE_ENV !== 'production') {
+    const v = validateDto('AchievementGeneric', payload as any)
+    if (!v.ok) console.warn('DTO validation failed (AchievementGeneric):', v.errors)
+  }
   const res = await apiFetch(`/api/achievements`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -572,6 +585,11 @@ export async function getPersonById(id: string): Promise<Person | null> {
 // --- Life periods (countries of residence) ---
 export type LifePeriodInput = Pick<LifePeriodItemDTO, 'country_id' | 'start_year' | 'end_year'>
 export async function saveLifePeriods(personId: string, periods: LifePeriodInput[]) {
+  if (process.env.NODE_ENV !== 'production') {
+    const pack = { periods: periods.map(p => ({ country_id: p.country_id, start_year: p.start_year, end_year: p.end_year })) }
+    const v = validateDto('LifePeriods', pack)
+    if (!v.ok) console.warn('DTO validation failed (LifePeriods):', v.errors)
+  }
   const data = await apiJson(`/api/persons/${encodeURIComponent(personId)}/life-periods`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
