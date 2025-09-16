@@ -337,7 +337,21 @@ export default function ManagePage() {
       if (!listModeActive || !selectedListId) { setListItems([]); return }
       setListLoading(true)
       try {
-        const items: Array<{ id: number; item_type: string; person_id?: string; achievement_id?: number; period_id?: number }> = await apiData(`/api/lists/${selectedListId}/items`)
+        // Если выбран readonly-список, пришедший через share-код, берём его содержимое через публичный endpoint
+        let items: Array<{ id: number; item_type: string; person_id?: string; achievement_id?: number; period_id?: number }>
+        const readonlyShared = sharedList && sharedList.id === selectedListId && !!sharedList.code
+        if (readonlyShared) {
+          const resolved = await apiData<any>(`/api/list-shares/${encodeURIComponent(sharedList!.code)}`)
+          items = (Array.isArray(resolved?.items) ? resolved.items : []).map((it: any, idx: number) => ({
+            id: idx + 1,
+            item_type: it.item_type,
+            person_id: it.person_id,
+            achievement_id: it.achievement_id,
+            period_id: it.period_id
+          }))
+        } else {
+          items = await apiData(`/api/lists/${selectedListId}/items`)
+        }
         const personIds = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
         const achIds = items.filter(i => i.item_type === 'achievement' && typeof i.achievement_id === 'number').map(i => i.achievement_id!)
         const periodIds = items.filter(i => i.item_type === 'period' && typeof i.period_id === 'number').map(i => i.period_id!)
@@ -477,7 +491,7 @@ export default function ManagePage() {
                     pendingCount={null}
                     mineCount={(activeTab as string) === 'persons' ? mineCounts.persons : (activeTab as string) === 'achievements' ? mineCounts.achievements : mineCounts.periods}
                     personLists={[
-                      ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
+                      ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: sharedList.persons_count ?? sharedList.items_count, readonly: true } as any] : []),
                       ...(isAuthenticated ? personLists : [])
                     ]}
                     isAuthenticated={isAuthenticated}
@@ -588,7 +602,7 @@ export default function ManagePage() {
                   pendingCount={null}
                   mineCount={(activeTab as string) === 'persons' ? mineCounts.persons : (activeTab as string) === 'achievements' ? mineCounts.achievements : mineCounts.periods}
                   personLists={[
-                    ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
+                    ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: sharedList.achievements_count ?? 0, readonly: true } as any] : []),
                     ...(isAuthenticated ? personLists : [])
                   ]}
                   isAuthenticated={isAuthenticated}
@@ -642,7 +656,7 @@ export default function ManagePage() {
                   pendingCount={null}
                   mineCount={(activeTab as string) === 'persons' ? mineCounts.persons : (activeTab as string) === 'achievements' ? mineCounts.achievements : mineCounts.periods}
                   personLists={[
-                    ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: undefined, readonly: true } as any] : []),
+                    ...(sharedList ? [{ id: sharedList.id, title: `🔒 ${sharedList.title}`, items_count: sharedList.periods_count ?? 0, readonly: true } as any] : []),
                     ...(isAuthenticated ? personLists : [])
                   ]}
                   isAuthenticated={isAuthenticated}

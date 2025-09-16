@@ -2,7 +2,16 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean }
 
-type SharedList = { id: number; title: string; owner_user_id?: string } | null
+type SharedList = {
+  id: number;
+  title: string;
+  owner_user_id?: string;
+  code: string;
+  items_count?: number;
+  persons_count?: number;
+  achievements_count?: number;
+  periods_count?: number;
+} | null
 
 type Params = {
   isAuthenticated: boolean
@@ -79,6 +88,11 @@ export function useLists({ isAuthenticated, userId, apiData }: Params) {
         const listId = Number(payload?.list_id)
         const title = String(payload?.title || '').trim() || 'Поделившийся список'
         const ownerId = payload?.owner_user_id != null ? String(payload.owner_user_id) : null
+        const items = Array.isArray(payload?.items) ? payload.items as Array<{ item_type: string }> : []
+        const itemsCount = items.length || undefined
+        const personsCount = items.filter(i => i.item_type === 'person').length || undefined
+        const achievementsCount = items.filter(i => i.item_type === 'achievement').length || undefined
+        const periodsCount = items.filter(i => i.item_type === 'period').length || undefined
         if (Number.isFinite(listId) && listId > 0) {
           if (isAuthenticated && userId != null && String(userId) === ownerId) {
             setSharedList(null)
@@ -86,7 +100,7 @@ export function useLists({ isAuthenticated, userId, apiData }: Params) {
             next.delete('share')
             window.history.replaceState(null, '', `/lists${next.toString() ? `?${next.toString()}` : ''}`)
           } else {
-            setSharedList({ id: listId, title, owner_user_id: ownerId || undefined })
+            setSharedList({ id: listId, title, owner_user_id: ownerId || undefined, code, items_count: itemsCount, persons_count: personsCount, achievements_count: achievementsCount, periods_count: periodsCount })
           }
         } else setSharedList(null)
       } catch { setSharedList(null) }
