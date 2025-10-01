@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { QuizSetupConfig } from '../types';
 import { FilterDropdown } from '../../../shared/ui/FilterDropdown';
 
@@ -10,6 +10,7 @@ interface QuizSetupProps {
   onStartQuiz: () => void;
   canStart: boolean;
   checkStrictFilters: (setup: QuizSetupConfig, allCategories: string[], allCountries: string[]) => string[];
+  isLoading?: boolean;
 }
 
 const QUESTION_TYPES = [
@@ -22,15 +23,6 @@ const QUESTION_TYPES = [
   { value: 'contemporaries', label: 'Раздели на группы современников' }
 ];
 
-const QUESTION_TYPE_LABELS: { [key: string]: string } = {
-  'birthYear': 'Угадай год рождения',
-  'deathYear': 'Угадай год смерти',
-  'profession': 'Угадай род деятельности',
-  'country': 'Угадай страну рождения',
-  'achievementsMatch': 'Сопоставь достижения', 
-  'birthOrder': 'Расставь по году рождения',
-  'contemporaries': 'Раздели на группы современников'
-};
 
 const QUESTION_COUNTS = [3, 5, 7, 10, 15, 20];
 
@@ -41,21 +33,37 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
   allCountries,
   onStartQuiz,
   canStart,
-  checkStrictFilters
+  checkStrictFilters,
+  isLoading
 }) => {
-  const handleCountriesChange = (countries: string[]) => {
+  // Локальное состояние для фильтров (стран и категорий)
+  const [localCountries, setLocalCountries] = useState(setup.selectedCountries);
+  const [localCategories, setLocalCategories] = useState(setup.selectedCategories);
+  
+  // Синхронизируем локальное состояние с props при изменении
+  useEffect(() => {
+    setLocalCountries(setup.selectedCountries);
+  }, [setup.selectedCountries]);
+  
+  useEffect(() => {
+    setLocalCategories(setup.selectedCategories);
+  }, [setup.selectedCategories]);
+  
+  const handleCountriesChange = useCallback((countries: string[]) => {
+    setLocalCountries(countries); // Мгновенно обновляем локальное состояние
     onSetupChange({
       ...setup,
       selectedCountries: countries
     });
-  };
+  }, [onSetupChange, setup]);
 
-  const handleCategoriesChange = (categories: string[]) => {
+  const handleCategoriesChange = useCallback((categories: string[]) => {
+    setLocalCategories(categories); // Мгновенно обновляем локальное состояние
     onSetupChange({
       ...setup,
       selectedCategories: categories
     });
-  };
+  }, [onSetupChange, setup]);
 
   const handleQuestionTypesChange = (types: string[]) => {
     onSetupChange({
@@ -70,6 +78,7 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
       questionCount: count
     });
   };
+
 
   // Локальное состояние для полей ввода временного периода
   const [localTimeRange, setLocalTimeRange] = useState({
@@ -87,8 +96,14 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
 
   // Проверяем строгость фильтров
   const filterWarnings = useMemo(() => {
-    return checkStrictFilters(setup, allCategories, allCountries);
-  }, [setup, allCategories, allCountries, checkStrictFilters]);
+    // Используем локальное состояние для предупреждений
+    const currentSetup = {
+      ...setup,
+      selectedCountries: localCountries,
+      selectedCategories: localCategories
+    };
+    return checkStrictFilters(currentSetup, allCategories, allCountries);
+  }, [checkStrictFilters, setup, localCountries, localCategories, allCategories, allCountries]);
 
   return (
     <div className="quiz-setup">
@@ -106,24 +121,26 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
               <FilterDropdown
                 title="Страны"
                 items={allCountries}
-                selectedItems={setup.selectedCountries}
+                selectedItems={localCountries}
                 onSelectionChange={handleCountriesChange}
                 icon="🌍"
               />
               <FilterDropdown
                 title="Категории"
                 items={allCategories}
-                selectedItems={setup.selectedCategories}
+                selectedItems={localCategories}
                 onSelectionChange={handleCategoriesChange}
                 icon="📚"
               />
             </div>
             <div className="quiz-setup-time-filter">
-              <label className="quiz-time-label">Временной период:</label>
+              <label className="quiz-time-label" id="quiz-time-range-label">Временной период:</label>
               <div className="quiz-time-inputs">
                 <input
                   type="number"
                   value={localTimeRange.start}
+                  aria-label="От года"
+                  aria-labelledby="quiz-time-range-label"
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || -800;
                     setLocalTimeRange(prev => ({ ...prev, start: value }));
@@ -137,6 +154,18 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
                       });
                     }
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const value = parseInt(e.currentTarget.value) || -800;
+                      if (value !== setup.timeRange.start) {
+                        onSetupChange({
+                          ...setup,
+                          timeRange: { ...setup.timeRange, start: value }
+                        });
+                      }
+                      e.currentTarget.blur(); // Убираем фокус после применения
+                    }
+                  }}
                   className="quiz-time-input"
                   placeholder="От года"
                 />
@@ -144,6 +173,8 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
                 <input
                   type="number"
                   value={localTimeRange.end}
+                  aria-label="До года"
+                  aria-labelledby="quiz-time-range-label"
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 2000;
                     setLocalTimeRange(prev => ({ ...prev, end: value }));
@@ -157,11 +188,23 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
                       });
                     }
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const value = parseInt(e.currentTarget.value) || 2000;
+                      if (value !== setup.timeRange.end) {
+                        onSetupChange({
+                          ...setup,
+                          timeRange: { ...setup.timeRange, end: value }
+                        });
+                      }
+                      e.currentTarget.blur(); // Убираем фокус после применения
+                    }
+                  }}
                   className="quiz-time-input"
                   placeholder="До года"
                 />
               </div>
-              <div className="quiz-time-presets">
+              <div className="quiz-time-presets" role="toolbar" aria-label="Выбор временного периода">
                 {[
                   { label: 'Античность', start: -800, end: 500 },
                   { label: 'Средневековье', start: 500, end: 1500 },
@@ -172,12 +215,25 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
                   <button
                     key={preset.label}
                     className={`quiz-time-preset ${setup.timeRange.start === preset.start && setup.timeRange.end === preset.end ? 'active' : ''}`}
+                    aria-pressed={setup.timeRange.start === preset.start && setup.timeRange.end === preset.end}
                     onClick={() => {
                       setLocalTimeRange({ start: preset.start, end: preset.end });
                       onSetupChange({
                         ...setup,
                         timeRange: { start: preset.start, end: preset.end }
                       });
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                        const container = e.currentTarget.parentElement;
+                        if (!container) return;
+                        const buttons = Array.from(container.querySelectorAll('button')) as HTMLButtonElement[];
+                        const idx = buttons.indexOf(e.currentTarget as HTMLButtonElement);
+                        if (idx === -1) return;
+                        const nextIdx = e.key === 'ArrowRight' ? (idx + 1) % buttons.length : (idx - 1 + buttons.length) % buttons.length;
+                        buttons[nextIdx].focus();
+                        e.preventDefault();
+                      }
                     }}
                   >
                     {preset.label}
@@ -190,10 +246,9 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
 
           <div className="quiz-setup-col">
             <div className="quiz-setup-filter-group">
-              <h3>Настройки вопросов</h3>
               <div className="quiz-setup-questions-row">
-                <div className="quiz-setup-question-types">
-                  <label className="quiz-types-label">Типы вопросов:</label>
+                <fieldset className="quiz-setup-question-types">
+                  <legend className="quiz-types-label">Типы вопросов:</legend>
                   <div className="quiz-types-controls">
                     <button
                       type="button"
@@ -218,11 +273,24 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
                           <input
                             type="checkbox"
                             checked={isSelected}
+                            aria-checked={isSelected}
+                            aria-label={questionType.label}
                             onChange={(e) => {
                               if (e.target.checked) {
                                 handleQuestionTypesChange([...setup.questionTypes, questionType.value]);
                               } else {
                                 handleQuestionTypesChange(setup.questionTypes.filter(type => type !== questionType.value));
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                // Переключаем состояние чекбокса
+                                if (isSelected) {
+                                  handleQuestionTypesChange(setup.questionTypes.filter(type => type !== questionType.value));
+                                } else {
+                                  handleQuestionTypesChange([...setup.questionTypes, questionType.value]);
+                                }
                               }
                             }}
                             className="quiz-type-checkbox"
@@ -232,20 +300,23 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
                       );
                     })}
                   </div>
-                </div>
+                </fieldset>
                 <div className="quiz-setup-question-count">
-                  <label className="quiz-count-label">Количество:</label>
+                  <fieldset className="quiz-setup-question-count">
+                    <legend className="quiz-count-label">Количество:</legend>
                   <div className="quiz-setup-count-selector">
                     {QUESTION_COUNTS.map(count => (
                       <button
                         key={count}
                         className={`quiz-count-button ${setup.questionCount === count ? 'selected' : ''}`}
+                        aria-pressed={setup.questionCount === count}
                         onClick={() => handleQuestionCountChange(count)}
                       >
                         {count}
                       </button>
                     ))}
                   </div>
+                  </fieldset>
                 </div>
               </div>
             </div>
@@ -254,7 +325,7 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
       </div>
 
       {filterWarnings.length > 0 && (
-        <div className="quiz-fallback-warning">
+        <div className="quiz-fallback-warning" role="status" aria-live="polite">
           <div className="quiz-warning-icon">ℹ️</div>
           <div className="quiz-warning-content">
             <div className="quiz-warning-text">
@@ -273,10 +344,10 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
       <div className="quiz-setup-footer">
         <button 
           onClick={onStartQuiz}
-          disabled={!canStart}
+          disabled={!canStart || !!isLoading}
           className="quiz-start-button"
         >
-          Начать игру ({setup.questionCount} вопросов)
+          {isLoading ? 'Загрузка…' : 'Начать игру'}
         </button>
       </div>
     </div>

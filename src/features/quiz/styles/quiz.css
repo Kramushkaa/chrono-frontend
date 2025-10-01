@@ -1602,6 +1602,7 @@
   font-size: 0.9rem;
   min-width: 100px;
   /* Убираем стрелочки для number input */
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 
@@ -1615,6 +1616,50 @@
   outline: none;
   border-color: #cd853f;
   box-shadow: 0 0 0 2px rgba(205, 133, 63, 0.2);
+}
+
+/* Focus styles for keyboard navigation */
+.quiz-time-preset:focus,
+.quiz-types-control-btn:focus,
+.quiz-count-button:focus,
+.quiz-type-checkbox:focus,
+.quiz-start-button:focus,
+.filter-btn:focus,
+.filter-checkbox:focus {
+  outline: 2px solid #cd853f;
+  outline-offset: 2px;
+}
+
+.quiz-time-preset:focus {
+  background: rgba(139, 69, 19, 0.4);
+  border-color: #cd853f;
+}
+
+.quiz-types-control-btn:focus {
+  background: rgba(139, 69, 19, 0.4);
+  border-color: #cd853f;
+}
+
+.quiz-count-button:focus {
+  background: rgba(139, 69, 19, 0.4);
+  border-color: #cd853f;
+}
+
+.quiz-start-button:focus {
+  background: rgba(139, 69, 19, 0.8);
+  border-color: #cd853f;
+  box-shadow: 0 0 0 2px rgba(205, 133, 63, 0.3);
+}
+
+.filter-btn:focus {
+  background: linear-gradient(135deg, #a0522d 0%, #cd853f 100%);
+  border-color: #cd853f;
+  box-shadow: 0 0 0 2px rgba(205, 133, 63, 0.3);
+}
+
+.filter-checkbox:focus {
+  background: rgba(139, 69, 19, 0.3);
+  color: #cd853f;
 }
 
 .quiz-time-separator {
@@ -1727,6 +1772,23 @@
   color: #e0e0e0;
   font-size: 0.9rem;
   user-select: none;
+}
+
+/* Убираем видимые рамки у fieldset для сохранения семантики */
+fieldset.quiz-setup-question-types,
+fieldset.quiz-setup-question-count {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+fieldset.quiz-setup-question-types legend,
+fieldset.quiz-setup-question-count legend {
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  height: auto;
 }
 
 
@@ -2382,5 +2444,17 @@
   
   .quiz-warning-icon {
     align-self: flex-start;
+  }
+  
+  /* Mobile focus styles */
+  .quiz-time-preset:focus,
+  .quiz-types-control-btn:focus,
+  .quiz-count-button:focus,
+  .quiz-type-checkbox:focus,
+  .quiz-start-button:focus,
+  .filter-btn:focus,
+  .filter-checkbox:focus {
+    outline-width: 3px;
+    outline-offset: 1px;
   }
 }

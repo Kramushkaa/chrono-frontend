@@ -29,8 +29,9 @@ const QuizPage: React.FC = () => {
   // Состояние для PersonPanel
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   
-  // Создаем стабильный объект фильтров (будет обновлен из настроек квиза)
-  const [quizFilters, setQuizFilters] = useState<{
+
+  // Отдельное состояние для API фильтров с debouncing
+  const [apiFilters, setApiFilters] = useState<{
     categories: string[];
     countries: string[];
     timeRange: { start: number; end: number };
@@ -42,7 +43,7 @@ const QuizPage: React.FC = () => {
     showAchievements: true
   });
 
-  const { persons, allCategories, allCountries, isLoading } = useQuizData(quizFilters, true);
+  const { persons, allCategories, allCountries, isLoading } = useQuizData(apiFilters, true);
   
   const {
     setup,
@@ -64,15 +65,20 @@ const QuizPage: React.FC = () => {
     checkStrictFilters
   } = useQuiz(persons, allCategories, allCountries);
 
-  // Обновляем фильтры данных при изменении настроек квиза (кроме временного периода)
+  // Обновляем API фильтры при изменении настроек квиза с debouncing
   React.useEffect(() => {
-    setQuizFilters({
-      categories: setup.selectedCategories,
-      countries: setup.selectedCountries,
-      timeRange: { start: -800, end: 2000 }, // Всегда загружаем все данные по времени
-      showAchievements: true
-    });
+    const timeoutId = setTimeout(() => {
+      setApiFilters({
+        categories: setup.selectedCategories,
+        countries: setup.selectedCountries,
+        timeRange: { start: -800, end: 2000 }, // Всегда загружаем все данные по времени
+        showAchievements: true
+      });
+    }, 300); // 300ms debouncing для API фильтров
+
+    return () => clearTimeout(timeoutId);
   }, [setup.selectedCategories, setup.selectedCountries]);
+
 
   const currentQuestion = questions[currentQuestionIndex];
   const canStart = filteredPersons.length > 0 && 
@@ -202,71 +208,7 @@ const QuizPage: React.FC = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="quiz-page">
-        <SEO
-          title="Игра на проверку знаний — Хронониндзя"
-          description="Проверьте свои знания исторических личностей в увлекательной игре с вопросами разных типов."
-        />
-        <AppHeader
-          isScrolled={false}
-          showControls={false}
-          setShowControls={() => {}}
-          mode="minimal"
-          filters={{ categories: [], countries: [], showAchievements: true, hideEmptyCenturies: false }}
-          setFilters={() => {}}
-          groupingType="none"
-          setGroupingType={() => {}}
-          allCategories={[]}
-          allCountries={[]}
-          yearInputs={{ start: "-800", end: "2000" }}
-          setYearInputs={() => {}}
-          applyYearFilter={() => {}}
-          handleYearKeyPress={() => {}}
-          resetAllFilters={() => {}}
-          getCategoryColor={() => ""}
-          sortedData={[]}
-          handleSliderMouseDown={() => {}}
-          handleSliderMouseMove={() => {}}
-          handleSliderMouseUp={() => {}}
-          isDraggingSlider={false}
-          onBackToMenu={handleBackToMenu}
-          extraRightControls={
-            <div style={{
-              padding: '0.4rem 0.8rem',
-              background: 'rgba(139, 69, 19, 0.2)',
-              border: '1px solid rgba(139, 69, 19, 0.4)',
-              borderRadius: '6px',
-              color: '#f4e4c1',
-              fontSize: '0.9rem',
-              fontWeight: '600'
-            }}>
-              Загрузка...
-            </div>
-          }
-        />
-        <div className="quiz-loading">
-          <div className="spinner"></div>
-          <p>Загрузка данных...</p>
-        </div>
-        <ContactFooter />
-        
-        {/* PersonPanel для показа информации о личности */}
-        {selectedPerson && (
-          <React.Suspense fallback={<div>Загрузка...</div>}>
-            <PersonPanel
-              selectedPerson={selectedPerson}
-              onClose={() => setSelectedPerson(null)}
-              getGroupColor={getGroupColor}
-              getPersonGroup={(person) => getPersonGroup(person, 'none')}
-              getCategoryColor={getCategoryColor}
-            />
-          </React.Suspense>
-        )}
-      </div>
-    );
-  }
+  // Убираем полноэкранный лоадер: страница доступна всегда, индикатор будет на кнопке "Начать"
 
   if (!isQuizActive && answers.length === 0) {
     return (
@@ -309,6 +251,7 @@ const QuizPage: React.FC = () => {
           onStartQuiz={startQuiz}
           canStart={canStart}
           checkStrictFilters={checkStrictFilters}
+          isLoading={isLoading}
         />
           <ContactFooter />
         </div>

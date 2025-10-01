@@ -123,6 +123,13 @@
   background: rgba(139, 69, 19, 0.2);
 }
 
+.filter-checkbox.active {
+  background: rgba(205, 133, 63, 0.3);
+  color: #cd853f;
+  outline: 2px solid #cd853f;
+  outline-offset: -2px;
+}
+
 .filter-checkbox:last-child {
   border-bottom: none;
 }
@@ -182,5 +189,10 @@
   
   .filter-checkbox input[type="checkbox"] {
     transform: scale(1.2) !important;
+  }
+  
+  .filter-checkbox.active {
+    outline-width: 3px;
+    outline-offset: -3px;
   }
 } 

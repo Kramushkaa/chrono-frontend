@@ -141,6 +141,16 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
       }
     }
   }, [])
+
+  // Возвращаем фокус к кнопке при закрытии dropdown'а
+  useEffect(() => {
+    if (!isOpen && dropdownRef.current) {
+      // Небольшая задержка для корректного закрытия dropdown'а
+      setTimeout(() => {
+        dropdownRef.current?.querySelector('button')?.focus()
+      }, 0)
+    }
+  }, [isOpen])
   
   // Улучшенные обработчики для разных устройств
   const handleMouseEnter = () => {
@@ -290,13 +300,10 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
           const max = inputs.length - 1
           if (e.key === 'Escape') { e.preventDefault(); setIsOpen(false); return }
           if (e.key === 'Tab') {
-            // trap focus within content
-            const focusables = Array.from(contentRef.current?.querySelectorAll<HTMLElement>('button, [href], input, [tabindex]:not([tabindex="-1"])') || [])
-            if (focusables.length === 0) return
-            const first = focusables[0]
-            const last = focusables[focusables.length - 1]
-            if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-            else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            // Close dropdown and let Tab move focus to next element
+            e.preventDefault()
+            setIsOpen(false)
+            // Focus will naturally move to next focusable element after dropdown button
             return
           }
           if (['ArrowDown','ArrowUp','Home','End'].includes(e.key)) e.preventDefault()
@@ -396,7 +403,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
         {items.map((item, idx) => (
           <label 
             key={item} 
-            className="filter-checkbox" 
+            className={`filter-checkbox ${activeIndex === idx ? 'active' : ''}`}
             onClick={(e) => e.stopPropagation()}
             role="option"
             aria-selected={selectedItems.includes(item)}
@@ -513,4 +520,16 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = React.memo(({
        )}
     </div>
   )
+}, (prevProps, nextProps) => {
+  // Кастомная функция сравнения для React.memo
+  return (
+    prevProps.title === nextProps.title &&
+    prevProps.items.length === nextProps.items.length &&
+    prevProps.items.every((item, index) => item === nextProps.items[index]) &&
+    prevProps.selectedItems.length === nextProps.selectedItems.length &&
+    prevProps.selectedItems.every((item, index) => item === nextProps.selectedItems[index]) &&
+    prevProps.onSelectionChange === nextProps.onSelectionChange &&
+    prevProps.icon === nextProps.icon &&
+    prevProps.textLabel === nextProps.textLabel
+  );
 })
