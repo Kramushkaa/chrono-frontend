@@ -119,7 +119,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     
     setDraggedItem(personId);
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', personId);
+    e.dataTransfer.setData('text/html', personId);
   };
 
   const handleDragEnd = () => {
@@ -134,6 +134,12 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    
+    // Получаем данные из dataTransfer для корректной работы
+    const draggedPersonId = e.dataTransfer.getData('text/html');
+    if (draggedPersonId) {
+      setDraggedItem(draggedPersonId);
+    }
   };
 
   const handleDrop = (e: React.DragEvent, targetGroupIndex: number) => {
@@ -142,7 +148,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     if (showFeedback) return;
     
     // Получаем ID личности из dataTransfer или из состояния
-    const personId = e.dataTransfer.getData('text/plain') || draggedItem;
+    const personId = e.dataTransfer.getData('text/html') || draggedItem;
     if (!personId) return;
     
     // Если личность уже в этой группе, ничего не делаем
@@ -163,7 +169,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     if (showFeedback) return;
     
     // Получаем ID личности из dataTransfer или из состояния
-    const personId = e.dataTransfer.getData('text/plain') || draggedItem;
+    const personId = e.dataTransfer.getData('text/html') || draggedItem;
     if (!personId) return;
     
     // Создаем новую группу
