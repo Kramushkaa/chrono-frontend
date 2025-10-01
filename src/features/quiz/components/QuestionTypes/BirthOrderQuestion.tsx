@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BirthOrderQuestionData, QuizAnswer } from '../../types';
-import { Person } from 'shared/types';
 
 interface BirthOrderQuestionProps {
   data: BirthOrderQuestionData;
@@ -9,7 +8,7 @@ interface BirthOrderQuestionProps {
   userAnswer?: QuizAnswer | null;
   onNext?: () => void;
   isLastQuestion?: boolean;
-  onPersonInfoClick?: (person: Person) => void;
+  onPersonInfoClick?: (person: any) => void;
 }
 
 export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({ 
@@ -386,7 +385,7 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
                       {showFeedback && onPersonInfoClick && (
                         <button
                           className="quiz-person-info-button birth-order-info-button"
-                          onClick={() => onPersonInfoClick(person as Person)}
+                                  onClick={() => onPersonInfoClick(person)}
                           title="Подробная информация"
                           aria-label={`Подробная информация о ${person.name}`}
                         >

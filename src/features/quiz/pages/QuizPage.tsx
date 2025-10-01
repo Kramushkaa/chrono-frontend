@@ -15,8 +15,8 @@ import { SEO } from 'shared/ui/SEO';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { ContactFooter } from 'shared/ui/ContactFooter';
 import { Person } from 'shared/types';
-import { getCategoryColor } from 'shared/utils/categoryColors';
 import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils';
+import { getCategoryColor } from 'shared/utils/categoryColors';
 import { getPersonById } from 'shared/api/api';
 import '../styles/quiz.css';
 

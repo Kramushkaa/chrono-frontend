@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { SingleChoiceQuestionData, QuizAnswer } from '../../types';
 import { hideYearsInText } from '../../utils/textUtils';
-import { Person } from 'shared/types';
 
 interface SingleChoiceQuestionProps {
   data: SingleChoiceQuestionData;
@@ -10,7 +9,7 @@ interface SingleChoiceQuestionProps {
   userAnswer?: QuizAnswer | null;
   onNext?: () => void;
   isLastQuestion?: boolean;
-  onPersonInfoClick?: (person: Person) => void;
+  onPersonInfoClick?: (person: any) => void;
 }
 
 export const SingleChoiceQuestion: React.FC<SingleChoiceQuestionProps> = ({ 
@@ -70,7 +69,7 @@ export const SingleChoiceQuestion: React.FC<SingleChoiceQuestionProps> = ({
               {showFeedback && onPersonInfoClick && (
                 <button
                   className="quiz-person-info-button"
-                  onClick={() => onPersonInfoClick(data.person as Person)}
+                  onClick={() => onPersonInfoClick(data.person)}
                   title="Подробная информация"
                   aria-label={`Подробная информация о ${data.person.name}`}
                 >

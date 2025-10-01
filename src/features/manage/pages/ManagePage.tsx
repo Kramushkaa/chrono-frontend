@@ -748,7 +748,8 @@ export default function ManagePage() {
                     }
                     
                     setShowCreate(false)
-                    // TODO: добавить обновление данных
+                    // Обновляем данные после создания личности
+                    resetPersons()
                   } catch (e: any) {
                     showToast(e?.message || 'Ошибка при создании личности', 'error')
                   }
@@ -770,7 +771,8 @@ export default function ManagePage() {
                     }
                     
                     setShowCreate(false)
-                    // TODO: добавить обновление данных
+                    // Обновляем данные после создания достижения
+                    resetAchievements()
                   } catch (e: any) {
                     showToast(e?.message || 'Ошибка при создании достижения', 'error')
                   }
@@ -798,7 +800,8 @@ export default function ManagePage() {
                     }
                     
                     setShowCreate(false)
-                    // TODO: добавить обновление данных
+                    // Обновляем данные после создания периода
+                    resetPeriods()
                   } catch (e: any) {
                     showToast(e?.message || 'Ошибка при создании периода', 'error')
                   }
