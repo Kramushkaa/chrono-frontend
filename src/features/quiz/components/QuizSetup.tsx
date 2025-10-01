@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { QuizSetupConfig } from '../types';
 import { FilterDropdown } from '../../../shared/ui/FilterDropdown';
 
@@ -9,6 +9,7 @@ interface QuizSetupProps {
   allCountries: string[];
   onStartQuiz: () => void;
   canStart: boolean;
+  checkStrictFilters: (setup: QuizSetupConfig, allCategories: string[], allCountries: string[]) => string[];
 }
 
 const QUESTION_TYPES = [
@@ -17,7 +18,8 @@ const QUESTION_TYPES = [
   { value: 'profession', label: 'Угадай род деятельности' },
   { value: 'country', label: 'Угадай страну рождения' },
   { value: 'achievementsMatch', label: 'Сопоставь достижения' },
-  { value: 'birthOrder', label: 'Расставь по году рождения' }
+  { value: 'birthOrder', label: 'Расставь по году рождения' },
+  { value: 'contemporaries', label: 'Раздели на группы современников' }
 ];
 
 const QUESTION_TYPE_LABELS: { [key: string]: string } = {
@@ -26,7 +28,8 @@ const QUESTION_TYPE_LABELS: { [key: string]: string } = {
   'profession': 'Угадай род деятельности',
   'country': 'Угадай страну рождения',
   'achievementsMatch': 'Сопоставь достижения', 
-  'birthOrder': 'Расставь по году рождения'
+  'birthOrder': 'Расставь по году рождения',
+  'contemporaries': 'Раздели на группы современников'
 };
 
 const QUESTION_COUNTS = [3, 5, 7, 10, 15, 20];
@@ -37,7 +40,8 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
   allCategories,
   allCountries,
   onStartQuiz,
-  canStart
+  canStart,
+  checkStrictFilters
 }) => {
   const handleCountriesChange = (countries: string[]) => {
     onSetupChange({
@@ -67,6 +71,25 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
     });
   };
 
+  // Локальное состояние для полей ввода временного периода
+  const [localTimeRange, setLocalTimeRange] = useState({
+    start: setup.timeRange.start,
+    end: setup.timeRange.end
+  });
+
+  // Синхронизируем локальное состояние с глобальным при изменении setup
+  React.useEffect(() => {
+    setLocalTimeRange({
+      start: setup.timeRange.start,
+      end: setup.timeRange.end
+    });
+  }, [setup.timeRange.start, setup.timeRange.end]);
+
+  // Проверяем строгость фильтров
+  const filterWarnings = useMemo(() => {
+    return checkStrictFilters(setup, allCategories, allCountries);
+  }, [setup, allCategories, allCountries, checkStrictFilters]);
+
   return (
     <div className="quiz-setup">
       <div className="quiz-setup-header">
@@ -75,8 +98,9 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
       </div>
 
       <div className="quiz-setup-content">
-        <div className="quiz-setup-filters">
-          <div className="quiz-setup-filter-group">
+        <div className="quiz-setup-columns">
+          <div className="quiz-setup-col">
+            <div className="quiz-setup-filter-group">
             <h3>Фильтры</h3>
             <div className="quiz-setup-filters-row">
               <FilterDropdown
@@ -94,70 +118,157 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
                 icon="📚"
               />
             </div>
-          </div>
-
-          <div className="quiz-setup-filter-group">
-            <h3>Настройки вопросов</h3>
-            <div className="quiz-setup-questions-row">
-              <div className="quiz-setup-question-types">
-                <FilterDropdown
-                  title="Типы вопросов"
-                  items={QUESTION_TYPES.map(t => t.label)}
-                  selectedItems={setup.questionTypes.map(type => QUESTION_TYPE_LABELS[type] || type)}
-                  onSelectionChange={(selectedLabels) => {
-                    const selectedValues = selectedLabels.map(label => 
-                      Object.keys(QUESTION_TYPE_LABELS).find(key => QUESTION_TYPE_LABELS[key] === label) || label
-                    );
-                    handleQuestionTypesChange(selectedValues);
+            <div className="quiz-setup-time-filter">
+              <label className="quiz-time-label">Временной период:</label>
+              <div className="quiz-time-inputs">
+                <input
+                  type="number"
+                  value={localTimeRange.start}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) || -800;
+                    setLocalTimeRange(prev => ({ ...prev, start: value }));
                   }}
-                  icon="❓"
-                  textLabel="Типы"
+                  onBlur={(e) => {
+                    const value = parseInt(e.target.value) || -800;
+                    if (value !== setup.timeRange.start) {
+                      onSetupChange({
+                        ...setup,
+                        timeRange: { ...setup.timeRange, start: value }
+                      });
+                    }
+                  }}
+                  className="quiz-time-input"
+                  placeholder="От года"
+                />
+                <span className="quiz-time-separator">—</span>
+                <input
+                  type="number"
+                  value={localTimeRange.end}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) || 2000;
+                    setLocalTimeRange(prev => ({ ...prev, end: value }));
+                  }}
+                  onBlur={(e) => {
+                    const value = parseInt(e.target.value) || 2000;
+                    if (value !== setup.timeRange.end) {
+                      onSetupChange({
+                        ...setup,
+                        timeRange: { ...setup.timeRange, end: value }
+                      });
+                    }
+                  }}
+                  className="quiz-time-input"
+                  placeholder="До года"
                 />
               </div>
-              <div className="quiz-setup-question-count">
-                <label className="quiz-count-label">Количество:</label>
-                <div className="quiz-setup-count-selector">
-                  {QUESTION_COUNTS.map(count => (
+              <div className="quiz-time-presets">
+                {[
+                  { label: 'Античность', start: -800, end: 500 },
+                  { label: 'Средневековье', start: 500, end: 1500 },
+                  { label: 'Новое время', start: 1500, end: 1900 },
+                  { label: 'XX век', start: 1900, end: 2000 },
+                  { label: 'Все эпохи', start: -800, end: 2000 }
+                ].map(preset => (
+                  <button
+                    key={preset.label}
+                    className={`quiz-time-preset ${setup.timeRange.start === preset.start && setup.timeRange.end === preset.end ? 'active' : ''}`}
+                    onClick={() => {
+                      setLocalTimeRange({ start: preset.start, end: preset.end });
+                      onSetupChange({
+                        ...setup,
+                        timeRange: { start: preset.start, end: preset.end }
+                      });
+                    }}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            </div>
+          </div>
+
+          <div className="quiz-setup-col">
+            <div className="quiz-setup-filter-group">
+              <h3>Настройки вопросов</h3>
+              <div className="quiz-setup-questions-row">
+                <div className="quiz-setup-question-types">
+                  <label className="quiz-types-label">Типы вопросов:</label>
+                  <div className="quiz-types-controls">
                     <button
-                      key={count}
-                      className={`quiz-count-button ${setup.questionCount === count ? 'selected' : ''}`}
-                      onClick={() => handleQuestionCountChange(count)}
+                      type="button"
+                      className="quiz-types-control-btn"
+                      onClick={() => handleQuestionTypesChange(QUESTION_TYPES.map(t => t.value))}
                     >
-                      {count}
+                      Выбрать все
                     </button>
-                  ))}
+                    <button
+                      type="button"
+                      className="quiz-types-control-btn"
+                      onClick={() => handleQuestionTypesChange([])}
+                    >
+                      Снять все
+                    </button>
+                  </div>
+                  <div className="quiz-types-checkboxes">
+                    {QUESTION_TYPES.map((questionType) => {
+                      const isSelected = setup.questionTypes.includes(questionType.value);
+                      return (
+                        <label key={questionType.value} className="quiz-type-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                handleQuestionTypesChange([...setup.questionTypes, questionType.value]);
+                              } else {
+                                handleQuestionTypesChange(setup.questionTypes.filter(type => type !== questionType.value));
+                              }
+                            }}
+                            className="quiz-type-checkbox"
+                          />
+                          <span className="quiz-type-checkbox-text">{questionType.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="quiz-setup-question-count">
+                  <label className="quiz-count-label">Количество:</label>
+                  <div className="quiz-setup-count-selector">
+                    {QUESTION_COUNTS.map(count => (
+                      <button
+                        key={count}
+                        className={`quiz-count-button ${setup.questionCount === count ? 'selected' : ''}`}
+                        onClick={() => handleQuestionCountChange(count)}
+                      >
+                        {count}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="quiz-setup-summary">
-          <h3>Сводка настроек</h3>
-          <div className="quiz-summary-item">
-            <span className="quiz-summary-label">Страны:</span>
-            <span className="quiz-summary-value">
-              {setup.selectedCountries.length === 0 ? 'Все' : `${setup.selectedCountries.length} выбрано`}
-            </span>
-          </div>
-          <div className="quiz-summary-item">
-            <span className="quiz-summary-label">Категории:</span>
-            <span className="quiz-summary-value">
-              {setup.selectedCategories.length === 0 ? 'Все' : `${setup.selectedCategories.length} выбрано`}
-            </span>
-          </div>
-          <div className="quiz-summary-item">
-            <span className="quiz-summary-label">Типы вопросов:</span>
-            <span className="quiz-summary-value">
-              {setup.questionTypes.length === 0 ? 'Все' : setup.questionTypes.map(type => QUESTION_TYPE_LABELS[type] || type).join(', ')}
-            </span>
-          </div>
-          <div className="quiz-summary-item">
-            <span className="quiz-summary-label">Количество вопросов:</span>
-            <span className="quiz-summary-value">{setup.questionCount}</span>
+      {filterWarnings.length > 0 && (
+        <div className="quiz-fallback-warning">
+          <div className="quiz-warning-icon">ℹ️</div>
+          <div className="quiz-warning-content">
+            <div className="quiz-warning-text">
+              Выбранные фильтры:
+              <ul className="quiz-warning-list">
+                {filterWarnings.map((warning, index) => (
+                  <li key={index}>{warning}</li>
+                ))}
+              </ul>
+              Некоторые типы вопросов, вероятно, не смогут сформироваться и будут заменены вопросами с выбором ответа.
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="quiz-setup-footer">
         <button 

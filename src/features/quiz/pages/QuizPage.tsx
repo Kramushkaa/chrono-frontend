@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuizData } from '../hooks/useQuizData';
 import { useQuiz } from '../hooks/useQuiz';
@@ -11,6 +11,7 @@ import { ProfessionQuestion } from '../components/QuestionTypes/ProfessionQuesti
 import { CountryQuestion } from '../components/QuestionTypes/CountryQuestion';
 import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion';
 import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion';
+import { ContemporariesQuestion } from '../components/QuestionTypes/ContemporariesQuestion';
 import { SEO } from 'shared/ui/SEO';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { ContactFooter } from 'shared/ui/ContactFooter';
@@ -28,15 +29,20 @@ const QuizPage: React.FC = () => {
   // Состояние для PersonPanel
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   
-  // Создаем стабильный объект фильтров
-  const filters = useMemo(() => ({
+  // Создаем стабильный объект фильтров (будет обновлен из настроек квиза)
+  const [quizFilters, setQuizFilters] = useState<{
+    categories: string[];
+    countries: string[];
+    timeRange: { start: number; end: number };
+    showAchievements: boolean;
+  }>({
     categories: [],
     countries: [],
     timeRange: { start: -800, end: 2000 },
     showAchievements: true
-  }), []);
+  });
 
-  const { persons, allCategories, allCountries, isLoading } = useQuizData(filters, true);
+  const { persons, allCategories, allCountries, isLoading } = useQuizData(quizFilters, true);
   
   const {
     setup,
@@ -54,8 +60,19 @@ const QuizPage: React.FC = () => {
     showAnswer,
     lastAnswer,
     allCategories: quizCategories,
-    allCountries: quizCountries
+    allCountries: quizCountries,
+    checkStrictFilters
   } = useQuiz(persons, allCategories, allCountries);
+
+  // Обновляем фильтры данных при изменении настроек квиза (кроме временного периода)
+  React.useEffect(() => {
+    setQuizFilters({
+      categories: setup.selectedCategories,
+      countries: setup.selectedCountries,
+      timeRange: { start: -800, end: 2000 }, // Всегда загружаем все данные по времени
+      showAchievements: true
+    });
+  }, [setup.selectedCategories, setup.selectedCountries]);
 
   const currentQuestion = questions[currentQuestionIndex];
   const canStart = filteredPersons.length > 0 && 
@@ -70,7 +87,7 @@ const QuizPage: React.FC = () => {
     resetQuiz();
   };
 
-  const handleAnswer = (answer: string | string[]) => {
+  const handleAnswer = (answer: string | string[] | string[][]) => {
     answerQuestion(answer);
   };
 
@@ -159,6 +176,18 @@ const QuizPage: React.FC = () => {
       case 'birthOrder':
         return (
           <BirthOrderQuestion
+            data={currentQuestion.data}
+            onAnswer={handleAnswer}
+            showFeedback={showAnswer}
+            userAnswer={lastAnswer}
+            onNext={nextQuestion}
+            isLastQuestion={currentQuestionIndex === questions.length - 1}
+            onPersonInfoClick={handlePersonInfoClick}
+          />
+        );
+      case 'contemporaries':
+        return (
+          <ContemporariesQuestion
             data={currentQuestion.data}
             onAnswer={handleAnswer}
             showFeedback={showAnswer}
@@ -272,14 +301,15 @@ const QuizPage: React.FC = () => {
           extraRightControls={null}
         />
         <div className="quiz-content">
-          <QuizSetup
-            setup={setup}
-            onSetupChange={setSetup}
-            allCategories={quizCategories}
-            allCountries={quizCountries}
-            onStartQuiz={startQuiz}
-            canStart={canStart}
-          />
+        <QuizSetup
+          setup={setup}
+          onSetupChange={setSetup}
+          allCategories={quizCategories}
+          allCountries={quizCountries}
+          onStartQuiz={startQuiz}
+          canStart={canStart}
+          checkStrictFilters={checkStrictFilters}
+        />
           <ContactFooter />
         </div>
         

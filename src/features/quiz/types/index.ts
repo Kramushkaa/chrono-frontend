@@ -3,21 +3,22 @@ export interface QuizSetupConfig {
   selectedCategories: string[];
   questionTypes: string[];
   questionCount: number;
+  timeRange: { start: number; end: number };
 }
 
 export interface QuizQuestion {
   id: string;
-  type: 'birthYear' | 'deathYear' | 'profession' | 'country' | 'achievementsMatch' | 'birthOrder';
+  type: 'birthYear' | 'deathYear' | 'profession' | 'country' | 'achievementsMatch' | 'birthOrder' | 'contemporaries';
   question: string;
   options?: string[];
-  correctAnswer: string | string[];
+  correctAnswer: string | string[] | string[][];
   explanation?: string;
   data: any; // Данные для конкретного типа вопроса
 }
 
 export interface QuizAnswer {
   questionId: string;
-  answer: string | string[];
+  answer: string | string[] | string[][];
   isCorrect: boolean;
   timeSpent: number; // в миллисекундах
 }
@@ -89,4 +90,16 @@ export interface BirthOrderQuestionData {
     imageUrl?: string;
   }>;
   correctOrder: string[]; // массив ID в правильном порядке
+}
+
+export interface ContemporariesQuestionData {
+  persons: Array<{
+    id: string;
+    name: string;
+    birthYear: number;
+    deathYear?: number;
+    category: string;
+    imageUrl?: string;
+  }>;
+  correctGroups: string[][]; // массив групп, каждая группа - массив ID современников
 }
