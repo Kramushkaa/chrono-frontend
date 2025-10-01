@@ -283,7 +283,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   return (
     <div className="quiz-question contemporaries-question">
       <div className="quiz-question-content">
-        <h3>Разделите этих личностей на группы современников:</h3>
+        <h3>Разделите на группы современников:</h3>
 
         {/* Все группы, включая группу 1 */}
         {groups.map((group, groupIndex) => (

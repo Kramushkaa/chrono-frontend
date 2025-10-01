@@ -715,7 +715,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     return {
       id: `contemporaries-${result.selectedPersons.map(p => p.id).join('-')}`,
       type: 'contemporaries',
-      question: 'Разделите этих личностей на группы современников',
+      question: 'Разделите на группы современников',
       correctAnswer: result.correctGroups,
       data
     };
