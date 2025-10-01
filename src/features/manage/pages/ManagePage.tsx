@@ -555,10 +555,10 @@ export default function ManagePage() {
                                 setShowAuthModal(true); 
                                 return; 
                               }
-                              if (selected?.status && selected.status !== 'draft') {
-                                setShowEditWarning(true);
-                                return;
-                              }
+        if (selected?.status === 'pending') {
+          setShowEditWarning(true);
+          return;
+        }
                               setIsEditing(true);
                             }}
                           >
