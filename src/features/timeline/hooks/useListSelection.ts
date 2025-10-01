@@ -13,6 +13,14 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
   const [selectedListKey, setSelectedListKey] = useState<string>('')
   const [listPersons, setListPersons] = useState<any[] | null>(null)
   const [sharedListMeta, setSharedListMeta] = useState<SharedListMeta>(null)
+  const lastShareMetaRef = (function(){
+    // simple singleton per hook instance
+    let store: SharedListMeta = null
+    return {
+      get: () => store,
+      set: (v: SharedListMeta) => { store = v }
+    }
+  })()
 
   // Parse URL and load persons for share/ids/list
   useEffect(() => {
@@ -35,7 +43,8 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
           if (resolved?.owner_user_id && isAuthenticated && ownerUserId && ownerUserId === resolved.owner_user_id && resolved.list_id) {
             setSelectedListId(resolved.list_id)
             setListPersons(null)
-            setSharedListMeta(null)
+            setSharedListMeta({ code: shareParam, title: resolved?.title || 'Список', listId: undefined })
+            lastShareMetaRef.set({ code: shareParam, title: resolved?.title || 'Список', listId: undefined })
             setSelectedListKey(`list:${resolved.list_id}`)
             return
           }
@@ -46,13 +55,16 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
           setSelectedListId(null)
           setListPersons(arr)
           setSharedListMeta({ code: shareParam, title: resolved?.title || 'Список', listId: undefined })
+          lastShareMetaRef.set({ code: shareParam, title: resolved?.title || 'Список', listId: undefined })
           setSelectedListKey(`share:${shareParam}`)
           return
         } catch (e: any) {
           showToast(e?.message || 'Не удалось загрузить общий список', 'error')
           setSelectedListId(null)
           setListPersons([])
-          setSharedListMeta(null)
+          // keep previous meta if any
+          const prev = lastShareMetaRef.get()
+          setSharedListMeta(prev || null)
           setSelectedListKey('')
           return
         }
@@ -81,16 +93,20 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
           showToast(e?.message || 'Не удалось загрузить содержимое списка', 'error')
           setListPersons([])
         }
-        setSharedListMeta(null)
+        // keep pinned shared meta if previously known
+        const prev = lastShareMetaRef.get()
+        setSharedListMeta(prev || null)
         setSelectedListKey(`list:${listId}`)
       } else {
         setSelectedListId(null)
         setListPersons(null)
-        setSharedListMeta(null)
+        // keep pinned shared meta if previously known
+        const prev = lastShareMetaRef.get()
+        setSharedListMeta(prev || null)
         setSelectedListKey('')
       }
     })()
-  }, [isTimeline, location.search, isAuthenticated, ownerUserId, showToast])
+  }, [isTimeline, location.search, isAuthenticated, ownerUserId, showToast, lastShareMetaRef])
 
   // Reload when selected list id is chosen from UI
   useEffect(() => {
@@ -113,10 +129,13 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
     if (!v) {
       setSelectedListId(null)
       setListPersons(null)
-      setSharedListMeta(null)
+      // keep pinned shared meta; don't clear
       setSelectedListKey('')
       const usp = new URLSearchParams(window.location.search)
-      usp.delete('list'); usp.delete('share')
+      usp.delete('list')
+      // preserve share param if we have pinned meta
+      const pinned = lastShareMetaRef.get()
+      if (!pinned) usp.delete('share')
       window.history.replaceState(null, '', `/timeline${usp.toString() ? `?${usp.toString()}` : ''}`)
       return
     }
@@ -128,6 +147,33 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
       usp.set('share', code)
       usp.delete('list')
       window.history.replaceState(null, '', `/timeline?${usp.toString()}`)
+      // Immediately resolve and load shared list persons even if URL didn't change
+      ;(async () => {
+        try {
+          const resolved = await resolveListShare(code)
+          if (resolved?.owner_user_id && isAuthenticated && ownerUserId && ownerUserId === resolved.owner_user_id && resolved.list_id) {
+            setSelectedListId(resolved.list_id)
+            setListPersons(null)
+            setSharedListMeta({ code, title: resolved?.title || 'Список', listId: undefined })
+            lastShareMetaRef.set({ code, title: resolved?.title || 'Список', listId: undefined })
+            setSelectedListKey(`list:${resolved.list_id}`)
+            return
+          }
+          const items: Array<{ item_type: string; person_id?: string }> = resolved?.items || []
+          const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
+          if (ids.length === 0) { setSelectedListId(null); setListPersons([]); return }
+          const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
+          setSelectedListId(null)
+          setListPersons(arr)
+          setSharedListMeta({ code, title: resolved?.title || 'Список', listId: undefined })
+          lastShareMetaRef.set({ code, title: resolved?.title || 'Список', listId: undefined })
+          setSelectedListKey(`share:${code}`)
+        } catch (e: any) {
+          showToast(e?.message || 'Не удалось загрузить общий список', 'error')
+          setSelectedListId(null)
+          setListPersons([])
+        }
+      })()
       return
     }
     if (v.startsWith('list:')) {
@@ -135,14 +181,17 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
       if (Number.isFinite(id) && id > 0) {
         setSelectedListId(id)
         setSelectedListKey(`list:${id}`)
-        setSharedListMeta(null)
+        // keep pinned shared meta
+        const prev = lastShareMetaRef.get()
+        setSharedListMeta(prev || null)
         const usp = new URLSearchParams(window.location.search)
         usp.set('list', String(id))
-        usp.delete('share')
+        // preserve share param if we have pinned meta
+        if (!prev) usp.delete('share')
         window.history.replaceState(null, '', `/timeline?${usp.toString()}`)
       }
     }
-  }, [])
+  }, [isAuthenticated, lastShareMetaRef, ownerUserId, showToast])
 
   return {
     selectedListId,

@@ -167,7 +167,7 @@ export default function ManagePage() {
       } catch {}
     })()
     return () => { cancelled = true }
-  }, [isAuthenticated, user?.id])
+  }, [isAuthenticated, user?.id, mineCounts.achievements, mineCounts.periods, mineCounts.persons])
 
   // Сброс данных и триггер обновления при смене вкладки
   useEffect(() => {
@@ -405,7 +405,7 @@ export default function ManagePage() {
       }
     })()
     return () => { aborted = true }
-  }, [activeTab, menuSelection, selectedListId])
+  }, [activeTab, menuSelection, selectedListId, sharedList])
 
   // Сохранение выбранной личности при переключении на пустой список
   useEffect(() => {

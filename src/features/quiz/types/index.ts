@@ -7,7 +7,7 @@ export interface QuizSetupConfig {
 
 export interface QuizQuestion {
   id: string;
-  type: 'birthYear' | 'achievementsMatch' | 'birthOrder';
+  type: 'birthYear' | 'deathYear' | 'profession' | 'country' | 'achievementsMatch' | 'birthOrder';
   question: string;
   options?: string[];
   correctAnswer: string | string[];
@@ -30,16 +30,43 @@ export interface QuizResult {
   answers: QuizAnswer[];
 }
 
-export interface BirthYearQuestionData {
+// Универсальные данные для вопросов с выбором одного варианта
+export interface SingleChoiceQuestionData {
   person: {
     id: string;
     name: string;
     description: string;
     imageUrl?: string;
   };
+  correctAnswer: string | number;
+  options: (string | number)[];
+  questionText: string;
+  answerLabel?: string; // для отображения правильного ответа в фидбеке
+}
+
+// Специфичные данные для вопросов о годе рождения (для обратной совместимости)
+export interface BirthYearQuestionData extends SingleChoiceQuestionData {
   correctBirthYear: number;
   correctDeathYear: number;
   options: number[];
+}
+
+// Данные для вопросов о годе смерти
+export interface DeathYearQuestionData extends SingleChoiceQuestionData {
+  correctDeathYear: number;
+  options: number[];
+}
+
+// Данные для вопросов о роде деятельности
+export interface ProfessionQuestionData extends SingleChoiceQuestionData {
+  correctProfession: string;
+  options: string[];
+}
+
+// Данные для вопросов о стране рождения
+export interface CountryQuestionData extends SingleChoiceQuestionData {
+  correctCountry: string;
+  options: string[];
 }
 
 export interface AchievementsMatchQuestionData {

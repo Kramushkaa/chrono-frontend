@@ -1,12 +1,12 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Person } from 'shared/types';
-import { QuizSetupConfig, QuizQuestion, QuizAnswer, QuizResult, BirthYearQuestionData, AchievementsMatchQuestionData, BirthOrderQuestionData } from '../types';
+import { QuizSetupConfig, QuizQuestion, QuizAnswer, QuizResult, BirthYearQuestionData, DeathYearQuestionData, ProfessionQuestionData, CountryQuestionData, AchievementsMatchQuestionData, BirthOrderQuestionData } from '../types';
 
 export const useQuiz = (persons: Person[], allCategories: string[], allCountries: string[]) => {
   const [setup, setSetup] = useState<QuizSetupConfig>(() => ({
     selectedCountries: allCategories.length > 0 ? allCountries : [],
     selectedCategories: allCategories.length > 0 ? allCategories : [],
-    questionTypes: ['birthYear', 'achievementsMatch', 'birthOrder'],
+    questionTypes: ['birthYear', 'deathYear', 'profession', 'country', 'achievementsMatch', 'birthOrder'],
     questionCount: 5
   }));
   
@@ -24,7 +24,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
       setSetup(prev => ({
         selectedCountries: prev.selectedCountries.length === 0 ? allCountries : prev.selectedCountries,
         selectedCategories: prev.selectedCategories.length === 0 ? allCategories : prev.selectedCategories,
-        questionTypes: prev.questionTypes.length === 0 ? ['birthYear', 'achievementsMatch', 'birthOrder'] : prev.questionTypes,
+        questionTypes: prev.questionTypes.length === 0 ? ['birthYear', 'deathYear', 'profession', 'country', 'achievementsMatch', 'birthOrder'] : prev.questionTypes,
         questionCount: prev.questionCount || 5
       }));
     }
@@ -68,7 +68,10 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
       },
       correctBirthYear: birthYear,
       correctDeathYear: deathYear,
-      options: shuffledOptions
+      options: shuffledOptions,
+      correctAnswer: birthYear,
+      questionText: `В каком году родился ${person.name}?`,
+      answerLabel: `${birthYear}`
     };
 
     return {
@@ -79,6 +82,156 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
       data
     };
   }, []);
+
+  // Генерируем вопрос "Угадай год смерти"
+  const generateDeathYearQuestion = useCallback((persons: Person[]): QuizQuestion => {
+    const person = persons[Math.floor(Math.random() * persons.length)];
+    const deathYear = person.deathYear;
+    
+    if (!deathYear) {
+      // Если нет года смерти, генерируем вопрос о годе рождения
+      return generateBirthYearQuestion(persons);
+    }
+    
+    // Генерируем неправильные варианты
+    const options = [deathYear];
+    while (options.length < 4) {
+      const randomYear = deathYear + Math.floor(Math.random() * 100) - 50;
+      if (!options.includes(randomYear)) {
+        options.push(randomYear);
+      }
+    }
+    
+    // Перемешиваем варианты
+    const shuffledOptions = options.sort(() => Math.random() - 0.5);
+    
+    const data: DeathYearQuestionData = {
+      person: {
+        id: person.id,
+        name: person.name,
+        description: person.description,
+        imageUrl: person.imageUrl
+      },
+      correctDeathYear: deathYear,
+      options: shuffledOptions,
+      correctAnswer: deathYear,
+      questionText: `В каком году умер ${person.name}?`,
+      answerLabel: `${deathYear}`
+    };
+
+    return {
+      id: `death-year-${person.id}`,
+      type: 'deathYear',
+      question: `В каком году умер ${person.name}?`,
+      correctAnswer: deathYear.toString(),
+      data
+    };
+  }, [generateBirthYearQuestion]);
+
+  // Генерируем вопрос "Угадай род деятельности"
+  const generateProfessionQuestion = useCallback((persons: Person[]): QuizQuestion => {
+    const person = persons[Math.floor(Math.random() * persons.length)];
+    const correctProfession = person.category;
+    
+    // Получаем все доступные категории
+    const allCategoriesSet = new Set(persons.map(p => p.category));
+    const allCategoriesArray = Array.from(allCategoriesSet);
+    
+    if (allCategoriesArray.length < 4) {
+      // Если категорий недостаточно, генерируем вопрос другого типа
+      return generateBirthYearQuestion(persons);
+    }
+    
+    // Генерируем неправильные варианты
+    const options = [correctProfession];
+    while (options.length < 4) {
+      const randomCategory = allCategoriesArray[Math.floor(Math.random() * allCategoriesArray.length)];
+      if (!options.includes(randomCategory)) {
+        options.push(randomCategory);
+      }
+    }
+    
+    // Перемешиваем варианты
+    const shuffledOptions = options.sort(() => Math.random() - 0.5);
+    
+    const data: ProfessionQuestionData = {
+      person: {
+        id: person.id,
+        name: person.name,
+        description: person.description,
+        imageUrl: person.imageUrl
+      },
+      correctProfession,
+      options: shuffledOptions,
+      correctAnswer: correctProfession,
+      questionText: `К какой области деятельности относится ${person.name}?`,
+      answerLabel: correctProfession
+    };
+
+    return {
+      id: `profession-${person.id}`,
+      type: 'profession',
+      question: `К какой области деятельности относится ${person.name}?`,
+      correctAnswer: correctProfession,
+      data
+    };
+  }, [generateBirthYearQuestion]);
+
+  // Генерируем вопрос "Угадай страну рождения"
+  const generateCountryQuestion = useCallback((persons: Person[]): QuizQuestion => {
+    const person = persons[Math.floor(Math.random() * persons.length)];
+    const correctCountry = Array.isArray(person.country) ? person.country[0] : person.country;
+    
+    // Получаем все доступные страны
+    const allCountriesSet = new Set<string>();
+    persons.forEach(p => {
+      if (Array.isArray(p.country)) {
+        p.country.forEach(country => allCountriesSet.add(country));
+      } else {
+        allCountriesSet.add(p.country);
+      }
+    });
+    const allCountriesArray = Array.from(allCountriesSet);
+    
+    if (allCountriesArray.length < 4) {
+      // Если стран недостаточно, генерируем вопрос другого типа
+      return generateBirthYearQuestion(persons);
+    }
+    
+    // Генерируем неправильные варианты
+    const options = [correctCountry];
+    while (options.length < 4) {
+      const randomCountry = allCountriesArray[Math.floor(Math.random() * allCountriesArray.length)];
+      if (!options.includes(randomCountry)) {
+        options.push(randomCountry);
+      }
+    }
+    
+    // Перемешиваем варианты
+    const shuffledOptions = options.sort(() => Math.random() - 0.5);
+    
+    const data: CountryQuestionData = {
+      person: {
+        id: person.id,
+        name: person.name,
+        description: person.description,
+        imageUrl: person.imageUrl
+      },
+      correctCountry,
+      options: shuffledOptions,
+      correctAnswer: correctCountry,
+      questionText: `В какой стране родился ${person.name}?`,
+      answerLabel: correctCountry
+    };
+
+    return {
+      id: `country-${person.id}`,
+      type: 'country',
+      question: `В какой стране родился ${person.name}?`,
+      correctAnswer: correctCountry,
+      data
+    };
+  }, [generateBirthYearQuestion]);
 
   // Генерируем вопрос "Сопоставь достижения"
   const generateAchievementsMatchQuestion = useCallback((persons: Person[]): QuizQuestion => {
@@ -208,11 +361,14 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
 
     const questionGenerators: { [key: string]: (persons: Person[]) => QuizQuestion } = {
       'birthYear': generateBirthYearQuestion,
+      'deathYear': generateDeathYearQuestion,
+      'profession': generateProfessionQuestion,
+      'country': generateCountryQuestion,
       'achievementsMatch': generateAchievementsMatchQuestion,
       'birthOrder': generateBirthOrderQuestion
     };
 
-    const availableTypes = setup.questionTypes.length > 0 ? setup.questionTypes : ['birthYear', 'achievementsMatch', 'birthOrder'];
+    const availableTypes = setup.questionTypes.length > 0 ? setup.questionTypes : ['birthYear', 'deathYear', 'profession', 'country', 'achievementsMatch', 'birthOrder'];
     const questionCount = setup.questionCount || 5;
     
     const generatedQuestions: QuizQuestion[] = [];
@@ -227,7 +383,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     }
 
     return generatedQuestions;
-  }, [filteredPersons, setup.questionTypes, setup.questionCount, generateBirthYearQuestion, generateAchievementsMatchQuestion, generateBirthOrderQuestion]);
+  }, [filteredPersons, setup.questionTypes, setup.questionCount, generateBirthYearQuestion, generateDeathYearQuestion, generateProfessionQuestion, generateCountryQuestion, generateAchievementsMatchQuestion, generateBirthOrderQuestion]);
 
   // Начать игру
   const startQuiz = useCallback(() => {
@@ -256,11 +412,14 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     
     let isCorrect = false;
     
-    if (currentQuestion.type === 'birthYear') {
-      // Для вопросов о годе рождения сравниваем числа
+    if (currentQuestion.type === 'birthYear' || currentQuestion.type === 'deathYear') {
+      // Для вопросов о годах сравниваем числа
       const userYear = parseInt(answer as string);
       const correctYear = parseInt(currentQuestion.correctAnswer as string);
       isCorrect = userYear === correctYear;
+    } else if (currentQuestion.type === 'profession' || currentQuestion.type === 'country') {
+      // Для вопросов о профессии и стране сравниваем строки
+      isCorrect = answer === currentQuestion.correctAnswer;
     } else if (currentQuestion.type === 'birthOrder') {
       // Для вопросов о порядке рождения сравниваем массивы без сортировки
       isCorrect = JSON.stringify(answer) === JSON.stringify(currentQuestion.correctAnswer);

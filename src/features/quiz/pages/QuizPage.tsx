@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuizData } from '../hooks/useQuizData';
 import { useQuiz } from '../hooks/useQuiz';
@@ -6,15 +6,27 @@ import { QuizSetup } from '../components/QuizSetup';
 import { QuizResults } from '../components/QuizResults';
 import { QuizProgress } from '../components/QuizProgress';
 import { BirthYearQuestion } from '../components/QuestionTypes/BirthYearQuestion';
+import { DeathYearQuestion } from '../components/QuestionTypes/DeathYearQuestion';
+import { ProfessionQuestion } from '../components/QuestionTypes/ProfessionQuestion';
+import { CountryQuestion } from '../components/QuestionTypes/CountryQuestion';
 import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion';
 import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion';
 import { SEO } from 'shared/ui/SEO';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { ContactFooter } from 'shared/ui/ContactFooter';
+import { Person } from 'shared/types';
+import { getCategoryColor } from 'shared/utils/categoryColors';
+import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils';
+import { getPersonById } from 'shared/api/api';
 import '../styles/quiz.css';
+
+const PersonPanel = React.lazy(() => import('features/persons/components/PersonPanel').then(m => ({ default: m.PersonPanel })));
 
 const QuizPage: React.FC = () => {
   const navigate = useNavigate();
+  
+  // Состояние для PersonPanel
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   
   // Создаем стабильный объект фильтров
   const filters = useMemo(() => ({
@@ -62,6 +74,23 @@ const QuizPage: React.FC = () => {
     answerQuestion(answer);
   };
 
+  const handlePersonInfoClick = async (person: Person) => {
+    try {
+      // Получаем полную информацию о личности из API
+      const fullPerson = await getPersonById(person.id);
+      if (fullPerson) {
+        setSelectedPerson(fullPerson);
+      } else {
+        // Fallback на данные из вопроса, если API не вернул данные
+        setSelectedPerson(person);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки информации о личности:', error);
+      // Fallback на данные из вопроса
+      setSelectedPerson(person);
+    }
+  };
+
   const renderQuestion = () => {
     if (!currentQuestion) return null;
 
@@ -76,6 +105,43 @@ const QuizPage: React.FC = () => {
             userAnswer={lastAnswer}
             onNext={nextQuestion}
             isLastQuestion={currentQuestionIndex === questions.length - 1}
+            onPersonInfoClick={handlePersonInfoClick}
+          />
+        );
+      case 'deathYear':
+        return (
+          <DeathYearQuestion
+            data={currentQuestion.data}
+            onAnswer={handleAnswer}
+            showFeedback={showAnswer}
+            userAnswer={lastAnswer}
+            onNext={nextQuestion}
+            isLastQuestion={currentQuestionIndex === questions.length - 1}
+            onPersonInfoClick={handlePersonInfoClick}
+          />
+        );
+      case 'profession':
+        return (
+          <ProfessionQuestion
+            data={currentQuestion.data}
+            onAnswer={handleAnswer}
+            showFeedback={showAnswer}
+            userAnswer={lastAnswer}
+            onNext={nextQuestion}
+            isLastQuestion={currentQuestionIndex === questions.length - 1}
+            onPersonInfoClick={handlePersonInfoClick}
+          />
+        );
+      case 'country':
+        return (
+          <CountryQuestion
+            data={currentQuestion.data}
+            onAnswer={handleAnswer}
+            showFeedback={showAnswer}
+            userAnswer={lastAnswer}
+            onNext={nextQuestion}
+            isLastQuestion={currentQuestionIndex === questions.length - 1}
+            onPersonInfoClick={handlePersonInfoClick}
           />
         );
       case 'achievementsMatch':
@@ -87,6 +153,7 @@ const QuizPage: React.FC = () => {
             userAnswer={lastAnswer}
             onNext={nextQuestion}
             isLastQuestion={currentQuestionIndex === questions.length - 1}
+            onPersonInfoClick={handlePersonInfoClick}
           />
         );
       case 'birthOrder':
@@ -98,6 +165,7 @@ const QuizPage: React.FC = () => {
             userAnswer={lastAnswer}
             onNext={nextQuestion}
             isLastQuestion={currentQuestionIndex === questions.length - 1}
+            onPersonInfoClick={handlePersonInfoClick}
           />
         );
       default:
@@ -154,6 +222,19 @@ const QuizPage: React.FC = () => {
           <p>Загрузка данных...</p>
         </div>
         <ContactFooter />
+        
+        {/* PersonPanel для показа информации о личности */}
+        {selectedPerson && (
+          <React.Suspense fallback={<div>Загрузка...</div>}>
+            <PersonPanel
+              selectedPerson={selectedPerson}
+              onClose={() => setSelectedPerson(null)}
+              getGroupColor={getGroupColor}
+              getPersonGroup={(person) => getPersonGroup(person, 'none')}
+              getCategoryColor={getCategoryColor}
+            />
+          </React.Suspense>
+        )}
       </div>
     );
   }
@@ -201,6 +282,19 @@ const QuizPage: React.FC = () => {
           />
           <ContactFooter />
         </div>
+        
+        {/* PersonPanel для показа информации о личности */}
+        {selectedPerson && (
+          <React.Suspense fallback={<div>Загрузка...</div>}>
+            <PersonPanel
+              selectedPerson={selectedPerson}
+              onClose={() => setSelectedPerson(null)}
+              getGroupColor={getGroupColor}
+              getPersonGroup={(person) => getPersonGroup(person, 'none')}
+              getCategoryColor={getCategoryColor}
+            />
+          </React.Suspense>
+        )}
       </div>
     );
   }
@@ -257,6 +351,19 @@ const QuizPage: React.FC = () => {
           />
           <ContactFooter />
         </div>
+        
+        {/* PersonPanel для показа информации о личности */}
+        {selectedPerson && (
+          <React.Suspense fallback={<div>Загрузка...</div>}>
+            <PersonPanel
+              selectedPerson={selectedPerson}
+              onClose={() => setSelectedPerson(null)}
+              getGroupColor={getGroupColor}
+              getPersonGroup={(person) => getPersonGroup(person, 'none')}
+              getCategoryColor={getCategoryColor}
+            />
+          </React.Suspense>
+        )}
       </div>
     );
   }
@@ -307,6 +414,19 @@ const QuizPage: React.FC = () => {
           </div>
           <ContactFooter />
         </div>
+        
+        {/* PersonPanel для показа информации о личности */}
+        {selectedPerson && (
+          <React.Suspense fallback={<div>Загрузка...</div>}>
+            <PersonPanel
+              selectedPerson={selectedPerson}
+              onClose={() => setSelectedPerson(null)}
+              getGroupColor={getGroupColor}
+              getPersonGroup={(person) => getPersonGroup(person, 'none')}
+              getCategoryColor={getCategoryColor}
+            />
+          </React.Suspense>
+        )}
       </div>
     );
   }
@@ -360,6 +480,19 @@ const QuizPage: React.FC = () => {
         <div className="quiz-question-container">
           <p>Произошла ошибка. Пожалуйста, обновите страницу.</p>
         </div>
+        
+        {/* PersonPanel для показа информации о личности */}
+        {selectedPerson && (
+          <React.Suspense fallback={<div>Загрузка...</div>}>
+            <PersonPanel
+              selectedPerson={selectedPerson}
+              onClose={() => setSelectedPerson(null)}
+              getGroupColor={getGroupColor}
+              getPersonGroup={(person) => getPersonGroup(person, 'none')}
+              getCategoryColor={getCategoryColor}
+            />
+          </React.Suspense>
+        )}
       </div>
     </div>
   );

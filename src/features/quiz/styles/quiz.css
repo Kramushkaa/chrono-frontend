@@ -195,11 +195,86 @@
   border: 2px solid #cd853f;
 }
 
+.quiz-question-person-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .quiz-question-person-info h3 {
   margin: 0 0 0.5rem 0;
   color: #f4e4c1;
   font-size: 1.3rem;
   font-weight: 600;
+  flex: 1;
+}
+
+.quiz-person-info-button {
+  background: rgba(139, 69, 19, 0.3);
+  border: 1px solid rgba(139, 69, 19, 0.6);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  color: #cd853f;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.quiz-person-info-button:hover {
+  background: rgba(139, 69, 19, 0.5);
+  border-color: rgba(139, 69, 19, 0.8);
+  color: #f4e4c1;
+  transform: scale(1.1);
+}
+
+.quiz-person-info-button:active {
+  transform: scale(0.95);
+}
+
+/* Специальные стили для кнопок информации в разных типах вопросов */
+.achievements-person-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.achievements-person-info h5 {
+  margin: 0;
+  flex: 1;
+}
+
+.achievements-info-button {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+.birth-order-person-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.birth-order-person-info h4 {
+  margin: 0;
+  flex: 1;
+}
+
+.birth-order-info-button {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
 }
 
 .quiz-question-person-info p {

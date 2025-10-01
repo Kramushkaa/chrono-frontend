@@ -1,10 +1,10 @@
 import React from 'react';
-import { BirthYearQuestionData, QuizAnswer } from '../../types';
+import { ProfessionQuestionData, QuizAnswer } from '../../types';
 import { SingleChoiceQuestion } from './SingleChoiceQuestion';
 import { Person } from 'shared/types';
 
-interface BirthYearQuestionProps {
-  data: BirthYearQuestionData;
+interface ProfessionQuestionProps {
+  data: ProfessionQuestionData;
   onAnswer: (answer: string) => void;
   showFeedback?: boolean;
   userAnswer?: QuizAnswer | null;
@@ -13,7 +13,7 @@ interface BirthYearQuestionProps {
   onPersonInfoClick?: (person: Person) => void;
 }
 
-export const BirthYearQuestion: React.FC<BirthYearQuestionProps> = ({ 
+export const ProfessionQuestion: React.FC<ProfessionQuestionProps> = ({ 
   data, 
   onAnswer, 
   showFeedback = false, 
@@ -25,9 +25,14 @@ export const BirthYearQuestion: React.FC<BirthYearQuestionProps> = ({
   // Преобразуем данные в формат SingleChoiceQuestionData
   const singleChoiceData = {
     ...data,
-    correctAnswer: data.correctBirthYear,
-    questionText: `В каком году родился ${data.person.name}?`,
-    answerLabel: `${data.correctBirthYear}`
+    correctAnswer: data.correctProfession,
+    questionText: `К какой области деятельности относится ${data.person.name}?`,
+    answerLabel: data.correctProfession,
+    // Скрываем описание до показа фидбека
+    person: {
+      ...data.person,
+      description: showFeedback ? data.person.description : ''
+    }
   };
 
   return (

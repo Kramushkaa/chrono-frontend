@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AchievementsMatchQuestionData, QuizAnswer } from '../../types';
+import { Person } from 'shared/types';
 
 interface AchievementsMatchQuestionProps {
   data: AchievementsMatchQuestionData;
@@ -8,6 +9,7 @@ interface AchievementsMatchQuestionProps {
   userAnswer?: QuizAnswer | null;
   onNext?: () => void;
   isLastQuestion?: boolean;
+  onPersonInfoClick?: (person: Person) => void;
 }
 
 export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps> = ({ 
@@ -16,7 +18,8 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
   showFeedback = false, 
   userAnswer = null, 
   onNext,
-  isLastQuestion = false 
+  isLastQuestion = false,
+  onPersonInfoClick
 }) => {
   const [matches, setMatches] = useState<{ [personId: string]: string }>({});
   const [draggedAchievement, setDraggedAchievement] = useState<string | null>(null);
@@ -266,7 +269,19 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
                       className="achievements-person-image"
                     />
                   )}
-                  <h5>{person.name}</h5>
+                  <div className="achievements-person-header">
+                    <h5>{person.name}</h5>
+                    {showFeedback && onPersonInfoClick && (
+                      <button
+                        className="quiz-person-info-button achievements-info-button"
+                        onClick={() => onPersonInfoClick(person as Person)}
+                        title="Подробная информация"
+                        aria-label={`Подробная информация о ${person.name}`}
+                      >
+                        i
+                      </button>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Слот для достижения */}

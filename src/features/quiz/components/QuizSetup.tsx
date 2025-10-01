@@ -13,12 +13,18 @@ interface QuizSetupProps {
 
 const QUESTION_TYPES = [
   { value: 'birthYear', label: 'Угадай год рождения' },
+  { value: 'deathYear', label: 'Угадай год смерти' },
+  { value: 'profession', label: 'Угадай род деятельности' },
+  { value: 'country', label: 'Угадай страну рождения' },
   { value: 'achievementsMatch', label: 'Сопоставь достижения' },
   { value: 'birthOrder', label: 'Расставь по году рождения' }
 ];
 
 const QUESTION_TYPE_LABELS: { [key: string]: string } = {
   'birthYear': 'Угадай год рождения',
+  'deathYear': 'Угадай год смерти',
+  'profession': 'Угадай род деятельности',
+  'country': 'Угадай страну рождения',
   'achievementsMatch': 'Сопоставь достижения', 
   'birthOrder': 'Расставь по году рождения'
 };

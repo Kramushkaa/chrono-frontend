@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BirthOrderQuestionData, QuizAnswer } from '../../types';
+import { Person } from 'shared/types';
 
 interface BirthOrderQuestionProps {
   data: BirthOrderQuestionData;
@@ -8,6 +9,7 @@ interface BirthOrderQuestionProps {
   userAnswer?: QuizAnswer | null;
   onNext?: () => void;
   isLastQuestion?: boolean;
+  onPersonInfoClick?: (person: Person) => void;
 }
 
 export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({ 
@@ -16,7 +18,8 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   showFeedback = false, 
   userAnswer = null, 
   onNext,
-  isLastQuestion = false 
+  isLastQuestion = false,
+  onPersonInfoClick
 }) => {
   // Инициализируем порядок со всеми личностями в случайном порядке
   const [order, setOrder] = useState<string[]>(() => 
@@ -378,7 +381,19 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
                     />
                   )}
                   <div className="birth-order-person-info">
-                    <h4>{person.name}</h4>
+                    <div className="birth-order-person-header">
+                      <h4>{person.name}</h4>
+                      {showFeedback && onPersonInfoClick && (
+                        <button
+                          className="quiz-person-info-button birth-order-info-button"
+                          onClick={() => onPersonInfoClick(person as Person)}
+                          title="Подробная информация"
+                          aria-label={`Подробная информация о ${person.name}`}
+                        >
+                          i
+                        </button>
+                      )}
+                    </div>
                     <p className="person-details">
                       {person.category}
                       {showFeedback && (
