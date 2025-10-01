@@ -57,7 +57,7 @@ export function EditWarningModal({
 
         <div style={{ marginBottom: 16, lineHeight: 1.5, color: '#f4e4c1' }}>
           <p style={{ margin: '0 0 12px 0', fontSize: 16 }}>
-            Личность <strong>«{personName}»</strong> находится на модерации.
+            Личность <strong>«{personName}»</strong> не является черновиком.
           </p>
           <p style={{ margin: '0 0 12px 0', opacity: 0.8 }}>
             Редактировать можно только черновики.

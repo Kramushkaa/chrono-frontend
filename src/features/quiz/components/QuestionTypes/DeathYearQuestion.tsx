@@ -1,7 +1,6 @@
 import React from 'react';
 import { DeathYearQuestionData, QuizAnswer } from '../../types';
 import { SingleChoiceQuestion } from './SingleChoiceQuestion';
-import { Person } from 'shared/types';
 
 interface DeathYearQuestionProps {
   data: DeathYearQuestionData;
@@ -10,7 +9,7 @@ interface DeathYearQuestionProps {
   userAnswer?: QuizAnswer | null;
   onNext?: () => void;
   isLastQuestion?: boolean;
-  onPersonInfoClick?: (person: Person) => void;
+  onPersonInfoClick?: (person: any) => void;
 }
 
 export const DeathYearQuestion: React.FC<DeathYearQuestionProps> = ({ 

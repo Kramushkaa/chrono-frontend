@@ -555,7 +555,7 @@ export default function ManagePage() {
                                 setShowAuthModal(true); 
                                 return; 
                               }
-                              if (selected?.status === 'pending') {
+                              if (selected?.status && selected.status !== 'draft') {
                                 setShowEditWarning(true);
                                 return;
                               }
