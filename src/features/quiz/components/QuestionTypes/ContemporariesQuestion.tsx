@@ -27,11 +27,15 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   
   // Drag & Drop состояние
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const dragCounter = useRef(0);
 
   // Reset state when question data changes
   useEffect(() => {
     setGroups([data.persons.map(p => p.id).sort(() => Math.random() - 0.5)]);
     setDraggedItem(null);
+    setIsDragActive(false);
+    dragCounter.current = 0;
   }, [data.persons]);
 
 
@@ -113,12 +117,14 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     if (showFeedback) return;
     
     setDraggedItem(personId);
+    setIsDragActive(true);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', personId);
   };
 
   const handleDragEnd = () => {
     setDraggedItem(null);
+    setIsDragActive(false);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -130,6 +136,14 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     if (draggedPersonId) {
       setDraggedItem(draggedPersonId);
     }
+  };
+
+  const handleDragEnter = () => {
+    dragCounter.current++;
+  };
+
+  const handleDragLeave = () => {
+    dragCounter.current--;
   };
 
   const handleDrop = (e: React.DragEvent, targetGroupIndex: number) => {
@@ -239,6 +253,8 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
         draggable={!showFeedback}
         onDragStart={(e) => handleDragStart(e, personId)}
         onDragEnd={handleDragEnd}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
         className={`contemporaries-person-card ${isDragged ? 'dragging' : ''} ${
           showFeedback ? (personStatus === 'correct' ? 'correct' : 
                          personStatus === 'incorrect' ? 'incorrect' : '') : ''
@@ -303,6 +319,8 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
             <div 
               className="group-persons"
               onDragOver={handleDragOver}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, groupIndex)}
             >
               {group.map(personId => (
@@ -328,6 +346,8 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
             <div 
               className="create-group-drop-zone"
               onDragOver={handleDragOver}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
               onDrop={handleDropToCreateGroup}
             >
               <div className="create-group-hint">
