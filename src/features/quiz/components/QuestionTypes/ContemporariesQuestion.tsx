@@ -27,16 +27,11 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   
   // Drag & Drop состояние
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
-  const draggedElementRef = useRef<HTMLDivElement | null>(null);
 
   // Reset state when question data changes
   useEffect(() => {
     setGroups([data.persons.map(p => p.id).sort(() => Math.random() - 0.5)]);
     setDraggedItem(null);
-    if (draggedElementRef.current) {
-      draggedElementRef.current.style.transform = '';
-      draggedElementRef.current = null;
-    }
   }, [data.persons]);
 
 
@@ -124,11 +119,6 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
 
   const handleDragEnd = () => {
     setDraggedItem(null);
-    
-    if (draggedElementRef.current) {
-      draggedElementRef.current.style.transform = '';
-      draggedElementRef.current = null;
-    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -246,7 +236,6 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
 
     return (
       <div
-        ref={isDragged ? draggedElementRef : null}
         draggable={!showFeedback}
         onDragStart={(e) => handleDragStart(e, personId)}
         onDragEnd={handleDragEnd}
@@ -254,10 +243,6 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
           showFeedback ? (personStatus === 'correct' ? 'correct' : 
                          personStatus === 'incorrect' ? 'incorrect' : '') : ''
         }`}
-        style={{
-          transform: isDragged ? 'rotate(5deg)' : '',
-          opacity: isDragged ? 0.7 : 1,
-        }}
       >
         <div className="contemporaries-person-info">
           {showFeedback && onPersonInfoClick && (
