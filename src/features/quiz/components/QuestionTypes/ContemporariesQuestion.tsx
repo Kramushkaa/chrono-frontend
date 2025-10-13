@@ -35,6 +35,18 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const draggedElementRef = useRef<HTMLDivElement | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Определяем мобильное устройство
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Reset state when question data changes
   useEffect(() => {
@@ -122,26 +134,15 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     onAnswer(groups);
   };
 
-  // Drag & Drop handlers
+  // Drag & Drop handlers (только для desktop)
   const handleDragStart = (e: React.DragEvent, personId: string) => {
     if (showFeedback) return;
-    
-    // Отменяем touch события если начался drag
-    setIsDragging(false);
-    setTouchStartPos(null);
-    
     setDraggedItem(personId);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', personId);
-    
-    // Улучшаем визуальный эффект перетаскивания
-    const target = e.currentTarget as HTMLElement;
-    target.style.opacity = '0.5';
   };
 
-  const handleDragEnd = (e: React.DragEvent) => {
-    const target = e.currentTarget as HTMLElement;
-    target.style.opacity = '';
+  const handleDragEnd = () => {
     setDraggedItem(null);
     setDraggedOverGroup(null);
     setDraggedOverCreateZone(false);
@@ -189,8 +190,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     
     if (showFeedback) return;
     
-    // Получаем ID личности из dataTransfer или из состояния
-    const personId = e.dataTransfer.getData('text/plain') || draggedItem;
+    const personId = e.dataTransfer.getData('text/plain');
     if (!personId) return;
     
     // Если личность уже в этой группе, ничего не делаем
@@ -209,8 +209,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     
     if (showFeedback) return;
     
-    // Получаем ID личности из dataTransfer или из состояния
-    const personId = e.dataTransfer.getData('text/plain') || draggedItem;
+    const personId = e.dataTransfer.getData('text/plain');
     if (!personId) return;
     
     // Создаем новую группу
@@ -219,24 +218,20 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
 
   // Touch event handlers (для мобильных устройств)
   const handleTouchStart = (e: React.TouchEvent, personId: string) => {
-    if (showFeedback) return;
+    if (showFeedback || !isMobile) return;
     
     const touch = e.touches[0];
     setTouchStartPos({ x: touch.clientX, y: touch.clientY });
     setDraggedItem(personId);
     setIsDragging(true);
     
-    // Сохраняем ссылку на элемент для визуальных эффектов
-    const element = e.currentTarget as HTMLDivElement;
-    draggedElementRef.current = element;
-    element.style.transform = 'scale(1.05)';
-    element.style.zIndex = '1000';
-    element.style.opacity = '0.8';
-    element.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.3)';
+    const target = e.currentTarget as HTMLDivElement;
+    draggedElementRef.current = target;
+    target.style.pointerEvents = 'none';
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !touchStartPos) return;
+    if (!isDragging || !touchStartPos || !isMobile) return;
     const touch = e.touches[0];
     const deltaX = touch.clientX - touchStartPos.x;
     const deltaY = touch.clientY - touchStartPos.y;
@@ -267,7 +262,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!isDragging) return;
+    if (!isDragging || !isMobile) return;
     const touch = e.changedTouches[0];
 
     // Находим элемент под курсором
@@ -300,13 +295,13 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
       draggedElementRef.current.style.zIndex = '';
       draggedElementRef.current.style.opacity = '';
       draggedElementRef.current.style.boxShadow = '';
+      draggedElementRef.current.style.pointerEvents = '';
     }
     setTouchStartPos(null);
     setIsDragging(false);
     setDraggedItem(null);
     setDraggedOverGroup(null);
     setDraggedOverCreateZone(false);
-    dragCounters.current = {};
   };
 
   // Функция для анализа правильности групп
@@ -378,7 +373,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
 
     return (
       <div
-        draggable={!showFeedback}
+        draggable={!showFeedback && !isMobile}
         onDragStart={(e) => handleDragStart(e, personId)}
         onDragEnd={handleDragEnd}
         onTouchStart={(e) => handleTouchStart(e, personId)}
@@ -431,7 +426,10 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
         <h3>Разделите на группы современников:</h3>
         {!showFeedback && (
           <p className="instruction-hint">
-            Перетащите карточки в группы или создайте новые группы
+            {isMobile 
+              ? "Нажмите и удерживайте карточку, затем перетащите её в нужную группу или создайте новую"
+              : "Перетащите карточки в группы или создайте новые группы"
+            }
           </p>
         )}
 
