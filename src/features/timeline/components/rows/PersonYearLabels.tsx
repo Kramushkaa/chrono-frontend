@@ -73,7 +73,7 @@ export const PersonYearLabels: React.FC<PersonYearLabelsProps> = ({ person, getA
         aria-label={`Год смерти: ${person.deathYear}`}
         style={{
           position: 'absolute',
-          left: `${getAdjustedPosition(person.deathYear)}px`,
+          left: `${getAdjustedPosition(person.deathYear ?? new Date().getFullYear())}px`,
           top: 0,
           fontSize: '11px',
           color: 'rgba(244, 228, 193, 0.6)',

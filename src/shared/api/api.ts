@@ -1,6 +1,7 @@
 import { authStorage } from '../../features/auth/services/auth'
 import type { UpsertPersonDTO, LifePeriodItemDTO } from '../dto'
 import { validateDto } from '../dto'
+import type { Person } from '../types'
 // API configuration
 const getApiConfig = () => {
   // Определяем окружение
@@ -82,37 +83,6 @@ const apiRequest = async (url: string, options: RequestInit = {}): Promise<Respo
 };
 
 // Types for API responses
-interface Person {
-  id: string;
-  name: string;
-  birthYear: number;
-  deathYear: number;
-  category: string;
-  country: string;
-  description: string;
-  imageUrl?: string;
-  wikiLink?: string | null;
-  reignStart?: number;
-  reignEnd?: number;
-  rulerPeriods?: Array<{
-    startYear: number;
-    endYear: number;
-    countryId?: number;
-    countryName?: string;
-  }>;
-  periods?: Array<{
-    startYear: number;
-    endYear: number;
-    type?: string;
-    countryId?: number;
-    countryName?: string;
-    comment?: string | null;
-  }>;
-  achievements: string[];
-  achievementsWiki?: (string | null)[];
-  achievementYears?: number[];
-}
-
 interface ApiFilters {
   category?: string;
   country?: string;

@@ -2,9 +2,9 @@ export interface Person {
     id: string;
     name: string;
     birthYear: number;
-    deathYear: number;
-    reignStart?: number;
-    reignEnd?: number;
+    deathYear: number | null;
+    reignStart?: number | null;
+    reignEnd?: number | null;
     rulerPeriods?: Array<{
       startYear: number;
       endYear: number;
@@ -13,11 +13,11 @@ export interface Person {
     }>;
     category: string;
     country: string;
-    description: string;
+    description: string | null;
     achievements: string[];
     achievementYears?: number[];
     achievementsWiki?: (string | null)[];
-    imageUrl?: string;
+    imageUrl?: string | null;
     wikiLink?: string | null;
     periods?: Array<{
       startYear: number;

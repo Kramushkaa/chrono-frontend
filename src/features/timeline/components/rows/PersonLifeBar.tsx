@@ -57,7 +57,7 @@ export const PersonLifeBar: React.FC<PersonLifeBarProps> = ({
         position: 'absolute',
         top: '10px',
         left: `${getAdjustedPosition(person.birthYear)}px`,
-        width: `${getAdjustedWidth(person.birthYear, person.deathYear)}px`,
+        width: `${getAdjustedWidth(person.birthYear, person.deathYear ?? new Date().getFullYear())}px`,
         height: '40px',
         background: `linear-gradient(135deg, ${getGroupColorMuted(getPersonGroup(person))} 0%, #6a5a3a 100%)`,
         borderRadius: '6px',

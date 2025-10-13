@@ -28,14 +28,38 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   // Drag & Drop состояние
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
-  const dragCounter = useRef(0);
+  const [draggedOverGroup, setDraggedOverGroup] = useState<number | null>(null);
+  const [draggedOverCreateZone, setDraggedOverCreateZone] = useState(false);
+  const dragCounters = useRef<{ [key: string]: number }>({});
+  
+  // Touch events state (для мобильных устройств)
+  const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const draggedElementRef = useRef<HTMLDivElement | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Определение мобильного устройства
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Reset state when question data changes
   useEffect(() => {
     setGroups([data.persons.map(p => p.id).sort(() => Math.random() - 0.5)]);
     setDraggedItem(null);
     setIsDragActive(false);
-    dragCounter.current = 0;
+    setDraggedOverGroup(null);
+    setDraggedOverCreateZone(false);
+    dragCounters.current = {};
+    // Сбрасываем touch состояние
+    setTouchStartPos(null);
+    setIsDragging(false);
   }, [data.persons]);
 
 
@@ -112,10 +136,9 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     onAnswer(groups);
   };
 
-  // Drag & Drop handlers (упрощенная версия из BirthOrderQuestion)
+  // Drag & Drop handlers (скопированы из BirthOrderQuestion)
   const handleDragStart = (e: React.DragEvent, personId: string) => {
     if (showFeedback) return;
-    
     setDraggedItem(personId);
     setIsDragActive(true);
     e.dataTransfer.effectAllowed = 'move';
@@ -125,25 +148,43 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   const handleDragEnd = () => {
     setDraggedItem(null);
     setIsDragActive(false);
+    setDraggedOverGroup(null);
+    setDraggedOverCreateZone(false);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    
-    // Получаем данные из dataTransfer для корректной работы
-    const draggedPersonId = e.dataTransfer.getData('text/html');
-    if (draggedPersonId) {
-      setDraggedItem(draggedPersonId);
+  };
+
+  const handleDragEnterGroup = (groupIndex: number) => {
+    const groupKey = `group-${groupIndex}`;
+    dragCounters.current[groupKey] = (dragCounters.current[groupKey] || 0) + 1;
+    setDraggedOverGroup(groupIndex);
+    setDraggedOverCreateZone(false); // Сбрасываем подсветку зоны создания
+  };
+
+  const handleDragEnterCreateZone = () => {
+    const createZoneKey = 'create-zone';
+    dragCounters.current[createZoneKey] = (dragCounters.current[createZoneKey] || 0) + 1;
+    setDraggedOverCreateZone(true);
+    setDraggedOverGroup(null); // Сбрасываем подсветку всех групп
+  };
+
+  const handleDragLeaveGroup = (groupIndex: number) => {
+    const groupKey = `group-${groupIndex}`;
+    dragCounters.current[groupKey] = Math.max(0, (dragCounters.current[groupKey] || 0) - 1);
+    if (dragCounters.current[groupKey] === 0) {
+      setDraggedOverGroup(null);
     }
   };
 
-  const handleDragEnter = () => {
-    dragCounter.current++;
-  };
-
-  const handleDragLeave = () => {
-    dragCounter.current--;
+  const handleDragLeaveCreateZone = () => {
+    const createZoneKey = 'create-zone';
+    dragCounters.current[createZoneKey] = Math.max(0, (dragCounters.current[createZoneKey] || 0) - 1);
+    if (dragCounters.current[createZoneKey] === 0) {
+      setDraggedOverCreateZone(false);
+    }
   };
 
   const handleDrop = (e: React.DragEvent, targetGroupIndex: number) => {
@@ -179,6 +220,96 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     // Создаем новую группу
     createGroup(personId);
     handleDragEnd();
+  };
+
+  // Touch event handlers (для мобильных устройств)
+  const handleTouchStart = (e: React.TouchEvent, personId: string) => {
+    if (showFeedback || !isMobile) return;
+    const touch = e.touches[0];
+    setTouchStartPos({ x: touch.clientX, y: touch.clientY });
+    setDraggedItem(personId);
+    setIsDragging(true);
+    setIsDragActive(true);
+    
+    // Сохраняем ссылку на элемент для визуальных эффектов
+    const element = e.currentTarget as HTMLDivElement;
+    draggedElementRef.current = element;
+    element.style.transform = 'rotate(3deg) scale(1.02)';
+    element.style.zIndex = '1000';
+    element.style.opacity = '0.7';
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !touchStartPos || !isMobile) return;
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartPos.x;
+    const deltaY = touch.clientY - touchStartPos.y;
+
+    // Определяем, что это действительно перетаскивание, а не просто касание
+    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+      e.preventDefault(); // Предотвращаем скролл страницы
+      
+      // Находим элемент под курсором
+      const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (elementBelow) {
+        const groupElement = elementBelow.closest('.group-persons');
+        const createZoneElement = elementBelow.closest('.create-group-drop-zone');
+        
+        if (groupElement) {
+          const groupIndex = parseInt(groupElement.getAttribute('data-group-index') || '0');
+          setDraggedOverGroup(groupIndex);
+          setDraggedOverCreateZone(false);
+        } else if (createZoneElement) {
+          setDraggedOverCreateZone(true);
+          setDraggedOverGroup(null);
+        } else {
+          setDraggedOverGroup(null);
+          setDraggedOverCreateZone(false);
+        }
+      }
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isDragging || !isMobile) return;
+    const touch = e.changedTouches[0];
+
+    // Находим элемент под курсором
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (elementBelow) {
+      const groupElement = elementBelow.closest('.group-persons');
+      const createZoneElement = elementBelow.closest('.create-group-drop-zone');
+      
+      if (groupElement) {
+        const groupIndex = parseInt(groupElement.getAttribute('data-group-index') || '0');
+        const personId = draggedItem;
+        if (personId && !groups[groupIndex]?.includes(personId)) {
+          addToGroup(personId, groupIndex);
+        }
+      } else if (createZoneElement) {
+        const personId = draggedItem;
+        if (personId) {
+          createGroup(personId);
+        }
+      }
+    }
+
+    // Сбрасываем состояние
+    resetDragState();
+  };
+
+  const resetDragState = () => {
+    if (draggedElementRef.current) {
+      draggedElementRef.current.style.transform = '';
+      draggedElementRef.current.style.zIndex = '';
+      draggedElementRef.current.style.opacity = '';
+    }
+    setTouchStartPos(null);
+    setIsDragging(false);
+    setIsDragActive(false);
+    setDraggedItem(null);
+    setDraggedOverGroup(null);
+    setDraggedOverCreateZone(false);
   };
 
   // Функция для анализа правильности групп
@@ -250,15 +381,16 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
 
     return (
       <div
-        draggable={!showFeedback}
+        draggable={!showFeedback && !isMobile}
         onDragStart={(e) => handleDragStart(e, personId)}
         onDragEnd={handleDragEnd}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
+        onTouchStart={(e) => handleTouchStart(e, personId)}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         className={`contemporaries-person-card ${isDragged ? 'dragging' : ''} ${
           showFeedback ? (personStatus === 'correct' ? 'correct' : 
                          personStatus === 'incorrect' ? 'incorrect' : '') : ''
-        }`}
+        } ${showFeedback ? 'feedback-mode' : ''}`}
       >
         <div className="contemporaries-person-info">
           {showFeedback && onPersonInfoClick && (
@@ -297,30 +429,27 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   };
 
   return (
-    <div className="quiz-question contemporaries-question">
+    <div className={`quiz-question contemporaries-question ${showFeedback ? 'show-feedback' : ''}`}>
       <div className="quiz-question-content">
         <h3>Разделите на группы современников:</h3>
+        {!showFeedback && (
+          <p className="instruction-hint">
+            {isMobile 
+              ? "Нажмите и удерживайте карточку, затем перетащите её в нужную группу или создайте новую"
+              : "Перетащите карточки в группы или создайте новые группы"
+            }
+          </p>
+        )}
 
         {/* Все группы, включая группу 1 */}
         {groups.map((group, groupIndex) => (
           <div key={groupIndex} className="contemporaries-group">
-            <div className="group-header">
-              <h4>Группа {groupIndex + 1}</h4>
-              {!showFeedback && groups.length > 1 && (
-                <button
-                  className="remove-group-btn"
-                  onClick={() => removeGroup(groupIndex)}
-                  title="Удалить группу"
-                >
-                  Удалить группу
-                </button>
-              )}
-            </div>
             <div 
-              className="group-persons"
+              className={`group-persons ${draggedOverGroup === groupIndex ? 'drag-over' : ''}`}
+              data-group-index={groupIndex}
               onDragOver={handleDragOver}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
+              onDragEnter={() => handleDragEnterGroup(groupIndex)}
+              onDragLeave={() => handleDragLeaveGroup(groupIndex)}
               onDrop={(e) => handleDrop(e, groupIndex)}
             >
               {group.map(personId => (
@@ -331,12 +460,21 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
                   groupIndex={groupIndex}
                 />
               ))}
-              {groups.length > 1 && (
+              {!showFeedback && groups.length > 1 && (
                 <div className="drop-zone-hint">
                   Перетащите сюда
                 </div>
               )}
             </div>
+            {!showFeedback && groups.length > 1 && (
+              <button
+                className="remove-group-btn"
+                onClick={() => removeGroup(groupIndex)}
+                title="Удалить группу"
+              >
+                Удалить группу
+              </button>
+            )}
           </div>
         ))}
 
@@ -344,10 +482,10 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
         {!showFeedback && groups.length > 0 && groups.some(group => group.length > 0) && (
           <div className="create-new-group-zone">
             <div 
-              className="create-group-drop-zone"
+              className={`create-group-drop-zone ${draggedOverCreateZone ? 'drag-over' : ''}`}
               onDragOver={handleDragOver}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
+              onDragEnter={handleDragEnterCreateZone}
+              onDragLeave={handleDragLeaveCreateZone}
               onDrop={handleDropToCreateGroup}
             >
               <div className="create-group-hint">

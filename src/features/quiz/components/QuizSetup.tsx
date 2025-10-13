@@ -20,7 +20,8 @@ const QUESTION_TYPES = [
   { value: 'country', label: 'Угадай страну рождения' },
   { value: 'achievementsMatch', label: 'Сопоставь достижения' },
   { value: 'birthOrder', label: 'Расставь по году рождения' },
-  { value: 'contemporaries', label: 'Раздели на группы современников' }
+  { value: 'contemporaries', label: 'Раздели на группы современников' },
+  { value: 'guessPerson', label: 'Угадай личность по характеристикам' }
 ];
 
 

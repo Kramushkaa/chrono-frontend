@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Person } from 'shared/types';
-import { QuizSetupConfig, QuizQuestion, QuizAnswer, QuizResult, BirthYearQuestionData, DeathYearQuestionData, ProfessionQuestionData, CountryQuestionData, AchievementsMatchQuestionData, BirthOrderQuestionData, ContemporariesQuestionData } from '../types';
+import { QuizSetupConfig, QuizQuestion, QuizAnswer, QuizResult, BirthYearQuestionData, DeathYearQuestionData, ProfessionQuestionData, CountryQuestionData, AchievementsMatchQuestionData, BirthOrderQuestionData, ContemporariesQuestionData, GuessPersonQuestionData } from '../types';
 
 export const useQuiz = (persons: Person[], allCategories: string[], allCountries: string[]) => {
   // Debounce для временного периода
@@ -37,11 +37,12 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
         };
       
       case 'deathYear':
+        const deathYearValue = person.deathYear ?? new Date().getFullYear();
         return {
           id: `death-year-${person.id}`,
           type: 'deathYear',
           question: `В каком году умер ${person.name}?`,
-          correctAnswer: person.deathYear.toString(),
+          correctAnswer: deathYearValue.toString(),
           data: {
             person: {
               id: person.id,
@@ -49,11 +50,11 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
               description: person.description,
               imageUrl: person.imageUrl
             },
-            correctDeathYear: person.deathYear,
-            options: [person.deathYear, person.deathYear + Math.floor(Math.random() * 100) - 50, person.deathYear + Math.floor(Math.random() * 100) - 50, person.deathYear + Math.floor(Math.random() * 100) - 50].sort(() => Math.random() - 0.5),
-            correctAnswer: person.deathYear,
+            correctDeathYear: deathYearValue,
+            options: [deathYearValue, deathYearValue + Math.floor(Math.random() * 100) - 50, deathYearValue + Math.floor(Math.random() * 100) - 50, deathYearValue + Math.floor(Math.random() * 100) - 50].sort(() => Math.random() - 0.5),
+            correctAnswer: deathYearValue,
             questionText: `В каком году умер ${person.name}?`,
-            answerLabel: `${person.deathYear}`
+            answerLabel: `${deathYearValue}`
           }
         };
       
@@ -125,7 +126,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
   const [setup, setSetup] = useState<QuizSetupConfig>(() => ({
     selectedCountries: allCategories.length > 0 ? allCountries : [],
     selectedCategories: allCategories.length > 0 ? allCategories : [],
-    questionTypes: ['birthYear', 'deathYear', 'profession', 'country', 'achievementsMatch', 'birthOrder', 'contemporaries'],
+    questionTypes: ['birthYear', 'deathYear', 'profession', 'country', 'achievementsMatch', 'birthOrder', 'contemporaries', 'guessPerson'],
     questionCount: 5,
     timeRange: { start: -800, end: 2000 }
   }));
@@ -161,7 +162,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
       setSetup(prev => ({
         selectedCountries: prev.selectedCountries.length === 0 ? allCountries : prev.selectedCountries,
         selectedCategories: prev.selectedCategories.length === 0 ? allCategories : prev.selectedCategories,
-        questionTypes: prev.questionTypes.length === 0 ? ['birthYear', 'deathYear', 'profession', 'country', 'achievementsMatch', 'birthOrder', 'contemporaries'] : prev.questionTypes,
+        questionTypes: prev.questionTypes.length === 0 ? ['birthYear', 'deathYear', 'profession', 'country', 'achievementsMatch', 'birthOrder', 'contemporaries', 'guessPerson'] : prev.questionTypes,
         questionCount: prev.questionCount || 5,
         timeRange: prev.timeRange || { start: -800, end: 2000 }
       }));
@@ -721,6 +722,45 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     };
   }, []);
 
+  // Генерируем вопрос "Угадай личность"
+  const generateGuessPersonQuestion = useCallback((persons: Person[]): QuizQuestion => {
+    // Фильтруем только одобренные личности (со статусом approved)
+    const approvedPersons = persons.filter(p => p.status === 'approved' || !p.status);
+    
+    if (approvedPersons.length < 10) {
+      // Если одобренных личностей слишком мало, генерируем fallback вопрос
+      return generateSimpleFallback(persons);
+    }
+
+    // Выбираем случайную личность для вопроса
+    const correctPerson = approvedPersons[Math.floor(Math.random() * approvedPersons.length)];
+    
+    const data: GuessPersonQuestionData = {
+      correctPerson: {
+        id: correctPerson.id,
+        name: correctPerson.name,
+        birthYear: correctPerson.birthYear,
+        deathYear: correctPerson.deathYear,
+        category: correctPerson.category,
+        country: correctPerson.country,
+        description: correctPerson.description,
+        imageUrl: correctPerson.imageUrl
+      },
+      availablePersons: approvedPersons.map(p => ({
+        id: p.id,
+        name: p.name
+      }))
+    };
+
+    return {
+      id: `guess-person-${correctPerson.id}`,
+      type: 'guessPerson',
+      question: 'Угадайте, о ком идёт речь:',
+      correctAnswer: correctPerson.id,
+      data
+    };
+  }, []);
+
 
   // Генерируем вопросы на основе настроек
   // Вспомогательная функция для прокрутки к началу контента
@@ -751,7 +791,8 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
       'country': generateCountryQuestion,
       'achievementsMatch': generateAchievementsMatchQuestion,
       'birthOrder': generateBirthOrderQuestion,
-      'contemporaries': generateContemporariesQuestion
+      'contemporaries': generateContemporariesQuestion,
+      'guessPerson': generateGuessPersonQuestion
     };
 
     // Проверяем, какие типы вопросов доступны с текущими данными
@@ -779,13 +820,16 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
             )
           );
           return filteredPersons.length >= 4 && hasContemporaries;
+        case 'guessPerson':
+          // Требуется как минимум 10 одобренных личностей
+          return filteredPersons.filter(p => p.status === 'approved' || !p.status).length >= 10;
         default:
           return false;
       }
     };
 
     // Получаем предпочитаемые типы от пользователя
-    const preferredTypes = setup.questionTypes.length > 0 ? setup.questionTypes : ['birthYear', 'deathYear', 'profession', 'country', 'achievementsMatch', 'birthOrder', 'contemporaries'];
+    const preferredTypes = setup.questionTypes.length > 0 ? setup.questionTypes : ['birthYear', 'deathYear', 'profession', 'country', 'achievementsMatch', 'birthOrder', 'contemporaries', 'guessPerson'];
     
     // Фильтруем доступные типы
     const availablePreferredTypes = preferredTypes.filter(checkQuestionAvailability);
@@ -810,7 +854,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     }
 
     return generatedQuestions;
-  }, [filteredPersons, setup.questionTypes, setup.questionCount, generateBirthYearQuestion, generateDeathYearQuestion, generateProfessionQuestion, generateCountryQuestion, generateAchievementsMatchQuestion, generateBirthOrderQuestion, generateContemporariesQuestion]);
+  }, [filteredPersons, setup.questionTypes, setup.questionCount, generateBirthYearQuestion, generateDeathYearQuestion, generateProfessionQuestion, generateCountryQuestion, generateAchievementsMatchQuestion, generateBirthOrderQuestion, generateContemporariesQuestion, generateGuessPersonQuestion]);
 
   // Начать игру
   const startQuiz = useCallback(() => {
@@ -844,8 +888,8 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
       const userYear = parseInt(answer as string);
       const correctYear = parseInt(currentQuestion.correctAnswer as string);
       isCorrect = userYear === correctYear;
-    } else if (currentQuestion.type === 'profession' || currentQuestion.type === 'country') {
-      // Для вопросов о профессии и стране сравниваем строки
+    } else if (currentQuestion.type === 'profession' || currentQuestion.type === 'country' || currentQuestion.type === 'guessPerson') {
+      // Для вопросов о профессии, стране и угадывании личности сравниваем строки
       isCorrect = answer === currentQuestion.correctAnswer;
     } else if (currentQuestion.type === 'birthOrder') {
       // Для вопросов о порядке рождения сравниваем массивы без сортировки

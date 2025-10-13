@@ -12,6 +12,7 @@ import { CountryQuestion } from '../components/QuestionTypes/CountryQuestion';
 import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion';
 import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion';
 import { ContemporariesQuestion } from '../components/QuestionTypes/ContemporariesQuestion';
+import { GuessPersonQuestion } from '../components/QuestionTypes/GuessPersonQuestion';
 import { SEO } from 'shared/ui/SEO';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { ContactFooter } from 'shared/ui/ContactFooter';
@@ -194,6 +195,18 @@ const QuizPage: React.FC = () => {
       case 'contemporaries':
         return (
           <ContemporariesQuestion
+            data={currentQuestion.data}
+            onAnswer={handleAnswer}
+            showFeedback={showAnswer}
+            userAnswer={lastAnswer}
+            onNext={nextQuestion}
+            isLastQuestion={currentQuestionIndex === questions.length - 1}
+            onPersonInfoClick={handlePersonInfoClick}
+          />
+        );
+      case 'guessPerson':
+        return (
+          <GuessPersonQuestion
             data={currentQuestion.data}
             onAnswer={handleAnswer}
             showFeedback={showAnswer}

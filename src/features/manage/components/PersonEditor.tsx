@@ -70,7 +70,7 @@ export function PersonEditor({ person, editBirthYear, setEditBirthYear, editDeat
       </div>
       <input name="imageUrl" placeholder="URL изображения" defaultValue={person.imageUrl || ''} />
       <input name="wikiLink" placeholder="Ссылка на Википедию" defaultValue={person.wikiLink || ''} />
-      <textarea name="description" placeholder="Описание" defaultValue={person.description} rows={6} />
+      <textarea name="description" placeholder="Описание" defaultValue={person.description || ''} rows={6} />
     </>
   )
 }

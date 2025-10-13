@@ -205,7 +205,7 @@ export const Timeline: React.FC<TimelineProps> = ({
     
     // Используем отфильтрованные данные для определения диапазона
     const minYear = Math.min(...sortedData.map(p => p.birthYear));
-    const maxYear = Math.max(...sortedData.map(p => p.deathYear));
+    const maxYear = Math.max(...sortedData.map(p => p.deathYear ?? new Date().getFullYear()));
     
     const startCentury = Math.floor(minYear / 100) * 100;
     const endCentury = Math.ceil(maxYear / 100) * 100;
@@ -215,7 +215,7 @@ export const Timeline: React.FC<TimelineProps> = ({
     for (let centuryStart = startCentury; centuryStart <= endCentury; centuryStart += 100) {
       const centuryEnd = centuryStart + 99;
       const hasDataInCentury = sortedData.some(person => 
-        (person.birthYear <= centuryEnd && person.deathYear >= centuryStart)
+        (person.birthYear <= centuryEnd && (person.deathYear ?? new Date().getFullYear()) >= centuryStart)
       );
       
       if (!hasDataInCentury) {

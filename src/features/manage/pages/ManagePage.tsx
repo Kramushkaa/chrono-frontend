@@ -251,7 +251,7 @@ export default function ManagePage() {
       const match = countryOptions.find(c => parts.includes(c.name))
       if (match) firstId = String(match.id)
       else if (countryOptions.length > 0) firstId = String(countryOptions[0].id)
-      if (firstId) initial.push({ countryId: firstId, start: selected.birthYear, end: selected.deathYear })
+      if (firstId) initial.push({ countryId: firstId, start: selected.birthYear, end: selected.deathYear ?? new Date().getFullYear() })
     }
     setLifePeriods(initial)
   }, [selected, countryOptions])
@@ -265,7 +265,7 @@ export default function ManagePage() {
   useEffect(() => {
     if (!selected) { setEditBirthYear(0); setEditDeathYear(0); return }
     setEditBirthYear(selected.birthYear)
-    setEditDeathYear(selected.deathYear)
+    setEditDeathYear(selected.deathYear ?? new Date().getFullYear())
   }, [selected])
 
   useEffect(() => {

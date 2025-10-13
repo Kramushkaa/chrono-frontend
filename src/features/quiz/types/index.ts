@@ -8,7 +8,7 @@ export interface QuizSetupConfig {
 
 export interface QuizQuestion {
   id: string;
-  type: 'birthYear' | 'deathYear' | 'profession' | 'country' | 'achievementsMatch' | 'birthOrder' | 'contemporaries';
+  type: 'birthYear' | 'deathYear' | 'profession' | 'country' | 'achievementsMatch' | 'birthOrder' | 'contemporaries' | 'guessPerson';
   question: string;
   options?: string[];
   correctAnswer: string | string[] | string[][];
@@ -36,8 +36,8 @@ export interface SingleChoiceQuestionData {
   person: {
     id: string;
     name: string;
-    description: string;
-    imageUrl?: string;
+    description: string | null;
+    imageUrl?: string | null;
   };
   correctAnswer: string | number;
   options: (string | number)[];
@@ -48,7 +48,7 @@ export interface SingleChoiceQuestionData {
 // Специфичные данные для вопросов о годе рождения (для обратной совместимости)
 export interface BirthYearQuestionData extends SingleChoiceQuestionData {
   correctBirthYear: number;
-  correctDeathYear: number;
+  correctDeathYear: number | null;
   options: number[];
 }
 
@@ -74,7 +74,7 @@ export interface AchievementsMatchQuestionData {
   persons: Array<{
     id: string;
     name: string;
-    imageUrl?: string;
+    imageUrl?: string | null;
   }>;
   achievements: string[];
   correctMatches: { [personId: string]: string };
@@ -85,9 +85,9 @@ export interface BirthOrderQuestionData {
     id: string;
     name: string;
     birthYear: number;
-    deathYear?: number;
+    deathYear?: number | null;
     category: string;
-    imageUrl?: string;
+    imageUrl?: string | null;
   }>;
   correctOrder: string[]; // массив ID в правильном порядке
 }
@@ -97,9 +97,27 @@ export interface ContemporariesQuestionData {
     id: string;
     name: string;
     birthYear: number;
-    deathYear?: number;
+    deathYear?: number | null;
     category: string;
-    imageUrl?: string;
+    imageUrl?: string | null;
   }>;
   correctGroups: string[][]; // массив групп, каждая группа - массив ID современников
+}
+
+// Данные для вопросов "Угадай личность"
+export interface GuessPersonQuestionData {
+  correctPerson: {
+    id: string;
+    name: string;
+    birthYear: number;
+    deathYear?: number | null;
+    category: string;
+    country: string | string[];
+    description: string | null;
+    imageUrl?: string | null;
+  };
+  availablePersons: Array<{
+    id: string;
+    name: string;
+  }>;
 }

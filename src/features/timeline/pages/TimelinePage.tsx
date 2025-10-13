@@ -86,7 +86,7 @@ export default function TimelinePage() {
   useEffect(() => {
     if (filters.hideEmptyCenturies && sortedData.length > 0) {
       const effectiveMinYear = Math.min(...sortedData.map(p => p.birthYear));
-      const effectiveMaxYear = Math.max(...sortedData.map(p => p.deathYear));
+      const effectiveMaxYear = Math.max(...sortedData.map(p => p.deathYear ?? new Date().getFullYear()));
 
       const hasActiveFilters = filters.categories.length > 0 || filters.countries.length > 0;
 
@@ -117,14 +117,14 @@ export default function TimelinePage() {
 
   const { minYear, totalYears, effectiveMinYear, effectiveMaxYear } = useMemo(() => {
     const minYear = Math.min(...sortedData.map(p => p.birthYear), filters.timeRange.start)
-    const maxYear = Math.max(...sortedData.map(p => p.deathYear), filters.timeRange.end)
+    const maxYear = Math.max(...sortedData.map(p => p.deathYear ?? new Date().getFullYear()), filters.timeRange.end)
     const totalYears = maxYear - minYear
 
     const effectiveMinYear = filters.hideEmptyCenturies
       ? Math.min(...sortedData.map(p => p.birthYear))
       : minYear
     const effectiveMaxYear = filters.hideEmptyCenturies
-      ? Math.max(...sortedData.map(p => p.deathYear))
+      ? Math.max(...sortedData.map(p => p.deathYear ?? new Date().getFullYear()))
       : maxYear
 
     return { minYear, totalYears, effectiveMinYear, effectiveMaxYear }
@@ -170,8 +170,8 @@ export default function TimelinePage() {
           for (const existingPerson of row) {
             const BUFFER = 20;
             if (
-              person.birthYear - BUFFER <= existingPerson.deathYear &&
-              person.deathYear + BUFFER >= existingPerson.birthYear
+              person.birthYear - BUFFER <= (existingPerson.deathYear ?? new Date().getFullYear()) &&
+              (person.deathYear ?? new Date().getFullYear()) + BUFFER >= existingPerson.birthYear
             ) {
               canPlaceInRow = false
               break
@@ -226,8 +226,8 @@ export default function TimelinePage() {
             for (const existingPerson of row) {
               const BUFFER = 20;
               if (
-                person.birthYear - BUFFER <= existingPerson.deathYear &&
-                person.deathYear + BUFFER >= existingPerson.birthYear
+                person.birthYear - BUFFER <= (existingPerson.deathYear ?? new Date().getFullYear()) &&
+                (person.deathYear ?? new Date().getFullYear()) + BUFFER >= existingPerson.birthYear
               ) {
                 canPlaceInRow = false
                 break

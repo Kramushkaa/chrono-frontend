@@ -2059,11 +2059,25 @@ fieldset.quiz-setup-question-count legend {
 }
 
 .contemporaries-group {
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   padding: 1rem;
-  background: rgba(44, 24, 16, 0.3);
-  border: 1px solid rgba(139, 69, 19, 0.2);
-  border-radius: 8px;
+  background: rgba(44, 24, 16, 0.4);
+  border: 2px solid rgba(139, 69, 19, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.contemporaries-group::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, rgba(205, 133, 63, 0.1), rgba(139, 69, 19, 0.1));
+  border-radius: 14px;
+  z-index: -1;
 }
 
 .group-header {
@@ -2084,16 +2098,20 @@ fieldset.quiz-setup-question-count legend {
   background: rgba(220, 53, 69, 0.2);
   border: 1px solid rgba(220, 53, 69, 0.4);
   color: #ff6b6b;
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  margin-top: 1rem;
+  width: 100%;
+  font-weight: 500;
 }
 
 .remove-group-btn:hover {
   background: rgba(220, 53, 69, 0.3);
   border-color: rgba(220, 53, 69, 0.6);
+  transform: translateY(-1px);
 }
 
 .group-persons {
@@ -2101,10 +2119,17 @@ fieldset.quiz-setup-question-count legend {
   flex-wrap: wrap;
   gap: 1rem;
   min-height: 80px;
-  padding: 0.5rem;
+  padding: 0.25rem;
   border: 2px dashed rgba(139, 69, 19, 0.3);
   border-radius: 6px;
   background: rgba(139, 69, 19, 0.05);
+  transition: all 0.2s ease;
+}
+
+.group-persons.drag-over {
+  border-color: #cd853f;
+  background: rgba(205, 133, 63, 0.15);
+  box-shadow: 0 0 15px rgba(205, 133, 63, 0.3);
 }
 
 .unassigned-persons {
@@ -2141,35 +2166,55 @@ fieldset.quiz-setup-question-count legend {
   padding: 0.75rem;
   width: 200px;
   min-height: 80px;
-  cursor: grab;
-  transition: all 0.2s ease;
-  user-select: none;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  cursor: grab;
+}
+
+.contemporaries-person-card .contemporaries-person-info * {
+  pointer-events: none;
 }
 
 .contemporaries-person-card:hover {
   border-color: rgba(139, 69, 19, 0.5);
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.contemporaries-person-card:active {
+  cursor: grabbing;
 }
 
 .contemporaries-person-card.dragging {
   opacity: 0.7;
-  transform: rotate(5deg);
+  transform: rotate(3deg) scale(1.02);
   z-index: 1000;
   cursor: grabbing;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .contemporaries-person-card.correct {
   border-color: #28a745;
   background: rgba(40, 167, 69, 0.1);
+  cursor: default;
 }
 
 .contemporaries-person-card.incorrect {
   border-color: #dc3545;
   background: rgba(220, 53, 69, 0.1);
+  cursor: default;
+}
+
+/* Стили для режима обратной связи - как в BirthOrderQuestion */
+.contemporaries-person-card.feedback-mode {
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Кнопки остаются кликабельными даже в режиме обратной связи */
+.contemporaries-person-card.feedback-mode .quiz-person-info-button {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .contemporaries-person-info {
@@ -2292,6 +2337,12 @@ fieldset.quiz-setup-question-count legend {
 .create-group-drop-zone:hover {
   border-color: rgba(139, 69, 19, 0.4);
   background: rgba(139, 69, 19, 0.05);
+}
+
+.create-group-drop-zone.drag-over {
+  border-color: #cd853f;
+  background: rgba(205, 133, 63, 0.15);
+  box-shadow: 0 0 15px rgba(205, 133, 63, 0.3);
 }
 
 .create-group-hint {
@@ -2458,5 +2509,192 @@ fieldset.quiz-setup-question-count legend {
   .filter-checkbox:focus {
     outline-width: 3px;
     outline-offset: 1px;
+  }
+}
+
+/* Guess Person Question Styles */
+.guess-person-question .quiz-question-content {
+  padding: 2rem;
+}
+
+.guess-person-clues {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.guess-person-clues h3 {
+  color: #f4e4c1;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.clue-item {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(139, 69, 19, 0.1);
+  border: 1px solid rgba(139, 69, 19, 0.2);
+  border-radius: 8px;
+  color: #e0e0e0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.clue-item strong {
+  color: #f4e4c1;
+  margin-right: 0.5rem;
+}
+
+.clue-description {
+  background: rgba(139, 69, 19, 0.15);
+  border-color: rgba(139, 69, 19, 0.3);
+  padding: 1rem;
+}
+
+.guess-person-input-container {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.autocomplete-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.guess-person-input {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(139, 69, 19, 0.1);
+  border: 2px solid rgba(139, 69, 19, 0.3);
+  border-radius: 8px;
+  color: #f4e4c1;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.guess-person-input:focus {
+  outline: none;
+  border-color: rgba(205, 133, 63, 0.6);
+  background: rgba(139, 69, 19, 0.15);
+  box-shadow: 0 0 0 3px rgba(205, 133, 63, 0.1);
+}
+
+.guess-person-input::placeholder {
+  color: rgba(244, 228, 193, 0.4);
+}
+
+.guess-person-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.autocomplete-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  background: rgba(44, 24, 16, 0.95);
+  border: 1px solid rgba(139, 69, 19, 0.4);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+}
+
+.autocomplete-suggestion-item {
+  padding: 0.875rem 1rem;
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid rgba(139, 69, 19, 0.2);
+}
+
+.autocomplete-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-suggestion-item:hover,
+.autocomplete-suggestion-item.highlighted {
+  background: rgba(139, 69, 19, 0.3);
+  color: #f4e4c1;
+}
+
+.autocomplete-no-results {
+  padding: 0.875rem 1rem;
+  color: rgba(244, 228, 193, 0.6);
+  text-align: center;
+  font-style: italic;
+}
+
+.guess-person-submit-button {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #8b4513, #a0522d);
+  color: #f4e4c1;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+  align-self: center;
+}
+
+.guess-person-submit-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #a0522d, #cd853f);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 69, 19, 0.4);
+}
+
+.guess-person-submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.guess-person-question .person-details {
+  color: #cd853f;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .guess-person-question .quiz-question-content {
+    padding: 1rem;
+  }
+
+  .guess-person-clues h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .clue-item {
+    padding: 0.625rem;
+    font-size: 0.9rem;
+  }
+
+  .guess-person-input {
+    padding: 0.875rem;
+    font-size: 0.95rem;
+  }
+
+  .autocomplete-suggestions {
+    max-height: 200px;
+  }
+
+  .autocomplete-suggestion-item {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+  }
+
+  .guess-person-submit-button {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
   }
 }
