@@ -27,7 +27,6 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   
   // Drag & Drop состояние
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
-  const [isDragActive, setIsDragActive] = useState(false);
   const [draggedOverGroup, setDraggedOverGroup] = useState<number | null>(null);
   const [draggedOverCreateZone, setDraggedOverCreateZone] = useState(false);
   const dragCounters = useRef<{ [key: string]: number }>({});
@@ -36,24 +35,11 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const draggedElementRef = useRef<HTMLDivElement | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Определение мобильного устройства
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   // Reset state when question data changes
   useEffect(() => {
     setGroups([data.persons.map(p => p.id).sort(() => Math.random() - 0.5)]);
     setDraggedItem(null);
-    setIsDragActive(false);
     setDraggedOverGroup(null);
     setDraggedOverCreateZone(false);
     dragCounters.current = {};
@@ -136,20 +122,30 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     onAnswer(groups);
   };
 
-  // Drag & Drop handlers (скопированы из BirthOrderQuestion)
+  // Drag & Drop handlers
   const handleDragStart = (e: React.DragEvent, personId: string) => {
     if (showFeedback) return;
+    
+    // Отменяем touch события если начался drag
+    setIsDragging(false);
+    setTouchStartPos(null);
+    
     setDraggedItem(personId);
-    setIsDragActive(true);
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', personId);
+    e.dataTransfer.setData('text/plain', personId);
+    
+    // Улучшаем визуальный эффект перетаскивания
+    const target = e.currentTarget as HTMLElement;
+    target.style.opacity = '0.5';
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (e: React.DragEvent) => {
+    const target = e.currentTarget as HTMLElement;
+    target.style.opacity = '';
     setDraggedItem(null);
-    setIsDragActive(false);
     setDraggedOverGroup(null);
     setDraggedOverCreateZone(false);
+    dragCounters.current = {};
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -189,58 +185,58 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
 
   const handleDrop = (e: React.DragEvent, targetGroupIndex: number) => {
     e.preventDefault();
+    e.stopPropagation();
     
     if (showFeedback) return;
     
     // Получаем ID личности из dataTransfer или из состояния
-    const personId = e.dataTransfer.getData('text/html') || draggedItem;
+    const personId = e.dataTransfer.getData('text/plain') || draggedItem;
     if (!personId) return;
     
     // Если личность уже в этой группе, ничего не делаем
     if (groups[targetGroupIndex]?.includes(personId)) {
-      handleDragEnd();
       return;
     }
     
     // Перемещаем в существующую группу
     addToGroup(personId, targetGroupIndex);
-    handleDragEnd();
   };
 
   // Создание новой группы через перетаскивание
   const handleDropToCreateGroup = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     
     if (showFeedback) return;
     
     // Получаем ID личности из dataTransfer или из состояния
-    const personId = e.dataTransfer.getData('text/html') || draggedItem;
+    const personId = e.dataTransfer.getData('text/plain') || draggedItem;
     if (!personId) return;
     
     // Создаем новую группу
     createGroup(personId);
-    handleDragEnd();
   };
 
   // Touch event handlers (для мобильных устройств)
   const handleTouchStart = (e: React.TouchEvent, personId: string) => {
-    if (showFeedback || !isMobile) return;
+    if (showFeedback) return;
+    
     const touch = e.touches[0];
     setTouchStartPos({ x: touch.clientX, y: touch.clientY });
     setDraggedItem(personId);
     setIsDragging(true);
-    setIsDragActive(true);
     
     // Сохраняем ссылку на элемент для визуальных эффектов
     const element = e.currentTarget as HTMLDivElement;
     draggedElementRef.current = element;
-    element.style.transform = 'rotate(3deg) scale(1.02)';
+    element.style.transform = 'scale(1.05)';
     element.style.zIndex = '1000';
-    element.style.opacity = '0.7';
+    element.style.opacity = '0.8';
+    element.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.3)';
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !touchStartPos || !isMobile) return;
+    if (!isDragging || !touchStartPos) return;
     const touch = e.touches[0];
     const deltaX = touch.clientX - touchStartPos.x;
     const deltaY = touch.clientY - touchStartPos.y;
@@ -271,7 +267,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!isDragging || !isMobile) return;
+    if (!isDragging) return;
     const touch = e.changedTouches[0];
 
     // Находим элемент под курсором
@@ -303,13 +299,14 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
       draggedElementRef.current.style.transform = '';
       draggedElementRef.current.style.zIndex = '';
       draggedElementRef.current.style.opacity = '';
+      draggedElementRef.current.style.boxShadow = '';
     }
     setTouchStartPos(null);
     setIsDragging(false);
-    setIsDragActive(false);
     setDraggedItem(null);
     setDraggedOverGroup(null);
     setDraggedOverCreateZone(false);
+    dragCounters.current = {};
   };
 
   // Функция для анализа правильности групп
@@ -381,7 +378,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
 
     return (
       <div
-        draggable={!showFeedback && !isMobile}
+        draggable={!showFeedback}
         onDragStart={(e) => handleDragStart(e, personId)}
         onDragEnd={handleDragEnd}
         onTouchStart={(e) => handleTouchStart(e, personId)}
@@ -434,10 +431,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
         <h3>Разделите на группы современников:</h3>
         {!showFeedback && (
           <p className="instruction-hint">
-            {isMobile 
-              ? "Нажмите и удерживайте карточку, затем перетащите её в нужную группу или создайте новую"
-              : "Перетащите карточки в группы или создайте новые группы"
-            }
+            Перетащите карточки в группы или создайте новые группы
           </p>
         )}
 
