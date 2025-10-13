@@ -366,8 +366,10 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     return (
       <div
         draggable={!showFeedback && !isMobile}
+        data-person-id={personId}
         onDragStart={(e) => handleDragStart(e, personId)}
         onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
         onTouchStart={!showFeedback ? (e) => handleTouchStart(e, personId) : undefined}
         onTouchMove={!showFeedback ? handleTouchMove : undefined}
         onTouchEnd={!showFeedback ? handleTouchEnd : undefined}
