@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ContemporariesQuestionData, QuizAnswer } from '../../types';
+import { useMobile } from 'shared/hooks/useMobile';
 
 interface ContemporariesQuestionProps {
   data: ContemporariesQuestionData;
@@ -35,18 +36,9 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const draggedElementRef = useRef<HTMLDivElement | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Определяем мобильное устройство
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  
+  // Используем правильный хук для определения мобильного устройства (только по ширине экрана)
+  const isMobile = useMobile();
 
   // Reset state when question data changes
   useEffect(() => {
@@ -376,9 +368,9 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
         draggable={!showFeedback && !isMobile}
         onDragStart={(e) => handleDragStart(e, personId)}
         onDragEnd={handleDragEnd}
-        onTouchStart={(e) => handleTouchStart(e, personId)}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={!showFeedback ? (e) => handleTouchStart(e, personId) : undefined}
+        onTouchMove={!showFeedback ? handleTouchMove : undefined}
+        onTouchEnd={!showFeedback ? handleTouchEnd : undefined}
         className={`contemporaries-person-card ${isDragged ? 'dragging' : ''} ${
           showFeedback ? (personStatus === 'correct' ? 'correct' : 
                          personStatus === 'incorrect' ? 'incorrect' : '') : ''

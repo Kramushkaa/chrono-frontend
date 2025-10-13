@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AchievementsMatchQuestionData, QuizAnswer } from '../../types';
+import { useMobile } from 'shared/hooks/useMobile';
 
 interface AchievementsMatchQuestionProps {
   data: AchievementsMatchQuestionData;
@@ -26,7 +27,6 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
   const dragCounter = useRef(0);
 
   // Touch DnD support
-  const [isMobile, setIsMobile] = useState(false);
   const [isTouchDragging, setIsTouchDragging] = useState(false);
   const draggedElementRef = useRef<HTMLDivElement | null>(null);
   const draggedAchievementRef = useRef<string | null>(null);
@@ -34,13 +34,9 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
   const originalRectRef = useRef<{ width: number; height: number }>({ width: 0, height: 0 });
   const ghostElRef = useRef<HTMLDivElement | null>(null);
   const originalOpacityRef = useRef<string>('');
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  
+  // Используем правильный хук для определения мобильного устройства (только по ширине экрана)
+  const isMobile = useMobile();
 
   const handleDragStart = (e: React.DragEvent, achievement: string) => {
     if (showFeedback) return;

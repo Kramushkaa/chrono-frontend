@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BirthOrderQuestionData, QuizAnswer } from '../../types';
+import { useMobile } from 'shared/hooks/useMobile';
 
 interface BirthOrderQuestionProps {
   data: BirthOrderQuestionData;
@@ -34,7 +35,9 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
   const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const draggedElementRef = useRef<HTMLDivElement | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  
+  // Используем правильный хук для определения мобильного устройства (только по ширине экрана)
+  const isMobile = useMobile();
 
   // Reset state when question data changes (e.g., next question)
   useEffect(() => {
@@ -53,18 +56,6 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
       draggedElementRef.current.style.pointerEvents = '';
     }
   }, [data]);
-
-  // Определяем мобильное устройство
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   // Touch event handlers
   const handleTouchStart = (e: React.TouchEvent, personId: string) => {
