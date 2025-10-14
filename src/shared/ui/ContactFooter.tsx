@@ -6,7 +6,10 @@ type ContactFooterProps = {
 
 export const ContactFooter: React.FC<ContactFooterProps> = ({ fixed = false }) => {
   return (
-    <footer style={{
+    <footer 
+      role="contentinfo"
+      aria-label="Контактная информация"
+      style={{
       marginTop: fixed ? 0 : 8,
       padding: '8px 12px',
       borderTop: '1px solid rgba(139,69,19,0.2)',

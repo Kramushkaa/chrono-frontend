@@ -41,11 +41,12 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
         </div>
 
         {/* Плиточки меню */}
-        <div className="main-menu-grid">
+        <nav aria-label="Главное меню навигации" className="main-menu-grid">
           <div 
             className="main-menu-item"
             onClick={onOpenTimeline}
             role="button"
+            aria-label="Открыть линию времени - Исследуйте исторические события и личности"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -54,7 +55,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
               }
             }}
           >
-            <div className="main-menu-item-icon">
+            <div className="main-menu-item-icon" aria-hidden="true">
               📅
             </div>
             <div className="main-menu-item-content">
@@ -68,6 +69,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
             className="main-menu-item"
             onClick={() => window.location.assign('/quiz')}
             role="button"
+            aria-label="Игра на проверку знаний - Проверьте свои знания исторических личностей"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -76,7 +78,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
               }
             }}
           >
-            <div className="main-menu-item-icon">🧠</div>
+            <div className="main-menu-item-icon" aria-hidden="true">🧠</div>
             <div className="main-menu-item-content">
               <h3 className="main-menu-item-title">Игра на проверку знаний</h3>
               <p className="main-menu-item-description">Проверьте свои знания исторических личностей в увлекательной игре</p>
@@ -86,6 +88,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
             className="main-menu-item"
             onClick={() => window.location.assign('/lists')}
             role="button"
+            aria-label="Списки - Создавайте и управляйте своими списками"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -94,13 +97,13 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
               }
             }}
           >
-            <div className="main-menu-item-icon">🛠️</div>
+            <div className="main-menu-item-icon" aria-hidden="true">🛠️</div>
             <div className="main-menu-item-content">
               <h3 className="main-menu-item-title">Списки</h3>
               <p className="main-menu-item-description">Создавайте и управляйте своими списками личностей, достижений и периодов</p>
             </div>
           </div>
-        </div>
+        </nav>
 
         {/* Футер */}
         <div className="main-menu-footer">

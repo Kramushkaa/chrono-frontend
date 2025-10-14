@@ -74,6 +74,7 @@ export function CreateAchievementForm({
   return (
     <form
       onSubmit={handleFormSubmit}
+      aria-labelledby="create-achievement-title"
       style={{
         display: 'grid',
         gap: 'clamp(8px, 2vw, 12px)',
@@ -82,9 +83,11 @@ export function CreateAchievementForm({
     >
       <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <input
+          id="achievement-is-global"
           type="checkbox"
           checked={isGlobal}
           disabled={!!selectedPersonId || !!selectedCountryId}
+          aria-describedby="global-hint"
           onChange={(e) => {
             const v = e.target.checked
             setIsGlobal(v)
@@ -97,104 +100,143 @@ export function CreateAchievementForm({
         Глобальное событие
       </label>
 
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        <div style={{ flex: '1 1 260px', minWidth: 260 }}>
-          <SearchableSelect
-            placeholder="Выбрать личность"
-            value={selectedPersonId}
-            disabled={isGlobal || !!selectedCountryId}
-            options={personOptions}
-            isLoading={personsSelectLoading}
-            locale="ru"
-            onChange={(val) => {
-              setSelectedPersonId(val)
-              if (val) {
-                setIsGlobal(false)
-                setSelectedCountryId('')
-              }
-            }}
-            onSearchChange={(q) => onSearchPersons(q)}
-          />
+      <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+        <legend style={{ fontSize: 12, opacity: 0.9, marginBottom: 4 }}>Привязка к сущности</legend>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 260px', minWidth: 260 }}>
+            <label style={{ display: 'block', marginBottom: 4, fontSize: 11, opacity: 0.8 }}>
+              Личность
+            </label>
+            <SearchableSelect
+              placeholder="Выбрать личность"
+              value={selectedPersonId}
+              disabled={isGlobal || !!selectedCountryId}
+              options={personOptions}
+              isLoading={personsSelectLoading}
+              locale="ru"
+              aria-label="Выбрать личность для привязки достижения"
+              onChange={(val) => {
+                setSelectedPersonId(val)
+                if (val) {
+                  setIsGlobal(false)
+                  setSelectedCountryId('')
+                }
+              }}
+              onSearchChange={(q) => onSearchPersons(q)}
+            />
+          </div>
+          <div style={{ flex: '1 1 260px', minWidth: 220 }}>
+            <label style={{ display: 'block', marginBottom: 4, fontSize: 11, opacity: 0.8 }}>
+              Страна
+            </label>
+            <SearchableSelect
+              placeholder="Выбрать страну"
+              value={selectedCountryId}
+              disabled={isGlobal || !!selectedPersonId}
+              options={countrySelectOptions}
+              locale="ru"
+              aria-label="Выбрать страну для привязки достижения"
+              onChange={(val) => {
+                setSelectedCountryId(val)
+                if (val) {
+                  setIsGlobal(false)
+                  setSelectedPersonId('')
+                }
+              }}
+            />
+          </div>
         </div>
-        <div style={{ flex: '1 1 260px', minWidth: 220 }}>
-          <SearchableSelect
-            placeholder="Выбрать страну"
-            value={selectedCountryId}
-            disabled={isGlobal || !!selectedPersonId}
-            options={countrySelectOptions}
-            locale="ru"
-            onChange={(val) => {
-              setSelectedCountryId(val)
-              if (val) {
-                setIsGlobal(false)
-                setSelectedPersonId('')
-              }
-            }}
-          />
-        </div>
-      </div>
+      </fieldset>
 
-      <div style={{ fontSize: 12, opacity: 0.8 }}>
+      <div id="global-hint" style={{ fontSize: 12, opacity: 0.8 }} role="note">
         Можно выбрать только одно: «Глобальное событие», «Выбрать личность» или «Выбрать страну».
       </div>
 
-      <input
-        name="year"
-        type="number"
-        placeholder="Год"
-        required
-        style={{
-          padding: '12px',
-          fontSize: '16px',
-          borderRadius: '8px',
-          border: '1px solid #ccc',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
-      />
+      <div>
+        <label htmlFor="achievement-year" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+          Год <span aria-label="обязательное поле">*</span>
+        </label>
+        <input
+          id="achievement-year"
+          name="year"
+          type="number"
+          placeholder="Год"
+          required
+          aria-required="true"
+          style={{
+            padding: '12px',
+            fontSize: '16px',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        />
+      </div>
 
-      <textarea
-        name="description"
-        placeholder="Описание"
-        rows={4}
-        required
-        style={{
-          padding: '12px',
-          fontSize: '16px',
-          borderRadius: '8px',
-          border: '1px solid #ccc',
-          width: '100%',
-          boxSizing: 'border-box',
-          resize: 'vertical',
-          minHeight: '100px',
-        }}
-      />
+      <div>
+        <label htmlFor="achievement-description" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+          Описание <span aria-label="обязательное поле">*</span>
+        </label>
+        <textarea
+          id="achievement-description"
+          name="description"
+          placeholder="Описание достижения"
+          rows={4}
+          required
+          aria-required="true"
+          style={{
+            padding: '12px',
+            fontSize: '16px',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            width: '100%',
+            boxSizing: 'border-box',
+            resize: 'vertical',
+            minHeight: '100px',
+          }}
+        />
+      </div>
 
-      <input
-        name="wikipedia_url"
-        placeholder="Ссылка на Википедию (необязательно)"
-        style={{
-          padding: '12px',
-          fontSize: '16px',
-          borderRadius: '8px',
-          border: '1px solid #ccc',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
-      />
+      <div>
+        <label htmlFor="achievement-wiki" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+          Ссылка на Википедию (необязательно)
+        </label>
+        <input
+          id="achievement-wiki"
+          name="wikipedia_url"
+          type="url"
+          placeholder="https://ru.wikipedia.org/wiki/..."
+          style={{
+            padding: '12px',
+            fontSize: '16px',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        />
+      </div>
 
-      <input
-        name="image_url"
-        placeholder="URL изображения (необязательно)"
-        style={{
-          padding: '12px',
-          fontSize: '16px',
-          borderRadius: '8px',
-          border: '1px solid #ccc',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
-      />
+      <div>
+        <label htmlFor="achievement-image" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+          URL изображения (необязательно)
+        </label>
+        <input
+          id="achievement-image"
+          name="image_url"
+          type="url"
+          placeholder="https://example.com/image.jpg"
+          style={{
+            padding: '12px',
+            fontSize: '16px',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        />
+      </div>
 
       <div
         className="modal-button-group"

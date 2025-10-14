@@ -103,25 +103,33 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
 
   return (
     <form
+      aria-labelledby="create-person-title"
       style={{
         display: 'grid',
         gap: 'clamp(8px, 2vw, 12px)',
         maxWidth: '100%',
       }}
     >
-      <input
-        name="name"
-        placeholder="Имя"
-        required
-        style={{
-          padding: '12px',
-          fontSize: '16px',
-          borderRadius: '8px',
-          border: '1px solid #ccc',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
-      />
+      <div>
+        <label htmlFor="person-name" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+          Имя <span aria-label="обязательное поле">*</span>
+        </label>
+        <input
+          id="person-name"
+          name="name"
+          placeholder="Имя"
+          required
+          aria-required="true"
+          style={{
+            padding: '12px',
+            fontSize: '16px',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        />
+      </div>
       <div
         style={{
           display: 'grid',
@@ -129,38 +137,52 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
           gap: 'clamp(8px, 2vw, 12px)',
         }}
       >
-        <input
-          name="birthYear"
-          type="number"
-          placeholder="Год рождения"
-          required
-          value={birthYear}
-          onChange={(e) => setBirthYear(e.target.value === '' ? '' : Number(e.target.value))}
-          style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
-        />
-        <input
-          name="deathYear"
-          type="number"
-          placeholder="Год смерти"
-          required
-          value={deathYear}
-          onChange={(e) => setDeathYear(e.target.value === '' ? '' : Number(e.target.value))}
-          style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
-        />
+        <div>
+          <label htmlFor="person-birth-year" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+            Год рождения <span aria-label="обязательное поле">*</span>
+          </label>
+          <input
+            id="person-birth-year"
+            name="birthYear"
+            type="number"
+            placeholder="Год рождения"
+            required
+            aria-required="true"
+            value={birthYear}
+            onChange={(e) => setBirthYear(e.target.value === '' ? '' : Number(e.target.value))}
+            style={{
+              padding: '12px',
+              fontSize: '16px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              width: '100%',
+              boxSizing: 'border-box',
+            }}
+          />
+        </div>
+        <div>
+          <label htmlFor="person-death-year" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+            Год смерти <span aria-label="обязательное поле">*</span>
+          </label>
+          <input
+            id="person-death-year"
+            name="deathYear"
+            type="number"
+            placeholder="Год смерти"
+            required
+            aria-required="true"
+            value={deathYear}
+            onChange={(e) => setDeathYear(e.target.value === '' ? '' : Number(e.target.value))}
+            style={{
+              padding: '12px',
+              fontSize: '16px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              width: '100%',
+              boxSizing: 'border-box',
+            }}
+          />
+        </div>
       </div>
 
       <div>
@@ -175,66 +197,114 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
       </div>
 
       <div>
-        <label style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>Страны проживания</label>
+        <label htmlFor="life-periods-section" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+          Страны проживания
+        </label>
         <div style={{ marginTop: 8 }}>
-          <button type="button" onClick={handleAddCountry}>
+          <button 
+            type="button" 
+            onClick={handleAddCountry}
+            aria-label="Добавить страну проживания в список"
+          >
             + Добавить страну проживания
           </button>
         </div>
         {lifePeriods.length > 0 && (
-          <LifePeriodsEditor
-            periods={lifePeriods}
-            onChange={setLifePeriods}
-            options={countrySelectOptions}
-            minYear={typeof birthYear === 'number' ? birthYear : undefined}
-            maxYear={typeof deathYear === 'number' ? deathYear : undefined}
-            disableDeleteWhenSingle
-          />
+          <div id="life-periods-section" aria-label="Список периодов проживания">
+            <LifePeriodsEditor
+              periods={lifePeriods}
+              onChange={setLifePeriods}
+              options={countrySelectOptions}
+              minYear={typeof birthYear === 'number' ? birthYear : undefined}
+              maxYear={typeof deathYear === 'number' ? deathYear : undefined}
+              disableDeleteWhenSingle
+            />
+          </div>
         )}
         {periodsError && (
-          <div style={{ fontSize: 12, color: '#d32f2f', marginTop: 4 }}>{periodsError}</div>
+          <div 
+            role="alert" 
+            aria-live="polite"
+            style={{ fontSize: 12, color: '#d32f2f', marginTop: 4 }}
+          >
+            {periodsError}
+          </div>
         )}
       </div>
 
-      <input
-        name="imageUrl"
-        placeholder="URL изображения (необязательно)"
-        style={{
-          padding: '12px',
-          fontSize: '16px',
-          borderRadius: '8px',
-          border: '1px solid #ccc',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
-      />
-      <input
-        name="wikiLink"
-        placeholder="Ссылка на Википедию (необязательно)"
-        style={{
-          padding: '12px',
-          fontSize: '16px',
-          borderRadius: '8px',
-          border: '1px solid #ccc',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
-      />
-      <textarea
-        name="description"
-        placeholder="Описание"
-        rows={6}
-        style={{
-          padding: '12px',
-          fontSize: '16px',
-          borderRadius: '8px',
-          border: '1px solid #ccc',
-          width: '100%',
-          boxSizing: 'border-box',
-          resize: 'vertical',
-          minHeight: '120px',
-        }}
-      />
+      <div>
+        <label htmlFor="person-image-url" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+          URL изображения (необязательно)
+        </label>
+        <input
+          id="person-image-url"
+          name="imageUrl"
+          type="url"
+          placeholder="https://example.com/image.jpg"
+          aria-describedby="image-url-hint"
+          style={{
+            padding: '12px',
+            fontSize: '16px',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        />
+        <span id="image-url-hint" style={{ fontSize: 11, opacity: 0.7, display: 'block', marginTop: 2 }}>
+          Ссылка на изображение личности
+        </span>
+      </div>
+
+      <div>
+        <label htmlFor="person-wiki-link" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+          Ссылка на Википедию (необязательно)
+        </label>
+        <input
+          id="person-wiki-link"
+          name="wikiLink"
+          type="url"
+          placeholder="https://ru.wikipedia.org/wiki/..."
+          aria-describedby="wiki-link-hint"
+          style={{
+            padding: '12px',
+            fontSize: '16px',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        />
+        <span id="wiki-link-hint" style={{ fontSize: 11, opacity: 0.7, display: 'block', marginTop: 2 }}>
+          Ссылка на статью в Википедии
+        </span>
+      </div>
+
+      <div>
+        <label htmlFor="person-description" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+          Описание
+        </label>
+        <textarea
+          id="person-description"
+          name="description"
+          placeholder="Краткое описание личности и её вклада"
+          rows={6}
+          aria-describedby="description-hint"
+          style={{
+            padding: '12px',
+            fontSize: '16px',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            width: '100%',
+            boxSizing: 'border-box',
+            resize: 'vertical',
+            minHeight: '120px',
+          }}
+        />
+        <span id="description-hint" style={{ fontSize: 11, opacity: 0.7, display: 'block', marginTop: 2 }}>
+          Опишите основные достижения и вклад личности
+        </span>
+      </div>
 
       <DraftModerationButtons
         mode="create"
