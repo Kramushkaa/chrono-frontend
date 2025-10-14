@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { AchievementsMatchQuestionData, QuizAnswer } from '../../types';
 import { useMobile } from 'shared/hooks/useMobile';
 

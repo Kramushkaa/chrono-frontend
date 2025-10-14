@@ -129,9 +129,10 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   // Drag & Drop handlers (только для desktop)
   const handleDragStart = (e: React.DragEvent, personId: string) => {
     if (showFeedback) return;
+    e.stopPropagation(); // Предотвращаем всплытие к родителю
     setDraggedItem(personId);
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', personId);
+    e.dataTransfer.setData('text/html', personId); // Используем text/html как в BirthOrderQuestion
   };
 
   const handleDragEnd = () => {
@@ -141,7 +142,12 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     dragCounters.current = {};
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOverGroup = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDragOverCreateZone = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
@@ -182,7 +188,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     
     if (showFeedback) return;
     
-    const personId = e.dataTransfer.getData('text/plain');
+    const personId = e.dataTransfer.getData('text/html');
     if (!personId) return;
     
     // Если личность уже в этой группе, ничего не делаем
@@ -201,7 +207,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     
     if (showFeedback) return;
     
-    const personId = e.dataTransfer.getData('text/plain');
+    const personId = e.dataTransfer.getData('text/html');
     if (!personId) return;
     
     // Создаем новую группу
@@ -369,7 +375,6 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
         data-person-id={personId}
         onDragStart={(e) => handleDragStart(e, personId)}
         onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
         onTouchStart={!showFeedback ? (e) => handleTouchStart(e, personId) : undefined}
         onTouchMove={!showFeedback ? handleTouchMove : undefined}
         onTouchEnd={!showFeedback ? handleTouchEnd : undefined}
@@ -433,7 +438,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
             <div 
               className={`group-persons ${draggedOverGroup === groupIndex ? 'drag-over' : ''}`}
               data-group-index={groupIndex}
-              onDragOver={handleDragOver}
+              onDragOver={handleDragOverGroup}
               onDragEnter={() => handleDragEnterGroup(groupIndex)}
               onDragLeave={() => handleDragLeaveGroup(groupIndex)}
               onDrop={(e) => handleDrop(e, groupIndex)}
@@ -469,7 +474,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
           <div className="create-new-group-zone">
             <div 
               className={`create-group-drop-zone ${draggedOverCreateZone ? 'drag-over' : ''}`}
-              onDragOver={handleDragOver}
+              onDragOver={handleDragOverCreateZone}
               onDragEnter={handleDragEnterCreateZone}
               onDragLeave={handleDragLeaveCreateZone}
               onDrop={handleDropToCreateGroup}
