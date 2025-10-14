@@ -17,19 +17,21 @@ interface ProfilerWrapperProps {
  * </ProfilerWrapper>
  */
 export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrapperProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onRender = (
-    profilerId: string,
-    phase: 'mount' | 'update' | 'nested-update',
-    actualDuration: number,
-    baseDuration: number,
-    startTime: number,
-    commitTime: number
+    profilerId: any,
+    phase: any,
+    actualDuration: any,
+    baseDuration: any,
+    startTime: any,
+    commitTime: any,
+    interactions: any
   ) => {
     if (process.env.NODE_ENV !== 'production' && enabled) {
       // Log performance mark
       logPerformanceMark({
         component: profilerId,
-        phase,
+        phase: phase as 'mount' | 'update' | 'nested-update',
         duration: actualDuration,
         timestamp: commitTime,
       })
@@ -37,11 +39,17 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
       // Additional logging for significant differences
       const difference = actualDuration - baseDuration
       if (difference > 10) {
+        // eslint-disable-next-line no-console
         console.warn(
           `[Profiler] ${profilerId} took ${actualDuration.toFixed(2)}ms (${difference.toFixed(2)}ms slower than base)`
         )
       }
 
+      // Log interactions if present
+      if (interactions.size > 0) {
+        // eslint-disable-next-line no-console
+        console.log(`[Profiler] ${profilerId} rendered with ${interactions.size} interaction(s)`)
+      }
     }
   }
 
@@ -51,7 +59,7 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
   }
 
   return (
-    <Profiler id={id} onRender={onRender}>
+    <Profiler id={id} onRender={onRender as ProfilerOnRenderCallback}>
       {children}
     </Profiler>
   )
