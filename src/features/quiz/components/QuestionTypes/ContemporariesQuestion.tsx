@@ -12,6 +12,90 @@ interface ContemporariesQuestionProps {
   onPersonInfoClick?: (person: any) => void;
 }
 
+// Компонент карточки личности - ВЫНЕСЕН ЗА ПРЕДЕЛЫ для предотвращения пересоздания
+interface PersonCardProps {
+  personId: string;
+  person: ContemporariesQuestionData['persons'][0];
+  isDragged: boolean;
+  personStatus: 'correct' | 'incorrect' | 'missing';
+  showFeedback: boolean;
+  isMobile: boolean;
+  onDragStart: (e: React.DragEvent, personId: string) => void;
+  onDragEnd: (e?: React.DragEvent) => void;
+  onTouchStart: (e: React.TouchEvent, personId: string) => void;
+  onTouchMove: (e: React.TouchEvent) => void;
+  onTouchEnd: (e: React.TouchEvent) => void;
+  onPersonInfoClick?: (person: any) => void;
+}
+
+const PersonCard = React.memo<PersonCardProps>(({ 
+  personId,
+  person,
+  isDragged,
+  personStatus,
+  showFeedback,
+  isMobile,
+  onDragStart,
+  onDragEnd,
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd,
+  onPersonInfoClick
+}) => {
+  if (!person) return null;
+
+  return (
+      <div
+        draggable={!showFeedback && !isMobile}
+        data-person-id={personId}
+        onDragStart={(e) => onDragStart(e, personId)}
+        onDragEnd={(e) => onDragEnd(e)}
+        onTouchStart={!showFeedback ? (e) => onTouchStart(e, personId) : undefined}
+        onTouchMove={!showFeedback ? onTouchMove : undefined}
+        onTouchEnd={!showFeedback ? onTouchEnd : undefined}
+        className={`contemporaries-person-card ${isDragged ? 'dragging' : ''} ${
+          showFeedback ? (personStatus === 'correct' ? 'correct' : 
+                         personStatus === 'incorrect' ? 'incorrect' : '') : ''
+        } ${showFeedback ? 'feedback-mode' : ''}`}
+      >
+      <div className="contemporaries-person-info">
+        {showFeedback && onPersonInfoClick && (
+          <button
+            className="quiz-person-info-button contemporaries-info-button"
+            onClick={() => onPersonInfoClick(person)}
+            title="Подробная информация"
+            aria-label={`Подробная информация о ${person.name}`}
+          >
+            i
+          </button>
+        )}
+        
+        {person.imageUrl && (
+          <img
+            src={person.imageUrl}
+            alt={person.name}
+            className="contemporaries-person-image"
+          />
+        )}
+        
+        <div className="contemporaries-person-content">
+          <h5>{person.name}</h5>
+          {showFeedback && (
+            <p className="person-details">
+              <span className="birth-years">
+                {person.birthYear} - {person.deathYear || 'н.в.'}
+              </span>
+            </p>
+          )}
+        </div>
+      </div>
+      
+    </div>
+  );
+});
+
+PersonCard.displayName = 'PersonCard';
+
 export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({ 
   data, 
   onAnswer, 
@@ -135,7 +219,14 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     e.dataTransfer.setData('text/html', personId); // Используем text/html как в BirthOrderQuestion
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (e?: React.DragEvent) => {
+    // Очищаем inline стили с перетаскиваемого элемента
+    if (e) {
+      const target = e.currentTarget as HTMLElement;
+      target.style.opacity = '';
+      target.style.transform = '';
+    }
+    
     setDraggedItem(null);
     setDraggedOverGroup(null);
     setDraggedOverCreateZone(false);
@@ -193,11 +284,13 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     
     // Если личность уже в этой группе, ничего не делаем
     if (groups[targetGroupIndex]?.includes(personId)) {
+      handleDragEnd(); // Очищаем состояние drag
       return;
     }
     
     // Перемещаем в существующую группу
     addToGroup(personId, targetGroupIndex);
+    handleDragEnd(); // Очищаем состояние drag
   };
 
   // Создание новой группы через перетаскивание
@@ -212,6 +305,7 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     
     // Создаем новую группу
     createGroup(personId);
+    handleDragEnd(); // Очищаем состояние drag
   };
 
   // Touch event handlers (для мобильных устройств)
@@ -356,68 +450,8 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     return personStatus;
   };
 
-  // Компонент карточки личности
-  const PersonCard: React.FC<{ personId: string; isInGroup?: boolean; groupIndex?: number }> = ({ 
-    personId, 
-    isInGroup = false, 
-    groupIndex 
-  }) => {
-    const person = getPersonById(personId);
-    if (!person) return null;
-
-    const isDragged = draggedItem === personId;
-    const personStatuses = analyzeGroupCorrectness();
-    const personStatus = personStatuses[personId] || 'missing';
-
-    return (
-      <div
-        draggable={!showFeedback && !isMobile}
-        data-person-id={personId}
-        onDragStart={(e) => handleDragStart(e, personId)}
-        onDragEnd={handleDragEnd}
-        onTouchStart={!showFeedback ? (e) => handleTouchStart(e, personId) : undefined}
-        onTouchMove={!showFeedback ? handleTouchMove : undefined}
-        onTouchEnd={!showFeedback ? handleTouchEnd : undefined}
-        className={`contemporaries-person-card ${isDragged ? 'dragging' : ''} ${
-          showFeedback ? (personStatus === 'correct' ? 'correct' : 
-                         personStatus === 'incorrect' ? 'incorrect' : '') : ''
-        } ${showFeedback ? 'feedback-mode' : ''}`}
-      >
-        <div className="contemporaries-person-info">
-          {showFeedback && onPersonInfoClick && (
-            <button
-              className="quiz-person-info-button contemporaries-info-button"
-              onClick={() => onPersonInfoClick(person)}
-              title="Подробная информация"
-              aria-label={`Подробная информация о ${person.name}`}
-            >
-              i
-            </button>
-          )}
-          
-          {person.imageUrl && (
-            <img
-              src={person.imageUrl}
-              alt={person.name}
-              className="contemporaries-person-image"
-            />
-          )}
-          
-          <div className="contemporaries-person-content">
-            <h5>{person.name}</h5>
-            {showFeedback && (
-              <p className="person-details">
-                <span className="birth-years">
-                  {person.birthYear} - {person.deathYear || 'н.в.'}
-                </span>
-              </p>
-            )}
-          </div>
-        </div>
-        
-      </div>
-    );
-  };
+  // Мемоизируем анализ правильности групп
+  const personStatuses = analyzeGroupCorrectness();
 
   return (
     <div className={`quiz-question contemporaries-question ${showFeedback ? 'show-feedback' : ''}`}>
@@ -443,14 +477,28 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
               onDragLeave={() => handleDragLeaveGroup(groupIndex)}
               onDrop={(e) => handleDrop(e, groupIndex)}
             >
-              {group.map(personId => (
-                <PersonCard
-                  key={personId}
-                  personId={personId}
-                  isInGroup={true}
-                  groupIndex={groupIndex}
-                />
-              ))}
+              {group.map(personId => {
+                const person = getPersonById(personId);
+                if (!person) return null;
+                
+                return (
+                  <PersonCard
+                    key={personId}
+                    personId={personId}
+                    person={person}
+                    isDragged={draggedItem === personId}
+                    personStatus={personStatuses[personId] || 'missing'}
+                    showFeedback={showFeedback}
+                    isMobile={isMobile}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    onPersonInfoClick={onPersonInfoClick}
+                  />
+                );
+              })}
               {!showFeedback && groups.length > 1 && (
                 <div className="drop-zone-hint">
                   Перетащите сюда
