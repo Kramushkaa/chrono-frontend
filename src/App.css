@@ -2,6 +2,9 @@
 
 /* ВАЖНО: Глобальные стили уже импортированы в index.css! */
 
+/* Utility классы */
+@import './shared/styles/utilities.css';
+
 /* Общие shared стили */
 @import './shared/styles/header.css';
 @import './shared/styles/filters.css';

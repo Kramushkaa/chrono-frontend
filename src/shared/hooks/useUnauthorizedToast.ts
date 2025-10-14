@@ -8,9 +8,9 @@ export function useUnauthorizedToast() {
     const onUnauthorized = () => {
       try { showToast('Сессия истекла. Пожалуйста, войдите снова.', 'error', 5000) } catch {}
     }
-    window.addEventListener('auth:unauthorized', onUnauthorized as any)
+    window.addEventListener('auth:unauthorized', onUnauthorized as EventListener)
     return () => {
-      window.removeEventListener('auth:unauthorized', onUnauthorized as any)
+      window.removeEventListener('auth:unauthorized', onUnauthorized as EventListener)
     }
   }, [showToast])
 }

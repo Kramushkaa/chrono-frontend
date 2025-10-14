@@ -1,0 +1,64 @@
+/* ===== MANAGE PAGE COMPONENTS STYLES ===== */
+/* Replacing inline styles with proper CSS classes */
+
+/* Persons layout */
+.manage-page__persons-layout {
+  display: grid;
+  grid-template-columns: minmax(480px, 1fr) 2fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.manage-page__persons-section {
+  min-width: 0;
+  border-right: 2px solid rgba(139, 69, 19, 0.3);
+  padding-right: 16px;
+}
+
+.manage-page__person-card {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+}
+
+.manage-page__person-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.manage-page__person-card-title {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.manage-page__person-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.manage-page__person-card-empty {
+  opacity: 0.8;
+}
+
+/* Content padding */
+.manage-page__content {
+  padding: 16px;
+  padding-top: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .manage-page__persons-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .manage-page__persons-section {
+    border-right: none;
+    border-bottom: 2px solid rgba(139, 69, 19, 0.3);
+    padding-right: 0;
+    padding-bottom: 16px;
+  }
+}
+

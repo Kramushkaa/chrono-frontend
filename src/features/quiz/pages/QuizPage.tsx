@@ -1,23 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQuizData } from '../hooks/useQuizData';
-import { useQuiz } from '../hooks/useQuiz';
-import { QuizSetup } from '../components/QuizSetup';
-import { QuizResults } from '../components/QuizResults';
-import { QuizProgress } from '../components/QuizProgress';
-import { SingleChoiceQuestion } from '../components/QuestionTypes/SingleChoiceQuestion';
-import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion';
-import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion';
-import { ContemporariesQuestion } from '../components/QuestionTypes/ContemporariesQuestion';
-import { GuessPersonQuestion } from '../components/QuestionTypes/GuessPersonQuestion';
-import { SEO } from 'shared/ui/SEO';
-import { AppHeader } from 'shared/layout/AppHeader';
-import { ContactFooter } from 'shared/ui/ContactFooter';
-import { Person } from 'shared/types';
-import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils';
-import { getCategoryColor } from 'shared/utils/categoryColors';
-import { getPersonById } from 'shared/api/api';
-import '../styles/quiz.css';
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useQuizData } from '../hooks/useQuizData'
+import { useQuiz } from '../hooks/useQuiz'
+import { QuizSetup } from '../components/QuizSetup'
+import { QuizResults } from '../components/QuizResults'
+import { QuizProgress } from '../components/QuizProgress'
+import { SingleChoiceQuestion } from '../components/QuestionTypes/SingleChoiceQuestion'
+import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion'
+import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion'
+import { ContemporariesQuestion } from '../components/QuestionTypes/ContemporariesQuestion'
+import { GuessPersonQuestion } from '../components/QuestionTypes/GuessPersonQuestion'
+import { SEO } from 'shared/ui/SEO'
+import { AppHeader } from 'shared/layout/AppHeader'
+import { ContactFooter } from 'shared/ui/ContactFooter'
+import { getMinimalHeaderProps } from '../utils/headerProps'
+import type { Person } from 'shared/types'
+import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils'
+import { getCategoryColor } from 'shared/utils/categoryColors'
+import { getPersonById } from 'shared/api/api'
+import '../styles/quiz.css'
 
 const PersonPanel = React.lazy(() => import('features/persons/components/PersonPanel').then(m => ({ default: m.PersonPanel })));
 
@@ -195,31 +196,7 @@ const QuizPage: React.FC = () => {
           title="Игра на проверку знаний — Хронониндзя"
           description="Проверьте свои знания исторических личностей в увлекательной игре с вопросами разных типов."
         />
-        <AppHeader
-          isScrolled={false}
-          showControls={false}
-          setShowControls={() => {}}
-          mode="minimal"
-          filters={{ categories: [], countries: [], showAchievements: true, hideEmptyCenturies: false }}
-          setFilters={() => {}}
-          groupingType="none"
-          setGroupingType={() => {}}
-          allCategories={[]}
-          allCountries={[]}
-          yearInputs={{ start: "-800", end: "2000" }}
-          setYearInputs={() => {}}
-          applyYearFilter={() => {}}
-          handleYearKeyPress={() => {}}
-          resetAllFilters={() => {}}
-          getCategoryColor={() => ""}
-          sortedData={[]}
-          handleSliderMouseDown={() => {}}
-          handleSliderMouseMove={() => {}}
-          handleSliderMouseUp={() => {}}
-          isDraggingSlider={false}
-          onBackToMenu={handleBackToMenu}
-          extraRightControls={null}
-        />
+        <AppHeader {...getMinimalHeaderProps({ onBackToMenu: handleBackToMenu, extraRightControls: null })} />
         <div className="quiz-content">
         <QuizSetup
           setup={setup}
@@ -258,41 +235,24 @@ const QuizPage: React.FC = () => {
           description="Посмотрите результаты вашей игры на проверку знаний."
         />
         <AppHeader
-          isScrolled={false}
-          showControls={false}
-          setShowControls={() => {}}
-          mode="minimal"
-          filters={{ categories: [], countries: [], showAchievements: true, hideEmptyCenturies: false }}
-          setFilters={() => {}}
-          groupingType="none"
-          setGroupingType={() => {}}
-          allCategories={[]}
-          allCountries={[]}
-          yearInputs={{ start: "-800", end: "2000" }}
-          setYearInputs={() => {}}
-          applyYearFilter={() => {}}
-          handleYearKeyPress={() => {}}
-          resetAllFilters={() => {}}
-          getCategoryColor={() => ""}
-          sortedData={[]}
-          handleSliderMouseDown={() => {}}
-          handleSliderMouseMove={() => {}}
-          handleSliderMouseUp={() => {}}
-          isDraggingSlider={false}
-          onBackToMenu={handleBackToMenu}
-          extraRightControls={
-            <div style={{
-              padding: '0.4rem 0.8rem',
-              background: 'rgba(139, 69, 19, 0.2)',
-              border: '1px solid rgba(139, 69, 19, 0.4)',
-              borderRadius: '6px',
-              color: '#f4e4c1',
-              fontSize: '0.9rem',
-              fontWeight: '600'
-            }}>
-              Результаты
-            </div>
-          }
+          {...getMinimalHeaderProps({
+            onBackToMenu: handleBackToMenu,
+            extraRightControls: (
+              <div
+                style={{
+                  padding: '0.4rem 0.8rem',
+                  background: 'rgba(139, 69, 19, 0.2)',
+                  border: '1px solid rgba(139, 69, 19, 0.4)',
+                  borderRadius: '6px',
+                  color: '#f4e4c1',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                }}
+              >
+                Результаты
+              </div>
+            ),
+          })}
         />
         <div className="quiz-content">
           <QuizResults
@@ -328,35 +288,16 @@ const QuizPage: React.FC = () => {
           description="Проверьте свои знания исторических личностей в увлекательной игре с вопросами разных типов."
         />
         <AppHeader
-          isScrolled={false}
-          showControls={false}
-          setShowControls={() => {}}
-          mode="minimal"
-          filters={{ categories: [], countries: [], showAchievements: true, hideEmptyCenturies: false }}
-          setFilters={() => {}}
-          groupingType="none"
-          setGroupingType={() => {}}
-          allCategories={[]}
-          allCountries={[]}
-          yearInputs={{ start: "-800", end: "2000" }}
-          setYearInputs={() => {}}
-          applyYearFilter={() => {}}
-          handleYearKeyPress={() => {}}
-          resetAllFilters={() => {}}
-          getCategoryColor={() => ""}
-          sortedData={[]}
-          handleSliderMouseDown={() => {}}
-          handleSliderMouseMove={() => {}}
-          handleSliderMouseUp={() => {}}
-          isDraggingSlider={false}
-          onBackToMenu={handleBackToMenu}
-          extraRightControls={
-            <QuizProgress
-              currentQuestion={currentQuestionIndex + 1}
-              totalQuestions={questions.length}
-              isQuizActive={isQuizActive}
-            />
-          }
+          {...getMinimalHeaderProps({
+            onBackToMenu: handleBackToMenu,
+            extraRightControls: (
+              <QuizProgress
+                currentQuestion={currentQuestionIndex + 1}
+                totalQuestions={questions.length}
+                isQuizActive={isQuizActive}
+              />
+            ),
+          })}
         />
         
         <div className="quiz-content">
@@ -390,41 +331,24 @@ const QuizPage: React.FC = () => {
         description="Проверьте свои знания исторических личностей в увлекательной игре с вопросами разных типов."
       />
       <AppHeader
-        isScrolled={false}
-        showControls={false}
-        setShowControls={() => {}}
-        mode="minimal"
-        filters={{ categories: [], countries: [], showAchievements: true, hideEmptyCenturies: false }}
-        setFilters={() => {}}
-        groupingType="none"
-        setGroupingType={() => {}}
-        allCategories={[]}
-        allCountries={[]}
-        yearInputs={{ start: "-800", end: "2000" }}
-        setYearInputs={() => {}}
-        applyYearFilter={() => {}}
-        handleYearKeyPress={() => {}}
-        resetAllFilters={() => {}}
-        getCategoryColor={() => ""}
-        sortedData={[]}
-        handleSliderMouseDown={() => {}}
-        handleSliderMouseMove={() => {}}
-        handleSliderMouseUp={() => {}}
-        isDraggingSlider={false}
-        onBackToMenu={handleBackToMenu}
-        extraRightControls={
-          <div style={{
-            padding: '0.4rem 0.8rem',
-            background: 'rgba(139, 69, 19, 0.2)',
-            border: '1px solid rgba(139, 69, 19, 0.4)',
-            borderRadius: '6px',
-            color: '#f4e4c1',
-            fontSize: '0.9rem',
-            fontWeight: '600'
-          }}>
-            Ошибка
-          </div>
-        }
+        {...getMinimalHeaderProps({
+          onBackToMenu: handleBackToMenu,
+          extraRightControls: (
+            <div
+              style={{
+                padding: '0.4rem 0.8rem',
+                background: 'rgba(139, 69, 19, 0.2)',
+                border: '1px solid rgba(139, 69, 19, 0.4)',
+                borderRadius: '6px',
+                color: '#f4e4c1',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+              }}
+            >
+              Ошибка
+            </div>
+          ),
+        })}
       />
       
       <div className="quiz-content">

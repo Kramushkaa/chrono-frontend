@@ -10,7 +10,7 @@ export function useAchievementTooltipDismiss(showAchievementTooltip: boolean, ha
       const target = event.target as Element;
       const tooltip = document.getElementById('achievement-tooltip');
       const isClickInsideTooltip = tooltip?.contains(target);
-      const isClickOnMarker = (target as any)?.closest?.('.achievement-marker');
+      const isClickOnMarker = (target instanceof Element) ? target.closest('.achievement-marker') : null;
       
       if (!isClickInsideTooltip && !isClickOnMarker && showAchievementTooltip) {
         if (event.type === 'touchstart') {

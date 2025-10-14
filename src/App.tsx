@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 // import { ProtectedRoute } from '@shared/ui/ProtectedRoute'
 import { AuthProvider } from 'shared/context/AuthContext'
 import { BackendInfo } from 'shared/ui/BackendInfo'
+import { ErrorBoundary } from 'shared/components/ErrorBoundary'
 import './App.css'
 import { ToastProvider } from 'shared/context/ToastContext'
 import { Toasts } from 'shared/ui/Toasts'
@@ -18,24 +19,28 @@ const TimelinePage = React.lazy(() => import('features/timeline/pages/TimelinePa
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <React.Suspense fallback={<div className="loading-overlay" role="status" aria-live="polite"><div className="spinner" aria-hidden="true"></div><span>Загрузка...</span></div>}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/timeline" replace />} />
-            <Route path="/menu" element={<MenuPage />} />
-            <Route path="/timeline" element={<TimelinePage />} />
-            <Route path="/quiz" element={<QuizPage />} />
-            <Route path="/lists" element={<ManagePage />} />
-            <Route path="/manage" element={<Navigate to="/lists" replace />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-          <BackendInfo />
-          <Toasts />
-        </React.Suspense>
-      </ToastProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ToastProvider>
+          <React.Suspense fallback={<div className="loading-overlay" role="status" aria-live="polite"><div className="spinner" aria-hidden="true"></div><span>Загрузка...</span></div>}>
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<Navigate to="/timeline" replace />} />
+                <Route path="/menu" element={<MenuPage />} />
+                <Route path="/timeline" element={<TimelinePage />} />
+                <Route path="/quiz" element={<QuizPage />} />
+                <Route path="/lists" element={<ManagePage />} />
+                <Route path="/manage" element={<Navigate to="/lists" replace />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </ErrorBoundary>
+            <BackendInfo />
+            <Toasts />
+          </React.Suspense>
+        </ToastProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

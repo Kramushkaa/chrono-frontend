@@ -70,7 +70,7 @@ export function PersonEditModal(props: Props) {
 
     // Валидация периодов
     if (lifePeriods.length > 0) {
-      const v = validateLifePeriodsClient(lifePeriods as any, payload.birthYear, payload.deathYear)
+      const v = validateLifePeriodsClient(lifePeriods, payload.birthYear, payload.deathYear)
       if (!v.ok) { 
         setPeriodsError(v.message || 'Проверьте периоды')
         return null
@@ -89,7 +89,7 @@ export function PersonEditModal(props: Props) {
     const first = list[0]
     const last = list[list.length - 1]
     const active = document.activeElement as HTMLElement | null
-    const shift = (e as any).shiftKey
+    const shift = (e as React.KeyboardEvent).shiftKey
     if (!shift && active === last) { e.preventDefault(); first.focus(); }
     else if (shift && active === first) { e.preventDefault(); last.focus(); }
   }
@@ -129,8 +129,8 @@ export function PersonEditModal(props: Props) {
             editPersonCategory={editPersonCategory}
             setEditPersonCategory={setEditPersonCategory}
             categorySelectOptions={categorySelectOptions}
-            lifePeriods={lifePeriods as any}
-            setLifePeriods={setLifePeriods as any}
+            lifePeriods={lifePeriods}
+            setLifePeriods={setLifePeriods}
             countrySelectOptions={countrySelectOptions}
           />
           {(yearErrors.birth || yearErrors.death) && (
@@ -164,7 +164,7 @@ export function PersonEditModal(props: Props) {
                     })
                   }
                   const fresh = await getPersonById(person.id)
-                  if (fresh) onPersonUpdated(fresh as any)
+                  if (fresh) onPersonUpdated(fresh)
                   showToast('Личность сохранена', 'success')
                   onClose()
                 } catch (e: any) {

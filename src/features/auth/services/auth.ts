@@ -50,7 +50,7 @@ export async function login(payload: { login: string; password: string; } | { em
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     // Support both new {login, password} and legacy {email, password}
-    body: JSON.stringify('login' in payload ? payload : { login: (payload as any).email, password: (payload as any).password })
+    body: JSON.stringify('login' in payload ? payload : { login: (payload as { email: string; password: string }).email, password: (payload as { email: string; password: string }).password })
   });
   if (!res.ok) throw new Error('Login failed');
   const data = await res.json();

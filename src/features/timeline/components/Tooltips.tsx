@@ -230,7 +230,7 @@ export const Tooltips: React.FC<TooltipsProps> = ({
           
           <div style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
             <p style={{ margin: '0.25rem 0', fontWeight: 'bold' }}>
-              {hoveredPerson.birthYear} - {hoveredPerson.deathYear}
+              {hoveredPerson.birthYear} - {hoveredPerson.deathYear || 'н.в.'}
             </p>
             <p style={{ margin: '0.25rem 0' }}>
               <span style={{ color: getCategoryColor(hoveredPerson.category), fontWeight: 'bold' }}>

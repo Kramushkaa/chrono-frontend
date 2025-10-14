@@ -27,7 +27,7 @@ export const PersonYearLabels: React.FC<PersonYearLabelsProps> = ({ person, getA
         {person.birthYear}
       </span>
 
-      {person.reignStart && (
+      {person.reignStart ? (
         <span 
           className="reign-label" 
           id={`reign-start-${person.id}`}
@@ -45,9 +45,9 @@ export const PersonYearLabels: React.FC<PersonYearLabelsProps> = ({ person, getA
         >
           👑 {person.reignStart}
         </span>
-      )}
+      ) : null}
 
-      {person.reignEnd && (
+      {person.reignEnd ? (
         <span 
           className="reign-label" 
           id={`reign-end-${person.id}`}
@@ -65,7 +65,7 @@ export const PersonYearLabels: React.FC<PersonYearLabelsProps> = ({ person, getA
         >
           {person.reignEnd}
         </span>
-      )}
+      ) : null}
 
       <span 
         className="death-year-label"

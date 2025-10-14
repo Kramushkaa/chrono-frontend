@@ -74,10 +74,10 @@ export function DesktopListsLayout(props: Props) {
       selectedKey={menuSelection}
       onSelect={(sel: LeftMenuSelection) => {
         if (sel.type === 'list') { 
-          setMenuSelection(`list:${sel.listId!}` as any)
+          setMenuSelection(`list:${sel.listId!}`)
           setSelectedListId(sel.listId!)
         } else { 
-          setMenuSelection(sel.type as any)
+          setMenuSelection(sel.type)
           setSelectedListId(null)
         }
       }}
@@ -128,7 +128,7 @@ export function DesktopListsLayout(props: Props) {
           
           if (Number.isFinite(newId) && newId > 0) {
             setSelectedListId(newId)
-            setMenuSelection(`list:${newId}` as any)
+            setMenuSelection(`list:${newId}`)
           }
           
           showToast(`Список «${newTitle}» скопирован`, 'success')
@@ -142,7 +142,7 @@ export function DesktopListsLayout(props: Props) {
           if (res.ok) {
             if (selectedListId === id) { 
               setSelectedListId(null)
-              setMenuSelection('all' as any)
+              setMenuSelection('all')
             }
             await loadUserLists(true)
             showToast('Список удалён', 'success')

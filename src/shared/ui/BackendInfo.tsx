@@ -9,7 +9,7 @@ interface BackendInfoProps {
 
 export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
   const backendInfo = getBackendInfo();
-  const env = (typeof process !== 'undefined' && (process as any).env) || {};
+  const env = (typeof process !== 'undefined' && process.env) || {};
   const isDev = env.NODE_ENV === 'development';
   const useLocal = env.REACT_APP_USE_LOCAL_BACKEND === 'true';
   const showOverride = env.REACT_APP_SHOW_BACKEND_INFO === 'true';

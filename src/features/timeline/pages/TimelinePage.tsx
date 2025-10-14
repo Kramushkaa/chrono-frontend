@@ -1,20 +1,22 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from 'shared/context/AuthContext'
 import { useFilters } from '../../../shared/hooks/useFilters'
 import { useTimelineData } from 'features/timeline/hooks/useTimelineData'
+import { useTimelineBounds } from 'features/timeline/hooks/useTimelineBounds'
 import { useSlider } from '../../../shared/hooks/useSlider'
 import { useTooltip } from 'features/timeline/hooks/useTooltip'
 import { useTimelineDrag } from 'features/timeline/hooks/useTimelineDrag'
 import { generateCenturyBoundaries } from 'features/timeline/utils/timelineUtils'
-import { getFirstCountry } from 'features/persons/utils/getFirstCountry'
+import { calculateRowPlacement } from 'features/timeline/utils/rowPlacement'
+import { useCategoryDividers } from 'features/timeline/hooks/useCategoryDividers'
 import { getGroupColor, getGroupColorDark, getGroupColorMuted, getPersonGroup, sortGroupedData } from 'features/persons/utils/groupingUtils'
 import { useListSelection } from 'features/timeline/hooks/useListSelection'
 import { useLists } from 'features/manage/hooks/useLists'
 import { apiData } from 'shared/api/api'
-import { TimelineHeaderContainer } from 'features/timeline/containers/TimelineHeaderContainer'
+import { TimelineHeader } from 'shared/layout/headers/TimelineHeader'
 import { SEO } from 'shared/ui/SEO'
-import { Person } from 'shared/types'
+import type { Person } from 'shared/types'
 import '../styles/timeline.css'
 
 const Timeline = React.lazy(() => import('features/timeline/components/Timeline').then(m => ({ default: m.Timeline })))
@@ -81,7 +83,7 @@ export default function TimelinePage() {
   }, [])
 
   const effectivePersons = useMemo(() => (listPersons !== null ? listPersons : persons), [listPersons, persons])
-  const sortedData = sortGroupedData(effectivePersons as any, groupingType)
+  const sortedData = sortGroupedData(effectivePersons, groupingType)
 
   useEffect(() => {
     if (filters.hideEmptyCenturies && sortedData.length > 0) {
@@ -115,20 +117,12 @@ export default function TimelinePage() {
     }
   }, [filters.hideEmptyCenturies, sortedData, filters.categories, filters.countries, filters.timeRange, setFilters, setYearInputs]);
 
-  const { minYear, totalYears, effectiveMinYear, effectiveMaxYear } = useMemo(() => {
-    const minYear = Math.min(...sortedData.map(p => p.birthYear), filters.timeRange.start)
-    const maxYear = Math.max(...sortedData.map(p => p.deathYear ?? new Date().getFullYear()), filters.timeRange.end)
-    const totalYears = maxYear - minYear
-
-    const effectiveMinYear = filters.hideEmptyCenturies
-      ? Math.min(...sortedData.map(p => p.birthYear))
-      : minYear
-    const effectiveMaxYear = filters.hideEmptyCenturies
-      ? Math.max(...sortedData.map(p => p.deathYear ?? new Date().getFullYear()))
-      : maxYear
-
-    return { minYear, totalYears, effectiveMinYear, effectiveMaxYear }
-  }, [sortedData, filters.timeRange.start, filters.timeRange.end, filters.hideEmptyCenturies])
+  // Calculate timeline bounds using optimized hook
+  const { minYear, totalYears, effectiveMinYear, effectiveMaxYear } = useTimelineBounds(
+    sortedData,
+    filters.timeRange,
+    filters.hideEmptyCenturies
+  )
 
   const pixelsPerYear = 3
   const LEFT_PADDING_PX = 30
@@ -154,112 +148,10 @@ export default function TimelinePage() {
     [effectiveMinYear, effectiveMaxYear]
   )
 
-  const calculateRowPlacement = useCallback((people: Person[]) => {
-    const rows: Person[][] = []
-
-    if (groupingType === 'none') {
-      const allRows: Person[][] = []
-
-      people.forEach(person => {
-        let placed = false
-
-        for (let rowIndex = 0; rowIndex < allRows.length; rowIndex++) {
-          const row = allRows[rowIndex]
-          let canPlaceInRow = true
-
-          for (const existingPerson of row) {
-            const BUFFER = 20;
-            if (
-              person.birthYear - BUFFER <= (existingPerson.deathYear ?? new Date().getFullYear()) &&
-              (person.deathYear ?? new Date().getFullYear()) + BUFFER >= existingPerson.birthYear
-            ) {
-              canPlaceInRow = false
-              break
-            }
-          }
-
-          if (canPlaceInRow) {
-            allRows[rowIndex].push(person)
-            placed = true
-            break
-          }
-        }
-
-        if (!placed) {
-          allRows.push([person])
-        }
-      })
-
-      return allRows
-    }
-
-    const groupField = groupingType === 'category' ? 'category' : 'country'
-    const allGroups = groupingType === 'category' ? allCategories : allCountries
-    const groups: { [key: string]: Person[] } = {}
-
-    people.forEach(person => {
-      let groupValue: string
-      if (groupField === 'country') {
-        groupValue = getFirstCountry(person.country)
-      } else {
-        groupValue = person[groupField]
-      }
-
-      if (!groups[groupValue]) {
-        groups[groupValue] = []
-      }
-      groups[groupValue].push(person)
-    })
-
-    allGroups.forEach(groupValue => {
-      if (groups[groupValue]) {
-        const groupPeople = groups[groupValue]
-        const groupRows: Person[][] = []
-
-        groupPeople.forEach(person => {
-          let placed = false
-
-          for (let rowIndex = 0; rowIndex < groupRows.length; rowIndex++) {
-            const row = groupRows[rowIndex]
-            let canPlaceInRow = true
-
-            for (const existingPerson of row) {
-              const BUFFER = 20;
-              if (
-                person.birthYear - BUFFER <= (existingPerson.deathYear ?? new Date().getFullYear()) &&
-                (person.deathYear ?? new Date().getFullYear()) + BUFFER >= existingPerson.birthYear
-              ) {
-                canPlaceInRow = false
-                break
-              }
-            }
-
-            if (canPlaceInRow) {
-              groupRows[rowIndex].push(person)
-              placed = true
-              break
-            }
-          }
-
-          if (!placed) {
-            groupRows.push([person])
-          }
-        })
-
-        rows.push(...groupRows)
-
-        if (groupValue !== allGroups[allGroups.length - 1]) {
-          rows.push([])
-        }
-      }
-    })
-
-    return rows
-  }, [groupingType, allCategories, allCountries])
-
-  const rowPlacement = useMemo(() =>
-    calculateRowPlacement(sortedData),
-    [calculateRowPlacement, sortedData]
+  // Calculate row placement using optimized utility
+  const rowPlacement = useMemo(
+    () => calculateRowPlacement(sortedData, groupingType, allCategories, allCountries),
+    [sortedData, groupingType, allCategories, allCountries]
   )
 
   const totalHeight = useMemo(() =>
@@ -278,31 +170,8 @@ export default function TimelinePage() {
     }
   }, [])
 
-  // Вычисление разделителей категорий/стран по началу каждой группы
-  const categoryDividers = useMemo(() => {
-    if (groupingType === 'none') return [] as { category: string; top: number }[]
-    const dividers: { category: string; top: number }[] = []
-
-    let runningTop = 0
-    let lastGroup: string | null = null
-
-    for (let i = 0; i < rowPlacement.length; i++) {
-      const row = rowPlacement[i]
-      const rowHeight = row.length === 0 ? 20 : 70
-
-      if (row.length > 0) {
-        const currentGroup = getPersonGroup(row[0], groupingType)
-        if (lastGroup === null || currentGroup !== lastGroup) {
-          dividers.push({ category: currentGroup, top: runningTop })
-          lastGroup = currentGroup
-        }
-      }
-
-      runningTop += rowHeight
-    }
-
-    return dividers
-  }, [rowPlacement, groupingType])
+  // Calculate category dividers using optimized hook
+  const categoryDividers = useCategoryDividers(rowPlacement, groupingType)
 
   return (
     <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Интерактивная временная линия исторических личностей">
@@ -312,36 +181,36 @@ export default function TimelinePage() {
         canonical={typeof window !== 'undefined' ? window.location.origin + '/timeline' : undefined}
         image={typeof window !== 'undefined' ? window.location.origin + '/og-image.jpg' : undefined}
       />
-      <React.Suspense fallback={<div className="loading-overlay" role="status" aria-live="polite"><div className="spinner" aria-hidden="true"></div><span>Загрузка...</span></div>}>
-        <TimelineHeaderContainer
-          isScrolled={isScrolled}
-          showControls={showControls}
-          setShowControls={setShowControls}
-          filters={filters}
-          setFilters={setFilters}
-          groupingType={groupingType}
-          setGroupingType={setGroupingType}
-          allCategories={allCategories}
-          allCountries={allCountries}
-          yearInputs={yearInputs}
-          setYearInputs={setYearInputs}
-          applyYearFilter={applyYearFilter}
-          handleYearKeyPress={handleYearKeyPress}
-          resetAllFilters={resetAllFilters}
-          getCategoryColor={getGroupColor}
-          sortedData={sortedData}
-          handleSliderMouseDown={handleSliderMouseDown}
-          handleSliderMouseMove={handleSliderMouseMove}
-          handleSliderMouseUp={handleSliderMouseUp}
-          isDraggingSlider={isDraggingSlider}
-          onBackToMenu={() => navigate('/menu')}
-          isAuthenticated={isAuthenticated}
-          personLists={personLists}
-          selectedListId={selectedListId}
-          selectedListKey={selectedListKey}
-          sharedListMeta={sharedListMeta}
-          onListChange={handleListChange}
-        />
+             <React.Suspense fallback={<div className="loading-overlay" role="status" aria-live="polite"><div className="spinner" aria-hidden="true"></div><span>Загрузка...</span></div>}>
+               <TimelineHeader
+                 isScrolled={isScrolled}
+                 showControls={showControls}
+                 setShowControls={setShowControls}
+                 filters={filters}
+                 setFilters={setFilters}
+                 groupingType={groupingType}
+                 setGroupingType={setGroupingType}
+                 allCategories={allCategories}
+                 allCountries={allCountries}
+                 yearInputs={yearInputs}
+                 setYearInputs={setYearInputs}
+                 applyYearFilter={applyYearFilter}
+                 handleYearKeyPress={handleYearKeyPress}
+                 resetAllFilters={resetAllFilters}
+                 getCategoryColor={getGroupColor}
+                 sortedData={sortedData}
+                 handleSliderMouseDown={handleSliderMouseDown}
+                 handleSliderMouseMove={handleSliderMouseMove}
+                 handleSliderMouseUp={handleSliderMouseUp}
+                 isDraggingSlider={isDraggingSlider}
+                 onBackToMenu={() => navigate('/menu')}
+                 isAuthenticated={isAuthenticated}
+                 personLists={personLists}
+                 selectedListId={selectedListId}
+                 selectedListKey={selectedListKey}
+                 sharedListMeta={sharedListMeta}
+                 onListChange={handleListChange}
+               />
 
         <div className="timeline-wrapper">
           <main

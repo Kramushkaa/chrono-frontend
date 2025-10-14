@@ -1,12 +1,10 @@
 import React, { useCallback } from 'react'
 import { useToast } from 'shared/context/ToastContext'
-import { AchievementMarker } from 'features/timeline/components/AchievementMarker'
-import { FilterDropdown } from 'shared/ui/FilterDropdown'
-import { GroupingToggle } from 'shared/ui/GroupingToggle'
 import { BrandTitle } from 'shared/ui/BrandTitle'
-import { YearRangeSlider } from 'features/timeline/components/YearRangeSlider'
-import { Person } from 'shared/types'
 import { UserMenu } from 'shared/ui/UserMenu'
+import { DesktopHeaderControls } from './components/DesktopHeaderControls'
+import { MobileHeaderControls } from './components/MobileHeaderControls'
+import { Person } from 'shared/types'
 
 interface FiltersState {
   showAchievements: boolean
@@ -125,165 +123,26 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
         )}
 
         {mode === 'full' && (
-        <div className="header-controls-desktop" role="toolbar" aria-label="Панель управления фильтрами">
-          <div className="header-controls-inner">
-            {extraFilterControls && (
-              <div style={{ display: 'flex', alignItems: 'center', marginRight: '0.5rem' }}>
-                {extraFilterControls}
-              </div>
-            )}
-            <div 
-              className="header-marker-toggle" 
-              id="achievements-toggle"
-              role="button"
-              aria-label={filters.showAchievements ? 'Скрыть маркеры достижений' : 'Показать маркеры достижений'}
-              aria-pressed={filters.showAchievements}
-              aria-describedby="achievements-toggle-description"
-              tabIndex={0}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                width: '32px',
-                height: '32px',
-                borderRadius: '6px',
-                background: filters.showAchievements ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
-                border: `1px solid ${filters.showAchievements ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                opacity: filters.showAchievements ? 1 : 0.6
-              }}
-              onClick={() => setFilters((prev: FiltersState) => ({ ...prev, showAchievements: !prev.showAchievements }))}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setFilters((prev: FiltersState) => ({ ...prev, showAchievements: !prev.showAchievements }));
-                }
-              }}
-              title={filters.showAchievements ? 'Скрыть маркеры достижений' : 'Показать маркеры достижений'}
-              onMouseEnter={(e) => {
-                if (!filters.showAchievements) {
-                  e.currentTarget.style.background = 'rgba(205, 133, 63, 0.4)';
-                  e.currentTarget.style.opacity = '0.8';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!filters.showAchievements) {
-                  e.currentTarget.style.background = 'rgba(244, 228, 193, 0.2)';
-                  e.currentTarget.style.opacity = '0.6';
-                }
-              }}
-            >
-              <AchievementMarker isActive={filters.showAchievements} />
-              <span id="achievements-toggle-description" className="sr-only">
-                {filters.showAchievements ? 'Маркеры достижений включены' : 'Маркеры достижений выключены'}
-              </span>
-            </div>
-            
-            {/* Кнопка "Скрывать века" */}
-            <div 
-              className="header-century-toggle" 
-              id="century-toggle"
-              role="button"
-              aria-label={filters.hideEmptyCenturies ? 'Показать все века' : 'Скрыть пустые века'}
-              aria-pressed={filters.hideEmptyCenturies}
-              tabIndex={0}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                width: '40px',
-                height: '32px',
-                borderRadius: '6px',
-                background: filters.hideEmptyCenturies ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
-                border: `1px solid ${filters.hideEmptyCenturies ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                opacity: filters.hideEmptyCenturies ? 1 : 0.6
-              }}
-              onClick={handleHideEmptyCenturiesToggle}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleHideEmptyCenturiesToggle();
-                }
-              }}
-              title={filters.hideEmptyCenturies ? 'Показать все века' : 'Скрыть пустые века'}
-              onMouseEnter={(e) => {
-                if (!filters.hideEmptyCenturies) {
-                  e.currentTarget.style.background = 'rgba(205, 133, 63, 0.4)';
-                  e.currentTarget.style.opacity = '0.8';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!filters.hideEmptyCenturies) {
-                  e.currentTarget.style.background = 'rgba(244, 228, 193, 0.2)';
-                  e.currentTarget.style.opacity = '0.6';
-                }
-              }}
-            >
-              <span style={{ fontSize: '0.7rem', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
-                {filters.hideEmptyCenturies ? '<||>' : '>|<'}
-              </span>
-            </div>
-            
-            <GroupingToggle 
-              groupingType={groupingType}
-              onGroupingChange={setGroupingType}
-            />
-            
-            <div className="header-filters-group" id="filters-group" role="group" aria-label="Фильтры по категориям и странам" style={{ display: 'flex', gap: '0.3rem', alignItems: 'center', flexWrap: 'wrap' }}>
-              <FilterDropdown
-                title="🎭"
-                items={allCategories}
-                selectedItems={filters.categories}
-                onSelectionChange={(categories: string[]) => setFilters((prev: FiltersState) => ({ ...prev, categories }))}
-                getItemColor={getCategoryColor}
-                textLabel="Род деятельности"
-              />
-              <FilterDropdown
-                title="🌍"
-                items={allCountries}
-                selectedItems={filters.countries}
-                onSelectionChange={(countries: string[]) => setFilters((prev: FiltersState) => ({ ...prev, countries }))}
-                textLabel="Страна"
-              />
-              <YearRangeSlider
-                yearInputs={yearInputs}
-                setYearInputs={setYearInputs}
-                applyYearFilter={applyYearFilter}
-                handleYearKeyPress={handleYearKeyPress}
-                handleSliderMouseDown={handleSliderMouseDown}
-                handleSliderMouseMove={handleSliderMouseMove}
-                handleSliderMouseUp={handleSliderMouseUp}
-                isDraggingSlider={isDraggingSlider}
-                isMobile={false}
-              />
-              
-              <button
-                id="reset-filters"
-                className="reset-filters-btn"
-                onClick={resetAllFilters}
-                aria-label="Сбросить все фильтры"
-                style={{
-                  padding: '0.2rem 0.4rem',
-                  background: 'rgba(231, 76, 60, 0.2)',
-                  border: '1px solid rgba(231, 76, 60, 0.4)',
-                  borderRadius: '3px',
-                  color: '#e74c3c',
-                  fontSize: '0.6rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  opacity: (filters.categories.length > 0 || filters.countries.length > 0 || yearInputs.start !== '-800' || yearInputs.end !== '2000') ? 1 : 0,
-                  pointerEvents: (filters.categories.length > 0 || filters.countries.length > 0 || yearInputs.start !== '-800' || yearInputs.end !== '2000') ? 'auto' : 'none'
-                }}
-                title="Сбросить все фильтры"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        </div>
+          <DesktopHeaderControls
+            filters={filters}
+            setFilters={setFilters}
+            groupingType={groupingType}
+            setGroupingType={setGroupingType}
+            allCategories={allCategories}
+            allCountries={allCountries}
+            yearInputs={yearInputs}
+            setYearInputs={setYearInputs}
+            applyYearFilter={applyYearFilter}
+            handleYearKeyPress={handleYearKeyPress}
+            resetAllFilters={resetAllFilters}
+            getCategoryColor={getCategoryColor}
+            handleSliderMouseDown={handleSliderMouseDown}
+            handleSliderMouseMove={handleSliderMouseMove}
+            handleSliderMouseUp={handleSliderMouseUp}
+            isDraggingSlider={isDraggingSlider}
+            extraFilterControls={extraFilterControls}
+            handleHideEmptyCenturiesToggle={handleHideEmptyCenturiesToggle}
+          />
         )}
 
         {mode === 'full' && (
@@ -440,172 +299,27 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
       </div>
 
       {mode === 'full' && (
-      <div className={`header-controls-mobile${showControls ? ' visible' : ''}`} id="header-controls-mobile" role="region" aria-label="Мобильные элементы управления">
-        <div className="header-controls-inner">
-          {extraFilterControls && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
-              {extraFilterControls}
-            </div>
-          )}
-          {/* Группа кнопок - в одной строке */}
-          <div className="header-filters-group-mobile" role="toolbar" aria-label="Мобильные кнопки управления" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div 
-              className="header-marker-toggle" 
-              role="button"
-              tabIndex={0}
-              aria-label={filters.showAchievements ? 'Скрыть маркеры достижений' : 'Показать маркеры достижений'}
-              aria-pressed={filters.showAchievements}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                width: '44px',
-                height: '44px',
-                borderRadius: '6px',
-                background: filters.showAchievements ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
-                border: `1px solid ${filters.showAchievements ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                opacity: filters.showAchievements ? 1 : 0.6
-              }}
-              onClick={() => setFilters((prev: FiltersState) => ({ ...prev, showAchievements: !prev.showAchievements }))}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setFilters((prev: FiltersState) => ({ ...prev, showAchievements: !prev.showAchievements }));
-                }
-              }}
-              title={filters.showAchievements ? 'Скрыть маркеры достижений' : 'Показать маркеры достижений'}
-              onMouseEnter={(e) => {
-                if (!filters.showAchievements) {
-                  e.currentTarget.style.background = 'rgba(205, 133, 63, 0.4)';
-                  e.currentTarget.style.opacity = '0.8';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!filters.showAchievements) {
-                  e.currentTarget.style.background = 'rgba(244, 228, 193, 0.2)';
-                  e.currentTarget.style.opacity = '0.6';
-                }
-              }}
-            >
-              <AchievementMarker isActive={filters.showAchievements} />
-            </div>
-            
-            {/* Кнопка "Скрывать века" для мобильных */}
-            <div 
-              className="header-century-toggle" 
-              role="button"
-              tabIndex={0}
-              aria-label={filters.hideEmptyCenturies ? 'Показать все века' : 'Скрыть пустые века'}
-              aria-pressed={filters.hideEmptyCenturies}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                width: '52px',
-                height: '44px',
-                borderRadius: '6px',
-                background: filters.hideEmptyCenturies ? '#cd853f' : 'rgba(244, 228, 193, 0.2)',
-                border: `1px solid ${filters.hideEmptyCenturies ? 'rgba(205, 133, 63, 0.4)' : 'rgba(244, 228, 193, 0.3)'}`,
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                opacity: filters.hideEmptyCenturies ? 1 : 0.6
-              }}
-              onClick={handleHideEmptyCenturiesToggle}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleHideEmptyCenturiesToggle();
-                }
-              }}
-              title={filters.hideEmptyCenturies ? 'Показать все века' : 'Скрыть пустые века'}
-              onMouseEnter={(e) => {
-                if (!filters.hideEmptyCenturies) {
-                  e.currentTarget.style.background = 'rgba(205, 133, 63, 0.4)';
-                  e.currentTarget.style.opacity = '0.8';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!filters.hideEmptyCenturies) {
-                  e.currentTarget.style.background = 'rgba(244, 228, 193, 0.2)';
-                  e.currentTarget.style.opacity = '0.6';
-                }
-              }}
-            >
-              <span style={{ fontSize: '0.7rem', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
-                {filters.hideEmptyCenturies ? '<||>' : '>|<'}
-              </span>
-            </div>
-            
-            <GroupingToggle 
-              groupingType={groupingType}
-              onGroupingChange={setGroupingType}
-            />
-          </div>
-          
-          {/* Фильтры на отдельной строке для мобильных */}
-          <div className="header-filters-row" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', marginTop: '0.5rem' }}>
-            <FilterDropdown
-              title="🎭"
-              items={allCategories}
-              selectedItems={filters.categories}
-               onSelectionChange={(categories: string[]) => setFilters((prev: FiltersState) => ({ ...prev, categories }))}
-              getItemColor={getCategoryColor}
-              textLabel="Род деятельности"
-            />
-            <FilterDropdown
-              title="🌍"
-              items={allCountries}
-              selectedItems={filters.countries}
-               onSelectionChange={(countries: string[]) => setFilters((prev: FiltersState) => ({ ...prev, countries }))}
-              textLabel="Страна"
-            />
-          </div>
-          
-          {/* Временной промежуток - на отдельной строке */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}>
-            <YearRangeSlider
-              yearInputs={yearInputs}
-              setYearInputs={setYearInputs}
-              applyYearFilter={applyYearFilter}
-              handleYearKeyPress={handleYearKeyPress}
-              handleSliderMouseDown={handleSliderMouseDown}
-              handleSliderMouseMove={handleSliderMouseMove}
-              handleSliderMouseUp={handleSliderMouseUp}
-              isDraggingSlider={isDraggingSlider}
-              isMobile={true}
-            />
-          </div>
-          
-          {/* Кнопка сброса - отдельно */}
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            width: '100%',
-            opacity: (filters.categories.length > 0 || filters.countries.length > 0 || yearInputs.start !== '-800' || yearInputs.end !== '2000') ? 1 : 0,
-            pointerEvents: (filters.categories.length > 0 || filters.countries.length > 0 || yearInputs.start !== '-800' || yearInputs.end !== '2000') ? 'auto' : 'none',
-            transition: 'opacity 0.2s ease'
-          }}>
-            <button
-              onClick={resetAllFilters}
-              style={{
-                padding: '0.4rem 0.6rem',
-                background: 'rgba(231, 76, 60, 0.2)',
-                border: '1px solid rgba(231, 76, 60, 0.4)',
-                borderRadius: '4px',
-                color: '#e74c3c',
-                fontSize: '0.7rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              title="Сбросить все фильтры"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      </div>
+        <MobileHeaderControls
+          showControls={showControls}
+          filters={filters}
+          setFilters={setFilters}
+          groupingType={groupingType}
+          setGroupingType={setGroupingType}
+          allCategories={allCategories}
+          allCountries={allCountries}
+          yearInputs={yearInputs}
+          setYearInputs={setYearInputs}
+          applyYearFilter={applyYearFilter}
+          handleYearKeyPress={handleYearKeyPress}
+          resetAllFilters={resetAllFilters}
+          getCategoryColor={getCategoryColor}
+          handleSliderMouseDown={handleSliderMouseDown}
+          handleSliderMouseMove={handleSliderMouseMove}
+          handleSliderMouseUp={handleSliderMouseUp}
+          isDraggingSlider={isDraggingSlider}
+          extraFilterControls={extraFilterControls}
+          handleHideEmptyCenturiesToggle={handleHideEmptyCenturiesToggle}
+        />
       )}
     </header>
   )

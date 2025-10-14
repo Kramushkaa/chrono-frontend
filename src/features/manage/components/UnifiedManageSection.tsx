@@ -152,12 +152,12 @@ export function UnifiedManageSection({
           hasMore={data.hasMore}
         />
           <ItemsList
-            items={(data.items as any[]).map((item: any) => adaptToItemCard(item, itemType))}
+            items={data.items.map((item) => adaptToItemCard(item, itemType))}
             isLoading={(modeIsList ? listLoading : data.isLoading)}
             hasMore={(modeIsList ? false : data.hasMore)}
             onLoadMore={(modeIsList ? () => {} : data.loadMore)}
             onSelect={(id) => {
-              const item = (data.items as any[]).find((p: any) => String(p.id) === String(id))
+              const item = data.items.find((p) => String(p.id) === String(id))
               if (item) onSelect(item)
             }}
             onPersonSelect={onPersonSelect}

@@ -1,5 +1,8 @@
 /* ManagePage - Семантические стили для страницы управления */
 
+/* Импорт компонентных стилей */
+@import './manage-components.css';
+
 /* Импорт мобильных стилей для lists */
 @import './mobile-lists.css';
 

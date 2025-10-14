@@ -37,7 +37,7 @@ export function LifePeriodsEditor({ periods, onChange, options, minYear, maxYear
             value={lp.start}
             min={minYear}
             max={maxYear}
-            onChange={(e) => onChange(periods.map((it, i) => i === idx ? { ...it, start: (e.target.value === '' ? '' : Number(e.target.value)) as any } : it))}
+            onChange={(e) => onChange(periods.map((it, i) => i === idx ? { ...it, start: (e.target.value === '' ? '' : Number(e.target.value)) } : it))}
             style={{ 
               borderColor: (typeof lp.start === 'number' && minYear != null && lp.start < minYear) ? '#ff8888' : undefined,
               padding: '8px',
@@ -55,7 +55,7 @@ export function LifePeriodsEditor({ periods, onChange, options, minYear, maxYear
             value={lp.end}
             min={minYear}
             max={maxYear}
-            onChange={(e) => onChange(periods.map((it, i) => i === idx ? { ...it, end: (e.target.value === '' ? '' : Number(e.target.value)) as any } : it))}
+            onChange={(e) => onChange(periods.map((it, i) => i === idx ? { ...it, end: (e.target.value === '' ? '' : Number(e.target.value)) } : it))}
             style={{ 
               borderColor: (typeof lp.end === 'number' && maxYear != null && lp.end > maxYear) ? '#ff8888' : undefined,
               padding: '8px',

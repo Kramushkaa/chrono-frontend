@@ -43,25 +43,25 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, g
         )}
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 'bold', color: getGroupColor(getPersonGroup(person)), marginBottom: 6 }}>
-            {person.birthYear} - {person.deathYear}
+            {person.birthYear} - {person.deathYear ? person.deathYear : 'н.в.'}
           </div>
           <div style={{ marginBottom: 6 }}>
             <span style={{ color: getCategoryColor(person.category), fontWeight: 'bold' }}>{safeText(person.category)}</span>
             {' • '}
             <span>{safeText(person.country)}</span>
           </div>
-          {Array.isArray((person as any).rulerPeriods) && (person as any).rulerPeriods.length > 0 ? (
+          {Array.isArray(person.rulerPeriods) && person.rulerPeriods.length > 0 ? (
             <div style={{ marginBottom: 6 }}>
               <div style={{ fontSize: '0.95rem', color: '#E57373', fontWeight: 'bold' }}>👑 Периоды правления:</div>
               <ul style={{ margin: '4px 0 0 18px' }}>
-                {(person as any).rulerPeriods.map((rp: any, idx: number) => (
+                {person.rulerPeriods.map((rp, idx: number) => (
                   <li key={idx}>{rp.startYear} — {rp.endYear}{rp.countryName ? ` • ${rp.countryName}` : ''}</li>
                 ))}
               </ul>
             </div>
-          ) : (person.reignStart && person.reignEnd && (
+          ) : (person.reignStart && person.reignEnd) ? (
             <div style={{ marginBottom: 6, color: '#E57373', fontWeight: 'bold' }}>👑 Правление: {person.reignStart} - {person.reignEnd}</div>
-          ))}
+          ) : null}
         </div>
       </div>
 
@@ -77,7 +77,7 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, g
         fontSize: '0.95rem', lineHeight: 1.6, color: '#f4e4c1', fontStyle: 'italic', padding: 8,
         background: 'rgba(139, 69, 19, 0.1)', borderRadius: 6, border: '1px solid rgba(139, 69, 19, 0.2)'
       }}>
-        {safeText(person.description as any)}
+        {safeText(person.description)}
       </div>
 
       <div style={{ marginTop: 12 }}>
@@ -86,7 +86,7 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, g
             <h3 style={{ margin: '0 0 8px 0', color: getGroupColor(getPersonGroup(person)) }}>🎯 Ключевые достижения:</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
               {person.achievements.map((achievement, index) => {
-                const allYears = (person as any).achievementYears
+                const allYears = person.achievementYears
                 const year = Array.isArray(allYears) && allYears.length > 0
                   ? allYears[index]
                   : undefined

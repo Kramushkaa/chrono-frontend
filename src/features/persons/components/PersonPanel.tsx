@@ -192,7 +192,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
             <div 
               className="mobile-panel-person-years"
               id="mobile-panel-person-years"
-              aria-label={`Годы жизни: ${selectedPerson.birthYear} - ${selectedPerson.deathYear}`}
+              aria-label={`Годы жизни: ${selectedPerson.birthYear} - ${selectedPerson.deathYear || 'н.в.'}`}
               style={{
                 fontSize: '1.1rem',
                 fontWeight: 'bold',
@@ -200,7 +200,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
                 marginBottom: '0.5rem'
               }}
             >
-              {selectedPerson.birthYear} - {selectedPerson.deathYear}
+              {selectedPerson.birthYear} - {selectedPerson.deathYear || 'н.в.'}
             </div>
             
             <div 
@@ -232,7 +232,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
               </span>
             </div>
 
-            {Array.isArray((selectedPerson as any).rulerPeriods) && (selectedPerson as any).rulerPeriods.length > 0 ? (
+            {Array.isArray(selectedPerson.rulerPeriods) && selectedPerson.rulerPeriods.length > 0 ? (
               <div
                 className="mobile-panel-person-reign"
                 id="mobile-panel-person-reign"
@@ -240,30 +240,28 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
               >
                 <div style={{ fontSize: '0.95rem', color: '#E57373', fontWeight: 'bold' }}>👑 Периоды правления:</div>
                 <ul style={{ margin: '0.25rem 0 0 1rem', padding: 0, listStyle: 'disc', color: '#f4e4c1', fontSize: '0.9rem' }}>
-                  {(selectedPerson as any).rulerPeriods.map((rp: any, idx: number) => (
+                  {selectedPerson.rulerPeriods.map((rp, idx: number) => (
                     <li key={idx}>
                       {rp.startYear} — {rp.endYear}{rp.countryName ? ` • ${rp.countryName}` : ''}
                     </li>
                   ))}
                 </ul>
               </div>
-            ) : (
-              selectedPerson.reignStart && selectedPerson.reignEnd && (
-                <div 
-                  className="mobile-panel-person-reign"
-                  id="mobile-panel-person-reign"
-                  aria-label={`Период правления: ${selectedPerson.reignStart} - ${selectedPerson.reignEnd}`}
-                  style={{
-                    fontSize: '0.9rem',
-                    color: '#E57373',
-                    fontWeight: 'bold',
-                    marginBottom: '0.5rem'
-                  }}
-                >
-                  👑 Правление: {selectedPerson.reignStart} - {selectedPerson.reignEnd}
-                </div>
-              )
-            )}
+            ) : (selectedPerson.reignStart && selectedPerson.reignEnd) ? (
+              <div 
+                className="mobile-panel-person-reign"
+                id="mobile-panel-person-reign"
+                aria-label={`Период правления: ${selectedPerson.reignStart} - ${selectedPerson.reignEnd}`}
+                style={{
+                  fontSize: '0.9rem',
+                  color: '#E57373',
+                  fontWeight: 'bold',
+                  marginBottom: '0.5rem'
+                }}
+              >
+                👑 Правление: {selectedPerson.reignStart} - {selectedPerson.reignEnd}
+              </div>
+            ) : null}
           </div>
         </div>
 

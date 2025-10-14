@@ -170,10 +170,10 @@ export const Timeline: React.FC<TimelineProps> = ({
     measure()
     const onScroll = () => measure()
     window.addEventListener('resize', measure)
-    el.addEventListener('scroll', onScroll, { passive: true } as any)
+    el.addEventListener('scroll', onScroll, { passive: true } as AddEventListenerOptions)
     return () => {
       window.removeEventListener('resize', measure)
-      el.removeEventListener('scroll', onScroll as any)
+      el.removeEventListener('scroll', onScroll)
     }
   }, [timelineRef])
 
@@ -398,7 +398,7 @@ export const Timeline: React.FC<TimelineProps> = ({
         }}
       >
         <TimelineBackgroundOverlay
-          elements={timelineElements as any}
+          elements={timelineElements}
           getAdjustedPosition={getAdjustedPosition}
           adjustedTimelineWidth={getAdjustedTimelineWidth()}
           totalHeight={totalHeight}
@@ -407,20 +407,20 @@ export const Timeline: React.FC<TimelineProps> = ({
         />
 
         <CenturyGridLinesOverlay
-          elements={timelineElements as any}
+          elements={timelineElements}
           getAdjustedPosition={getAdjustedPosition}
           adjustedTimelineWidth={getAdjustedTimelineWidth()}
           totalHeight={totalHeight}
         />
 
         <ViewportCenturyLabelsOverlay
-          labels={createViewportCenturyLabels() as any}
+          labels={createViewportCenturyLabels()}
           adjustedTimelineWidth={getAdjustedTimelineWidth()}
           totalHeight={totalHeight}
         />
 
         <CategoryDividersOverlay
-          dividers={categoryDividers as any}
+          dividers={categoryDividers}
           getGroupColor={getGroupColor}
           adjustedTimelineWidth={getAdjustedTimelineWidth()}
           totalHeight={totalHeight}

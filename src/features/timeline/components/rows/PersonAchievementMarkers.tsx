@@ -43,8 +43,8 @@ export const PersonAchievementMarkers: React.FC<PersonAchievementMarkersProps> =
 
   if (!showAchievements) return null
 
-  const years: number[] = Array.isArray((person as any).achievementYears)
-    ? (person as any).achievementYears.filter((y: any) => y !== undefined && y !== null)
+  const years: number[] = Array.isArray(person.achievementYears)
+    ? person.achievementYears.filter((y) => y !== undefined && y !== null)
     : []
 
   if (years.length === 0) return null

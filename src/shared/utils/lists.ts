@@ -16,7 +16,7 @@ export async function copySharedListFromUrl(shareTitleFallback: string): Promise
 		const title = shareTitleFallback || 'Импортированный список'
 		const res = await apiFetch(`/api/lists/copy-from-share`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, title }) })
 		if (!res.ok) return null
-		const data = await res.json().catch(() => null) as any
+		const data = await res.json().catch(() => null) as { data?: { id?: number; title?: string } } | null
 		const newId = Number(data?.data?.id)
 		const newTitle = String(data?.data?.title || title)
 		return { id: Number.isFinite(newId) ? newId : null, title: newTitle }

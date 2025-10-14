@@ -388,7 +388,7 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
                       {person.category}
                       {showFeedback && (
                         <span className="birth-years">
-                          • {person.birthYear} - {person.deathYear}
+                          • {person.birthYear} - {person.deathYear || 'н.в.'}
                         </span>
                       )}
                     </p>

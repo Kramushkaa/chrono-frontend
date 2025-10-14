@@ -8,7 +8,7 @@ interface PersonReignBarsProps {
 }
 
 export const PersonReignBars: React.FC<PersonReignBarsProps> = ({ person, getAdjustedPosition, getAdjustedWidth }) => {
-  const rulerPeriods = Array.isArray((person as any).rulerPeriods) ? (person as any).rulerPeriods : null
+  const rulerPeriods = Array.isArray(person.rulerPeriods) ? person.rulerPeriods : null
 
   if (rulerPeriods && rulerPeriods.length > 0) {
     return (

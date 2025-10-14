@@ -48,7 +48,7 @@ export function Modal({
     const first = list[0]
     const last = list[list.length - 1]
     const active = document.activeElement as HTMLElement | null
-    const shift = (e as any).shiftKey
+    const shift = e.shiftKey
     if (!shift && active === last) { e.preventDefault(); first.focus(); }
     else if (shift && active === first) { e.preventDefault(); last.focus(); }
   }

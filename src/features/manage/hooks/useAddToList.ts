@@ -86,7 +86,8 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
         setIncludeLinked(false)
         await reloadLists?.(true)
       } else {
-        const msg = (data && (data as any).message) ? (data as any).message : 'Не удалось добавить в список'
+        const errorData = data as Record<string, unknown> | null
+        const msg = (errorData && typeof errorData.message === 'string') ? errorData.message : 'Не удалось добавить в список'
         showToast(msg, 'error')
       }
     } catch (e: any) {

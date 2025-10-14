@@ -247,6 +247,7 @@ export function MobileListsLayout(props: Props) {
               return React.cloneElement(child, {}, 
                 React.Children.map(child.props.children, (fragmentChild) => {
                   if (React.isValidElement(fragmentChild)) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     return React.cloneElement(fragmentChild as any, { 
                       onPersonSelect: handlePersonSelect
                     })
@@ -256,6 +257,7 @@ export function MobileListsLayout(props: Props) {
               )
             }
             // Если это обычный элемент, добавляем onPersonSelect
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return React.cloneElement(child as any, { 
               onPersonSelect: handlePersonSelect
             })

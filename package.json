@@ -14,15 +14,28 @@
     "typescript": "^4.9.5"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^18.15.0",
     "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11"
+    "@types/react-dom": "^18.0.11",
+    "identity-obj-proxy": "^3.0.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "source-map-explorer": "^2.5.3",
+    "ts-jest": "^29.4.5"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "react-scripts test --coverage --watchAll=false",
     "eject": "react-scripts eject",
-    "serve": "node server.js"
+    "serve": "node server.js",
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "build:analyze": "npm run build && npm run analyze"
   },
   "eslintConfig": {
     "extends": [

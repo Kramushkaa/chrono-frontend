@@ -37,14 +37,14 @@ export default function RegisterPage() {
         showControls={showControls}
         setShowControls={setShowControls}
         mode="minimal"
-        filters={filters as any}
-        setFilters={setFilters as any}
+        filters={filters}
+        setFilters={setFilters}
         groupingType={groupingType}
         setGroupingType={setGroupingType}
         allCategories={categories}
         allCountries={countries}
         yearInputs={yearInputs}
-        setYearInputs={setYearInputs as any}
+        setYearInputs={setYearInputs}
         applyYearFilter={applyYearFilter}
         handleYearKeyPress={handleYearKeyPress}
         resetAllFilters={resetAllFilters}

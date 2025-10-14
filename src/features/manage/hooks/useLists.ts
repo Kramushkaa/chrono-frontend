@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+// Extend window for cache
+declare global {
+  interface Window {
+    __listsCache?: Map<string, { items: ListItem[]; ts: number }>
+  }
+}
+
 type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean }
 
 type SharedList = {
@@ -30,11 +37,11 @@ export function useLists({ isAuthenticated, userId, apiData }: Params) {
   // In-memory cache per user
   const LISTS_CACHE_TTL_MS = 120000
   const listsCacheRef = useRef<Map<string, { items: ListItem[]; ts: number }>>(
-    (typeof window !== 'undefined' && (window as any).__listsCache) || new Map()
+    (typeof window !== 'undefined' && window.__listsCache) || new Map()
   )
   // Persist ref on window to share across hook instances
   useEffect(() => {
-    if (typeof window !== 'undefined') (window as any).__listsCache = listsCacheRef.current
+    if (typeof window !== 'undefined') window.__listsCache = listsCacheRef.current
   }, [])
 
   loadUserLists.current = useCallback(async (force?: boolean) => {
@@ -56,7 +63,7 @@ export function useLists({ isAuthenticated, userId, apiData }: Params) {
     listsInFlightRef.current = true
     try {
       const items = await apiData<Array<{ id: number; title: string; items_count?: number }>>(`/api/lists`)
-      const normalized = Array.isArray(items) ? (items as any) : []
+      const normalized: ListItem[] = Array.isArray(items) ? items : []
       setPersonLists(normalized)
       if (key) listsCacheRef.current.set(key, { items: normalized, ts: Date.now() })
       lastListsFetchTsRef.current = Date.now()

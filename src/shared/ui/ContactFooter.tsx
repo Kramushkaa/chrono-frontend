@@ -23,7 +23,7 @@ export const ContactFooter: React.FC<ContactFooterProps> = ({ fixed = false }) =
       bottom: fixed ? 0 : undefined,
       zIndex: fixed ? 5 : undefined,
       background: fixed ? 'rgba(24, 17, 9, 0.92)' : 'transparent',
-      backdropFilter: fixed ? 'blur(2px)' as any : undefined
+      backdropFilter: fixed ? 'blur(2px)' : undefined
     }}>
       <span>Связь:</span>
       <a href="mailto:admin@chrono.ninja" style={{ color: '#e6d7b2' }}>admin@chrono.ninja</a>

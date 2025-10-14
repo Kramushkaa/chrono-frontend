@@ -129,7 +129,7 @@ export function validateDto(name: DescriptorName, obj: any): { ok: boolean; erro
   }
   const errors: string[] = []
   for (const [key, spec] of Object.entries(desc)) {
-    const val = (obj as any)[key]
+    const val = (obj as Record<string, unknown>)[key]
     if (!checkBySpec(spec, val)) {
       errors.push(`${String(name)}.${key} expected ${spec}, got ${typeof val}`)
     }
