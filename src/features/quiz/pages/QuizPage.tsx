@@ -5,10 +5,7 @@ import { useQuiz } from '../hooks/useQuiz';
 import { QuizSetup } from '../components/QuizSetup';
 import { QuizResults } from '../components/QuizResults';
 import { QuizProgress } from '../components/QuizProgress';
-import { BirthYearQuestion } from '../components/QuestionTypes/BirthYearQuestion';
-import { DeathYearQuestion } from '../components/QuestionTypes/DeathYearQuestion';
-import { ProfessionQuestion } from '../components/QuestionTypes/ProfessionQuestion';
-import { CountryQuestion } from '../components/QuestionTypes/CountryQuestion';
+import { SingleChoiceQuestion } from '../components/QuestionTypes/SingleChoiceQuestion';
 import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion';
 import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion';
 import { ContemporariesQuestion } from '../components/QuestionTypes/ContemporariesQuestion';
@@ -121,44 +118,12 @@ const QuizPage: React.FC = () => {
     // Показываем вопрос с встроенной обратной связью
     switch (currentQuestion.type) {
       case 'birthYear':
-        return (
-          <BirthYearQuestion
-            data={currentQuestion.data}
-            onAnswer={handleAnswer}
-            showFeedback={showAnswer}
-            userAnswer={lastAnswer}
-            onNext={nextQuestion}
-            isLastQuestion={currentQuestionIndex === questions.length - 1}
-            onPersonInfoClick={handlePersonInfoClick}
-          />
-        );
       case 'deathYear':
-        return (
-          <DeathYearQuestion
-            data={currentQuestion.data}
-            onAnswer={handleAnswer}
-            showFeedback={showAnswer}
-            userAnswer={lastAnswer}
-            onNext={nextQuestion}
-            isLastQuestion={currentQuestionIndex === questions.length - 1}
-            onPersonInfoClick={handlePersonInfoClick}
-          />
-        );
       case 'profession':
-        return (
-          <ProfessionQuestion
-            data={currentQuestion.data}
-            onAnswer={handleAnswer}
-            showFeedback={showAnswer}
-            userAnswer={lastAnswer}
-            onNext={nextQuestion}
-            isLastQuestion={currentQuestionIndex === questions.length - 1}
-            onPersonInfoClick={handlePersonInfoClick}
-          />
-        );
       case 'country':
+        // Все простые вопросы с выбором ответа используют SingleChoiceQuestion
         return (
-          <CountryQuestion
+          <SingleChoiceQuestion
             data={currentQuestion.data}
             onAnswer={handleAnswer}
             showFeedback={showAnswer}
