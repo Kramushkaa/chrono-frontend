@@ -1,6 +1,7 @@
 import React from 'react'
 import { Person } from 'shared/types'
 import { usePersonAchievements } from '../hooks/usePersonAchievements'
+import { PersonStructuredData } from 'shared/ui/PersonStructuredData'
 
 interface PersonPanelProps {
   selectedPerson: Person | null
@@ -24,12 +25,14 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
   if (!selectedPerson) return null
 
   return (
-    <div 
-      className="mobile-person-panel"
-      id="mobile-person-panel"
-      role="dialog"
-      aria-label={`Информация о ${selectedPerson.name}`}
-      aria-modal="true"
+    <>
+      <PersonStructuredData person={selectedPerson} />
+      <div 
+        className="mobile-person-panel"
+        id="mobile-person-panel"
+        role="dialog"
+        aria-label={`Информация о ${selectedPerson.name}`}
+        aria-modal="true"
       style={{
         position: 'fixed',
         bottom: 0,
@@ -168,6 +171,8 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
               <img
                 src={selectedPerson.imageUrl}
                 alt={`Портрет ${selectedPerson.name}`}
+                loading="lazy"
+                decoding="async"
                 className="mobile-panel-person-photo"
                 id="mobile-panel-person-photo"
                 style={{
@@ -394,6 +399,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
         )}
       </div>
     </div>
+    </>
   )
 }
 

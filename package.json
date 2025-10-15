@@ -35,7 +35,9 @@
     "eject": "react-scripts eject",
     "serve": "node server.js",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "build:analyze": "npm run build && npm run analyze"
+    "build:analyze": "npm run build && npm run analyze",
+    "lighthouse": "lighthouse http://localhost:3000 --view --output html --output-path ./lighthouse/latest.html",
+    "lighthouse:ci": "lighthouse http://localhost:3000 --output json --output-path ./lighthouse/latest.json --quiet --chrome-flags=\"--headless\""
   },
   "eslintConfig": {
     "extends": [

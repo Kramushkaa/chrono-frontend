@@ -367,6 +367,8 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
                     <img 
                       src={person.imageUrl} 
                       alt={person.name}
+                      loading="lazy"
+                      decoding="async"
                       className="birth-order-image"
                     />
                   )}

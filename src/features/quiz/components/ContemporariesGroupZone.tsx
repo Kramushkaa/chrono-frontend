@@ -58,7 +58,7 @@ const PersonCard = React.memo<PersonCardProps>(
             </button>
           )}
 
-          {person.imageUrl && <img src={person.imageUrl} alt={person.name} className="contemporaries-person-image" />}
+          {person.imageUrl && <img src={person.imageUrl} alt={person.name} loading="lazy" decoding="async" className="contemporaries-person-image" />}
 
           <div className="contemporaries-person-content">
             <h5>{person.name}</h5>

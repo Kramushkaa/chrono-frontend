@@ -5,6 +5,7 @@ import { useQuiz } from '../hooks/useQuiz'
 import { QuizSetup } from '../components/QuizSetup'
 import { QuizResults } from '../components/QuizResults'
 import { QuizProgress } from '../components/QuizProgress'
+import { QuizStructuredData } from '../components/QuizStructuredData'
 import { SingleChoiceQuestion } from '../components/QuestionTypes/SingleChoiceQuestion'
 import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion'
 import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion'
@@ -203,6 +204,7 @@ const QuizPage: React.FC = () => {
           title="Игра на проверку знаний — Хронониндзя"
           description="Проверьте свои знания исторических личностей в увлекательной игре с вопросами разных типов."
         />
+        <QuizStructuredData />
         <AppHeader {...getMinimalHeaderProps({ onBackToMenu: handleBackToMenu, extraRightControls: null })} />
         <div className="quiz-content">
         <QuizSetup

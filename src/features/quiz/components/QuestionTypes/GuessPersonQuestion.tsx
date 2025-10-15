@@ -204,6 +204,8 @@ export const GuessPersonQuestion: React.FC<GuessPersonQuestionProps> = ({
                 <img 
                   src={data.correctPerson.imageUrl} 
                   alt={data.correctPerson.name}
+                  loading="lazy"
+                  decoding="async"
                   className="quiz-question-image"
                 />
               )}

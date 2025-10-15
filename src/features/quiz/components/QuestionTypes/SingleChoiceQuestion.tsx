@@ -60,6 +60,8 @@ export const SingleChoiceQuestion: React.FC<SingleChoiceQuestionProps> = ({
             <img 
               src={data.person.imageUrl} 
               alt={data.person.name}
+              loading="lazy"
+              decoding="async"
               className="quiz-question-image"
             />
           )}

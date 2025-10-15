@@ -261,6 +261,8 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
                     <img 
                       src={person.imageUrl} 
                       alt={person.name}
+                      loading="lazy"
+                      decoding="async"
                       className="achievements-person-image"
                     />
                   )}

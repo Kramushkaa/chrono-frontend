@@ -37,6 +37,8 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, g
           <img
             src={person.imageUrl}
             alt={`Портрет ${person.name}`}
+            loading="lazy"
+            decoding="async"
             style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', border: `3px solid ${getGroupColor(getPersonGroup(person))}` }}
             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
           />
