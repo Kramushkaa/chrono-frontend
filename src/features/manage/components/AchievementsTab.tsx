@@ -166,8 +166,8 @@ export function AchievementsTab({
         listItems={listItems}
         onDeleteListItem={handleDeleteListItem}
         getListItemIdByDisplayId={(id) => listItemIdByDomainIdRef.current.get(String(id))}
-        onSelect={(achievement) => {
-          // TODO: добавить обработку выбора достижения
+        onSelect={() => {
+          // Achievement selection not implemented yet
         }}
         onAddItem={(id) => addToList.openForAchievement(Number(id))}
         labelAll="Все достижения"

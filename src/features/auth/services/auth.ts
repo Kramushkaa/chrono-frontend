@@ -45,12 +45,11 @@ export async function register(payload: { email: string; password: string; login
   return data;
 }
 
-export async function login(payload: { login: string; password: string; } | { email: string; password: string; }) {
+export async function login(payload: { login: string; password: string; }) {
   const res = await apiFetch('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    // Support both new {login, password} and legacy {email, password}
-    body: JSON.stringify('login' in payload ? payload : { login: (payload as { email: string; password: string }).email, password: (payload as { email: string; password: string }).password })
+    body: JSON.stringify(payload)
   });
   if (!res.ok) throw new Error('Login failed');
   const data = await res.json();

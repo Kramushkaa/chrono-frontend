@@ -189,8 +189,8 @@ export function PeriodsTab({
         listItems={listItems}
         onDeleteListItem={handleDeleteListItem}
         getListItemIdByDisplayId={(id) => listItemIdByDomainIdRef.current.get(String(id))}
-        onSelect={(period) => {
-          // TODO: добавить обработку выбора периода
+        onSelect={() => {
+          // Period selection not implemented yet
         }}
         onAddItem={(id) => addToList.openForPeriod(Number(id))}
         labelAll="Все периоды"
