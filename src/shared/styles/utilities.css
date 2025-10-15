@@ -1,5 +1,10 @@
 /* ===== UTILITY CLASSES ===== */
 /* Common utility classes to reduce inline styles and code duplication */
+/* 
+ * NOTE: These classes are currently not used in favor of inline styles.
+ * Reserved for future refactoring when migrating from inline styles to CSS classes.
+ * See CSS_CLEANUP_REPORT.md for details.
+ */
 
 /* Flexbox utilities */
 .flex {

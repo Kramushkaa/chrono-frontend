@@ -6,6 +6,7 @@ import { Breadcrumbs } from 'shared/ui/Breadcrumbs';
 import { useFilters } from '../../../shared/hooks/useFilters';
 import { getCategories, getCountries } from 'shared/api/api';
 import { getGroupColor } from 'features/persons/utils/groupingUtils';
+import { SEO } from 'shared/ui/SEO';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -32,6 +33,10 @@ export default function RegisterPage() {
 
   return (
     <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Регистрация">
+      <SEO
+        title="Регистрация — Хронониндзя"
+        description="Зарегистрируйтесь для создания списков и участия в играх."
+      />
       <AppHeader
         isScrolled={isScrolled}
         showControls={showControls}

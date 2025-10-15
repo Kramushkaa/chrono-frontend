@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { apiData } from '../api/core'
 
-export interface UseEntityQueryOptions<T, F = any> {
+export interface UseEntityQueryOptions<T, F = Record<string, unknown>> {
   /** API endpoint to fetch from */
   endpoint: string
   /** Query filters object */
@@ -9,7 +9,7 @@ export interface UseEntityQueryOptions<T, F = any> {
   /** Enable/disable the query */
   enabled?: boolean
   /** Transform function to process raw data */
-  transform?: (data: any) => T[]
+  transform?: (data: unknown[]) => T[]
   /** Custom cache key (auto-generated if not provided) */
   cacheKey?: string
   /** Cache TTL in milliseconds (default: 60000) */
@@ -28,7 +28,7 @@ export interface UseEntityQueryResult<T> {
 }
 
 // Simple in-memory cache
-const cache = new Map<string, { data: any; timestamp: number }>()
+const cache = new Map<string, { data: unknown; timestamp: number }>()
 const DEFAULT_CACHE_TIME = 60000 // 1 minute
 
 /**
@@ -50,7 +50,7 @@ const DEFAULT_CACHE_TIME = 60000 // 1 minute
  * })
  * ```
  */
-export function useEntityQuery<T = any, F = any>(
+export function useEntityQuery<T, F = Record<string, unknown>>(
   options: UseEntityQueryOptions<T, F>
 ): UseEntityQueryResult<T> {
   const { endpoint, filters, enabled = true, transform, cacheKey, cacheTime = DEFAULT_CACHE_TIME } = options
@@ -82,7 +82,7 @@ export function useEntityQuery<T = any, F = any>(
     // Check cache first
     const cached = cache.get(currentCacheKey)
     if (cached && Date.now() - cached.timestamp < cacheTime) {
-      setData(cached.data)
+      setData(cached.data as T[])
       setIsLoading(false)
       setError(null)
       return
@@ -112,7 +112,7 @@ export function useEntityQuery<T = any, F = any>(
       const fullPath = `${endpoint}${queryString ? `?${queryString}` : ''}`
 
       // Use apiData which handles auth, retry, and proper URL construction
-      const responseData = await apiData<any[]>(fullPath, {
+      const responseData = await apiData<unknown[]>(fullPath, {
         signal: abortControllerRef.current.signal,
       })
 

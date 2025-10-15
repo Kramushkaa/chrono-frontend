@@ -50,8 +50,14 @@ export function UserMenu({ style, className }: UserMenuProps) {
     >
       <button
         onClick={() => setOpen((v) => !v)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape' && open) {
+            setOpen(false);
+          }
+        }}
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-label={isAuthenticated ? (user?.username || user?.email || 'Профиль') : 'Войти'}
         title={isAuthenticated ? (user?.username || user?.email || 'Профиль') : 'Войти'}
         style={{
           padding: '6px 8px',
@@ -63,7 +69,6 @@ export function UserMenu({ style, className }: UserMenuProps) {
         }}
       >
         <span aria-hidden="true">👤</span>
-        <span className="sr-only">{isAuthenticated ? (user?.username || 'Профиль') : 'Войти'}</span>
       </button>
 
       {open && (
@@ -85,10 +90,12 @@ export function UserMenu({ style, className }: UserMenuProps) {
         >
           {isAuthenticated ? (
             <div style={{ display: 'grid', gap: 8 }}>
-              <div style={{ fontWeight: 600, color: '#f4e4c1' }}>
+              <div style={{ fontWeight: 600, color: '#f4e4c1' }} aria-label={`Вы вошли как ${user?.username || user?.email}`}>
                 {user?.username || user?.email}
               </div>
               <button
+                role="menuitem"
+                aria-label="Перейти в профиль"
                 onClick={() => {
                   setOpen(false);
                   navigate('/profile');
@@ -98,6 +105,8 @@ export function UserMenu({ style, className }: UserMenuProps) {
                 Профиль
               </button>
               <button
+                role="menuitem"
+                aria-label="Выйти из аккаунта"
                 onClick={async () => {
                   setOpen(false);
                   await logout();
@@ -111,6 +120,8 @@ export function UserMenu({ style, className }: UserMenuProps) {
             <div style={{ display: 'grid', gap: 10 }}>
               <LoginForm onSuccess={() => setOpen(false)} />
               <button
+                role="menuitem"
+                aria-label="Перейти на страницу регистрации"
                 onClick={() => {
                   setOpen(false);
                   navigate('/register');

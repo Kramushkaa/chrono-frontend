@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GuessPersonQuestionData, QuizAnswer } from '../../types';
+import { GuessPersonQuestionData, QuizAnswer, QuizPerson } from '../../types';
 
 interface GuessPersonQuestionProps {
   data: GuessPersonQuestionData;
@@ -8,7 +8,7 @@ interface GuessPersonQuestionProps {
   userAnswer?: QuizAnswer | null;
   onNext?: () => void;
   isLastQuestion?: boolean;
-  onPersonInfoClick?: (person: any) => void;
+  onPersonInfoClick?: (person: QuizPerson) => void;
 }
 
 export const GuessPersonQuestion: React.FC<GuessPersonQuestionProps> = ({ 

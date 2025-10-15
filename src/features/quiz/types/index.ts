@@ -1,9 +1,18 @@
+import type { Person } from 'shared/types'
+
 export interface QuizSetupConfig {
   selectedCountries: string[];
   selectedCategories: string[];
   questionTypes: string[];
   questionCount: number;
   timeRange: { start: number; end: number };
+}
+
+// Упрощенный тип Person для quiz (может быть неполным, country может быть массивом)
+export type QuizPerson = Partial<Omit<Person, 'country'>> & { 
+  id: string
+  name: string
+  country?: string | string[]
 }
 
 export interface QuizQuestion {
@@ -13,7 +22,8 @@ export interface QuizQuestion {
   options?: string[];
   correctAnswer: string | string[] | string[][];
   explanation?: string;
-  data: any; // Данные для конкретного типа вопроса
+  // data может быть любым из типов вопросов - каждый компонент знает свой тип
+  data: unknown
 }
 
 export interface QuizAnswer {

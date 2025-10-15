@@ -7,7 +7,7 @@ type Params = {
   reloadLists: (force?: boolean) => Promise<void> | void
   getSelectedPerson: () => PersonRef | null
   apiFetch: (path: string, init?: RequestInit) => Promise<Response>
-  apiData: <T = any>(path: string, init?: RequestInit) => Promise<T>
+  apiData: <T = unknown>(path: string, init?: RequestInit) => Promise<T>
 }
 
 export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFetch, apiData }: Params) {
@@ -63,8 +63,8 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
         if (addingPersonId && includeLinked) {
           try {
             const [achJson, perJson] = await Promise.all([
-              apiData<any[]>(`/api/persons/${encodeURIComponent(addingPersonId)}/achievements`),
-              apiData<any[]>(`/api/persons/${encodeURIComponent(addingPersonId)}/periods`)
+              apiData<Array<{ id: number }>>(`/api/persons/${encodeURIComponent(addingPersonId)}/achievements`),
+              apiData<Array<{ id: number }>>(`/api/persons/${encodeURIComponent(addingPersonId)}/periods`)
             ])
             const achs: Array<{ id: number }> = Array.isArray(achJson) ? achJson : []
             const pers: Array<{ id: number }> = Array.isArray(perJson) ? perJson : []
@@ -90,8 +90,9 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
         const msg = (errorData && typeof errorData.message === 'string') ? errorData.message : 'Не удалось добавить в список'
         showToast(msg, 'error')
       }
-    } catch (e: any) {
-      showToast(e?.message || 'Ошибка', 'error')
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Ошибка'
+      showToast(errorMessage, 'error')
     }
   }, [pendingAddPersonId, pendingAddAchievementId, pendingAddPeriodId, getSelectedPerson, includeLinked, apiFetch, apiData, showToast, reloadLists, close])
 

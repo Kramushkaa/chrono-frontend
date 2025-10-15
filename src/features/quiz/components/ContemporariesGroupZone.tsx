@@ -1,5 +1,5 @@
 import React from 'react'
-import { ContemporariesQuestionData } from '../types'
+import { ContemporariesQuestionData, QuizPerson } from '../types'
 
 interface PersonCardProps {
   personId: string
@@ -13,7 +13,7 @@ interface PersonCardProps {
   onTouchStart: (e: React.TouchEvent, personId: string) => void
   onTouchMove: (e: React.TouchEvent) => void
   onTouchEnd: (e: React.TouchEvent) => void
-  onPersonInfoClick?: (person: any) => void
+  onPersonInfoClick?: (person: QuizPerson) => void
 }
 
 const PersonCard = React.memo<PersonCardProps>(
@@ -98,7 +98,7 @@ interface ContemporariesGroupZoneProps {
   onTouchMove: (e: React.TouchEvent) => void
   onTouchEnd: (e: React.TouchEvent) => void
   onRemoveGroup: (groupIndex: number) => void
-  onPersonInfoClick?: (person: any) => void
+  onPersonInfoClick?: (person: QuizPerson) => void
 }
 
 export const ContemporariesGroupZone = React.memo<ContemporariesGroupZoneProps>(

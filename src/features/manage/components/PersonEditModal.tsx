@@ -8,6 +8,32 @@ import { apiFetch } from 'shared/api/api'
 
 type Option = { value: string; label: string }
 
+// Типы для периодов жизни
+export interface LifePeriod {
+  countryId: string
+  start: number | ''
+  end: number | ''
+}
+
+export interface LifePeriodPayload {
+  country_id: number
+  start_year: number
+  end_year: number
+}
+
+// Тип для payload редактирования персоны
+export interface PersonEditPayload {
+  id: string
+  name: string
+  birthYear: number
+  deathYear: number
+  category: string
+  country: string
+  description: string
+  imageUrl: string | null
+  wikiLink: string | null
+}
+
 type Props = {
   isOpen: boolean
   onClose: () => void
@@ -20,14 +46,14 @@ type Props = {
   editPersonCategory: string
   setEditPersonCategory: (s: string) => void
   categorySelectOptions: Option[]
-  lifePeriods: Array<{ countryId: string; start: number | ''; end: number | '' }>
-  setLifePeriods: (updater: any) => void
+  lifePeriods: LifePeriod[]
+  setLifePeriods: (updater: LifePeriod[] | ((prev: LifePeriod[]) => LifePeriod[])) => void
   countrySelectOptions: Option[]
   showToast: (m: string, t?: 'success' | 'error' | 'info') => void
   onPersonUpdated: (fresh: Person) => void
-  onProposeEdit: (id: string, payload: any, nextLifePeriods: Array<{ country_id: number; start_year: number; end_year: number }>) => Promise<void>
-  onUpdateDraft?: (id: string, payload: any, nextLifePeriods: Array<{ country_id: number; start_year: number; end_year: number }>) => Promise<void>
-  onSubmitDraft?: (id: string, payload: any, nextLifePeriods: Array<{ country_id: number; start_year: number; end_year: number }>) => Promise<void>
+  onProposeEdit: (id: string, payload: PersonEditPayload, nextLifePeriods: LifePeriodPayload[]) => Promise<void>
+  onUpdateDraft?: (id: string, payload: PersonEditPayload, nextLifePeriods: LifePeriodPayload[]) => Promise<void>
+  onSubmitDraft?: (id: string, payload: PersonEditPayload, nextLifePeriods: LifePeriodPayload[]) => Promise<void>
   onSuccess?: () => void
 }
 
@@ -167,8 +193,9 @@ export function PersonEditModal(props: Props) {
                   if (fresh) onPersonUpdated(fresh)
                   showToast('Личность сохранена', 'success')
                   onClose()
-                } catch (e: any) {
-                  showToast(e?.message || 'Ошибка сохранения', 'error')
+                } catch (e) {
+                  const errorMessage = e instanceof Error ? e.message : 'Ошибка сохранения'
+                  showToast(errorMessage, 'error')
                 } finally {
                   setSaving(false)
                 }
@@ -199,8 +226,9 @@ export function PersonEditModal(props: Props) {
                         // Вызываем callback для обновления данных
                         if (onSuccess) onSuccess()
                         onClose()
-                      } catch (e: any) {
-                        showToast(e?.message || 'Ошибка сохранения', 'error')
+                      } catch (e) {
+                        const errorMessage = e instanceof Error ? e.message : 'Ошибка сохранения'
+                        showToast(errorMessage, 'error')
                       } finally {
                         setSaving(false)
                       }
@@ -216,8 +244,9 @@ export function PersonEditModal(props: Props) {
                         // Вызываем callback для обновления данных
                         if (onSuccess) onSuccess()
                         onClose()
-                      } catch (e: any) {
-                        showToast(e?.message || 'Ошибка отправки', 'error')
+                      } catch (e) {
+                        const errorMessage = e instanceof Error ? e.message : 'Ошибка отправки'
+                        showToast(errorMessage, 'error')
                       } finally {
                         setSaving(false)
                       }
@@ -242,8 +271,9 @@ export function PersonEditModal(props: Props) {
                         // Вызываем callback для обновления данных
                         if (onSuccess) onSuccess()
                         onClose()
-                      } catch (e: any) {
-                        showToast(e?.message || 'Ошибка отправки', 'error')
+                      } catch (e) {
+                        const errorMessage = e instanceof Error ? e.message : 'Ошибка отправки'
+                        showToast(errorMessage, 'error')
                       } finally {
                         setSaving(false)
                       }

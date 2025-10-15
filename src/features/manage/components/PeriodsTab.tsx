@@ -1,6 +1,68 @@
 import React from 'react'
 import { UnifiedManageSection } from './UnifiedManageSection'
 import type { MenuSelection } from '../hooks/useManageState'
+import type { FiltersState, SetFilters, MixedListItem, Period } from 'shared/types'
+import type { PeriodTile } from 'shared/hooks/usePeriods'
+
+// PeriodItem from useManagePageData
+interface PeriodItem {
+  id: number
+  name: string
+  startYear: number
+  endYear: number
+  type: string
+  description?: string
+  person_id?: string
+  country_id?: number
+  status?: string
+}
+
+// Shared types
+interface SharedList {
+  id: number
+  title: string
+  owner_user_id?: string
+  code?: string
+  items_count?: number
+  persons_count?: number
+  achievements_count?: number
+  periods_count?: number
+}
+
+interface PersonList {
+  id: number
+  title: string
+  items_count?: number
+  readonly?: boolean
+}
+
+interface AddToListActions {
+  isOpen: boolean
+  openForPerson: (person: { id: string }) => void
+  openForAchievement: (achievementId: number) => void
+  openForPeriod: (periodId: number) => void
+  close: () => void
+  includeLinked: boolean
+  setIncludeLinked: (value: boolean) => void
+  onAdd: (listId: number) => Promise<void>
+}
+
+// Period entity type - расширенный Period с дополнительными полями
+interface PeriodEntity extends Period {
+  id?: number
+  name?: string
+  description?: string
+  person_id?: string
+  country_id?: number
+  status?: string
+}
+
+interface PeriodsDataState {
+  items: PeriodEntity[] | PeriodTile[] | PeriodItem[]
+  isLoading: boolean
+  hasMore: boolean
+  loadMore: () => void
+}
 
 interface PeriodsTabProps {
   sidebarCollapsed: boolean
@@ -8,8 +70,8 @@ interface PeriodsTabProps {
   setMenuSelection: (selection: MenuSelection) => void
   isModerator: boolean
   mineCounts: { persons: number; achievements: number; periods: number }
-  sharedList: any
-  personLists: any[]
+  sharedList: SharedList | null
+  personLists: PersonList[]
   isAuthenticated: boolean
   setShowAuthModal: (show: boolean) => void
   setShowCreateList: (show: boolean) => void
@@ -20,19 +82,19 @@ interface PeriodsTabProps {
   setSelectedListId: (id: number | null) => void
   loadUserLists: (force?: boolean) => Promise<void>
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void
-  listItems: any[]
+  listItems: MixedListItem[]
   listLoading: boolean
-  periodsData: any
-  periodsMineData: any
+  periodsData: PeriodsDataState
+  periodsMineData: PeriodsDataState
   searchPeriods: string
   setSearchPeriods: (query: string) => void
-  filters: any
-  setFilters: any
+  filters: FiltersState
+  setFilters: SetFilters
   periodsStatusFilters: Record<string, boolean>
   setPeriodsStatusFilters: (filters: Record<string, boolean>) => void
   listItemIdByDomainIdRef: React.MutableRefObject<Map<string, number>>
   handleDeleteListItem: (listItemId: number) => void
-  addToList: any
+  addToList: AddToListActions
 }
 
 export function PeriodsTab({
@@ -106,7 +168,7 @@ export function PeriodsTab({
                 items: listItems
                   .filter((i) => i.type === 'period')
                   .map((i) => i.period)
-                  .filter(Boolean),
+                  .filter((p) => p != null) as PeriodEntity[],
                 isLoading: listLoading,
                 hasMore: false,
                 loadMore: () => {},

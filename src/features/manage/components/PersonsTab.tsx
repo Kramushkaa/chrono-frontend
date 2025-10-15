@@ -1,9 +1,42 @@
 import React from 'react'
-import { Person } from 'shared/types'
+import { Person, FiltersState, SetFilters, MixedListItem } from 'shared/types'
 import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils'
 import { PersonCard } from 'features/persons/components/PersonCard'
 import { UnifiedManageSection } from './UnifiedManageSection'
 import type { MenuSelection } from '../hooks/useManageState'
+import type { AuthUser } from 'features/auth/services/auth'
+
+// Shared list type
+interface SharedList {
+  id: number
+  title: string
+  owner_user_id?: string
+  code?: string
+  items_count?: number
+  persons_count?: number
+  achievements_count?: number
+  periods_count?: number
+}
+
+// Person list type
+interface PersonList {
+  id: number
+  title: string
+  items_count?: number
+  readonly?: boolean
+}
+
+// AddToList actions interface
+interface AddToListActions {
+  isOpen: boolean
+  openForPerson: (person: { id: string }) => void
+  openForAchievement: (achievementId: number) => void
+  openForPeriod: (periodId: number) => void
+  close: () => void
+  includeLinked: boolean
+  setIncludeLinked: (value: boolean) => void
+  onAdd: (listId: number) => Promise<void>
+}
 
 interface PersonsTabProps {
   sidebarCollapsed: boolean
@@ -11,8 +44,8 @@ interface PersonsTabProps {
   setMenuSelection: (selection: MenuSelection) => void
   isModerator: boolean
   mineCounts: { persons: number; achievements: number; periods: number }
-  sharedList: any
-  personLists: any[]
+  sharedList: SharedList | null
+  personLists: PersonList[]
   isAuthenticated: boolean
   setShowAuthModal: (show: boolean) => void
   setShowCreateList: (show: boolean) => void
@@ -23,14 +56,14 @@ interface PersonsTabProps {
   setSelectedListId: (id: number | null) => void
   loadUserLists: (force?: boolean) => Promise<void>
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void
-  listItems: any[]
+  listItems: MixedListItem[]
   listLoading: boolean
-  personsAlt: any[]
+  personsAlt: Person[]
   personsAltLoading: boolean
   personsAltInitialLoading: boolean
   personsAltHasMore: boolean
   loadMorePersonsAlt: () => void
-  personsAll: any[]
+  personsAll: Person[]
   isPersonsLoadingAll: boolean
   personsHasMoreAll: boolean
   loadMorePersonsAll: () => void
@@ -38,16 +71,16 @@ interface PersonsTabProps {
   setSearchPersons: (query: string) => void
   categories: string[]
   countries: string[]
-  filters: any
-  setFilters: any
+  filters: FiltersState
+  setFilters: SetFilters
   statusFilters: Record<string, boolean>
   setStatusFilters: (filters: Record<string, boolean>) => void
   listItemIdByDomainIdRef: React.MutableRefObject<Map<string, number>>
   handleDeleteListItem: (listItemId: number) => void
   selected: Person | null
   setSelected: (person: Person | null) => void
-  addToList: any
-  user: any
+  addToList: AddToListActions
+  user: AuthUser | null
   setIsEditing: (editing: boolean) => void
   setShowEditWarning: (show: boolean) => void
 }
@@ -169,7 +202,12 @@ export function PersonsTab({
           listItems={listItems}
           onDeleteListItem={handleDeleteListItem}
           getListItemIdByDisplayId={(id) => listItemIdByDomainIdRef.current.get(String(id))}
-          onSelect={(p) => setSelected(p)}
+          onSelect={(p) => {
+            // Type guard: check if it's a Person
+            if ('birthYear' in p && 'category' in p && 'country' in p) {
+              setSelected(p as Person)
+            }
+          }}
           onPersonSelect={(person) => setSelected(person)}
           onAddItem={(id) => addToList.openForPerson({ id } as Person)}
           labelAll="Все личности"

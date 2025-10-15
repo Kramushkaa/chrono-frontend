@@ -2,7 +2,7 @@ import React from 'react'
 import { Person } from 'shared/types'
 import { AuthRequiredModal } from './AuthRequiredModal'
 import { CreateEntityModal } from './CreateEntityModal'
-import { PersonEditModal } from './PersonEditModal'
+import { PersonEditModal, type LifePeriod, type LifePeriodPayload, type PersonEditPayload } from './PersonEditModal'
 import { CreateListModal } from './CreateListModal'
 import { AddToListModal } from './AddToListModal'
 import { EditWarningModal } from 'shared/ui/EditWarningModal'
@@ -21,6 +21,27 @@ import {
   proposeNewPerson,
 } from 'shared/api/api'
 import { slugifyIdFromName } from 'shared/utils/slug'
+import type { AuthUser } from 'features/auth/services/auth'
+
+// Типы для списков
+interface PersonList {
+  id: number
+  title: string
+  items_count?: number
+  readonly?: boolean
+}
+
+// Тип для addToList hook result
+interface AddToListActions {
+  isOpen: boolean
+  openForPerson: (person: { id: string }) => void
+  openForAchievement: (achievementId: number) => void
+  openForPeriod: (periodId: number) => void
+  close: () => void
+  includeLinked: boolean
+  setIncludeLinked: (value: boolean) => void
+  onAdd: (listId: number) => Promise<void>
+}
 
 interface ManageModalsProps {
   // Modal states
@@ -45,19 +66,19 @@ interface ManageModalsProps {
   countrySelectOptions: Array<{ value: string; label: string }>
   selected: Person | null
   setSelected: (person: Person | null) => void
-  lifePeriods: Array<{ countryId: string; start: number | ''; end: number | '' }>
-  setLifePeriods: (periods: Array<{ countryId: string; start: number | ''; end: number | '' }>) => void
+  lifePeriods: LifePeriod[]
+  setLifePeriods: (periods: LifePeriod[] | ((prev: LifePeriod[]) => LifePeriod[])) => void
   editBirthYear: number
   setEditBirthYear: (year: number) => void
   editDeathYear: number
   setEditDeathYear: (year: number) => void
   editPersonCategory: string
   setEditPersonCategory: (category: string) => void
-  personLists: any[]
+  personLists: PersonList[]
   isAuthenticated: boolean
-  user: any
+  user: AuthUser | null
   isModerator: boolean
-  addToList: any
+  addToList: AddToListActions
 
   // Functions
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void
@@ -160,8 +181,9 @@ export function ManageModals({
 
             setShowCreate(false)
             resetPersons()
-          } catch (e: any) {
-            showToast(e?.message || 'Ошибка при создании личности', 'error')
+          } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : 'Ошибка при создании личности'
+            showToast(errorMessage, 'error')
           }
         }}
         onCreateAchievement={async (payload) => {
@@ -184,8 +206,9 @@ export function ManageModals({
 
             setShowCreate(false)
             resetAchievements()
-          } catch (e: any) {
-            showToast(e?.message || 'Ошибка при создании достижения', 'error')
+          } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : 'Ошибка при создании достижения'
+            showToast(errorMessage, 'error')
           }
         }}
         onCreatePeriod={async (payload) => {
@@ -214,8 +237,9 @@ export function ManageModals({
 
             setShowCreate(false)
             resetPeriods()
-          } catch (e: any) {
-            showToast(e?.message || 'Ошибка при создании периода', 'error')
+          } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : 'Ошибка при создании периода'
+            showToast(errorMessage, 'error')
           }
         }}
         personOptions={[]}
@@ -242,8 +266,8 @@ export function ManageModals({
         onPersonUpdated={(fresh: Person) => setSelected(fresh)}
         onProposeEdit={async (
           id: string,
-          payload: any,
-          next: Array<{ country_id: number; start_year: number; end_year: number }>
+          payload: PersonEditPayload,
+          next: LifePeriodPayload[]
         ) => {
           await proposePersonEdit(id, payload)
           const orig = (selected && Array.isArray(selected.periods) ? selected.periods : [])
@@ -254,7 +278,7 @@ export function ManageModals({
               end_year: Number(pr.endYear),
             }))
             .sort(
-              (a: any, b: any) => a.start_year - b.start_year || a.end_year - b.end_year || a.country_id - b.country_id
+              (a, b) => a.start_year - b.start_year || a.end_year - b.end_year || a.country_id - b.country_id
             )
           const changed = JSON.stringify(orig) !== JSON.stringify(next)
           if (changed) {
@@ -267,8 +291,8 @@ export function ManageModals({
         }}
         onUpdateDraft={async (
           id: string,
-          payload: any,
-          next: Array<{ country_id: number; start_year: number; end_year: number }>
+          payload: PersonEditPayload,
+          next: LifePeriodPayload[]
         ) => {
           const lifePeriods = next.map((p) => ({
             countryId: String(p.country_id),
@@ -281,8 +305,8 @@ export function ManageModals({
         }}
         onSubmitDraft={async (
           id: string,
-          payload: any,
-          next: Array<{ country_id: number; start_year: number; end_year: number }>
+          payload: PersonEditPayload,
+          next: LifePeriodPayload[]
         ) => {
           const lifePeriods = next.map((p) => ({
             countryId: String(p.country_id),
@@ -355,8 +379,9 @@ export function ManageModals({
             const fresh = await getPersonById(selected.id)
             if (fresh) setSelected(fresh)
             setShowEditWarning(false)
-          } catch (e: any) {
-            showToast(e?.message || 'Ошибка при возврате в черновики', 'error')
+          } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : 'Ошибка при возврате в черновики'
+            showToast(errorMessage, 'error')
           } finally {
             setIsReverting(false)
           }

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BirthOrderQuestionData, QuizAnswer } from '../../types';
+import { BirthOrderQuestionData, QuizAnswer, QuizPerson } from '../../types';
 import { useMobile } from 'shared/hooks/useMobile';
 
 interface BirthOrderQuestionProps {
@@ -9,7 +9,7 @@ interface BirthOrderQuestionProps {
   userAnswer?: QuizAnswer | null;
   onNext?: () => void;
   isLastQuestion?: boolean;
-  onPersonInfoClick?: (person: any) => void;
+  onPersonInfoClick?: (person: QuizPerson) => void;
 }
 
 export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({ 

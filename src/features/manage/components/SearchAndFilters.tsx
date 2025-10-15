@@ -1,5 +1,6 @@
 import React from 'react'
 import { FilterDropdown } from 'shared/ui/FilterDropdown'
+import type { FiltersState, SetFilters } from 'shared/types'
 
 interface Props {
   itemType: 'person' | 'achievement' | 'period'
@@ -7,8 +8,8 @@ interface Props {
   setSearchQuery: (v: string) => void
   categories: string[]
   countries: string[]
-  filters: any
-  setFilters: any
+  filters: FiltersState
+  setFilters: SetFilters
   statusFilters: Record<string, boolean>
   setStatusFilters: (fs: Record<string, boolean>) => void
   showStatusFilter: boolean
@@ -54,7 +55,7 @@ export function SearchAndFilters({
                 }
               })}
             onSelectionChange={(statuses) => {
-              const statusMap: any = {
+              const statusMap: Record<string, string> = {
                 '🟡 Черновики': 'draft',
                 '🟠 На модерации': 'pending',
                 '🟢 Одобренные': 'approved',
@@ -96,7 +97,7 @@ export function SearchAndFilters({
               textLabel="Род деятельности"
               items={categories}
               selectedItems={filters?.categories || []}
-              onSelectionChange={(categories: string[]) => setFilters((prev: any) => ({ ...prev, categories }))}
+              onSelectionChange={(categories: string[]) => setFilters((prev) => ({ ...prev, categories }))}
               getItemColor={() => '#f4e4c1'}
             />
             <FilterDropdown
@@ -104,7 +105,7 @@ export function SearchAndFilters({
               textLabel="Страна"
               items={countries}
               selectedItems={filters?.countries || []}
-              onSelectionChange={(countries: string[]) => setFilters((prev: any) => ({ ...prev, countries }))}
+              onSelectionChange={(countries: string[]) => setFilters((prev) => ({ ...prev, countries }))}
               getItemColor={() => '#f4e4c1'}
             />
           </>

@@ -4,13 +4,33 @@ import { LeftMenuSelection } from './LeftMenu'
 import { MobileListsHeader } from './MobileListsHeader'
 // import { ListItemsView } from 'shared/ui/ListItemsView'
 
-import { Person } from 'shared/types'
+import { Person, MixedListItem } from 'shared/types'
 import { PersonPanel } from 'features/persons/components/PersonPanel'
+import type { MenuSelection } from '../hooks/useManageState'
+
+// Shared types
+interface PersonList {
+  id: number
+  title: string
+  items_count?: number
+  readonly?: boolean
+}
+
+interface SharedList {
+  id: number
+  title: string
+  owner_user_id?: string
+  code?: string
+  items_count?: number
+  persons_count?: number
+  achievements_count?: number
+  periods_count?: number
+}
 
 type Props = {
   // Menu state
-  menuSelection: string
-  setMenuSelection: (sel: string) => void
+  menuSelection: MenuSelection
+  setMenuSelection: (sel: MenuSelection) => void
   
   // User info
   isAuthenticated: boolean
@@ -19,8 +39,8 @@ type Props = {
   mineCount?: number | null
   
   // Lists
-  personLists: any[]
-  sharedList?: any
+  personLists: PersonList[]
+  sharedList?: SharedList | null
   selectedListId: number | null
   setSelectedListId: (id: number | null) => void
   loadUserLists: (force?: boolean) => Promise<void>
@@ -30,7 +50,7 @@ type Props = {
   setShowCreateList: (show: boolean) => void
   
   // List items (for user-defined lists)
-  listItems?: any[]
+  listItems?: MixedListItem[]
   filterType?: 'person' | 'achievement' | 'period'
   listLoading?: boolean
   onDeleteListItem?: (listItemId: number) => Promise<void> | void
@@ -39,7 +59,7 @@ type Props = {
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void
   
   // Add to list functionality
-  openAddForPerson?: (person: any) => void
+  openAddForPerson?: (person: Person) => void
   
   // External create action
   onAddElement?: () => void

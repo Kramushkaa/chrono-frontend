@@ -4,11 +4,25 @@ import { usePeriods } from 'shared/hooks/usePeriods';
 import { usePersons } from 'features/persons/hooks/usePersons'; 
 import { useApiData } from 'shared/hooks/useApiData';
 import { buildMineParams } from 'features/manage/utils/queryParams';
+import type { Person, Achievement, FiltersState } from 'shared/types';
 
 type Tab = 'persons' | 'achievements' | 'periods';
 type MenuSelection = 'all' | 'pending' | 'mine' | `list:${number}`;
 
-export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, isAuthenticated: boolean, filters: any) {
+// Period type для manage
+interface PeriodItem {
+  id: number
+  name: string
+  startYear: number
+  endYear: number
+  type: string
+  description?: string
+  person_id?: string
+  country_id?: number
+  status?: string
+}
+
+export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, isAuthenticated: boolean, filters: FiltersState) {
   
   
   
@@ -85,7 +99,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
 
   // Загружаем элементы "Моих" только когда вкладка открыта
   const enablePersonsMine = isAuthenticated && menuSelection === 'mine' && activeTab === 'persons'
-  const personsMineResult = useApiData({
+  const personsMineResult = useApiData<Person>({
     endpoint: '/api/persons/mine',
     enabled: enablePersonsMine,
     pageSize: 100,
@@ -108,7 +122,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   // removed unused achievementsMineQueryKey
 
   const enableAchievementsMine = isAuthenticated && menuSelection === 'mine' && activeTab === 'achievements'
-  const achievementsMineResult = useApiData({
+  const achievementsMineResult = useApiData<Achievement>({
     endpoint: '/api/achievements/mine',
     enabled: enableAchievementsMine,
     pageSize: 100,
@@ -127,7 +141,7 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   // removed unused periodsMineQueryKey
 
   const enablePeriodsMine = isAuthenticated && menuSelection === 'mine' && activeTab === 'periods'
-  const periodsMineResult = useApiData({
+  const periodsMineResult = useApiData<PeriodItem>({
     endpoint: '/api/periods/mine',
     enabled: enablePeriodsMine,
     pageSize: 100,

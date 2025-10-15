@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { ContemporariesQuestionData, QuizAnswer } from '../../types'
+import { ContemporariesQuestionData, QuizAnswer, QuizPerson } from '../../types'
 import { useMobile } from 'shared/hooks/useMobile'
 import { useContemporariesGroups } from '../../hooks/useContemporariesGroups'
 import { useContemporariesDragDrop } from '../../hooks/useContemporariesDragDrop'
@@ -13,7 +13,7 @@ interface ContemporariesQuestionProps {
   userAnswer?: QuizAnswer | null
   onNext?: () => void
   isLastQuestion?: boolean
-  onPersonInfoClick?: (person: any) => void
+  onPersonInfoClick?: (person: QuizPerson) => void
 }
 
 export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({

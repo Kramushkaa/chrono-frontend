@@ -3,14 +3,35 @@ import { ManageSection } from 'shared/ui/ManageSection';
 import { ItemsList } from 'shared/ui/ItemsList';
 import { SearchAndFilters } from 'features/manage/components/SearchAndFilters';
 import { adaptToItemCard } from 'features/manage/utils/itemAdapters';
+import type { Person, Achievement, Period, FiltersState, SetFilters, MixedListItem } from 'shared/types';
+import type { MenuSelection } from '../hooks/useManageState';
+import type { AchievementTile } from 'shared/hooks/useAchievements';
+import type { PeriodTile } from 'shared/hooks/usePeriods';
 
 type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean };
+
+// Period item type from useManagePageData
+interface PeriodItem {
+  id: number
+  name: string
+  startYear: number
+  endYear: number
+  type: string
+  description?: string
+  person_id?: string
+  country_id?: number
+  status?: string
+}
+
+// Union type для всех возможных item типов (используем базовые типы + расширения + упрощенные версии)
+type PeriodExtended = Period & { id?: number; name?: string; description?: string; person_id?: string; status?: string }
+type ManagedItem = Person | Achievement | AchievementTile | PeriodExtended | PeriodTile | PeriodItem;
 
 interface UnifiedManageSectionProps {
   // Layout management (passed to ManageSection)
   sidebarCollapsed: boolean;
-  menuSelection: string;
-  setMenuSelection: (sel: any) => void;
+  menuSelection: MenuSelection;
+  setMenuSelection: (sel: MenuSelection) => void;
   isModerator: boolean;
   pendingCount: number | null;
   mineCount: number | null;
@@ -26,7 +47,7 @@ interface UnifiedManageSectionProps {
 
   // Core data and functionality
   data: {
-    items: any[];
+    items: ManagedItem[];
     isLoading: boolean;
     hasMore: boolean;
     loadMore: () => void;
@@ -38,20 +59,20 @@ interface UnifiedManageSectionProps {
   setSearchQuery: (v: string) => void;
   categories: string[];
   countries: string[];
-  filters: any;
-  setFilters: any;
+  filters: FiltersState;
+  setFilters: SetFilters;
   statusFilters: Record<string, boolean>;
   setStatusFilters: (filters: Record<string, boolean>) => void;
 
   // List operations (for custom lists)
   listLoading: boolean;
-  listItems: any[];
+  listItems: MixedListItem[];
   onDeleteListItem?: (listItemId: number) => Promise<void> | void;
   getListItemIdByDisplayId?: (id: string | number) => number | undefined;
 
   // Item actions
-  onSelect: (item: any) => void;
-  onPersonSelect?: (person: any) => void;
+  onSelect: (item: ManagedItem) => void;
+  onPersonSelect?: (person: Person) => void;
   onAddItem?: (id: string) => void;
 
   // Create new item

@@ -1,11 +1,13 @@
 import React from 'react'
 import { AdaptiveListsLayout } from 'features/manage/components/AdaptiveListsLayout'
+import type { MenuSelection } from 'features/manage/hooks/useManageState'
+import type { MixedListItem } from 'shared/types'
 
 interface ManageSectionProps {
   // Core layout and navigation
   sidebarCollapsed: boolean
-  menuSelection: string
-  setMenuSelection: (sel: string) => void
+  menuSelection: MenuSelection
+  setMenuSelection: (sel: MenuSelection) => void
   
   // User authentication
   isAuthenticated: boolean
@@ -14,8 +16,8 @@ interface ManageSectionProps {
   mineCount?: number | null
   
   // Lists management
-  personLists: any[]
-  sharedList?: any
+  personLists: Array<{ id: number; title: string; items_count?: number; readonly?: boolean }>
+  sharedList?: { id: number; title: string; owner_user_id?: string; code?: string; items_count?: number; persons_count?: number; achievements_count?: number; periods_count?: number } | null
   selectedListId: number | null
   setSelectedListId: (id: number | null) => void
   loadUserLists: (force?: boolean) => Promise<void>
@@ -25,7 +27,7 @@ interface ManageSectionProps {
   setShowCreateList: (show: boolean) => void
   
   // List operations (only for user-defined lists)
-  listItems?: any[]
+  listItems?: MixedListItem[]
   filterType?: 'person' | 'achievement' | 'period'
   listLoading?: boolean
   onDeleteListItem?: (listItemId: number) => Promise<void> | void

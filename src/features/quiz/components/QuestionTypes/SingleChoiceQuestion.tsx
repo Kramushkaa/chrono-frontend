@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SingleChoiceQuestionData, QuizAnswer } from '../../types';
+import { SingleChoiceQuestionData, QuizAnswer, QuizPerson } from '../../types';
 import { hideYearsInText } from '../../utils/textUtils';
 
 interface SingleChoiceQuestionProps {
@@ -9,7 +9,7 @@ interface SingleChoiceQuestionProps {
   userAnswer?: QuizAnswer | null;
   onNext?: () => void;
   isLastQuestion?: boolean;
-  onPersonInfoClick?: (person: any) => void;
+  onPersonInfoClick?: (person: QuizPerson) => void;
 }
 
 export const SingleChoiceQuestion: React.FC<SingleChoiceQuestionProps> = ({ 

@@ -1,6 +1,45 @@
 import React from 'react'
 import { UnifiedManageSection } from './UnifiedManageSection'
 import type { MenuSelection } from '../hooks/useManageState'
+import type { Achievement, FiltersState, SetFilters, MixedListItem } from 'shared/types'
+import type { AchievementTile } from 'shared/hooks/useAchievements'
+
+// Shared types
+interface SharedList {
+  id: number
+  title: string
+  owner_user_id?: string
+  code?: string
+  items_count?: number
+  persons_count?: number
+  achievements_count?: number
+  periods_count?: number
+}
+
+interface PersonList {
+  id: number
+  title: string
+  items_count?: number
+  readonly?: boolean
+}
+
+interface AddToListActions {
+  isOpen: boolean
+  openForPerson: (person: { id: string }) => void
+  openForAchievement: (achievementId: number) => void
+  openForPeriod: (periodId: number) => void
+  close: () => void
+  includeLinked: boolean
+  setIncludeLinked: (value: boolean) => void
+  onAdd: (listId: number) => Promise<void>
+}
+
+interface AchievementsDataState {
+  items: Achievement[] | AchievementTile[]
+  isLoading: boolean
+  hasMore: boolean
+  loadMore: () => void
+}
 
 interface AchievementsTabProps {
   sidebarCollapsed: boolean
@@ -8,8 +47,8 @@ interface AchievementsTabProps {
   setMenuSelection: (selection: MenuSelection) => void
   isModerator: boolean
   mineCounts: { persons: number; achievements: number; periods: number }
-  sharedList: any
-  personLists: any[]
+  sharedList: SharedList | null
+  personLists: PersonList[]
   isAuthenticated: boolean
   setShowAuthModal: (show: boolean) => void
   setShowCreateList: (show: boolean) => void
@@ -20,19 +59,19 @@ interface AchievementsTabProps {
   setSelectedListId: (id: number | null) => void
   loadUserLists: (force?: boolean) => Promise<void>
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void
-  listItems: any[]
+  listItems: MixedListItem[]
   listLoading: boolean
-  achievementsData: any
-  achievementsMineData: any
+  achievementsData: AchievementsDataState
+  achievementsMineData: AchievementsDataState
   searchAch: string
   setSearchAch: (query: string) => void
-  filters: any
-  setFilters: any
+  filters: FiltersState
+  setFilters: SetFilters
   achStatusFilters: Record<string, boolean>
   setAchStatusFilters: (filters: Record<string, boolean>) => void
   listItemIdByDomainIdRef: React.MutableRefObject<Map<string, number>>
   handleDeleteListItem: (listItemId: number) => void
-  addToList: any
+  addToList: AddToListActions
 }
 
 export function AchievementsTab({
@@ -106,7 +145,7 @@ export function AchievementsTab({
                 items: listItems
                   .filter((i) => i.type === 'achievement')
                   .map((i) => i.achievement)
-                  .filter(Boolean),
+                  .filter((a): a is Achievement => a != null),
                 isLoading: listLoading,
                 hasMore: false,
                 loadMore: () => {},

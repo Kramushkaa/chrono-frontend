@@ -18,6 +18,13 @@ import type { Person } from 'shared/types'
 import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils'
 import { getCategoryColor } from 'shared/utils/categoryColors'
 import { getPersonById } from 'shared/api/api'
+import type { 
+  SingleChoiceQuestionData, 
+  AchievementsMatchQuestionData, 
+  BirthOrderQuestionData, 
+  ContemporariesQuestionData, 
+  GuessPersonQuestionData 
+} from '../types'
 import '../styles/quiz.css'
 
 const PersonPanel = React.lazy(() => import('features/persons/components/PersonPanel').then(m => ({ default: m.PersonPanel })));
@@ -96,20 +103,20 @@ const QuizPage: React.FC = () => {
     answerQuestion(answer);
   };
 
-  const handlePersonInfoClick = async (person: Person) => {
+  const handlePersonInfoClick = async (person: { id: string; name: string; [key: string]: unknown }) => {
     try {
       // Получаем полную информацию о личности из API
       const fullPerson = await getPersonById(person.id);
       if (fullPerson) {
         setSelectedPerson(fullPerson);
       } else {
-        // Fallback на данные из вопроса, если API не вернул данные
-        setSelectedPerson(person);
+        // Fallback на данные из вопроса, если API не вернул данные - преобразуем к Person
+        setSelectedPerson(person as unknown as Person);
       }
     } catch (error) {
       console.error('Ошибка загрузки информации о личности:', error);
       // Fallback на данные из вопроса
-      setSelectedPerson(person);
+      setSelectedPerson(person as unknown as Person);
     }
   };
 
@@ -125,7 +132,7 @@ const QuizPage: React.FC = () => {
         // Все простые вопросы с выбором ответа используют SingleChoiceQuestion
         return (
           <SingleChoiceQuestion
-            data={currentQuestion.data}
+            data={currentQuestion.data as SingleChoiceQuestionData}
             onAnswer={handleAnswer}
             showFeedback={showAnswer}
             userAnswer={lastAnswer}
@@ -137,7 +144,7 @@ const QuizPage: React.FC = () => {
       case 'achievementsMatch':
         return (
           <AchievementsMatchQuestion
-            data={currentQuestion.data}
+            data={currentQuestion.data as AchievementsMatchQuestionData}
             onAnswer={handleAnswer}
             showFeedback={showAnswer}
             userAnswer={lastAnswer}
@@ -149,7 +156,7 @@ const QuizPage: React.FC = () => {
       case 'birthOrder':
         return (
           <BirthOrderQuestion
-            data={currentQuestion.data}
+            data={currentQuestion.data as BirthOrderQuestionData}
             onAnswer={handleAnswer}
             showFeedback={showAnswer}
             userAnswer={lastAnswer}
@@ -161,7 +168,7 @@ const QuizPage: React.FC = () => {
       case 'contemporaries':
         return (
           <ContemporariesQuestion
-            data={currentQuestion.data}
+            data={currentQuestion.data as ContemporariesQuestionData}
             onAnswer={handleAnswer}
             showFeedback={showAnswer}
             userAnswer={lastAnswer}
@@ -173,7 +180,7 @@ const QuizPage: React.FC = () => {
       case 'guessPerson':
         return (
           <GuessPersonQuestion
-            data={currentQuestion.data}
+            data={currentQuestion.data as GuessPersonQuestionData}
             onAnswer={handleAnswer}
             showFeedback={showAnswer}
             userAnswer={lastAnswer}

@@ -23,7 +23,7 @@ type SharedList = {
 type Params = {
   isAuthenticated: boolean
   userId?: string | number | null
-  apiData: <T = any>(path: string, init?: RequestInit) => Promise<T>
+  apiData: <T = unknown>(path: string, init?: RequestInit) => Promise<T>
 }
 
 export function useLists({ isAuthenticated, userId, apiData }: Params) {

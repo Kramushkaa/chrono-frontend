@@ -163,9 +163,25 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
   }
 }
 
-// Unified JSON parsing helpers
-type ApiErrorPayload = { message?: string; error?: string; error_message?: string } & Record<string, unknown>
-type ApiError = Error & { status?: number; payload?: ApiErrorPayload }
+// Unified JSON parsing helpers and API response types
+export type ApiErrorPayload = { message?: string; error?: string; error_message?: string } & Record<string, unknown>
+export type ApiError = Error & { status?: number; payload?: ApiErrorPayload }
+
+// Standard API response wrapper
+export interface ApiResponse<T> {
+  data: T
+  message?: string
+  status?: string
+}
+
+// Type guard to check if response is wrapped
+export function isWrappedResponse<T>(payload: unknown): payload is ApiResponse<T> {
+  return (
+    typeof payload === 'object' &&
+    payload !== null &&
+    'data' in payload
+  )
+}
 
 async function parseResponseJson<T = unknown>(res: Response): Promise<T> {
   let body: unknown = null
@@ -200,7 +216,7 @@ async function parseResponseJson<T = unknown>(res: Response): Promise<T> {
  * @param init - Fetch options
  * @returns Parsed JSON response
  */
-export async function apiJson<T = any>(path: string, init: RequestInit = {}): Promise<T> {
+export async function apiJson<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await apiFetch(path, init)
   return parseResponseJson(res)
 }
@@ -213,9 +229,11 @@ export async function apiJson<T = any>(path: string, init: RequestInit = {}): Pr
  * @param init - Fetch options
  * @returns Extracted data
  */
-export async function apiData<T = any>(path: string, init: RequestInit = {}): Promise<T> {
-  const payload: any = await apiJson(path, init)
-  if (payload && Object.prototype.hasOwnProperty.call(payload, 'data')) return payload.data as T
+export async function apiData<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
+  const payload = await apiJson<{ data?: T } | T>(path, init)
+  if (payload && typeof payload === 'object' && 'data' in payload) {
+    return (payload as { data: T }).data
+  }
   return payload as T
 }
 

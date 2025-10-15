@@ -20,6 +20,7 @@ import { ManageModals } from '../components/ManageModals'
 import { apiFetch, apiData } from 'shared/api/api'
 import '../styles/manage-page.css'
 import { ContactFooter } from 'shared/ui/ContactFooter'
+import { SEO } from 'shared/ui/SEO'
 
 export default function ManagePage() {
   const navigate = useNavigate()
@@ -132,6 +133,12 @@ export default function ManagePage() {
       role="main"
       aria-label="Управление контентом"
     >
+      <SEO
+        title="Управление списками — Хронониндзя"
+        description="Создавайте и управляйте своими списками исторических личностей, достижений и периодов."
+        canonical={typeof window !== 'undefined' ? window.location.origin + '/lists' : undefined}
+        image={typeof window !== 'undefined' ? window.location.origin + '/og-image.jpg' : undefined}
+      />
       <React.Suspense fallback={<div />}>
         <ManageHeader
           isScrolled={state.isScrolled}

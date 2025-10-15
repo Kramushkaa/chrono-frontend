@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { AchievementsMatchQuestionData, QuizAnswer } from '../../types';
+import { AchievementsMatchQuestionData, QuizAnswer, QuizPerson } from '../../types';
 import { useMobile } from 'shared/hooks/useMobile';
 
 interface AchievementsMatchQuestionProps {
@@ -9,7 +9,7 @@ interface AchievementsMatchQuestionProps {
   userAnswer?: QuizAnswer | null;
   onNext?: () => void;
   isLastQuestion?: boolean;
-  onPersonInfoClick?: (person: any) => void;
+  onPersonInfoClick?: (person: QuizPerson) => void;
 }
 
 export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps> = ({ 

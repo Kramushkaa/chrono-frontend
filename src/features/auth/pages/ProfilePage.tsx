@@ -10,6 +10,7 @@ import { AppHeader } from 'shared/layout/AppHeader';
 import { Breadcrumbs } from 'shared/ui/Breadcrumbs';
 import { getCategories, getCountries } from 'shared/api/api';
 import { getGroupColor } from 'features/persons/utils/groupingUtils';
+import { SEO } from 'shared/ui/SEO';
 
 export default function ProfilePage() {
   const { isAuthenticated } = useAuth();
@@ -73,6 +74,10 @@ export default function ProfilePage() {
 
   return (
     <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Личный кабинет">
+      <SEO
+        title="Профиль пользователя — Хронониндзя"
+        description="Управляйте своим профилем и настройками в Хронониндзя."
+      />
       <AppHeader
         isScrolled={isScrolled}
         showControls={showControls}

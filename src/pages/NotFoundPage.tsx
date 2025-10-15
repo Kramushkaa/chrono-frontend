@@ -2,12 +2,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Breadcrumbs } from 'shared/ui/Breadcrumbs';
+import { SEO } from 'shared/ui/SEO';
 
 export default function NotFoundPage() {
   return (
     <div className="app" id="chrononinja-app" role="main" aria-label="Страница не найдена">
+      <SEO
+        title="Страница не найдена — Хронониндзя"
+        description="К сожалению, запрашиваемая страница не существует."
+      />
       <Helmet>
-        <title>Страница не найдена — Хронониндзя</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       <Breadcrumbs />

@@ -3,7 +3,49 @@ import type { UpsertPersonDTO } from '../dto'
 import { validateDto } from '../dto'
 import type { Person } from '../types'
 
-// Types
+// API response types
+interface PersonApiResponse {
+  id: string
+  name: string
+  birthYear: number
+  deathYear: number
+  category: string
+  country: string
+  description: string
+  imageUrl?: string | null
+  wikiLink?: string | null
+  reignStart?: number | null
+  reignEnd?: number | null
+  rulerPeriods?: Array<{
+    startYear?: number
+    endYear?: number
+    type?: string
+    countryId?: number
+    countryName?: string
+    comment?: string | null
+  }>
+  periods?: Array<{
+    startYear?: number
+    start_year?: number
+    endYear?: number
+    end_year?: number
+    type?: string
+    period_type?: string
+    countryId?: number
+    country_id?: number
+    countryName?: string
+    country_name?: string
+    comment?: string | null
+    period_comment?: string | null
+  }>
+  achievementYears?: number[]
+  achievements?: string[]
+  achievements_wiki?: string[]
+  achievementsWiki?: string[]
+  status?: string
+}
+
+// Filter types
 interface ApiFilters {
   category?: string
   country?: string
@@ -45,9 +87,9 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
     const withDefaultLimit: ApiFilters = { limit: 1000, ...filters }
     const queryString = buildQueryString(withDefaultLimit)
     const url = `/api/persons${queryString ? `?${queryString}` : ''}`
-    const data = await apiData<any[]>(url)
+    const data = await apiData<PersonApiResponse[]>(url)
 
-    let transformedData = data.map((person) => ({
+    let transformedData = data.map((person): Person => ({
       id: person.id,
       name: maybePercentDecode(person.name || ''),
       birthYear: person.birthYear,
@@ -59,7 +101,11 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
       wikiLink: person.wikiLink || null,
       reignStart: person.reignStart,
       reignEnd: person.reignEnd,
-      rulerPeriods: Array.isArray(person.rulerPeriods) ? person.rulerPeriods : [],
+      rulerPeriods: Array.isArray(person.rulerPeriods) 
+        ? person.rulerPeriods.filter((p): p is { startYear: number; endYear: number; countryId?: number; countryName?: string } => 
+            typeof p.startYear === 'number' && typeof p.endYear === 'number'
+          )
+        : [],
       achievementYears: Array.isArray(person.achievementYears) ? person.achievementYears : undefined,
       achievements: Array.isArray(person.achievements)
         ? person.achievements.map((a: string) => maybePercentDecode(a || ''))
@@ -88,8 +134,8 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
 // Get person by ID
 export async function getPersonById(id: string): Promise<Person | null> {
   try {
-    const p = await apiData<any>(`/api/persons/${encodeURIComponent(id)}`)
-    const mapped: any = {
+    const p = await apiData<PersonApiResponse>(`/api/persons/${encodeURIComponent(id)}`)
+    const mapped: Person = {
       id: p.id,
       name: maybePercentDecode(p.name || ''),
       birthYear: p.birthYear,
@@ -101,25 +147,30 @@ export async function getPersonById(id: string): Promise<Person | null> {
       wikiLink: p.wikiLink || null,
       reignStart: p.reignStart || undefined,
       reignEnd: p.reignEnd || undefined,
-      rulerPeriods: Array.isArray(p.rulerPeriods) ? p.rulerPeriods : [],
+      rulerPeriods: Array.isArray(p.rulerPeriods) 
+        ? p.rulerPeriods.filter((pr): pr is { startYear: number; endYear: number; countryId?: number; countryName?: string } => 
+            typeof pr.startYear === 'number' && typeof pr.endYear === 'number'
+          )
+        : [],
       periods: Array.isArray(p.periods)
         ? p.periods
-            .map((pr: any) => ({
-              startYear: pr.startYear ?? pr.start_year,
-              endYear: pr.endYear ?? pr.end_year,
-              type: pr.type ?? pr.period_type,
+            .map((pr) => ({
+              startYear: pr.startYear ?? pr.start_year ?? 0,
+              endYear: pr.endYear ?? pr.end_year ?? null,
+              type: (pr.type ?? pr.period_type ?? 'other') as 'life' | 'ruler' | 'other',
               countryId: pr.countryId ?? pr.country_id,
               countryName: pr.countryName ?? pr.country_name,
               comment: pr.comment ?? pr.period_comment ?? null,
             }))
-            .sort((a: any, b: any) => (a.startYear ?? 0) - (b.startYear ?? 0))
+            .filter((pr) => typeof pr.startYear === 'number')
+            .sort((a, b) => a.startYear - b.startYear)
         : [],
       achievementYears: Array.isArray(p.achievementYears) ? p.achievementYears : undefined,
       achievements: Array.isArray(p.achievements)
         ? p.achievements.map((a: string) => maybePercentDecode(a || ''))
         : [],
       achievementsWiki: Array.isArray(p.achievementsWiki) ? p.achievementsWiki : [],
-      status: p.status,
+      status: p.status as 'draft' | 'pending' | 'approved' | 'rejected' | undefined,
     }
     return mapped
   } catch {

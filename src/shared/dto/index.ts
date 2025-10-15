@@ -122,7 +122,7 @@ function checkBySpec(spec: string, value: unknown): boolean {
   return checkPrimitive(base, value)
 }
 
-export function validateDto(name: DescriptorName, obj: any): { ok: boolean; errors: string[] } {
+export function validateDto(name: DescriptorName, obj: unknown): { ok: boolean; errors: string[] } {
   const desc = dtoDescriptors[name] as Record<string, string>
   if (!desc || typeof obj !== 'object' || obj === null) {
     return { ok: false, errors: [`${String(name)}: invalid object`] }

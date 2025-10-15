@@ -18,7 +18,7 @@ export interface ApiDataConfig<T> {
   pageSize?: number
   enabled?: boolean
   cacheKey?: string
-  transformData?: (data: any[]) => T[]
+  transformData?: (data: unknown[]) => T[]
   dedupeBy?: (item: T) => string | number
   queryParams?: Record<string, string | number | boolean>
   onError?: (error: Error) => void
@@ -233,10 +233,10 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
 
       offsetRef.current = offset + finalItems.length
 
-    } catch (error: any) {
+    } catch (error) {
       if (controller.signal.aborted) return
 
-      const errorMessage = error?.message || 'Ошибка загрузки данных'
+      const errorMessage = error instanceof Error ? error.message : 'Ошибка загрузки данных'
       
       setState(prev => ({
         ...prev,
@@ -246,7 +246,7 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
         hasMore: false
       }))
 
-      if (onError) {
+      if (onError && error instanceof Error) {
         onError(error)
       }
     } finally {
