@@ -8,10 +8,7 @@ import { usePersonPanel } from '../hooks/usePersonPanel';
 import { AuthPrompt } from '../components/AuthPrompt';
 import { SharedQuizLeaderboard } from '../components/SharedQuizLeaderboard';
 import { QuizPersonPanel } from '../components/QuizPersonPanel';
-import { SingleChoiceQuestion } from '../components/QuestionTypes/SingleChoiceQuestion';
-import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion';
-import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion';
-import { ContemporariesQuestion } from '../components/QuestionTypes/ContemporariesQuestion';
+import { renderQuestionByType } from '../utils/questionRenderer';
 import { getMinimalHeaderProps } from '../utils/headerProps';
 import { useAuthUser } from 'shared/context/AuthContext';
 import { formatTime } from '../utils/formatters';
@@ -22,12 +19,6 @@ import {
   renderGuessPersonDetails as renderGuessPersonDetailsUtil,
   formatAnswer,
 } from '../utils/answerRenderers';
-import type {
-  SingleChoiceQuestionData,
-  AchievementsMatchQuestionData,
-  BirthOrderQuestionData,
-  ContemporariesQuestionData,
-} from '../types';
 import type { DetailedQuestionResult } from 'shared/dto/quiz-types';
 import '../styles/quiz.css';
 
@@ -301,54 +292,11 @@ const SharedQuizPage: React.FC = () => {
               )}
 
               <div className="quiz-question-container">
-                {(() => {
-                  const question = quiz.questions[currentQuestionIndex];
-
-                  switch (question.type) {
-                    case 'birthYear':
-                    case 'deathYear':
-                    case 'profession':
-                    case 'country':
-                    case 'guessPerson':
-                      return (
-                        <SingleChoiceQuestion
-                          data={question.data as SingleChoiceQuestionData}
-                          onAnswer={handleAnswerQuestion}
-                          showFeedback={false}
-                        />
-                      );
-
-                    case 'achievementsMatch':
-                      return (
-                        <AchievementsMatchQuestion
-                          data={question.data as AchievementsMatchQuestionData}
-                          onAnswer={handleAnswerQuestion}
-                          showFeedback={false}
-                        />
-                      );
-
-                    case 'birthOrder':
-                      return (
-                        <BirthOrderQuestion
-                          data={question.data as BirthOrderQuestionData}
-                          onAnswer={handleAnswerQuestion}
-                          showFeedback={false}
-                        />
-                      );
-
-                    case 'contemporaries':
-                      return (
-                        <ContemporariesQuestion
-                          data={question.data as ContemporariesQuestionData}
-                          onAnswer={handleAnswerQuestion}
-                          showFeedback={false}
-                        />
-                      );
-
-                    default:
-                      return <div>Неподдерживаемый тип вопроса: {question.type}</div>;
-                  }
-                })()}
+                {renderQuestionByType({
+                  question: quiz.questions[currentQuestionIndex],
+                  onAnswer: handleAnswerQuestion,
+                  showFeedback: false,
+                })}
               </div>
             </>
           )}

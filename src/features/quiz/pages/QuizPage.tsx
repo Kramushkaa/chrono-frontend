@@ -8,22 +8,11 @@ import { QuizResults } from '../components/QuizResults'
 import { QuizProgress } from '../components/QuizProgress'
 import { QuizStructuredData } from '../components/QuizStructuredData'
 import { QuizPersonPanel } from '../components/QuizPersonPanel'
-import { SingleChoiceQuestion } from '../components/QuestionTypes/SingleChoiceQuestion'
-import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion'
-import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion'
-import { ContemporariesQuestion } from '../components/QuestionTypes/ContemporariesQuestion'
-import { GuessPersonQuestion } from '../components/QuestionTypes/GuessPersonQuestion'
+import { renderQuestionByType } from '../utils/questionRenderer'
 import { SEO } from 'shared/ui/SEO'
 import { AppHeader } from 'shared/layout/AppHeader'
 import { ContactFooter } from 'shared/ui/ContactFooter'
 import { getMinimalHeaderProps } from '../utils/headerProps'
-import type { 
-  SingleChoiceQuestionData, 
-  AchievementsMatchQuestionData, 
-  BirthOrderQuestionData, 
-  ContemporariesQuestionData, 
-  GuessPersonQuestionData 
-} from '../types'
 import '../styles/quiz.css'
 
 const QuizPage: React.FC = () => {
@@ -101,75 +90,15 @@ const QuizPage: React.FC = () => {
   const renderQuestion = () => {
     if (!currentQuestion) return null;
 
-    // Показываем вопрос с встроенной обратной связью
-    switch (currentQuestion.type) {
-      case 'birthYear':
-      case 'deathYear':
-      case 'profession':
-      case 'country':
-        // Все простые вопросы с выбором ответа используют SingleChoiceQuestion
-        return (
-          <SingleChoiceQuestion
-            data={currentQuestion.data as SingleChoiceQuestionData}
-            onAnswer={handleAnswer}
-            showFeedback={showAnswer}
-            userAnswer={lastAnswer}
-            onNext={nextQuestion}
-            isLastQuestion={currentQuestionIndex === questions.length - 1}
-            onPersonInfoClick={handlePersonInfoClick}
-          />
-        );
-      case 'achievementsMatch':
-        return (
-          <AchievementsMatchQuestion
-            data={currentQuestion.data as AchievementsMatchQuestionData}
-            onAnswer={handleAnswer}
-            showFeedback={showAnswer}
-            userAnswer={lastAnswer}
-            onNext={nextQuestion}
-            isLastQuestion={currentQuestionIndex === questions.length - 1}
-            onPersonInfoClick={handlePersonInfoClick}
-          />
-        );
-      case 'birthOrder':
-        return (
-          <BirthOrderQuestion
-            data={currentQuestion.data as BirthOrderQuestionData}
-            onAnswer={handleAnswer}
-            showFeedback={showAnswer}
-            userAnswer={lastAnswer}
-            onNext={nextQuestion}
-            isLastQuestion={currentQuestionIndex === questions.length - 1}
-            onPersonInfoClick={handlePersonInfoClick}
-          />
-        );
-      case 'contemporaries':
-        return (
-          <ContemporariesQuestion
-            data={currentQuestion.data as ContemporariesQuestionData}
-            onAnswer={handleAnswer}
-            showFeedback={showAnswer}
-            userAnswer={lastAnswer}
-            onNext={nextQuestion}
-            isLastQuestion={currentQuestionIndex === questions.length - 1}
-            onPersonInfoClick={handlePersonInfoClick}
-          />
-        );
-      case 'guessPerson':
-        return (
-          <GuessPersonQuestion
-            data={currentQuestion.data as GuessPersonQuestionData}
-            onAnswer={handleAnswer}
-            showFeedback={showAnswer}
-            userAnswer={lastAnswer}
-            onNext={nextQuestion}
-            isLastQuestion={currentQuestionIndex === questions.length - 1}
-            onPersonInfoClick={handlePersonInfoClick}
-          />
-        );
-      default:
-        return null;
-    }
+    return renderQuestionByType({
+      question: currentQuestion,
+      onAnswer: handleAnswer,
+      showFeedback: showAnswer,
+      userAnswer: lastAnswer,
+      onNext: nextQuestion,
+      isLastQuestion: currentQuestionIndex === questions.length - 1,
+      onPersonInfoClick: handlePersonInfoClick,
+    });
   };
 
   // Убираем полноэкранный лоадер: страница доступна всегда, индикатор будет на кнопке "Начать"
