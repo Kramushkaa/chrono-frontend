@@ -13,6 +13,8 @@ import type {
   GlobalLeaderboardResponse,
   UserStatsResponse,
   SharedQuizLeaderboardResponse,
+  QuizSessionHistoryResponse,
+  QuizSessionDetailResponse,
 } from '../dto/quiz-types';
 
 // ============================================================================
@@ -185,3 +187,37 @@ export async function getSharedQuizLeaderboard(
   return response.json();
 }
 
+// ============================================================================
+// Quiz History API
+// ============================================================================
+
+/**
+ * Get user's quiz session history
+ */
+export async function getQuizHistory(limit?: number): Promise<QuizSessionHistoryResponse> {
+  const url = limit ? `/api/quiz/history?limit=${limit}` : '/api/quiz/history';
+  const response = await apiFetch(url);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to load quiz history');
+  }
+
+  return response.json();
+}
+
+/**
+ * Get detailed quiz session history
+ */
+export async function getQuizSessionDetail(
+  sessionToken: string
+): Promise<QuizSessionDetailResponse> {
+  const response = await apiFetch(`/api/quiz/history/${sessionToken}`);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to load session details');
+  }
+
+  return response.json();
+}

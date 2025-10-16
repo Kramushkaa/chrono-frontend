@@ -406,6 +406,12 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
           >
             Посмотреть лидерборд
           </button>
+          <button
+            onClick={() => navigate('/quiz/history')}
+            className="quiz-button quiz-button-primary"
+          >
+            История прохождений
+          </button>
           {questions && config && (
             <ShareQuizButton 
               questions={questions} 

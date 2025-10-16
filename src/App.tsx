@@ -17,6 +17,8 @@ const ManagePage = React.lazy(() => import('features/manage/pages/ManagePage'))
 const QuizPage = React.lazy(() => import('features/quiz/pages/QuizPage').then(m => ({ default: m.default })))
 const LeaderboardPage = React.lazy(() => import('features/quiz/pages/LeaderboardPage'))
 const SharedQuizPage = React.lazy(() => import('features/quiz/pages/SharedQuizPage'))
+const QuizHistoryPage = React.lazy(() => import('features/quiz/pages/QuizHistoryPage').then(m => ({ default: m.QuizHistoryPage })))
+const QuizSessionDetailPage = React.lazy(() => import('features/quiz/pages/QuizSessionDetailPage').then(m => ({ default: m.QuizSessionDetailPage })))
 const TimelinePage = React.lazy(() => import('features/timeline/pages/TimelinePage').then(m => ({ default: m.default })))
 
 export default function App() {
@@ -32,6 +34,8 @@ export default function App() {
                 <Route path="/timeline" element={<TimelinePage />} />
                 <Route path="/quiz" element={<QuizPage />} />
                 <Route path="/quiz/leaderboard" element={<LeaderboardPage />} />
+                <Route path="/quiz/history" element={<QuizHistoryPage />} />
+                <Route path="/quiz/history/:sessionToken" element={<QuizSessionDetailPage />} />
                 <Route path="/quiz/:shareCode" element={<SharedQuizPage />} />
                 <Route path="/lists" element={<ManagePage />} />
                 <Route path="/manage" element={<Navigate to="/lists" replace />} />
