@@ -29,9 +29,11 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ onBackToMenu, extr
     <header className="app-header app-header--minimal">
       <div className="app-header__container">
         <div className="app-header__left">
+          {/* Кнопка меню всегда показывается */}
           <button className="app-header__back-button" onClick={handleMenuClick} title="Вернуться в меню">
             ← Меню
           </button>
+          {/* Дополнительная кнопка (например, "К викторинам") */}
           {extraLeftButton && (
             <button 
               className="app-header__extra-button" 
