@@ -5,6 +5,13 @@ import type { QuizAttemptDetailResponse } from 'shared/dto/quiz-types';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { getMinimalHeaderProps } from '../utils/headerProps';
 import { ContactFooter } from 'shared/ui/ContactFooter';
+import {
+  renderMatchingTable,
+  renderBirthOrderList,
+  renderContemporariesGroups,
+  renderGuessPersonDetails,
+  formatAnswer,
+} from '../utils/answerRenderers';
 import '../styles/quiz.css';
 
 export const QuizAttemptDetailPage: React.FC = () => {
@@ -13,7 +20,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
   const [data, setData] = useState<QuizAttemptDetailResponse['data'] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
+  const [expandedAnswers, setExpandedAnswers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (attemptId) {
@@ -63,8 +70,8 @@ export const QuizAttemptDetailPage: React.FC = () => {
     return Math.round((correct / total) * 100);
   };
 
-  const toggleQuestion = (questionId: string) => {
-    setExpandedQuestions(prev => {
+  const toggleAnswer = (questionId: string) => {
+    setExpandedAnswers(prev => {
       const newSet = new Set(prev);
       if (newSet.has(questionId)) {
         newSet.delete(questionId);
@@ -73,22 +80,6 @@ export const QuizAttemptDetailPage: React.FC = () => {
       }
       return newSet;
     });
-  };
-
-  const renderAnswer = (answer: string | string[] | string[][]) => {
-    if (Array.isArray(answer)) {
-      if (answer.length > 0 && Array.isArray(answer[0])) {
-        // Для contemporaries (string[][])
-        return (answer as string[][]).map((group, idx) => (
-          <div key={idx} className="answer-group">
-            Группа {idx + 1}: {group.join(', ')}
-          </div>
-        ));
-      }
-      // Для achievementsMatch, birthOrder (string[])
-      return <div>{answer.join(', ')}</div>;
-    }
-    return <div>{answer}</div>;
   };
 
   const handleBackToHistory = () => {
@@ -162,50 +153,93 @@ export const QuizAttemptDetailPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="quiz-answers-section">
-            <h2>Детали ответов</h2>
-            
-            {data.detailedAnswers.map((answer, index) => (
-              <div key={answer.questionId} className="quiz-answer-item">
-                <div
-                  className="quiz-answer-header"
-                  onClick={() => toggleQuestion(answer.questionId)}
-                >
-                  <div className="answer-header-left">
-                    <span className="answer-number">Вопрос {index + 1}</span>
-                    <span className={`answer-status ${answer.isCorrect ? 'correct' : 'incorrect'}`}>
-                      {answer.isCorrect ? '✓' : '✗'}
-                    </span>
-                  </div>
-                  <span className="answer-time">{formatTime(answer.timeSpent)}</span>
-                </div>
-
-                {expandedQuestions.has(answer.questionId) && (
-                  <div className="quiz-answer-details">
-                    <p className="answer-question">{answer.question}</p>
-
-                    <div className="answer-comparison">
-                      <div className="answer-user">
-                        <strong>Ваш ответ:</strong>
-                        {renderAnswer(answer.userAnswer)}
-                      </div>
-
-                      <div className="answer-correct">
-                        <strong>Правильный ответ:</strong>
-                        {renderAnswer(answer.correctAnswer)}
-                      </div>
+          <div className="quiz-results-answers">
+            <h3>Детали ответов:</h3>
+            <div className="quiz-answers-list">
+              {data.detailedAnswers.map((answer, index) => {
+                const isExpanded = expandedAnswers.has(answer.questionId);
+                const questionWithData = {
+                  id: answer.questionId,
+                  type: answer.questionType,
+                  question: answer.question,
+                  correctAnswer: answer.correctAnswer,
+                  explanation: answer.explanation,
+                  data: (answer as any).data,
+                  options: [],
+                };
+                
+                return (
+                  <div 
+                    key={`answer-${index}-${answer.questionId}`} 
+                    className={`quiz-answer-item ${answer.isCorrect ? 'correct' : 'incorrect'} ${isExpanded ? 'expanded' : ''}`}
+                  >
+                    <div 
+                      className="quiz-answer-header"
+                      onClick={() => toggleAnswer(answer.questionId)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <span className="quiz-answer-number">Вопрос {index + 1}</span>
+                      <span className="quiz-answer-time">{formatTime(answer.timeSpent)}</span>
+                      <span className="quiz-answer-status">
+                        {answer.isCorrect ? '✓ Правильно' : '✗ Неправильно'}
+                      </span>
+                      <span className="quiz-answer-toggle">{isExpanded ? '▼' : '▶'}</span>
                     </div>
-
-                    {answer.explanation && (
-                      <div className="answer-explanation">
-                        <strong>Объяснение:</strong>
-                        <p>{answer.explanation}</p>
+                    
+                    {isExpanded && (
+                      <div className="quiz-answer-body">
+                        <p className="quiz-answer-question">
+                          <strong>Вопрос:</strong> {answer.question}
+                        </p>
+                        
+                        {answer.questionType === 'achievementsMatch' ? (
+                          <div className="quiz-answer-section">
+                            {renderMatchingTable(answer.questionId, questionWithData, answer.userAnswer)}
+                          </div>
+                        ) : answer.questionType === 'birthOrder' ? (
+                          <div className="quiz-answer-section">
+                            {renderBirthOrderList(answer.questionId, questionWithData, answer.userAnswer)}
+                          </div>
+                        ) : answer.questionType === 'contemporaries' ? (
+                          <div className="quiz-answer-section">
+                            {renderContemporariesGroups(answer.questionId, questionWithData, answer.userAnswer)}
+                          </div>
+                        ) : answer.questionType === 'guessPerson' ? (
+                          <div className="quiz-answer-section">
+                            {renderGuessPersonDetails(answer.questionId, questionWithData, answer.userAnswer)}
+                          </div>
+                        ) : (
+                          <>
+                            {/* Показываем информацию о личности для простых вопросов */}
+                            {(answer.questionType === 'birthYear' || answer.questionType === 'deathYear' || answer.questionType === 'profession' || answer.questionType === 'country') && (
+                              <p className="quiz-answer-person-info">
+                                <strong>Личность:</strong> {(questionWithData.data as any)?.person?.name || '—'}
+                              </p>
+                            )}
+                            
+                            {!answer.isCorrect && (
+                              <p className="quiz-answer-user">
+                                <strong>Ваш ответ:</strong> {formatAnswer(answer.userAnswer)}
+                              </p>
+                            )}
+                            
+                            <p className="quiz-answer-correct">
+                              <strong>Правильный ответ:</strong> {formatAnswer(answer.correctAnswer)}
+                            </p>
+                          </>
+                        )}
+                        
+                        {answer.explanation && (
+                          <p className="quiz-answer-explanation">
+                            <strong>Пояснение:</strong> {answer.explanation}
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
 
           <div className="quiz-actions">
