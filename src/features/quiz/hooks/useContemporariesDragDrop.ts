@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 interface DragDropHandlers {
   // Desktop drag & drop
@@ -32,9 +32,11 @@ interface UseContemporariesDragDropParams {
   showFeedback: boolean
   isMobile: boolean
   groups: string[][]
+  addToGroup?: (personId: string, groupIndex: number) => void
+  createGroup?: (personId: string) => void
 }
 
-export function useContemporariesDragDrop({ showFeedback, isMobile, groups }: UseContemporariesDragDropParams): DragDropHandlers {
+export function useContemporariesDragDrop({ showFeedback, isMobile, groups, addToGroup, createGroup }: UseContemporariesDragDropParams): DragDropHandlers {
   const [draggedItem, setDraggedItem] = useState<string | null>(null)
   const [draggedOverGroup, setDraggedOverGroup] = useState<number | null>(null)
   const [draggedOverCreateZone, setDraggedOverCreateZone] = useState(false)
@@ -44,6 +46,18 @@ export function useContemporariesDragDrop({ showFeedback, isMobile, groups }: Us
   const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const draggedElementRef = useRef<HTMLDivElement | null>(null)
+
+  // Store callbacks in refs so they can be used in document event listeners
+  const callbacksRef = useRef<{
+    addToGroup: ((personId: string, groupIndex: number) => void) | null
+    createGroup: ((personId: string) => void) | null
+  }>({ addToGroup: null, createGroup: null })
+
+  // Update callbacks ref when they change
+  useEffect(() => {
+    callbacksRef.current.addToGroup = addToGroup || null
+    callbacksRef.current.createGroup = createGroup || null
+  }, [addToGroup, createGroup])
 
   const resetDragState = () => {
     if (draggedElementRef.current) {
@@ -167,63 +181,87 @@ export function useContemporariesDragDrop({ showFeedback, isMobile, groups }: Us
     const target = e.currentTarget as HTMLDivElement
     draggedElementRef.current = target
     target.style.pointerEvents = 'none'
+    target.style.opacity = '0.7'
+    target.style.zIndex = '1000'
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !touchStartPos || !isMobile) return
-    const touch = e.touches[0]
-    const deltaX = touch.clientX - touchStartPos.x
-    const deltaY = touch.clientY - touchStartPos.y
+    // This is just a stub - real handling happens in document event listener
+    // We keep this for compatibility but actual logic is in useEffect
+  }
 
-    // Определяем, что это действительно перетаскивание, а не просто касание
-    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
-      e.preventDefault()
-      
+  const handleTouchEnd = (e: React.TouchEvent, addToGroupCallback: (personId: string, groupIndex: number) => void, createGroupCallback: (personId: string) => void) => {
+    // This is just a stub - real handling happens in document event listener
+    // We keep this for compatibility but actual logic is in useEffect
+  }
+
+  // Bind touch events to document when dragging
+  useEffect(() => {
+    if (!isDragging || !isMobile) return
+
+    const handleMove = (e: TouchEvent) => {
+      if (!touchStartPos) return
+      const touch = e.touches[0]
+      const deltaX = touch.clientX - touchStartPos.x
+      const deltaY = touch.clientY - touchStartPos.y
+
+      // Определяем, что это действительно перетаскивание
+      if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+        e.preventDefault()
+        
+        const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY)
+        if (elementBelow) {
+          const groupElement = elementBelow.closest('.group-persons')
+          const createZoneElement = elementBelow.closest('.create-group-drop-zone')
+          
+          if (groupElement) {
+            const groupIndex = parseInt(groupElement.getAttribute('data-group-index') || '0')
+            setDraggedOverGroup(groupIndex)
+            setDraggedOverCreateZone(false)
+          } else if (createZoneElement) {
+            setDraggedOverCreateZone(true)
+            setDraggedOverGroup(null)
+          } else {
+            setDraggedOverGroup(null)
+            setDraggedOverCreateZone(false)
+          }
+        }
+      }
+    }
+
+    const handleEnd = (e: TouchEvent) => {
+      const touch = e.changedTouches[0]
+
       const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY)
       if (elementBelow) {
         const groupElement = elementBelow.closest('.group-persons')
         const createZoneElement = elementBelow.closest('.create-group-drop-zone')
         
-        if (groupElement) {
+        if (groupElement && callbacksRef.current.addToGroup) {
           const groupIndex = parseInt(groupElement.getAttribute('data-group-index') || '0')
-          setDraggedOverGroup(groupIndex)
-          setDraggedOverCreateZone(false)
-        } else if (createZoneElement) {
-          setDraggedOverCreateZone(true)
-          setDraggedOverGroup(null)
-        } else {
-          setDraggedOverGroup(null)
-          setDraggedOverCreateZone(false)
+          const personId = draggedItem
+          if (personId && !groups[groupIndex]?.includes(personId)) {
+            callbacksRef.current.addToGroup(personId, groupIndex)
+          }
+        } else if (createZoneElement && callbacksRef.current.createGroup) {
+          const personId = draggedItem
+          if (personId) {
+            callbacksRef.current.createGroup(personId)
+          }
         }
       }
-    }
-  }
 
-  const handleTouchEnd = (e: React.TouchEvent, addToGroupCallback: (personId: string, groupIndex: number) => void, createGroupCallback: (personId: string) => void) => {
-    if (!isDragging || !isMobile) return
-    const touch = e.changedTouches[0]
-
-    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY)
-    if (elementBelow) {
-      const groupElement = elementBelow.closest('.group-persons')
-      const createZoneElement = elementBelow.closest('.create-group-drop-zone')
-      
-      if (groupElement) {
-        const groupIndex = parseInt(groupElement.getAttribute('data-group-index') || '0')
-        const personId = draggedItem
-        if (personId && !groups[groupIndex]?.includes(personId)) {
-          addToGroupCallback(personId, groupIndex)
-        }
-      } else if (createZoneElement) {
-        const personId = draggedItem
-        if (personId) {
-          createGroupCallback(personId)
-        }
-      }
+      resetDragState()
     }
 
-    resetDragState()
-  }
+    document.addEventListener('touchmove', handleMove, { passive: false })
+    document.addEventListener('touchend', handleEnd)
+
+    return () => {
+      document.removeEventListener('touchmove', handleMove)
+      document.removeEventListener('touchend', handleEnd)
+    }
+  }, [isDragging, isMobile, touchStartPos, draggedItem, groups])
 
   return {
     // Desktop handlers

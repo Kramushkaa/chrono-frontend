@@ -34,7 +34,13 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     userAnswer
   })
 
-  const dragDropHandlers = useContemporariesDragDrop({ showFeedback, isMobile, groups })
+  const dragDropHandlers = useContemporariesDragDrop({ 
+    showFeedback, 
+    isMobile, 
+    groups,
+    addToGroup,
+    createGroup,
+  })
 
   const personStatuses = useContemporariesFeedback({ showFeedback, userAnswer, data })
 

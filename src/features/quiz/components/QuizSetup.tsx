@@ -11,6 +11,8 @@ interface QuizSetupProps {
   canStart: boolean;
   checkStrictFilters: (setup: QuizSetupConfig, allCategories: string[], allCountries: string[]) => string[];
   isLoading?: boolean;
+  onViewLeaderboard?: () => void;
+  onViewHistory?: () => void;
 }
 
 const QUESTION_TYPES = [
@@ -35,7 +37,9 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
   onStartQuiz,
   canStart,
   checkStrictFilters,
-  isLoading
+  isLoading,
+  onViewLeaderboard,
+  onViewHistory,
 }) => {
   // Локальное состояние для фильтров (стран и категорий)
   const [localCountries, setLocalCountries] = useState(setup.selectedCountries);
@@ -350,6 +354,25 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
         >
           {isLoading ? 'Загрузка…' : 'Начать игру'}
         </button>
+        
+        <div className="quiz-setup-links">
+          {onViewLeaderboard && (
+            <button 
+              onClick={onViewLeaderboard}
+              className="quiz-link-button"
+            >
+              🏆 Лидерборд
+            </button>
+          )}
+          {onViewHistory && (
+            <button 
+              onClick={onViewHistory}
+              className="quiz-link-button"
+            >
+              📊 История игр
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

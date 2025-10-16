@@ -8,6 +8,8 @@ import { ContactFooter } from 'shared/ui/ContactFooter';
 import { PersonPanel } from 'features/persons/components/PersonPanel';
 import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils';
 import { getCategoryColor } from 'shared/utils/categoryColors';
+import { getPersonById } from 'shared/api/api';
+import type { Person } from 'shared/types';
 import {
   renderMatchingTable,
   renderBirthOrderList,
@@ -25,7 +27,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedAnswers, setExpandedAnswers] = useState<Set<string>>(new Set());
-  const [selectedPerson, setSelectedPerson] = useState<QuizPerson | null>(null);
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
 
   useEffect(() => {
     if (attemptId) {
@@ -87,8 +89,18 @@ export const QuizAttemptDetailPage: React.FC = () => {
     });
   };
 
-  const handlePersonInfoClick = (person: QuizPerson) => {
-    setSelectedPerson(person);
+  const handlePersonInfoClick = async (person: QuizPerson) => {
+    try {
+      // Получаем полную информацию о персоне из API
+      const fullPerson = await getPersonById(person.id);
+      if (fullPerson) {
+        setSelectedPerson(fullPerson);
+      } else {
+        console.error('Person not found:', person.id);
+      }
+    } catch (error) {
+      console.error('Failed to load person:', error);
+    }
   };
 
   const handleBackToHistory = () => {
@@ -273,7 +285,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
       
       {selectedPerson && (
         <PersonPanel
-          selectedPerson={selectedPerson as any}
+          selectedPerson={selectedPerson}
           onClose={() => setSelectedPerson(null)}
           getGroupColor={getGroupColor}
           getPersonGroup={(person) => getPersonGroup(person, 'none')}

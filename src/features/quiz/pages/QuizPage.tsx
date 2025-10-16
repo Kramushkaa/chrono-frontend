@@ -217,6 +217,8 @@ const QuizPage: React.FC = () => {
           canStart={canStart}
           checkStrictFilters={checkStrictFilters}
           isLoading={isLoading}
+          onViewLeaderboard={() => navigate('/quiz/leaderboard')}
+          onViewHistory={() => navigate('/quiz/history')}
         />
           <ContactFooter />
         </div>

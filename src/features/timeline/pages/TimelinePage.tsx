@@ -82,6 +82,31 @@ export default function TimelinePage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Привязка обработчиков слайдера к document
+  useEffect(() => {
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      handleSliderMouseMove(e, yearInputs, applyYearFilter, setYearInputs);
+    };
+
+    const handleUp = () => {
+      handleSliderMouseUp();
+    };
+
+    if (isDraggingSlider) {
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('touchmove', handleMove);
+      document.addEventListener('mouseup', handleUp);
+      document.addEventListener('touchend', handleUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('mouseup', handleUp);
+      document.removeEventListener('touchend', handleUp);
+    };
+  }, [isDraggingSlider, yearInputs, applyYearFilter, setYearInputs, handleSliderMouseMove, handleSliderMouseUp])
+
   const effectivePersons = useMemo(() => (listPersons !== null ? listPersons : persons), [listPersons, persons])
   const sortedData = sortGroupedData(effectivePersons, groupingType)
 
