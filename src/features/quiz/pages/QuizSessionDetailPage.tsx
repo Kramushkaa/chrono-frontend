@@ -21,6 +21,7 @@ export const QuizSessionDetailPage: React.FC = () => {
     if (sessionToken) {
       loadSessionDetail();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionToken]);
 
   const loadSessionDetail = async () => {

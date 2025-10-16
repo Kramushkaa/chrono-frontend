@@ -31,6 +31,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
     if (attemptId) {
       loadAttemptDetail();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attemptId]);
 
   const loadAttemptDetail = async () => {
