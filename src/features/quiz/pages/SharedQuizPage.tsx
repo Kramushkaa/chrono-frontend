@@ -14,6 +14,14 @@ import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuesti
 import { ContemporariesQuestion } from '../components/QuestionTypes/ContemporariesQuestion';
 import { getMinimalHeaderProps } from '../utils/headerProps';
 import { useAuthUser } from 'shared/context/AuthContext';
+import { formatTime } from '../utils/formatters';
+import {
+  renderMatchingTable as renderMatchingTableUtil,
+  renderBirthOrderList as renderBirthOrderListUtil,
+  renderContemporariesGroups as renderContemporariesGroupsUtil,
+  renderGuessPersonDetails as renderGuessPersonDetailsUtil,
+  formatAnswer,
+} from '../utils/answerRenderers';
 import type {
   SingleChoiceQuestionData,
   AchievementsMatchQuestionData,
@@ -123,14 +131,6 @@ const SharedQuizPage: React.FC = () => {
     setPhase('leaderboard');
   }, []);
 
-
-  const formatTime = (milliseconds: number) => {
-    const seconds = Math.floor(milliseconds / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return minutes > 0 ? `${minutes}м ${remainingSeconds}с` : `${remainingSeconds}с`;
-  };
-
   const toggleAnswer = (questionId: string) => {
     setExpandedAnswers((prev) => {
       const newSet = new Set(prev);
@@ -145,183 +145,47 @@ const SharedQuizPage: React.FC = () => {
 
   const renderMatchingTable = (result: DetailedQuestionResult) => {
     if (!quiz) return null;
-    
     const question = quiz.questions.find(q => q.id === result.questionId);
-    if (!question || question.type !== 'achievementsMatch') return null;
-
-    const data = question.data as any;
-    const userAnswerArray = result.userAnswer as string[];
-    const correctAnswerArray = result.correctAnswer as string[];
+    if (!question) return null;
     
-    return (
-      <div className="quiz-matching-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Личность</th>
-              <th>Ваш ответ</th>
-              <th>Правильный ответ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.persons.map((person: any, index: number) => {
-              const userAns = userAnswerArray[index] || '—';
-              const correctAns = correctAnswerArray[index] || '—';
-              const isCorrect = userAns === correctAns;
-              
-              return (
-                <tr key={`${result.questionId}-${person.id}-${index}`} className={isCorrect ? 'match-correct' : 'match-incorrect'}>
-                  <td className="person-name">
-                    {person.name}
-                    <button
-                      className="quiz-person-info-button-inline"
-                      onClick={() => handlePersonInfoClick(person)}
-                      title="Подробная информация"
-                      aria-label={`Подробная информация о ${person.name}`}
-                    >
-                      ℹ️
-                    </button>
-                  </td>
-                  <td className="achievement-text user-answer">{userAns}</td>
-                  <td className="achievement-text correct-answer">{correctAns}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+    // Create question object with correctAnswer from result
+    const questionWithAnswer = { ...question, correctAnswer: result.correctAnswer };
+    
+    return renderMatchingTableUtil(
+      result.questionId,
+      questionWithAnswer,
+      result.userAnswer,
+      handlePersonInfoClick
     );
   };
 
   const renderBirthOrderList = (result: DetailedQuestionResult) => {
     if (!quiz) return null;
-    
     const question = quiz.questions.find(q => q.id === result.questionId);
-    if (!question || question.type !== 'birthOrder') return null;
-
-    const data = question.data as any;
-    const userOrder = result.userAnswer as string[];
-    const correctOrder = result.correctAnswer as string[];
+    if (!question) return null;
     
-    const getPersonById = (personId: string) => {
-      return data.persons.find((p: any) => p.id === personId);
-    };
-
-    const renderPersonItem = (personId: string) => {
-      const person = getPersonById(personId);
-      if (!person) return personId;
-      
-      return (
-        <>
-          {person.name} ({person.birthYear})
-          <button
-            className="quiz-person-info-button-inline"
-            onClick={() => handlePersonInfoClick(person)}
-            title="Подробная информация"
-            aria-label={`Подробная информация о ${person.name}`}
-          >
-            ℹ️
-          </button>
-        </>
-      );
-    };
-
-    return (
-      <div className="quiz-order-comparison">
-        <div className="quiz-order-column">
-          <strong>Ваш порядок:</strong>
-          <ol className="quiz-order-list">
-            {userOrder.map((personId, idx) => {
-              const correctPosition = correctOrder.indexOf(personId);
-              const isCorrect = correctPosition === idx;
-              return (
-                <li key={`user-${personId}-${idx}`} className={isCorrect ? 'order-correct' : 'order-incorrect'}>
-                  {renderPersonItem(personId)}
-                </li>
-              );
-            })}
-          </ol>
-        </div>
-        <div className="quiz-order-column">
-          <strong>Правильный порядок:</strong>
-          <ol className="quiz-order-list correct-order">
-            {correctOrder.map((personId, idx) => (
-              <li key={`correct-${personId}-${idx}`}>
-                {renderPersonItem(personId)}
-              </li>
-            ))}
-          </ol>
-        </div>
-      </div>
+    const questionWithAnswer = { ...question, correctAnswer: result.correctAnswer };
+    
+    return renderBirthOrderListUtil(
+      result.questionId,
+      questionWithAnswer,
+      result.userAnswer,
+      handlePersonInfoClick
     );
   };
 
   const renderContemporariesGroups = (result: DetailedQuestionResult) => {
     if (!quiz) return null;
-    
     const question = quiz.questions.find(q => q.id === result.questionId);
-    if (!question || question.type !== 'contemporaries') return null;
-
-    const data = question.data as any;
-    const userGroups = result.userAnswer as string[][];
-    const correctGroups = result.correctAnswer as string[][];
+    if (!question) return null;
     
-    const getPersonById = (personId: string) => {
-      return data.persons.find((p: any) => p.id === personId);
-    };
-
-    const renderPersonItem = (personId: string) => {
-      const person = getPersonById(personId);
-      if (!person) return personId;
-      
-      return (
-        <>
-          {person.name} ({person.birthYear}-{person.deathYear || 'н.в.'})
-          <button
-            className="quiz-person-info-button-inline"
-            onClick={() => handlePersonInfoClick(person)}
-            title="Подробная информация"
-            aria-label={`Подробная информация о ${person.name}`}
-          >
-            ℹ️
-          </button>
-        </>
-      );
-    };
-
-    return (
-      <div className="quiz-groups-comparison">
-        <div className="quiz-groups-column">
-          <strong>Ваши группы:</strong>
-          <div className="quiz-groups-list">
-            {userGroups.map((group, groupIdx) => (
-              <div key={`user-group-${groupIdx}`} className="quiz-group-box">
-                <div className="quiz-group-header">Группа {groupIdx + 1}</div>
-                <ul className="quiz-group-members">
-                  {group.map((personId, personIdx) => (
-                    <li key={`user-${personId}-${personIdx}`}>{renderPersonItem(personId)}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="quiz-groups-column">
-          <strong>Правильные группы:</strong>
-          <div className="quiz-groups-list">
-            {correctGroups.map((group, groupIdx) => (
-              <div key={`correct-group-${groupIdx}`} className="quiz-group-box correct-group">
-                <div className="quiz-group-header">Группа {groupIdx + 1}</div>
-                <ul className="quiz-group-members">
-                  {group.map((personId, personIdx) => (
-                    <li key={`correct-${personId}-${personIdx}`}>{renderPersonItem(personId)}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+    const questionWithAnswer = { ...question, correctAnswer: result.correctAnswer };
+    
+    return renderContemporariesGroupsUtil(
+      result.questionId,
+      questionWithAnswer,
+      result.userAnswer,
+      handlePersonInfoClick
     );
   };
 
@@ -332,88 +196,16 @@ const SharedQuizPage: React.FC = () => {
 
   const renderGuessPersonDetails = (result: DetailedQuestionResult) => {
     const question = getQuestion(result.questionId);
-    if (!question || question.type !== 'guessPerson') return null;
-
-    const data = question.data as any;
-    const correctPerson = data.correctPerson;
-    const userPersonId = result.userAnswer as string;
-    const userPerson = data.availablePersons?.find((p: any) => p.id === userPersonId);
-    const isCorrect = result.isCorrect;
-
-    return (
-      <div className="quiz-guess-person-details">
-        <div className="quiz-guess-clues">
-          <strong>Информация о загадываемой личности:</strong>
-          <div className="quiz-clue-list">
-            <div className="quiz-clue-item">
-              <span className="clue-label">Годы жизни:</span>
-              <span className="clue-value">
-                {correctPerson.birthYear} — {correctPerson.deathYear || 'н.в.'}
-              </span>
-            </div>
-            <div className="quiz-clue-item">
-              <span className="clue-label">Страна:</span>
-              <span className="clue-value">
-                {Array.isArray(correctPerson.country) 
-                  ? correctPerson.country.join(', ') 
-                  : correctPerson.country}
-              </span>
-            </div>
-            <div className="quiz-clue-item">
-              <span className="clue-label">Род деятельности:</span>
-              <span className="clue-value">{correctPerson.category}</span>
-            </div>
-            {correctPerson.description && (
-              <div className="quiz-clue-item">
-                <span className="clue-label">Описание:</span>
-                <span className="clue-value">{correctPerson.description}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="quiz-guess-answers">
-          {!isCorrect && userPerson && (
-            <p className="quiz-answer-user">
-              <strong>Ваш ответ:</strong> {userPerson.name}
-              <button
-                className="quiz-person-info-button-inline"
-                onClick={() => handlePersonInfoClick(userPerson)}
-                title="Подробная информация"
-                aria-label={`Подробная информация о ${userPerson.name}`}
-              >
-                ℹ️
-              </button>
-            </p>
-          )}
-          
-          <p className="quiz-answer-correct">
-            <strong>Правильный ответ:</strong> {correctPerson.name}
-            <button
-              className="quiz-person-info-button-inline"
-              onClick={() => handlePersonInfoClick(correctPerson)}
-              title="Подробная информация"
-              aria-label={`Подробная информация о ${correctPerson.name}`}
-            >
-              ℹ️
-            </button>
-          </p>
-        </div>
-      </div>
+    if (!question) return null;
+    
+    const questionWithAnswer = { ...question, correctAnswer: result.correctAnswer };
+    
+    return renderGuessPersonDetailsUtil(
+      result.questionId,
+      questionWithAnswer,
+      result.userAnswer,
+      handlePersonInfoClick
     );
-  };
-
-  const formatAnswer = (ans: any): string => {
-    if (Array.isArray(ans)) {
-      if (ans.length === 0) return 'Не дан ответ';
-      if (Array.isArray(ans[0])) {
-        return ans.map((group: string[], idx: number) => 
-          `Группа ${idx + 1}: ${group.join(', ')}`
-        ).join(' | ');
-      }
-      return ans.join(', ');
-    }
-    return String(ans || 'Не дан ответ');
   };
 
 

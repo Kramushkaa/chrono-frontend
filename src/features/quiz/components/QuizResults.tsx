@@ -3,7 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { QuizResult, QuizQuestion, QuizSetupConfig, QuizPerson } from '../types';
 import { ShareQuizButton } from './ShareQuizButton';
 import { formatTime, formatTimeCompact, getScoreMessage, getScoreColor } from '../utils/formatters';
-import { formatAnswer } from '../utils/answerRenderers';
+import {
+  formatAnswer,
+  renderMatchingTable as renderMatchingTableUtil,
+  renderBirthOrderList as renderBirthOrderListUtil,
+  renderContemporariesGroups as renderContemporariesGroupsUtil,
+  renderGuessPersonDetails as renderGuessPersonDetailsUtil,
+} from '../utils/answerRenderers';
 
 interface QuizResultsProps {
   result: QuizResult;
@@ -56,261 +62,22 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
 
   const renderMatchingTable = (questionId: string, userAnswer: any) => {
     const question = getQuestion(questionId);
-    if (!question || question.type !== 'achievementsMatch') return null;
-
-    const data = question.data as any;
-    const userAnswerArray = userAnswer as string[];
-    const correctAnswerArray = question.correctAnswer as string[];
-    
-    return (
-      <div className="quiz-matching-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Личность</th>
-              <th>Ваш ответ</th>
-              <th>Правильный ответ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.persons.map((person: any, index: number) => {
-              const userAns = userAnswerArray[index] || '—';
-              const correctAns = correctAnswerArray[index] || '—';
-              const isCorrect = userAns === correctAns;
-              
-              return (
-                <tr key={`${questionId}-${person.id}-${index}`} className={isCorrect ? 'match-correct' : 'match-incorrect'}>
-                  <td className="person-name">
-                    {person.name}
-                    {onPersonInfoClick && (
-                      <button
-                        className="quiz-person-info-button-inline"
-                        onClick={() => onPersonInfoClick(person)}
-                        title="Подробная информация"
-                        aria-label={`Подробная информация о ${person.name}`}
-                      >
-                        ℹ️
-                      </button>
-                    )}
-                  </td>
-                  <td className="achievement-text user-answer">{userAns}</td>
-                  <td className="achievement-text correct-answer">{correctAns}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    );
+    return renderMatchingTableUtil(questionId, question, userAnswer, onPersonInfoClick);
   };
 
   const renderBirthOrderList = (questionId: string, userAnswer: any) => {
     const question = getQuestion(questionId);
-    if (!question || question.type !== 'birthOrder') return null;
-
-    const data = question.data as any;
-    const userOrder = userAnswer as string[];
-    const correctOrder = question.correctAnswer as string[];
-    
-    const getPersonById = (personId: string) => {
-      return data.persons.find((p: any) => p.id === personId);
-    };
-
-    const renderPersonItem = (personId: string, className: string) => {
-      const person = getPersonById(personId);
-      if (!person) return personId;
-      
-      return (
-        <>
-          {person.name} ({person.birthYear})
-          {onPersonInfoClick && (
-            <button
-              className="quiz-person-info-button-inline"
-              onClick={() => onPersonInfoClick(person)}
-              title="Подробная информация"
-              aria-label={`Подробная информация о ${person.name}`}
-            >
-              ℹ️
-            </button>
-          )}
-        </>
-      );
-    };
-
-    return (
-      <div className="quiz-order-comparison">
-        <div className="quiz-order-column">
-          <strong>Ваш порядок:</strong>
-          <ol className="quiz-order-list">
-            {userOrder.map((personId, idx) => {
-              const correctPosition = correctOrder.indexOf(personId);
-              const isCorrect = correctPosition === idx;
-              return (
-                <li key={`user-${personId}-${idx}`} className={isCorrect ? 'order-correct' : 'order-incorrect'}>
-                  {renderPersonItem(personId, isCorrect ? 'order-correct' : 'order-incorrect')}
-                </li>
-              );
-            })}
-          </ol>
-        </div>
-        <div className="quiz-order-column">
-          <strong>Правильный порядок:</strong>
-          <ol className="quiz-order-list correct-order">
-            {correctOrder.map((personId, idx) => (
-              <li key={`correct-${personId}-${idx}`}>
-                {renderPersonItem(personId, 'correct-order')}
-              </li>
-            ))}
-          </ol>
-        </div>
-      </div>
-    );
+    return renderBirthOrderListUtil(questionId, question, userAnswer, onPersonInfoClick);
   };
 
   const renderContemporariesGroups = (questionId: string, userAnswer: any) => {
     const question = getQuestion(questionId);
-    if (!question || question.type !== 'contemporaries') return null;
-
-    const data = question.data as any;
-    const userGroups = userAnswer as string[][];
-    const correctGroups = question.correctAnswer as string[][];
-    
-    const getPersonById = (personId: string) => {
-      return data.persons.find((p: any) => p.id === personId);
-    };
-
-    const renderPersonItem = (personId: string) => {
-      const person = getPersonById(personId);
-      if (!person) return personId;
-      
-      return (
-        <>
-          {person.name} ({person.birthYear}-{person.deathYear || 'н.в.'})
-          {onPersonInfoClick && (
-            <button
-              className="quiz-person-info-button-inline"
-              onClick={() => onPersonInfoClick(person)}
-              title="Подробная информация"
-              aria-label={`Подробная информация о ${person.name}`}
-            >
-              ℹ️
-            </button>
-          )}
-        </>
-      );
-    };
-
-    return (
-      <div className="quiz-groups-comparison">
-        <div className="quiz-groups-column">
-          <strong>Ваши группы:</strong>
-          <div className="quiz-groups-list">
-            {userGroups.map((group, groupIdx) => (
-              <div key={`user-group-${groupIdx}`} className="quiz-group-box">
-                <div className="quiz-group-header">Группа {groupIdx + 1}</div>
-                <ul className="quiz-group-members">
-                  {group.map((personId, personIdx) => (
-                    <li key={`user-${personId}-${personIdx}`}>{renderPersonItem(personId)}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="quiz-groups-column">
-          <strong>Правильные группы:</strong>
-          <div className="quiz-groups-list">
-            {correctGroups.map((group, groupIdx) => (
-              <div key={`correct-group-${groupIdx}`} className="quiz-group-box correct-group">
-                <div className="quiz-group-header">Группа {groupIdx + 1}</div>
-                <ul className="quiz-group-members">
-                  {group.map((personId, personIdx) => (
-                    <li key={`correct-${personId}-${personIdx}`}>{renderPersonItem(personId)}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return renderContemporariesGroupsUtil(questionId, question, userAnswer, onPersonInfoClick);
   };
 
   const renderGuessPersonDetails = (questionId: string, userAnswer: any) => {
     const question = getQuestion(questionId);
-    if (!question || question.type !== 'guessPerson') return null;
-
-    const data = question.data as any;
-    const correctPerson = data.correctPerson;
-    const userPersonId = userAnswer as string;
-    const userPerson = data.availablePersons.find((p: any) => p.id === userPersonId);
-    const isCorrect = userPersonId === correctPerson.id;
-
-    return (
-      <div className="quiz-guess-person-details">
-        <div className="quiz-guess-clues">
-          <strong>Информация о загадываемой личности:</strong>
-          <div className="quiz-clue-list">
-            <div className="quiz-clue-item">
-              <span className="clue-label">Годы жизни:</span>
-              <span className="clue-value">
-                {correctPerson.birthYear} — {correctPerson.deathYear || 'н.в.'}
-              </span>
-            </div>
-            <div className="quiz-clue-item">
-              <span className="clue-label">Страна:</span>
-              <span className="clue-value">
-                {Array.isArray(correctPerson.country) 
-                  ? correctPerson.country.join(', ') 
-                  : correctPerson.country}
-              </span>
-            </div>
-            <div className="quiz-clue-item">
-              <span className="clue-label">Род деятельности:</span>
-              <span className="clue-value">{correctPerson.category}</span>
-            </div>
-            {correctPerson.description && (
-              <div className="quiz-clue-item">
-                <span className="clue-label">Описание:</span>
-                <span className="clue-value">{correctPerson.description}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="quiz-guess-answers">
-          {!isCorrect && userPerson && (
-            <p className="quiz-answer-user">
-              <strong>Ваш ответ:</strong> {userPerson.name}
-              {onPersonInfoClick && (
-                <button
-                  className="quiz-person-info-button-inline"
-                  onClick={() => onPersonInfoClick(userPerson)}
-                  title="Подробная информация"
-                  aria-label={`Подробная информация о ${userPerson.name}`}
-                >
-                  ℹ️
-                </button>
-              )}
-            </p>
-          )}
-          
-          <p className="quiz-answer-correct">
-            <strong>Правильный ответ:</strong> {correctPerson.name}
-            {onPersonInfoClick && (
-              <button
-                className="quiz-person-info-button-inline"
-                onClick={() => onPersonInfoClick(correctPerson)}
-                title="Подробная информация"
-                aria-label={`Подробная информация о ${correctPerson.name}`}
-              >
-                ℹ️
-              </button>
-            )}
-          </p>
-        </div>
-      </div>
-    );
+    return renderGuessPersonDetailsUtil(questionId, question, userAnswer, onPersonInfoClick);
   };
 
   return (
