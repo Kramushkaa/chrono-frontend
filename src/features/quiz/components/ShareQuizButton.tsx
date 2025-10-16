@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useSharedQuiz } from '../hooks/useSharedQuiz';
 import { useAuthUser } from 'shared/context/AuthContext';
+import { QuizAuthModal } from './QuizAuthModal';
 import type { QuizQuestion, QuizSetupConfig } from '../types';
 
 interface ShareQuizButtonProps {
@@ -22,10 +22,10 @@ export const ShareQuizButton: React.FC<ShareQuizButtonProps> = ({
   onShareCreated,
   creatorResults,
 }) => {
-  const navigate = useNavigate();
   const { createSharedQuiz, loading } = useSharedQuiz();
   const { user, isAuthenticated } = useAuthUser();
   const [showModal, setShowModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [shareCode, setShareCode] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [title, setTitle] = useState('');
@@ -77,9 +77,7 @@ export const ShareQuizButton: React.FC<ShareQuizButtonProps> = ({
 
   const handleButtonClick = () => {
     if (!isAuthenticated) {
-      if (window.confirm('Для создания shared-квиза нужно авторизоваться. Перейти на страницу входа?')) {
-        navigate('/login', { state: { returnUrl: window.location.pathname } });
-      }
+      setShowAuthModal(true);
       return;
     }
     
@@ -87,6 +85,16 @@ export const ShareQuizButton: React.FC<ShareQuizButtonProps> = ({
     const userName = user?.full_name || user?.username || user?.email?.split('@')[0] || 'Пользователя';
     setTitle(`Викторина ${userName}`);
     setShowModal(true);
+  };
+
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
+    // После авторизации автоматически открываем модалку создания квиза
+    if (user) {
+      const userName = user?.full_name || user?.username || user?.email?.split('@')[0] || 'Пользователя';
+      setTitle(`Викторина ${userName}`);
+      setShowModal(true);
+    }
   };
 
   return (
@@ -97,6 +105,13 @@ export const ShareQuizButton: React.FC<ShareQuizButtonProps> = ({
       >
         Поделиться квизом
       </button>
+
+      <QuizAuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+        message="Для создания shared-квиза необходимо авторизоваться"
+      />
 
       {showModal && (
         <div className="quiz-modal-overlay" onClick={handleClose}>
