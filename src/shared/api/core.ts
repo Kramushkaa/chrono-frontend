@@ -136,6 +136,7 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
   if (state.accessToken && !headers.has('Authorization')) {
     headers.set('Authorization', `Bearer ${state.accessToken}`)
   }
+  
   try {
     const res = await apiRequest(url, { ...init, headers })
     if (res.status !== 401) return res

@@ -15,6 +15,8 @@ const ProfilePage = React.lazy(() => import('features/auth/pages/ProfilePage'))
 const RegisterPage = React.lazy(() => import('features/auth/pages/RegisterPage'))
 const ManagePage = React.lazy(() => import('features/manage/pages/ManagePage'))
 const QuizPage = React.lazy(() => import('features/quiz/pages/QuizPage').then(m => ({ default: m.default })))
+const LeaderboardPage = React.lazy(() => import('features/quiz/pages/LeaderboardPage'))
+const SharedQuizPage = React.lazy(() => import('features/quiz/pages/SharedQuizPage'))
 const TimelinePage = React.lazy(() => import('features/timeline/pages/TimelinePage').then(m => ({ default: m.default })))
 
 export default function App() {
@@ -29,6 +31,8 @@ export default function App() {
                 <Route path="/menu" element={<MenuPage />} />
                 <Route path="/timeline" element={<TimelinePage />} />
                 <Route path="/quiz" element={<QuizPage />} />
+                <Route path="/quiz/leaderboard" element={<LeaderboardPage />} />
+                <Route path="/quiz/:shareCode" element={<SharedQuizPage />} />
                 <Route path="/lists" element={<ManagePage />} />
                 <Route path="/manage" element={<Navigate to="/lists" replace />} />
                 <Route path="/profile" element={<ProfilePage />} />

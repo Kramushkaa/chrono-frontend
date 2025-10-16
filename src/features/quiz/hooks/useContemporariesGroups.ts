@@ -1,19 +1,25 @@
 import { useState, useEffect, useCallback } from 'react'
-import { ContemporariesQuestionData } from '../types'
+import { ContemporariesQuestionData, QuizAnswer } from '../types'
 
 interface UseContemporariesGroupsParams {
   persons: ContemporariesQuestionData['persons']
+  showFeedback?: boolean
+  userAnswer?: QuizAnswer | null
 }
 
-export function useContemporariesGroups({ persons }: UseContemporariesGroupsParams) {
-  const [groups, setGroups] = useState<string[][]>(() => [
-    persons.map((p) => p.id).sort(() => Math.random() - 0.5),
-  ])
+export function useContemporariesGroups({ persons, showFeedback, userAnswer }: UseContemporariesGroupsParams) {
+  const [groups, setGroups] = useState<string[][]>([persons.map((p) => p.id).sort(() => Math.random() - 0.5)])
 
   // Reset when persons change
   useEffect(() => {
-    setGroups([persons.map((p) => p.id).sort(() => Math.random() - 0.5)])
-  }, [persons])
+    // В режиме просмотра результатов восстанавливаем ответ пользователя
+    if (showFeedback && userAnswer) {
+      setGroups(userAnswer.answer as string[][]);
+    } else {
+      setGroups([persons.map((p) => p.id).sort(() => Math.random() - 0.5)]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [persons, showFeedback, userAnswer?.questionId])
 
   // Создание новой группы
   const createGroup = useCallback((personId: string) => {

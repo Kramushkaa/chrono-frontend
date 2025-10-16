@@ -28,7 +28,11 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
   const isMobile = useMobile()
 
   // Use custom hooks for groups and drag&drop management
-  const { groups, createGroup, addToGroup, removeGroup } = useContemporariesGroups({ persons: data.persons })
+  const { groups, createGroup, addToGroup, removeGroup } = useContemporariesGroups({ 
+    persons: data.persons,
+    showFeedback,
+    userAnswer
+  })
 
   const dragDropHandlers = useContemporariesDragDrop({ showFeedback, isMobile, groups })
 

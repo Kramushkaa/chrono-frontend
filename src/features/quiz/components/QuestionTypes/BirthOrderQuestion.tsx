@@ -41,8 +41,14 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
 
   // Reset state when question data changes (e.g., next question)
   useEffect(() => {
-    // Reinitialize order with new persons
-    setOrder(data.persons.map(p => p.id).sort(() => Math.random() - 0.5));
+    // В режиме просмотра результатов восстанавливаем ответ пользователя
+    if (showFeedback && userAnswer) {
+      const userOrder = userAnswer.answer as string[];
+      setOrder(userOrder);
+    } else {
+      // Reinitialize order with new persons
+      setOrder(data.persons.map(p => p.id).sort(() => Math.random() - 0.5));
+    }
     // Clear any drag-related state
     setDraggedItem(null);
     setDraggedOver(null);
@@ -55,7 +61,8 @@ export const BirthOrderQuestion: React.FC<BirthOrderQuestionProps> = ({
       draggedElementRef.current.style.zIndex = '';
       draggedElementRef.current.style.pointerEvents = '';
     }
-  }, [data]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.persons, showFeedback, userAnswer?.questionId]);
 
   // Touch event handlers
   const handleTouchStart = (e: React.TouchEvent, personId: string) => {

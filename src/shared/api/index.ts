@@ -63,3 +63,15 @@ export type { LifePeriodInput } from './periods'
 // Lists
 export { createListShareCode, resolveListShare } from './lists'
 
+// Quiz
+export {
+  saveQuizAttempt,
+  createSharedQuiz,
+  getSharedQuiz,
+  startSharedQuiz,
+  checkSharedQuizAnswer,
+  finishSharedQuiz,
+  getGlobalLeaderboard,
+  getUserStats,
+  getSharedQuizLeaderboard,
+} from './quiz'

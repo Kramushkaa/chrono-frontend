@@ -69,7 +69,8 @@ const QuizPage: React.FC = () => {
     lastAnswer,
     allCategories: quizCategories,
     allCountries: quizCountries,
-    checkStrictFilters
+    checkStrictFilters,
+    ratingPoints,
   } = useQuiz(persons, allCategories, allCountries);
 
   // Обновляем API фильтры при изменении настроек квиза с debouncing
@@ -268,6 +269,10 @@ const QuizPage: React.FC = () => {
             result={getResults()}
             onRestart={handleRestart}
             onBackToMenu={handleBackToMenu}
+            ratingPoints={ratingPoints}
+            questions={questions}
+            config={setup}
+            onPersonInfoClick={handlePersonInfoClick}
           />
           <ContactFooter />
         </div>

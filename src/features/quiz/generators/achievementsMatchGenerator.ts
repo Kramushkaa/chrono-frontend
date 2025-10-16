@@ -41,7 +41,7 @@ export const generateAchievementsMatchQuestion = (persons: Person[]): QuizQuesti
   const correctAnswer = selectedPersons.map(person => correctMatches[person.id]);
 
   return {
-    id: `achievements-match-${Date.now()}`,
+    id: `achievements-match-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     type: 'achievementsMatch',
     question: 'Сопоставьте достижения с личностями:',
     correctAnswer,

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { AchievementsMatchQuestionData, QuizAnswer, QuizPerson } from '../../types';
 import { useMobile } from 'shared/hooks/useMobile';
 
@@ -37,6 +37,26 @@ export const AchievementsMatchQuestion: React.FC<AchievementsMatchQuestionProps>
   
   // Используем правильный хук для определения мобильного устройства (только по ширине экрана)
   const isMobile = useMobile();
+
+  // Восстанавливаем ответ пользователя в режиме просмотра результатов
+  useEffect(() => {
+    if (showFeedback && userAnswer) {
+      const userMatches = userAnswer.answer as string[];
+      const matchesObject: { [personId: string]: string } = {};
+      
+      data.persons.forEach((person, index) => {
+        if (userMatches[index]) {
+          matchesObject[person.id] = userMatches[index];
+        }
+      });
+      
+      setMatches(matchesObject);
+    } else if (!showFeedback) {
+      // Сбрасываем matches, если не в режиме результатов
+      setMatches({});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFeedback, userAnswer?.questionId, data.persons]);
 
   const handleDragStart = (e: React.DragEvent, achievement: string) => {
     if (showFeedback) return;

@@ -49,7 +49,7 @@ export const generateBirthOrderQuestion = (persons: Person[]): QuizQuestion => {
   };
 
   return {
-    id: `birth-order-${Date.now()}`,
+    id: `birth-order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     type: 'birthOrder',
     question: 'Расставьте личности по году рождения (от самого раннего к самому позднему):',
     correctAnswer: correctOrder,

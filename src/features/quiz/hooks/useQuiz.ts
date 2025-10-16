@@ -11,6 +11,7 @@ import {
   generateContemporariesQuestion,
   generateGuessPersonQuestion
 } from '../generators';
+import { saveQuizAttempt } from '../../../shared/api';
 
 export const useQuiz = (persons: Person[], allCategories: string[], allCountries: string[]) => {
   // Debounce для временного периода
@@ -52,6 +53,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
   const [questionStartTime, setQuestionStartTime] = useState<number>(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [lastAnswer, setLastAnswer] = useState<QuizAnswer | null>(null);
+  const [ratingPoints, setRatingPoints] = useState<number | undefined>(undefined);
 
   // Обновляем setup когда данные загружены
   useEffect(() => {
@@ -289,6 +291,36 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     };
   }, [answers, questions.length]);
 
+  // Сохранить результаты квиза на сервер
+  const saveResults = useCallback(async () => {
+    const result = getResults();
+    const questionTypes = questions.map(q => q.type);
+
+    try {
+      const response = await saveQuizAttempt({
+        correctAnswers: result.correctAnswers,
+        totalQuestions: result.totalQuestions,
+        totalTimeMs: result.totalTime,
+        config: setup,
+        questionTypes,
+      });
+
+      if (response.success) {
+        setRatingPoints(response.data.ratingPoints);
+      }
+    } catch (error) {
+      console.error('Failed to save quiz attempt:', error);
+      // Don't throw error - quiz results should still be shown
+    }
+  }, [getResults, questions, setup]);
+
+  // Автоматически сохранить результаты когда квиз завершен
+  useEffect(() => {
+    if (!isQuizActive && answers.length === questions.length && questions.length > 0 && ratingPoints === undefined) {
+      saveResults();
+    }
+  }, [isQuizActive, answers.length, questions.length, ratingPoints, saveResults]);
+
   // Сбросить игру
   const resetQuiz = useCallback(() => {
     setQuestions([]);
@@ -297,6 +329,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     setIsQuizActive(false);
     setShowAnswer(false);
     setLastAnswer(null);
+    setRatingPoints(undefined);
     // Прокрутить к началу страницы при сбросе квиза
     scrollToContentStart();
   }, [scrollToContentStart]);
@@ -341,6 +374,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     lastAnswer,
     allCategories,
     allCountries,
-    checkStrictFilters
+    checkStrictFilters,
+    ratingPoints,
   };
 };

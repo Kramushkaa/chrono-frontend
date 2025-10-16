@@ -234,7 +234,7 @@ export const generateContemporariesQuestion = (persons: Person[]): QuizQuestion 
   };
 
   return {
-    id: `contemporaries-${result.selectedPersons.map(p => p.id).join('-')}`,
+    id: `contemporaries-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     type: 'contemporaries',
     question: 'Разделите на группы современников',
     correctAnswer: result.correctGroups,
