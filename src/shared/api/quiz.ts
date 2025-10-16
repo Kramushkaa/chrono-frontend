@@ -13,7 +13,8 @@ import type {
   GlobalLeaderboardResponse,
   UserStatsResponse,
   SharedQuizLeaderboardResponse,
-  QuizSessionHistoryResponse,
+  QuizHistoryResponse,
+  QuizAttemptDetailResponse,
   QuizSessionDetailResponse,
 } from '../dto/quiz-types';
 
@@ -192,9 +193,9 @@ export async function getSharedQuizLeaderboard(
 // ============================================================================
 
 /**
- * Get user's quiz session history
+ * Get user's quiz history (all types)
  */
-export async function getQuizHistory(limit?: number): Promise<QuizSessionHistoryResponse> {
+export async function getQuizHistory(limit?: number): Promise<QuizHistoryResponse> {
   const url = limit ? `/api/quiz/history?limit=${limit}` : '/api/quiz/history';
   const response = await apiFetch(url);
 
@@ -207,7 +208,23 @@ export async function getQuizHistory(limit?: number): Promise<QuizSessionHistory
 }
 
 /**
- * Get detailed quiz session history
+ * Get detailed quiz attempt history
+ */
+export async function getQuizAttemptDetail(
+  attemptId: number
+): Promise<QuizAttemptDetailResponse> {
+  const response = await apiFetch(`/api/quiz/history/attempt/${attemptId}`);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to load attempt details');
+  }
+
+  return response.json();
+}
+
+/**
+ * Get detailed quiz session history (legacy, for shared quizzes)
  */
 export async function getQuizSessionDetail(
   sessionToken: string

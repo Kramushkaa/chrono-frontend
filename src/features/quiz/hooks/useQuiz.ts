@@ -296,8 +296,10 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     const result = getResults();
     const questionTypes = questions.map(q => q.type);
 
-    // Prepare detailed answers with question types
+    // Prepare detailed answers with all information
     const detailedAnswers = result.answers.map((answer, index) => ({
+      questionId: answer.questionId,
+      answer: answer.answer,
       isCorrect: answer.isCorrect,
       timeSpent: answer.timeSpent,
       questionType: questions[index]?.type || 'birthYear',
@@ -311,6 +313,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
         config: setup,
         questionTypes,
         answers: detailedAnswers,
+        questions, // Send the actual questions
       });
 
       if (response.success) {

@@ -36,7 +36,14 @@ export interface SaveQuizAttemptRequest {
   totalTimeMs: number;
   config: QuizSetupConfig;
   questionTypes: QuizQuestionType[];
-  answers?: Array<{ isCorrect: boolean; timeSpent: number; questionType: QuizQuestionType }>;
+  answers?: Array<{
+    questionId: string;
+    answer: any;
+    isCorrect: boolean;
+    timeSpent: number;
+    questionType: QuizQuestionType;
+  }>;
+  questions?: QuizQuestion[];
 }
 
 export interface SaveQuizAttemptResponse {
@@ -204,26 +211,58 @@ export interface SharedQuizLeaderboardResponse {
   };
 }
 
-// Quiz Session History
-export interface QuizSessionHistoryEntry {
-  sessionToken: string;
+// Quiz History (all types)
+export interface QuizHistoryEntry {
+  attemptId: number;
+  sessionToken?: string;
   quizTitle: string;
-  sharedQuizId: number;
+  sharedQuizId?: number;
+  isShared: boolean;
   correctAnswers: number;
   totalQuestions: number;
   totalTimeMs: number;
-  startedAt: string;
-  finishedAt: string;
+  ratingPoints: number;
+  createdAt: string;
+  config?: QuizSetupConfig;
 }
 
-export interface QuizSessionHistoryResponse {
+export interface QuizHistoryResponse {
   success: boolean;
   data: {
-    sessions: QuizSessionHistoryEntry[];
+    attempts: QuizHistoryEntry[];
     total: number;
   };
 }
 
+export interface QuizAttemptDetailResponse {
+  success: boolean;
+  data: {
+    attempt: {
+      attemptId: number;
+      quizTitle: string;
+      isShared: boolean;
+      createdAt: string;
+    };
+    results: {
+      correctAnswers: number;
+      totalQuestions: number;
+      totalTimeMs: number;
+      ratingPoints: number;
+    };
+    detailedAnswers: Array<{
+      questionId: string;
+      question: string;
+      questionType: QuizQuestionType;
+      userAnswer: string | string[] | string[][];
+      correctAnswer: string | string[] | string[][];
+      isCorrect: boolean;
+      timeSpent: number;
+      explanation?: string;
+    }>;
+  };
+}
+
+// Legacy: for shared quiz sessions
 export interface QuizSessionDetailResponse {
   success: boolean;
   data: {

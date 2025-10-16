@@ -178,6 +178,18 @@ export function Profile() {
       )}
 
       <section style={{ display: 'grid', gap: 8 }}>
+        <h4>История квизов</h4>
+        <div>
+          Просмотрите все ваши прошлые прохождения квизов с подробными результатами.
+        </div>
+        <div>
+          <button onClick={() => navigate('/quiz/history')}>
+            Посмотреть историю
+          </button>
+        </div>
+      </section>
+
+      <section style={{ display: 'grid', gap: 8 }}>
         <h4>Смена пароля</h4>
         <form
           onSubmit={async (e) => {
