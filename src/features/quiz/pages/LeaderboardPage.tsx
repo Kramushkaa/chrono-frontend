@@ -17,7 +17,9 @@ const LeaderboardPage: React.FC = () => {
         description="Глобальный лидерборд квизов - соревнуйтесь с другими игроками и проверьте свои знания истории!"
       />
 
-      <AppHeader {...getMinimalHeaderProps({ onBackToMenu: () => navigate('/quiz') })} />
+      <AppHeader {...getMinimalHeaderProps({ 
+        extraLeftButton: { label: '← К викторинам', onClick: () => navigate('/quiz') }
+      })} />
 
       <main className="quiz-content">
         <div className="quiz-page">

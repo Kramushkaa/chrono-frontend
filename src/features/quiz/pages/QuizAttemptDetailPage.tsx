@@ -110,7 +110,9 @@ export const QuizAttemptDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="quiz-page">
-        <AppHeader {...getMinimalHeaderProps({ onBackToMenu: handleBackToHistory })} />
+        <AppHeader {...getMinimalHeaderProps({ 
+          extraLeftButton: { label: '← К викторинам', onClick: () => navigate('/quiz') }
+        })} />
         <div className="quiz-content">
           <div className="quiz-loading">
             <p>Загрузка деталей...</p>
@@ -124,7 +126,9 @@ export const QuizAttemptDetailPage: React.FC = () => {
   if (error || !data) {
     return (
       <div className="quiz-page">
-        <AppHeader {...getMinimalHeaderProps({ onBackToMenu: handleBackToHistory })} />
+        <AppHeader {...getMinimalHeaderProps({ 
+          extraLeftButton: { label: '← К викторинам', onClick: () => navigate('/quiz') }
+        })} />
         <div className="quiz-content">
           <div className="quiz-error">
             <p>{error || 'Попытка не найдена'}</p>
@@ -140,7 +144,9 @@ export const QuizAttemptDetailPage: React.FC = () => {
 
   return (
     <div className="quiz-page">
-      <AppHeader {...getMinimalHeaderProps({ onBackToMenu: handleBackToHistory })} />
+      <AppHeader {...getMinimalHeaderProps({ 
+        extraLeftButton: { label: '← К викторинам', onClick: () => navigate('/quiz') }
+      })} />
 
       <div className="quiz-content">
         <div className="quiz-container">

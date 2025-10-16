@@ -11,6 +11,50 @@
   padding: 1rem 2rem;
 }
 
+/* Header buttons */
+.app-header__back-button,
+.app-header__extra-button {
+  background: rgba(244, 228, 193, 0.1);
+  border: 1px solid rgba(244, 228, 193, 0.2);
+  color: #f4e4c1;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.app-header__back-button:hover,
+.app-header__extra-button:hover {
+  background: rgba(244, 228, 193, 0.2);
+  border-color: rgba(244, 228, 193, 0.4);
+}
+
+.app-header__extra-button {
+  margin-left: 0.5rem;
+}
+
+.app-header__left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-header__right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-header__container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
 .app-header.scrolled {
   background: rgba(44, 24, 16, 0.98);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);

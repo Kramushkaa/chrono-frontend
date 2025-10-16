@@ -61,13 +61,11 @@ export const QuizHistoryPage: React.FC = () => {
     navigate(`/quiz/history/attempt/${attemptId}`);
   };
 
-  const handleBackToQuiz = () => {
-    navigate('/quiz');
-  };
-
   return (
     <div className="quiz-page">
-      <AppHeader {...getMinimalHeaderProps({ onBackToMenu: handleBackToQuiz })} />
+      <AppHeader {...getMinimalHeaderProps({ 
+        extraLeftButton: { label: '← К викторинам', onClick: () => navigate('/quiz') }
+      })} />
 
       <div className="quiz-content">
         <div className="quiz-container">
@@ -91,7 +89,7 @@ export const QuizHistoryPage: React.FC = () => {
           {!loading && !error && attempts.length === 0 && (
             <div className="quiz-empty">
               <p>У вас пока нет завершённых квизов</p>
-              <button onClick={handleBackToQuiz} className="quiz-button">
+              <button onClick={() => navigate('/quiz')} className="quiz-button">
                 Начать квиз
               </button>
             </div>

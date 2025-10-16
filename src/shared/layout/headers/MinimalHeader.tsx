@@ -5,6 +5,7 @@ import { UserMenu } from 'shared/ui/UserMenu'
 
 interface MinimalHeaderProps {
   onBackToMenu?: () => void
+  extraLeftButton?: { label: string; onClick: () => void }
   extraRightControls?: React.ReactNode
   title?: string
 }
@@ -13,7 +14,7 @@ interface MinimalHeaderProps {
  * Minimal header for simple pages (Quiz, Profile, Register)
  * Only shows logo, optional title, and user menu
  */
-export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ onBackToMenu, extraRightControls, title }) => {
+export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ onBackToMenu, extraLeftButton, extraRightControls, title }) => {
   const navigate = useNavigate();
   
   const handleMenuClick = () => {
@@ -31,6 +32,15 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ onBackToMenu, extr
           <button className="app-header__back-button" onClick={handleMenuClick} title="Вернуться в меню">
             ← Меню
           </button>
+          {extraLeftButton && (
+            <button 
+              className="app-header__extra-button" 
+              onClick={extraLeftButton.onClick}
+              title={extraLeftButton.label}
+            >
+              {extraLeftButton.label}
+            </button>
+          )}
           <h1 className="app-header__brand">
             <BrandTitle />
           </h1>

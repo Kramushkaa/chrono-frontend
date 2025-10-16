@@ -4,11 +4,12 @@
  */
 
 export interface BaseHeaderProps {
-  onBackToMenu: () => void
+  onBackToMenu?: () => void
+  extraLeftButton?: { label: string; onClick: () => void }
   extraRightControls?: React.ReactNode
 }
 
-export function getMinimalHeaderProps({ onBackToMenu, extraRightControls }: BaseHeaderProps) {
+export function getMinimalHeaderProps({ onBackToMenu, extraLeftButton, extraRightControls }: BaseHeaderProps = {}) {
   return {
     isScrolled: false,
     showControls: false,
@@ -37,6 +38,7 @@ export function getMinimalHeaderProps({ onBackToMenu, extraRightControls }: Base
     handleSliderMouseUp: () => {},
     isDraggingSlider: false,
     onBackToMenu,
+    extraLeftButton,
     extraRightControls,
   }
 }
