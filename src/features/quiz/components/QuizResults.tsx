@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizResult, QuizQuestion, QuizSetupConfig, QuizPerson } from '../types';
 import { ShareQuizButton } from './ShareQuizButton';
+import { formatTime, formatTimeCompact, getScoreMessage, getScoreColor } from '../utils/formatters';
+import { formatAnswer } from '../utils/answerRenderers';
 
 interface QuizResultsProps {
   result: QuizResult;
@@ -35,48 +37,6 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
       }
       return newSet;
     });
-  };
-
-  const formatTime = (milliseconds: number) => {
-    const seconds = Math.floor(milliseconds / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    
-    if (minutes > 0) {
-      return `${minutes}м ${remainingSeconds}с`;
-    }
-    return `${remainingSeconds}с`;
-  };
-
-  const getScoreMessage = (score: number) => {
-    if (score >= 90) return 'Отлично! Вы настоящий знаток истории!';
-    if (score >= 70) return 'Хорошо! Неплохие знания!';
-    if (score >= 50) return 'Неплохо! Есть над чем поработать.';
-    return 'Попробуйте еще раз!';
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return '#4CAF50';
-    if (score >= 70) return '#8BC34A';
-    if (score >= 50) return '#FFC107';
-    return '#F44336';
-  };
-
-  const formatAnswer = (answer: any): string => {
-    if (Array.isArray(answer)) {
-      if (answer.length === 0) return 'Не дан ответ';
-      
-      // Проверяем, это массив массивов (для группировки современников)
-      if (Array.isArray(answer[0])) {
-        return answer.map((group: string[], idx: number) => 
-          `Группа ${idx + 1}: ${group.join(', ')}`
-        ).join(' | ');
-      }
-      
-      // Обычный массив (для сопоставления или порядка)
-      return answer.join(', ');
-    }
-    return String(answer || 'Не дан ответ');
   };
 
   const getQuestionText = (questionId: string): string => {
@@ -449,7 +409,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                     style={{ cursor: 'pointer' }}
                   >
                     <span className="quiz-answer-number">Вопрос {index + 1}</span>
-                    <span className="quiz-answer-time">{formatTime(answer.timeSpent)}</span>
+                    <span className="quiz-answer-time">{formatTimeCompact(answer.timeSpent)}</span>
                     <span className="quiz-answer-status">
                       {answer.isCorrect ? '✓ Правильно' : '✗ Неправильно'}
                     </span>

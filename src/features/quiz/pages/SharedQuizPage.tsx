@@ -4,27 +4,23 @@ import { SEO } from 'shared/ui/SEO';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { ContactFooter } from 'shared/ui/ContactFooter';
 import { useSharedQuiz } from '../hooks/useSharedQuiz';
+import { usePersonPanel } from '../hooks/usePersonPanel';
 import { AuthPrompt } from '../components/AuthPrompt';
 import { SharedQuizLeaderboard } from '../components/SharedQuizLeaderboard';
+import { QuizPersonPanel } from '../components/QuizPersonPanel';
 import { SingleChoiceQuestion } from '../components/QuestionTypes/SingleChoiceQuestion';
 import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion';
 import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion';
 import { ContemporariesQuestion } from '../components/QuestionTypes/ContemporariesQuestion';
 import { getMinimalHeaderProps } from '../utils/headerProps';
 import { useAuthUser } from 'shared/context/AuthContext';
-import { getPersonById } from 'shared/api/api';
-import { getCategoryColor } from 'shared/utils/categoryColors';
-import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils';
-import { PersonPanel } from 'features/persons/components/PersonPanel';
 import type {
   SingleChoiceQuestionData,
   AchievementsMatchQuestionData,
   BirthOrderQuestionData,
   ContemporariesQuestionData,
-  QuizPerson,
 } from '../types';
 import type { DetailedQuestionResult } from 'shared/dto/quiz-types';
-import type { Person } from 'shared/types';
 import '../styles/quiz.css';
 
 type QuizPhase = 'loading' | 'auth-prompt' | 'ready' | 'playing' | 'finished' | 'leaderboard';
@@ -51,7 +47,7 @@ const SharedQuizPage: React.FC = () => {
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null);
   const [detailedResults, setDetailedResults] = useState<DetailedQuestionResult[]>([]);
   const [expandedAnswers, setExpandedAnswers] = useState<Set<string>>(new Set());
-  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
+  const { selectedPerson, handlePersonInfoClick, closePersonPanel } = usePersonPanel();
 
   // Load quiz on mount
   useEffect(() => {
@@ -127,19 +123,6 @@ const SharedQuizPage: React.FC = () => {
     setPhase('leaderboard');
   }, []);
 
-  const handlePersonInfoClick = async (person: QuizPerson) => {
-    try {
-      const fullPerson = await getPersonById(person.id);
-      if (fullPerson) {
-        setSelectedPerson(fullPerson);
-      } else {
-        setSelectedPerson(person as unknown as Person);
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки информации о личности:', error);
-      setSelectedPerson(person as unknown as Person);
-    }
-  };
 
   const formatTime = (milliseconds: number) => {
     const seconds = Math.floor(milliseconds / 1000);
@@ -741,15 +724,7 @@ const SharedQuizPage: React.FC = () => {
         <ContactFooter />
         
         {/* PersonPanel для показа информации о личности */}
-        {selectedPerson && (
-          <PersonPanel
-            selectedPerson={selectedPerson}
-            onClose={() => setSelectedPerson(null)}
-            getGroupColor={getGroupColor}
-            getPersonGroup={(person) => getPersonGroup(person, 'none')}
-            getCategoryColor={getCategoryColor}
-          />
-        )}
+        <QuizPersonPanel selectedPerson={selectedPerson} onClose={closePersonPanel} />
       </div>
     );
 };

@@ -5,6 +5,8 @@ import type { QuizHistoryEntry } from 'shared/dto/quiz-types';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { getMinimalHeaderProps } from '../utils/headerProps';
 import { ContactFooter } from 'shared/ui/ContactFooter';
+import { QuizLoading, QuizError, QuizEmpty } from '../components/QuizStateMessages';
+import { formatTime, formatDate, getScorePercentage } from '../utils/formatters';
 import '../styles/quiz.css';
 
 export const QuizHistoryPage: React.FC = () => {
@@ -31,32 +33,6 @@ export const QuizHistoryPage: React.FC = () => {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return new Intl.DateTimeFormat('ru-RU', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
-
-  const formatTime = (ms: number) => {
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    
-    if (minutes > 0) {
-      return `${minutes} мин ${remainingSeconds} сек`;
-    }
-    return `${seconds} сек`;
-  };
-
-  const getScorePercentage = (correct: number, total: number) => {
-    return Math.round((correct / total) * 100);
-  };
-
   const handleViewAttempt = (attemptId: number) => {
     navigate(`/quiz/history/attempt/${attemptId}`);
   };
@@ -71,28 +47,16 @@ export const QuizHistoryPage: React.FC = () => {
         <div className="quiz-container">
           <h1 className="quiz-title">История прохождений</h1>
 
-          {loading && (
-            <div className="quiz-loading">
-              <p>Загрузка истории...</p>
-            </div>
-          )}
+          {loading && <QuizLoading message="Загрузка истории..." />}
 
-          {error && (
-            <div className="quiz-error">
-              <p>{error}</p>
-              <button onClick={loadHistory} className="quiz-button">
-                Попробовать снова
-              </button>
-            </div>
-          )}
+          {error && <QuizError message={error} onRetry={loadHistory} />}
 
           {!loading && !error && attempts.length === 0 && (
-            <div className="quiz-empty">
-              <p>У вас пока нет завершённых квизов</p>
-              <button onClick={() => navigate('/quiz')} className="quiz-button">
-                Начать квиз
-              </button>
-            </div>
+            <QuizEmpty 
+              message="У вас пока нет завершённых квизов" 
+              actionLabel="Начать квиз"
+              onAction={() => navigate('/quiz')}
+            />
           )}
 
           {!loading && !error && attempts.length > 0 && (

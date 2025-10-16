@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuizData } from '../hooks/useQuizData'
 import { useQuiz } from '../hooks/useQuiz'
+import { usePersonPanel } from '../hooks/usePersonPanel'
 import { QuizSetup } from '../components/QuizSetup'
 import { QuizResults } from '../components/QuizResults'
 import { QuizProgress } from '../components/QuizProgress'
 import { QuizStructuredData } from '../components/QuizStructuredData'
+import { QuizPersonPanel } from '../components/QuizPersonPanel'
 import { SingleChoiceQuestion } from '../components/QuestionTypes/SingleChoiceQuestion'
 import { AchievementsMatchQuestion } from '../components/QuestionTypes/AchievementsMatchQuestion'
 import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion'
@@ -15,10 +17,6 @@ import { SEO } from 'shared/ui/SEO'
 import { AppHeader } from 'shared/layout/AppHeader'
 import { ContactFooter } from 'shared/ui/ContactFooter'
 import { getMinimalHeaderProps } from '../utils/headerProps'
-import type { Person } from 'shared/types'
-import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils'
-import { getCategoryColor } from 'shared/utils/categoryColors'
-import { getPersonById } from 'shared/api/api'
 import type { 
   SingleChoiceQuestionData, 
   AchievementsMatchQuestionData, 
@@ -28,14 +26,9 @@ import type {
 } from '../types'
 import '../styles/quiz.css'
 
-const PersonPanel = React.lazy(() => import('features/persons/components/PersonPanel').then(m => ({ default: m.PersonPanel })));
-
 const QuizPage: React.FC = () => {
   const navigate = useNavigate();
-  
-  // Состояние для PersonPanel
-  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
-  
+  const { selectedPerson, handlePersonInfoClick, closePersonPanel } = usePersonPanel();
 
   // Отдельное состояние для API фильтров с debouncing
   const [apiFilters, setApiFilters] = useState<{
@@ -103,23 +96,6 @@ const QuizPage: React.FC = () => {
 
   const handleAnswer = (answer: string | string[] | string[][]) => {
     answerQuestion(answer);
-  };
-
-  const handlePersonInfoClick = async (person: { id: string; name: string; [key: string]: unknown }) => {
-    try {
-      // Получаем полную информацию о личности из API
-      const fullPerson = await getPersonById(person.id);
-      if (fullPerson) {
-        setSelectedPerson(fullPerson);
-      } else {
-        // Fallback на данные из вопроса, если API не вернул данные - преобразуем к Person
-        setSelectedPerson(person as unknown as Person);
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки информации о личности:', error);
-      // Fallback на данные из вопроса
-      setSelectedPerson(person as unknown as Person);
-    }
   };
 
   const renderQuestion = () => {
@@ -225,15 +201,7 @@ const QuizPage: React.FC = () => {
         
         {/* PersonPanel для показа информации о личности */}
         {selectedPerson && (
-          <React.Suspense fallback={<div>Загрузка...</div>}>
-            <PersonPanel
-              selectedPerson={selectedPerson}
-              onClose={() => setSelectedPerson(null)}
-              getGroupColor={getGroupColor}
-              getPersonGroup={(person) => getPersonGroup(person, 'none')}
-              getCategoryColor={getCategoryColor}
-            />
-          </React.Suspense>
+          <QuizPersonPanel selectedPerson={selectedPerson} onClose={closePersonPanel} />
         )}
       </div>
     );
@@ -281,15 +249,7 @@ const QuizPage: React.FC = () => {
         
         {/* PersonPanel для показа информации о личности */}
         {selectedPerson && (
-          <React.Suspense fallback={<div>Загрузка...</div>}>
-            <PersonPanel
-              selectedPerson={selectedPerson}
-              onClose={() => setSelectedPerson(null)}
-              getGroupColor={getGroupColor}
-              getPersonGroup={(person) => getPersonGroup(person, 'none')}
-              getCategoryColor={getCategoryColor}
-            />
-          </React.Suspense>
+          <QuizPersonPanel selectedPerson={selectedPerson} onClose={closePersonPanel} />
         )}
       </div>
     );
@@ -325,15 +285,7 @@ const QuizPage: React.FC = () => {
         
         {/* PersonPanel для показа информации о личности */}
         {selectedPerson && (
-          <React.Suspense fallback={<div>Загрузка...</div>}>
-            <PersonPanel
-              selectedPerson={selectedPerson}
-              onClose={() => setSelectedPerson(null)}
-              getGroupColor={getGroupColor}
-              getPersonGroup={(person) => getPersonGroup(person, 'none')}
-              getCategoryColor={getCategoryColor}
-            />
-          </React.Suspense>
+          <QuizPersonPanel selectedPerson={selectedPerson} onClose={closePersonPanel} />
         )}
       </div>
     );
@@ -374,15 +326,7 @@ const QuizPage: React.FC = () => {
         
         {/* PersonPanel для показа информации о личности */}
         {selectedPerson && (
-          <React.Suspense fallback={<div>Загрузка...</div>}>
-            <PersonPanel
-              selectedPerson={selectedPerson}
-              onClose={() => setSelectedPerson(null)}
-              getGroupColor={getGroupColor}
-              getPersonGroup={(person) => getPersonGroup(person, 'none')}
-              getCategoryColor={getCategoryColor}
-            />
-          </React.Suspense>
+          <QuizPersonPanel selectedPerson={selectedPerson} onClose={closePersonPanel} />
         )}
       </div>
     </div>

@@ -5,11 +5,10 @@ import type { QuizAttemptDetailResponse } from 'shared/dto/quiz-types';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { getMinimalHeaderProps } from '../utils/headerProps';
 import { ContactFooter } from 'shared/ui/ContactFooter';
-import { PersonPanel } from 'features/persons/components/PersonPanel';
-import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils';
-import { getCategoryColor } from 'shared/utils/categoryColors';
-import { getPersonById } from 'shared/api/api';
-import type { Person } from 'shared/types';
+import { QuizPersonPanel } from '../components/QuizPersonPanel';
+import { QuizLoading, QuizError } from '../components/QuizStateMessages';
+import { usePersonPanel } from '../hooks/usePersonPanel';
+import { formatTime, formatDate, getScorePercentage } from '../utils/formatters';
 import {
   renderMatchingTable,
   renderBirthOrderList,
@@ -17,7 +16,6 @@ import {
   renderGuessPersonDetails,
   formatAnswer,
 } from '../utils/answerRenderers';
-import type { QuizPerson } from '../types';
 import '../styles/quiz.css';
 
 export const QuizAttemptDetailPage: React.FC = () => {
@@ -27,7 +25,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedAnswers, setExpandedAnswers] = useState<Set<string>>(new Set());
-  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
+  const { selectedPerson, handlePersonInfoClick, closePersonPanel } = usePersonPanel();
 
   useEffect(() => {
     if (attemptId) {
@@ -51,32 +49,6 @@ export const QuizAttemptDetailPage: React.FC = () => {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return new Intl.DateTimeFormat('ru-RU', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
-
-  const formatTime = (ms: number) => {
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    
-    if (minutes > 0) {
-      return `${minutes} мин ${remainingSeconds} сек`;
-    }
-    return `${seconds} сек`;
-  };
-
-  const getScorePercentage = (correct: number, total: number) => {
-    return Math.round((correct / total) * 100);
-  };
-
   const toggleAnswer = (questionId: string) => {
     setExpandedAnswers(prev => {
       const newSet = new Set(prev);
@@ -87,20 +59,6 @@ export const QuizAttemptDetailPage: React.FC = () => {
       }
       return newSet;
     });
-  };
-
-  const handlePersonInfoClick = async (person: QuizPerson) => {
-    try {
-      // Получаем полную информацию о персоне из API
-      const fullPerson = await getPersonById(person.id);
-      if (fullPerson) {
-        setSelectedPerson(fullPerson);
-      } else {
-        console.error('Person not found:', person.id);
-      }
-    } catch (error) {
-      console.error('Failed to load person:', error);
-    }
   };
 
   const handleBackToHistory = () => {
@@ -114,9 +72,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
           extraLeftButton: { label: '← К викторинам', onClick: () => navigate('/quiz') }
         })} />
         <div className="quiz-content">
-          <div className="quiz-loading">
-            <p>Загрузка деталей...</p>
-          </div>
+          <QuizLoading message="Загрузка деталей..." />
         </div>
         <ContactFooter />
       </div>
@@ -130,12 +86,11 @@ export const QuizAttemptDetailPage: React.FC = () => {
           extraLeftButton: { label: '← К викторинам', onClick: () => navigate('/quiz') }
         })} />
         <div className="quiz-content">
-          <div className="quiz-error">
-            <p>{error || 'Попытка не найдена'}</p>
-            <button onClick={handleBackToHistory} className="quiz-button">
-              Вернуться к истории
-            </button>
-          </div>
+          <QuizError 
+            message={error || 'Попытка не найдена'} 
+            onRetry={handleBackToHistory}
+            retryLabel="Вернуться к истории"
+          />
         </div>
         <ContactFooter />
       </div>
@@ -289,15 +244,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
 
       <ContactFooter />
       
-      {selectedPerson && (
-        <PersonPanel
-          selectedPerson={selectedPerson}
-          onClose={() => setSelectedPerson(null)}
-          getGroupColor={getGroupColor}
-          getPersonGroup={(person) => getPersonGroup(person, 'none')}
-          getCategoryColor={getCategoryColor}
-        />
-      )}
+      <QuizPersonPanel selectedPerson={selectedPerson} onClose={closePersonPanel} />
     </div>
   );
 };

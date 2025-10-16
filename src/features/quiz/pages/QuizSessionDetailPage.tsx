@@ -5,6 +5,8 @@ import type { QuizSessionDetailResponse } from 'shared/dto/quiz-types';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { getMinimalHeaderProps } from '../utils/headerProps';
 import { ContactFooter } from 'shared/ui/ContactFooter';
+import { QuizLoading, QuizError } from '../components/QuizStateMessages';
+import { formatTime, formatDate, getScorePercentage } from '../utils/formatters';
 import '../styles/quiz.css';
 
 export const QuizSessionDetailPage: React.FC = () => {
@@ -35,32 +37,6 @@ export const QuizSessionDetailPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return new Intl.DateTimeFormat('ru-RU', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
-
-  const formatTime = (ms: number) => {
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    
-    if (minutes > 0) {
-      return `${minutes} мин ${remainingSeconds} сек`;
-    }
-    return `${seconds} сек`;
-  };
-
-  const getScorePercentage = (correct: number, total: number) => {
-    return Math.round((correct / total) * 100);
   };
 
   const toggleQuestion = (questionId: string) => {
@@ -98,11 +74,9 @@ export const QuizSessionDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="quiz-page">
-        <AppHeader {...getMinimalHeaderProps({ onBackToMenu: handleBackToHistory })} />
+        <AppHeader {...getMinimalHeaderProps({})} />
         <div className="quiz-content">
-          <div className="quiz-loading">
-            <p>Загрузка деталей...</p>
-          </div>
+          <QuizLoading message="Загрузка деталей..." />
         </div>
         <ContactFooter />
       </div>
@@ -112,14 +86,13 @@ export const QuizSessionDetailPage: React.FC = () => {
   if (error || !data) {
     return (
       <div className="quiz-page">
-        <AppHeader {...getMinimalHeaderProps({ onBackToMenu: handleBackToHistory })} />
+        <AppHeader {...getMinimalHeaderProps({})} />
         <div className="quiz-content">
-          <div className="quiz-error">
-            <p>{error || 'Сессия не найдена'}</p>
-            <button onClick={handleBackToHistory} className="quiz-button">
-              Вернуться к истории
-            </button>
-          </div>
+          <QuizError 
+            message={error || 'Сессия не найдена'} 
+            onRetry={handleBackToHistory}
+            retryLabel="Вернуться к истории"
+          />
         </div>
         <ContactFooter />
       </div>
@@ -128,7 +101,7 @@ export const QuizSessionDetailPage: React.FC = () => {
 
   return (
     <div className="quiz-page">
-      <AppHeader {...getMinimalHeaderProps({ onBackToMenu: handleBackToHistory })} />
+      <AppHeader {...getMinimalHeaderProps({})} />
 
       <div className="quiz-content">
         <div className="quiz-container">
