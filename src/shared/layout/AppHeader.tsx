@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useToast } from 'shared/context/ToastContext'
 import { BrandTitle } from 'shared/ui/BrandTitle'
 import { UserMenu } from 'shared/ui/UserMenu'
@@ -42,6 +43,7 @@ interface AppHeaderProps {
   handleSliderMouseUp: () => void
   isDraggingSlider: boolean
   onBackToMenu?: () => void
+  extraLeftButton?: { label: string; onClick: () => void }
   extraRightControls?: React.ReactNode
   extraFilterControls?: React.ReactNode
 }
@@ -69,10 +71,11 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
   handleSliderMouseUp,
   isDraggingSlider,
   onBackToMenu,
+  extraLeftButton,
   extraRightControls,
   extraFilterControls
 }) => {
-
+  const navigate = useNavigate()
   const { showToast } = useToast()
 
   // Функция для переключения фильтра "Показать все века" с сбросом дат
@@ -170,11 +173,11 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
         </button>
         )}
 
-        {/* Профиль и, опционально, кнопка "Назад в меню" справа */}
-        {onBackToMenu && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginLeft: 'auto' }}>
+        {/* Профиль и кнопки навигации справа */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
+          {mode === 'minimal' && (
             <button
-              onClick={onBackToMenu}
+              onClick={onBackToMenu || (() => navigate('/menu'))}
               style={{
                 padding: '0.4rem 0.8rem',
                 background: 'rgba(205, 133, 63, 0.2)',
@@ -202,16 +205,41 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
             >
               Меню
             </button>
-            <UserMenu />
-          </div>
-        )}
-
-        {/* Профиль справа, если нет кнопки назад */}
-        {!onBackToMenu && (
-          <div style={{ marginLeft: 'auto' }}>
-            <UserMenu />
-          </div>
-        )}
+          )}
+          {extraLeftButton && (
+            <button
+              onClick={extraLeftButton.onClick}
+              style={{
+                padding: '0.4rem 0.8rem',
+                background: 'rgba(76, 175, 80, 0.2)',
+                border: '1px solid rgba(76, 175, 80, 0.4)',
+                borderRadius: '6px',
+                color: '#4caf50',
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                fontWeight: 'bold'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(76, 175, 80, 0.3)'
+                e.currentTarget.style.borderColor = 'rgba(76, 175, 80, 0.6)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(76, 175, 80, 0.2)'
+                e.currentTarget.style.borderColor = 'rgba(76, 175, 80, 0.4)'
+              }}
+              title={extraLeftButton.label}
+              aria-label={extraLeftButton.label}
+            >
+              {extraLeftButton.label}
+            </button>
+          )}
+          <UserMenu />
+        </div>
+        
         {mode === 'full' && (
         <div className="share-buttons" style={{
           display: 'none',
