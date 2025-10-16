@@ -36,6 +36,7 @@ export interface SaveQuizAttemptRequest {
   totalTimeMs: number;
   config: QuizSetupConfig;
   questionTypes: QuizQuestionType[];
+  answers?: Array<{ isCorrect: boolean; timeSpent: number; questionType: QuizQuestionType }>;
 }
 
 export interface SaveQuizAttemptResponse {

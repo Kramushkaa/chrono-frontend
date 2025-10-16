@@ -296,6 +296,13 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     const result = getResults();
     const questionTypes = questions.map(q => q.type);
 
+    // Prepare detailed answers with question types
+    const detailedAnswers = result.answers.map((answer, index) => ({
+      isCorrect: answer.isCorrect,
+      timeSpent: answer.timeSpent,
+      questionType: questions[index]?.type || 'birthYear',
+    }));
+
     try {
       const response = await saveQuizAttempt({
         correctAnswers: result.correctAnswers,
@@ -303,6 +310,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
         totalTimeMs: result.totalTime,
         config: setup,
         questionTypes,
+        answers: detailedAnswers,
       });
 
       if (response.success) {
