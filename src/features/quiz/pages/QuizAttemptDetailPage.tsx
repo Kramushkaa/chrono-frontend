@@ -5,6 +5,9 @@ import type { QuizAttemptDetailResponse } from 'shared/dto/quiz-types';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { getMinimalHeaderProps } from '../utils/headerProps';
 import { ContactFooter } from 'shared/ui/ContactFooter';
+import { PersonPanel } from 'features/persons/components/PersonPanel';
+import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils';
+import { getCategoryColor } from 'shared/utils/categoryColors';
 import {
   renderMatchingTable,
   renderBirthOrderList,
@@ -12,6 +15,7 @@ import {
   renderGuessPersonDetails,
   formatAnswer,
 } from '../utils/answerRenderers';
+import type { QuizPerson } from '../types';
 import '../styles/quiz.css';
 
 export const QuizAttemptDetailPage: React.FC = () => {
@@ -21,6 +25,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedAnswers, setExpandedAnswers] = useState<Set<string>>(new Set());
+  const [selectedPerson, setSelectedPerson] = useState<QuizPerson | null>(null);
 
   useEffect(() => {
     if (attemptId) {
@@ -80,6 +85,10 @@ export const QuizAttemptDetailPage: React.FC = () => {
       }
       return newSet;
     });
+  };
+
+  const handlePersonInfoClick = (person: QuizPerson) => {
+    setSelectedPerson(person);
   };
 
   const handleBackToHistory = () => {
@@ -194,19 +203,19 @@ export const QuizAttemptDetailPage: React.FC = () => {
                         
                         {answer.questionType === 'achievementsMatch' ? (
                           <div className="quiz-answer-section">
-                            {renderMatchingTable(answer.questionId, questionWithData, answer.userAnswer)}
+                            {renderMatchingTable(answer.questionId, questionWithData, answer.userAnswer, handlePersonInfoClick)}
                           </div>
                         ) : answer.questionType === 'birthOrder' ? (
                           <div className="quiz-answer-section">
-                            {renderBirthOrderList(answer.questionId, questionWithData, answer.userAnswer)}
+                            {renderBirthOrderList(answer.questionId, questionWithData, answer.userAnswer, handlePersonInfoClick)}
                           </div>
                         ) : answer.questionType === 'contemporaries' ? (
                           <div className="quiz-answer-section">
-                            {renderContemporariesGroups(answer.questionId, questionWithData, answer.userAnswer)}
+                            {renderContemporariesGroups(answer.questionId, questionWithData, answer.userAnswer, handlePersonInfoClick)}
                           </div>
                         ) : answer.questionType === 'guessPerson' ? (
                           <div className="quiz-answer-section">
-                            {renderGuessPersonDetails(answer.questionId, questionWithData, answer.userAnswer)}
+                            {renderGuessPersonDetails(answer.questionId, questionWithData, answer.userAnswer, handlePersonInfoClick)}
                           </div>
                         ) : (
                           <>
@@ -214,6 +223,16 @@ export const QuizAttemptDetailPage: React.FC = () => {
                             {(answer.questionType === 'birthYear' || answer.questionType === 'deathYear' || answer.questionType === 'profession' || answer.questionType === 'country') && (
                               <p className="quiz-answer-person-info">
                                 <strong>Личность:</strong> {(questionWithData.data as any)?.person?.name || '—'}
+                                {(questionWithData.data as any)?.person && (
+                                  <button
+                                    className="quiz-person-info-button-inline"
+                                    onClick={() => handlePersonInfoClick((questionWithData.data as any).person)}
+                                    title="Подробная информация"
+                                    aria-label={`Подробная информация о ${(questionWithData.data as any).person.name}`}
+                                  >
+                                    ℹ️
+                                  </button>
+                                )}
                               </p>
                             )}
                             
@@ -251,6 +270,16 @@ export const QuizAttemptDetailPage: React.FC = () => {
       </div>
 
       <ContactFooter />
+      
+      {selectedPerson && (
+        <PersonPanel
+          selectedPerson={selectedPerson as any}
+          onClose={() => setSelectedPerson(null)}
+          getGroupColor={getGroupColor}
+          getPersonGroup={(person) => getPersonGroup(person, 'none')}
+          getCategoryColor={getCategoryColor}
+        />
+      )}
     </div>
   );
 };
