@@ -8,17 +8,11 @@ import { usePersonPanel } from '../hooks/usePersonPanel';
 import { AuthPrompt } from '../components/AuthPrompt';
 import { SharedQuizLeaderboard } from '../components/SharedQuizLeaderboard';
 import { QuizPersonPanel } from '../components/QuizPersonPanel';
+import { QuizAnswerDetailsList } from '../components/QuizAnswerDetailsList';
 import { renderQuestionByType } from '../utils/questionRenderer';
 import { getMinimalHeaderProps } from '../utils/headerProps';
 import { useAuthUser } from 'shared/context/AuthContext';
 import { formatTime } from '../utils/formatters';
-import {
-  renderMatchingTable as renderMatchingTableUtil,
-  renderBirthOrderList as renderBirthOrderListUtil,
-  renderContemporariesGroups as renderContemporariesGroupsUtil,
-  renderGuessPersonDetails as renderGuessPersonDetailsUtil,
-  formatAnswer,
-} from '../utils/answerRenderers';
 import type { DetailedQuestionResult } from 'shared/dto/quiz-types';
 import '../styles/quiz.css';
 
@@ -45,7 +39,6 @@ const SharedQuizPage: React.FC = () => {
   const [showInstantFeedback, setShowInstantFeedback] = useState(false);
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null);
   const [detailedResults, setDetailedResults] = useState<DetailedQuestionResult[]>([]);
-  const [expandedAnswers, setExpandedAnswers] = useState<Set<string>>(new Set());
   const { selectedPerson, handlePersonInfoClick, closePersonPanel } = usePersonPanel();
 
   // Load quiz on mount
@@ -122,81 +115,13 @@ const SharedQuizPage: React.FC = () => {
     setPhase('leaderboard');
   }, []);
 
-  const toggleAnswer = (questionId: string) => {
-    setExpandedAnswers((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(questionId)) {
-        newSet.delete(questionId);
-      } else {
-        newSet.add(questionId);
-      }
-      return newSet;
-    });
-  };
-
-  const renderMatchingTable = (result: DetailedQuestionResult) => {
-    if (!quiz) return null;
-    const question = quiz.questions.find(q => q.id === result.questionId);
-    if (!question) return null;
-    
-    // Create question object with correctAnswer from result
-    const questionWithAnswer = { ...question, correctAnswer: result.correctAnswer };
-    
-    return renderMatchingTableUtil(
-      result.questionId,
-      questionWithAnswer,
-      result.userAnswer,
-      handlePersonInfoClick
-    );
-  };
-
-  const renderBirthOrderList = (result: DetailedQuestionResult) => {
-    if (!quiz) return null;
-    const question = quiz.questions.find(q => q.id === result.questionId);
-    if (!question) return null;
-    
-    const questionWithAnswer = { ...question, correctAnswer: result.correctAnswer };
-    
-    return renderBirthOrderListUtil(
-      result.questionId,
-      questionWithAnswer,
-      result.userAnswer,
-      handlePersonInfoClick
-    );
-  };
-
-  const renderContemporariesGroups = (result: DetailedQuestionResult) => {
-    if (!quiz) return null;
-    const question = quiz.questions.find(q => q.id === result.questionId);
-    if (!question) return null;
-    
-    const questionWithAnswer = { ...question, correctAnswer: result.correctAnswer };
-    
-    return renderContemporariesGroupsUtil(
-      result.questionId,
-      questionWithAnswer,
-      result.userAnswer,
-      handlePersonInfoClick
-    );
-  };
-
   const getQuestion = (questionId: string) => {
     if (!quiz) return null;
-    return quiz.questions.find(q => q.id === questionId) || null;
-  };
-
-  const renderGuessPersonDetails = (result: DetailedQuestionResult) => {
-    const question = getQuestion(result.questionId);
+    const question = quiz.questions.find(q => q.id === questionId);
     if (!question) return null;
-    
-    const questionWithAnswer = { ...question, correctAnswer: result.correctAnswer };
-    
-    return renderGuessPersonDetailsUtil(
-      result.questionId,
-      questionWithAnswer,
-      result.userAnswer,
-      handlePersonInfoClick
-    );
+    // Add correctAnswer from detailedResults for QuizAnswerDetailsList
+    const result = detailedResults.find(r => r.questionId === questionId);
+    return result ? { ...question, correctAnswer: result.correctAnswer } : question;
   };
 
 
@@ -331,118 +256,11 @@ const SharedQuizPage: React.FC = () => {
                 </button>
               </div>
 
-              <div className="quiz-results-answers">
-                <h3>Детали ответов:</h3>
-                <div className="quiz-answers-list">
-                  {detailedResults.map((result, index) => {
-                    const isExpanded = expandedAnswers.has(result.questionId);
-
-                    return (
-                      <div 
-                        key={`answer-${index}-${result.questionId}`} 
-                        className={`quiz-answer-item ${result.isCorrect ? 'correct' : 'incorrect'} ${isExpanded ? 'expanded' : ''}`}
-                      >
-                        <div 
-                          className="quiz-answer-header"
-                          onClick={() => toggleAnswer(result.questionId)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          <span className="quiz-answer-number">Вопрос {index + 1}</span>
-                          <span className="quiz-answer-time">{formatTime(result.timeSpent)}</span>
-                          <span className="quiz-answer-status">
-                            {result.isCorrect ? '✓ Правильно' : '✗ Неправильно'}
-                          </span>
-                          <span className="quiz-answer-toggle">{isExpanded ? '▼' : '▶'}</span>
-                        </div>
-                        
-                        {isExpanded && (
-                          <div className="quiz-answer-body">
-                            <p className="quiz-answer-question">
-                              <strong>Вопрос:</strong> {result.question}
-                            </p>
-                            
-                            {(() => {
-                              const question = getQuestion(result.questionId);
-                              
-                              if (question?.type === 'achievementsMatch') {
-                                return (
-                                  <div className="quiz-answer-section">
-                                    {renderMatchingTable(result)}
-                                  </div>
-                                );
-                              }
-                              
-                              if (question?.type === 'birthOrder') {
-                                return (
-                                  <div className="quiz-answer-section">
-                                    {renderBirthOrderList(result)}
-                                  </div>
-                                );
-                              }
-                              
-                              if (question?.type === 'contemporaries') {
-                                return (
-                                  <div className="quiz-answer-section">
-                                    {renderContemporariesGroups(result)}
-                                  </div>
-                                );
-                              }
-                              
-                              if (question?.type === 'guessPerson') {
-                                return (
-                                  <div className="quiz-answer-section">
-                                    {renderGuessPersonDetails(result)}
-                                  </div>
-                                );
-                              }
-
-                              // Простые вопросы (birthYear, deathYear, profession, country)
-                              const isSimpleQuestion = question?.type === 'birthYear' || question?.type === 'deathYear' || question?.type === 'profession' || question?.type === 'country';
-                              
-                              return (
-                                <>
-                                  {/* Показываем информацию о личности для простых вопросов */}
-                                  {isSimpleQuestion && question && (
-                                    <p className="quiz-answer-person-info">
-                                      <strong>Личность:</strong> {(question.data as any).person?.name}
-                                      {(question.data as any).person && (
-                                        <button
-                                          className="quiz-person-info-button-inline"
-                                          onClick={() => handlePersonInfoClick((question.data as any).person)}
-                                          title="Подробная информация"
-                                          aria-label={`Подробная информация о ${(question.data as any).person.name}`}
-                                        >
-                                          ℹ️
-                                        </button>
-                                      )}
-                                    </p>
-                                  )}
-                                  
-                                  {!result.isCorrect && (
-                                    <p className="quiz-answer-user">
-                                      <strong>Ваш ответ:</strong> {formatAnswer(result.userAnswer)}
-                                    </p>
-                                  )}
-                                  
-                                  <p className="quiz-answer-correct">
-                                    <strong>Правильный ответ:</strong> {formatAnswer(result.correctAnswer)}
-                                  </p>
-                                </>
-                              );
-                            })()}
-                            
-                            {result.explanation && (
-                              <p className="quiz-answer-explanation">
-                                <strong>Пояснение:</strong> {result.explanation}
-                              </p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              <QuizAnswerDetailsList
+                results={detailedResults}
+                getQuestion={getQuestion}
+                onPersonInfoClick={handlePersonInfoClick}
+              />
             </div>
           )}
 
