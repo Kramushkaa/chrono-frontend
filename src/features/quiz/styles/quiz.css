@@ -3731,6 +3731,37 @@ fieldset.quiz-setup-question-count legend {
   line-height: 1.5;
 }
 
+.leaderboard-help-modal-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(139, 69, 19, 0.3);
+  display: flex;
+  justify-content: center;
+}
+
+.leaderboard-help-modal-ok {
+  background: linear-gradient(135deg, #cd853f, #8b4513);
+  border: none;
+  color: #f4e4c1;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+}
+
+.leaderboard-help-modal-ok:hover {
+  background: linear-gradient(135deg, #a0522d, #cd853f);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 69, 19, 0.4);
+}
+
+.leaderboard-help-modal-ok:active {
+  transform: translateY(0);
+}
+
 .leaderboard-content {
   margin-bottom: 2rem;
 }

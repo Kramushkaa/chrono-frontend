@@ -120,6 +120,14 @@ export const GlobalLeaderboard: React.FC = () => {
               <li>Множитель сложности: зависит от количества и типов вопросов</li>
               <li>Бонус за время: до +50% если все ответы правильные и быстрые</li>
             </ul>
+            <div className="leaderboard-help-modal-footer">
+              <button
+                className="leaderboard-help-modal-ok"
+                onClick={() => setShowHelp(false)}
+              >
+                Понятно
+              </button>
+            </div>
           </div>
         </div>
       )}
