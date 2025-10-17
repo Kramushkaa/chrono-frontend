@@ -85,17 +85,17 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
   };
 
 
-  // Локальное состояние для полей ввода временного периода
+  // Локальное состояние для полей ввода временного периода (строки для placeholder)
   const [localTimeRange, setLocalTimeRange] = useState({
-    start: setup.timeRange.start,
-    end: setup.timeRange.end
+    start: setup.timeRange.start === -800 ? '' : String(setup.timeRange.start),
+    end: setup.timeRange.end === 2000 ? '' : String(setup.timeRange.end)
   });
 
   // Синхронизируем локальное состояние с глобальным при изменении setup
   React.useEffect(() => {
     setLocalTimeRange({
-      start: setup.timeRange.start,
-      end: setup.timeRange.end
+      start: setup.timeRange.start === -800 ? '' : String(setup.timeRange.start),
+      end: setup.timeRange.end === 2000 ? '' : String(setup.timeRange.end)
     });
   }, [setup.timeRange.start, setup.timeRange.end]);
 
@@ -142,17 +142,17 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
               <label className="quiz-time-label" id="quiz-time-range-label">Временной период:</label>
               <div className="quiz-time-inputs">
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={localTimeRange.start}
                   aria-label="От года"
                   aria-labelledby="quiz-time-range-label"
                   onChange={(e) => {
-                    const value = parseInt(e.target.value) || -800;
-                    setLocalTimeRange(prev => ({ ...prev, start: value }));
+                    setLocalTimeRange(prev => ({ ...prev, start: e.target.value }));
                   }}
                   onBlur={(e) => {
-                    const value = parseInt(e.target.value) || -800;
-                    if (value !== setup.timeRange.start) {
+                    const value = e.target.value.trim() === '' ? -800 : parseInt(e.target.value);
+                    if (!isNaN(value) && value !== setup.timeRange.start) {
                       onSetupChange({
                         ...setup,
                         timeRange: { ...setup.timeRange, start: value }
@@ -161,32 +161,32 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      const value = parseInt(e.currentTarget.value) || -800;
-                      if (value !== setup.timeRange.start) {
+                      const value = e.currentTarget.value.trim() === '' ? -800 : parseInt(e.currentTarget.value);
+                      if (!isNaN(value) && value !== setup.timeRange.start) {
                         onSetupChange({
                           ...setup,
                           timeRange: { ...setup.timeRange, start: value }
                         });
                       }
-                      e.currentTarget.blur(); // Убираем фокус после применения
+                      e.currentTarget.blur();
                     }
                   }}
                   className="quiz-time-input"
-                  placeholder="От года"
+                  placeholder="-800"
                 />
                 <span className="quiz-time-separator">—</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={localTimeRange.end}
                   aria-label="До года"
                   aria-labelledby="quiz-time-range-label"
                   onChange={(e) => {
-                    const value = parseInt(e.target.value) || 2000;
-                    setLocalTimeRange(prev => ({ ...prev, end: value }));
+                    setLocalTimeRange(prev => ({ ...prev, end: e.target.value }));
                   }}
                   onBlur={(e) => {
-                    const value = parseInt(e.target.value) || 2000;
-                    if (value !== setup.timeRange.end) {
+                    const value = e.target.value.trim() === '' ? 2000 : parseInt(e.target.value);
+                    if (!isNaN(value) && value !== setup.timeRange.end) {
                       onSetupChange({
                         ...setup,
                         timeRange: { ...setup.timeRange, end: value }
@@ -195,18 +195,18 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      const value = parseInt(e.currentTarget.value) || 2000;
-                      if (value !== setup.timeRange.end) {
+                      const value = e.currentTarget.value.trim() === '' ? 2000 : parseInt(e.currentTarget.value);
+                      if (!isNaN(value) && value !== setup.timeRange.end) {
                         onSetupChange({
                           ...setup,
                           timeRange: { ...setup.timeRange, end: value }
                         });
                       }
-                      e.currentTarget.blur(); // Убираем фокус после применения
+                      e.currentTarget.blur();
                     }
                   }}
                   className="quiz-time-input"
-                  placeholder="До года"
+                  placeholder="2000"
                 />
               </div>
               <div className="quiz-time-presets" role="toolbar" aria-label="Выбор временного периода">
@@ -222,7 +222,11 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
                     className={`quiz-time-preset ${setup.timeRange.start === preset.start && setup.timeRange.end === preset.end ? 'active' : ''}`}
                     aria-pressed={setup.timeRange.start === preset.start && setup.timeRange.end === preset.end}
                     onClick={() => {
-                      setLocalTimeRange({ start: preset.start, end: preset.end });
+                      // Для дефолтных значений показываем placeholder
+                      setLocalTimeRange({
+                        start: preset.start === -800 ? '' : String(preset.start),
+                        end: preset.end === 2000 ? '' : String(preset.end)
+                      });
                       onSetupChange({
                         ...setup,
                         timeRange: { start: preset.start, end: preset.end }
