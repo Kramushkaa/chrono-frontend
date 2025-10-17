@@ -3637,10 +3637,12 @@ fieldset.quiz-setup-question-count legend {
   bottom: 0;
   background: rgba(0, 0, 0, 0.7);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
+  padding-top: 5rem; /* Отступ от шапки */
+  overflow-y: auto;
   animation: fadeIn 0.2s ease;
 }
 
