@@ -293,3 +293,4 @@ export const formatAnswer = (answer: any): string => {
   return String(answer || 'Не дан ответ');
 };
 
+

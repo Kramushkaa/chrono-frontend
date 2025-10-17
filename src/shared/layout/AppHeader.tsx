@@ -175,7 +175,8 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
 
         {/* Профиль и кнопки навигации справа */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
-          {mode === 'minimal' && (
+          {/* Кнопка "Меню" показывается всегда, когда передан onBackToMenu или в minimal режиме */}
+          {(mode === 'minimal' || onBackToMenu) && (
             <button
               onClick={onBackToMenu || (() => navigate('/menu'))}
               style={{

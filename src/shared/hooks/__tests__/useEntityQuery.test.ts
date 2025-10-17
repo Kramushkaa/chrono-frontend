@@ -1,5 +1,5 @@
-import { renderHook, waitFor } from '@testing-library/react'
-import { useEntityQuery } from '../useEntityQuery'
+import { renderHook, waitFor, act } from '@testing-library/react'
+import { useEntityQuery, clearEntityQueryCache } from '../useEntityQuery'
 
 // Mock the API functions
 jest.mock('../../api/core', () => ({
@@ -16,6 +16,7 @@ global.fetch = jest.fn()
 describe('useEntityQuery', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    clearEntityQueryCache() // Clear cache between tests
     // Reset fetch mock
     ;(global.fetch as jest.Mock).mockClear()
   })
@@ -48,7 +49,7 @@ describe('useEntityQuery', () => {
 
     const { result } = renderHook(() =>
       useEntityQuery({
-        endpoint: '/api/test',
+        endpoint: '/api/test-error',
         enabled: true,
       })
     )
@@ -57,7 +58,7 @@ describe('useEntityQuery', () => {
       expect(result.current.isLoading).toBe(false)
     })
 
-    expect(result.current.error).toBe(error)
+    expect(result.current.error).toEqual(error)
     expect(result.current.data).toEqual([])
   })
 
@@ -83,7 +84,7 @@ describe('useEntityQuery', () => {
 
     const { result } = renderHook(() =>
       useEntityQuery({
-        endpoint: '/api/test',
+        endpoint: '/api/test-transform',
         enabled: true,
         transform,
       })
@@ -102,7 +103,7 @@ describe('useEntityQuery', () => {
 
     const { result } = renderHook(() =>
       useEntityQuery({
-        endpoint: '/api/test',
+        endpoint: '/api/test-refetch',
         enabled: true,
       })
     )
@@ -114,7 +115,9 @@ describe('useEntityQuery', () => {
     expect(mockApiData).toHaveBeenCalledTimes(1)
 
     // Call refetch
-    result.current.refetch()
+    await act(async () => {
+      result.current.refetch()
+    })
 
     await waitFor(() => {
       expect(mockApiData).toHaveBeenCalledTimes(2)

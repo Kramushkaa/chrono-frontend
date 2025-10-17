@@ -11,17 +11,23 @@ import {
 // Mock console methods
 const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation()
 const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation()
+const mockConsoleGroup = jest.spyOn(console, 'group').mockImplementation()
+const mockConsoleGroupEnd = jest.spyOn(console, 'groupEnd').mockImplementation()
 
 describe('performance utilities', () => {
   beforeEach(() => {
     clearPerformanceMarks()
     mockConsoleLog.mockClear()
     mockConsoleWarn.mockClear()
+    mockConsoleGroup.mockClear()
+    mockConsoleGroupEnd.mockClear()
   })
 
   afterAll(() => {
     mockConsoleLog.mockRestore()
     mockConsoleWarn.mockRestore()
+    mockConsoleGroup.mockRestore()
+    mockConsoleGroupEnd.mockRestore()
   })
 
   describe('logPerformanceMark', () => {
@@ -188,7 +194,7 @@ describe('performance utilities', () => {
 
       printPerformanceReport()
 
-      expect(mockConsoleLog).toHaveBeenCalledWith(
+      expect(mockConsoleGroup).toHaveBeenCalledWith(
         expect.stringContaining('📊 Performance Report')
       )
       expect(mockConsoleLog).toHaveBeenCalledWith(

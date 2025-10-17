@@ -30,3 +30,4 @@ export const QuizPersonPanel: React.FC<QuizPersonPanelProps> = ({
   );
 };
 
+
