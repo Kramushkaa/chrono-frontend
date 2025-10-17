@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import type { GlobalLeaderboardEntry } from '../../../shared/dto/quiz-types';
 
 export const GlobalLeaderboard: React.FC = () => {
   const { topPlayers, userEntry, totalPlayers, loading, error, refresh } = useLeaderboard();
+  const [showHelp, setShowHelp] = useState(false);
 
   if (loading) {
     return (
@@ -46,6 +47,14 @@ export const GlobalLeaderboard: React.FC = () => {
       <div className="leaderboard-header">
         <h2>Глобальный лидерборд</h2>
         <p className="leaderboard-subtitle">Всего игроков: {totalPlayers}</p>
+        <button
+          className="leaderboard-help-button"
+          onClick={() => setShowHelp(true)}
+          title="Как рассчитывается рейтинг?"
+          aria-label="Как рассчитывается рейтинг?"
+        >
+          ?
+        </button>
       </div>
 
       <div className="leaderboard-content">
@@ -86,6 +95,32 @@ export const GlobalLeaderboard: React.FC = () => {
           <li>Бонус за время: до +50% если все ответы правильные и быстрые</li>
         </ul>
       </div>
+
+      {/* Модальное окно с объяснением на мобильных */}
+      {showHelp && (
+        <div className="leaderboard-help-modal-overlay" onClick={() => setShowHelp(false)}>
+          <div className="leaderboard-help-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="leaderboard-help-modal-header">
+              <h3>Как рассчитывается рейтинг?</h3>
+              <button
+                className="leaderboard-help-modal-close"
+                onClick={() => setShowHelp(false)}
+                aria-label="Закрыть"
+              >
+                ×
+              </button>
+            </div>
+            <p>
+              Рейтинг = Базовый балл × Множитель сложности × Бонус за время
+            </p>
+            <ul>
+              <li>Базовый балл: (Правильные ответы / Всего вопросов) × 100</li>
+              <li>Множитель сложности: зависит от количества и типов вопросов</li>
+              <li>Бонус за время: до +50% если все ответы правильные и быстрые</li>
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
