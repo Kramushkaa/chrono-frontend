@@ -3635,12 +3635,14 @@ fieldset.quiz-setup-question-count legend {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 10000; /* Повышаем z-index чтобы быть выше всего */
-  padding: 5rem 1rem; /* Отступы сверху и снизу */
+  padding: 1rem;
+  padding-top: 5rem; /* Отступ от шапки */
+  padding-bottom: 1rem;
   overflow-y: auto;
   animation: fadeIn 0.2s ease;
 }
