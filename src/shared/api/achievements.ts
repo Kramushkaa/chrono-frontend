@@ -33,8 +33,18 @@ export async function getMyAchievements(limit?: number, offset?: number) {
   return data
 }
 
-// Get count of user's achievements
+// Get count of user's achievements with caching
+let ACHIEVEMENTS_COUNT_CACHE: { count: number; ts: number } | null = null
+const ACHIEVEMENTS_COUNT_TTL = 180000 // 3 minutes
+
 export async function getMyAchievementsCount(): Promise<number> {
+  const now = Date.now()
+  
+  // Return cached result if still valid
+  if (ACHIEVEMENTS_COUNT_CACHE && (now - ACHIEVEMENTS_COUNT_CACHE.ts) < ACHIEVEMENTS_COUNT_TTL) {
+    return ACHIEVEMENTS_COUNT_CACHE.count
+  }
+  
   try {
     const payload = await apiData(`/api/achievements/mine?count=true`)
     
@@ -56,6 +66,8 @@ export async function getMyAchievementsCount(): Promise<number> {
     const numCount = typeof count === 'string' ? Number(count) : count
     
     if (typeof numCount === 'number' && Number.isFinite(numCount)) {
+      // Cache the result
+      ACHIEVEMENTS_COUNT_CACHE = { count: numCount, ts: Date.now() }
       return numCount
     }
     

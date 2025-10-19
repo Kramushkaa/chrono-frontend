@@ -298,8 +298,18 @@ export async function revertPersonToDraft(personId: string) {
   return responseData
 }
 
-// Count helpers
+// Count helpers with caching
+let PERSONS_COUNT_CACHE: { count: number; ts: number } | null = null
+const PERSONS_COUNT_TTL = 180000 // 3 minutes
+
 export async function getMyPersonsCount(): Promise<number> {
+  const now = Date.now()
+  
+  // Return cached result if still valid
+  if (PERSONS_COUNT_CACHE && (now - PERSONS_COUNT_CACHE.ts) < PERSONS_COUNT_TTL) {
+    return PERSONS_COUNT_CACHE.count
+  }
+  
   try {
     const payload = await apiData(`/api/persons/mine?count=true`)
     
@@ -321,6 +331,8 @@ export async function getMyPersonsCount(): Promise<number> {
     const numCount = typeof count === 'string' ? Number(count) : count
     
     if (typeof numCount === 'number' && Number.isFinite(numCount)) {
+      // Cache the result
+      PERSONS_COUNT_CACHE = { count: numCount, ts: Date.now() }
       return numCount
     }
     

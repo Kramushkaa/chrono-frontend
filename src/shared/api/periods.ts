@@ -22,8 +22,18 @@ export async function saveLifePeriods(personId: string, periods: LifePeriodInput
   return data
 }
 
-// Get count of user's periods
+// Get count of user's periods with caching
+let PERIODS_COUNT_CACHE: { count: number; ts: number } | null = null
+const PERIODS_COUNT_TTL = 180000 // 3 minutes
+
 export async function getMyPeriodsCount(): Promise<number> {
+  const now = Date.now()
+  
+  // Return cached result if still valid
+  if (PERIODS_COUNT_CACHE && (now - PERIODS_COUNT_CACHE.ts) < PERIODS_COUNT_TTL) {
+    return PERIODS_COUNT_CACHE.count
+  }
+  
   try {
     const payload = await apiData(`/api/periods/mine?count=true`)
     
@@ -45,6 +55,8 @@ export async function getMyPeriodsCount(): Promise<number> {
     const numCount = typeof count === 'string' ? Number(count) : count
     
     if (typeof numCount === 'number' && Number.isFinite(numCount)) {
+      // Cache the result
+      PERIODS_COUNT_CACHE = { count: numCount, ts: Date.now() }
       return numCount
     }
     

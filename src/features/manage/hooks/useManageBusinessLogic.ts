@@ -166,7 +166,7 @@ export function useManageBusinessLogic(params: ManageBusinessLogicParams) {
     const now = Date.now()
     
     // Простая логика rate limiting: загружаем только если это новый пользователь или прошло достаточно времени
-    const shouldLoad = countsLoadKeyRef.current !== key || (now - countsLastTsRef.current >= 10000)
+    const shouldLoad = countsLoadKeyRef.current !== key || (now - countsLastTsRef.current >= 18000) // 18 секунд
     
     if (!shouldLoad) {
       return
