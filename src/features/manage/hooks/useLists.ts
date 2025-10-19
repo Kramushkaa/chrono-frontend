@@ -35,7 +35,7 @@ export function useLists({ isAuthenticated, userId, apiData }: Params) {
   const lastListsFetchTsRef = useRef(0)
 
   // In-memory cache per user
-  const LISTS_CACHE_TTL_MS = 120000
+  const LISTS_CACHE_TTL_MS = 300000 // 5 minutes
   const listsCacheRef = useRef<Map<string, { items: ListItem[]; ts: number }>>(
     (typeof window !== 'undefined' && window.__listsCache) || new Map()
   )
@@ -58,7 +58,7 @@ export function useLists({ isAuthenticated, userId, apiData }: Params) {
     }
     if (!force) {
       if (listsInFlightRef.current) return
-      if (now - lastListsFetchTsRef.current < 1500) return
+      if (now - lastListsFetchTsRef.current < 3000) return // 3 секунды rate limit
     }
     listsInFlightRef.current = true
     try {

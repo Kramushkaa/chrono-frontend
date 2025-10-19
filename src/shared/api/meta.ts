@@ -1,7 +1,7 @@
 import { apiData } from './core'
 import { maybePercentDecode } from './core'
 
-const CACHE_TTL_MS = 60000 // 1 minute
+const CACHE_TTL_MS = 300000 // 5 minutes
 
 // Get all categories
 let CACHED_CATEGORIES: { items: string[]; ts: number } | null = null
