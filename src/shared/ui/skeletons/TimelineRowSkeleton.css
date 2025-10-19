@@ -1,0 +1,48 @@
+/* ===== TIMELINE ROW SKELETON STYLES ===== */
+
+.timeline-row-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(139, 69, 19, 0.2);
+}
+
+.timeline-row-skeleton__year-labels {
+  flex-shrink: 0;
+  min-width: 100px;
+}
+
+.timeline-row-skeleton__life-bar {
+  flex: 1;
+  margin: 0 16px;
+}
+
+.timeline-row-skeleton__achievement-markers {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.timeline-row-skeleton__reign-bars {
+  flex-shrink: 0;
+  min-width: 80px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .timeline-row-skeleton {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .timeline-row-skeleton__life-bar {
+    margin: 0;
+    width: 100%;
+  }
+  
+  .timeline-row-skeleton__achievement-markers {
+    align-self: flex-end;
+  }
+}

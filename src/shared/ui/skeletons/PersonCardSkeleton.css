@@ -1,0 +1,54 @@
+/* ===== PERSON CARD SKELETON STYLES ===== */
+
+.person-card-skeleton {
+  background-color: rgba(44, 24, 16, 0.9);
+  border: 1px solid rgba(139, 69, 19, 0.4);
+  border-radius: 8px;
+  padding: 16px;
+  color: #f4e4c1;
+}
+
+.person-card-skeleton__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, rgba(205, 133, 63, 0.1) 0%, rgba(139, 69, 19, 0.1) 100%);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.person-card-skeleton__content {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.person-card-skeleton__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.person-card-skeleton__achievements {
+  margin-top: 16px;
+}
+
+.person-card-skeleton__achievements-list {
+  margin-top: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .person-card-skeleton__content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .person-card-skeleton__text {
+    align-items: center;
+  }
+}

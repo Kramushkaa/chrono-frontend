@@ -16,6 +16,7 @@ import { useLists } from 'features/manage/hooks/useLists'
 import { apiData } from 'shared/api/api'
 import { TimelineHeader } from 'shared/layout/headers/TimelineHeader'
 import { SEO } from 'shared/ui/SEO'
+import { TimelineRowSkeleton } from 'shared/ui/skeletons'
 import type { Person } from 'shared/types'
 import '../styles/timeline.css'
 
@@ -245,80 +246,106 @@ export default function TimelinePage() {
             role="region"
             aria-label="Область просмотра временной линии"
           >
-            {isLoading && (
-              <div className="loading-overlay" role="status" aria-live="polite">
-                <div className="spinner" aria-hidden="true"></div>
-                <span>Загрузка данных...</span>
+            {isLoading && persons.length === 0 && (
+              <div className="timeline-skeleton-container" role="status" aria-live="polite">
+                {Array.from({ length: 8 }, (_, index) => (
+                  <TimelineRowSkeleton key={index} />
+                ))}
               </div>
             )}
-            <Timeline
-              isLoading={false}
-              timelineWidth={timelineWidth}
-              totalHeight={totalHeight}
-              centuryBoundaries={centuryBoundaries}
-              minYear={minYear}
-              pixelsPerYear={pixelsPerYear}
-              LEFT_PADDING_PX={LEFT_PADDING_PX}
-              rowPlacement={rowPlacement}
-              filters={filters}
-              groupingType={groupingType}
-              categoryDividers={categoryDividers}
-              getGroupColor={getGroupColor}
-              getGroupColorDark={getGroupColorDark}
-              getGroupColorMuted={getGroupColorMuted}
-              getPersonGroup={(person) => getPersonGroup(person, groupingType)}
-              hoveredPerson={hoveredPerson}
-              setHoveredPerson={(person: Person | null) => {
-                if (person) {
-                  handlePersonHover(person, mousePosition.x, mousePosition.y);
-                } else {
-                  handlePersonHover(null, 0, 0);
-                }
-              }}
-              mousePosition={mousePosition}
-              setMousePosition={(position: { x: number; y: number }) => {
-                if (hoveredPerson) {
-                  handlePersonHover(hoveredPerson, position.x, position.y);
-                }
-              }}
-              showTooltip={showTooltip}
-              setShowTooltip={(show: boolean) => {
-                if (!show && hoveredPerson) {
-                  handlePersonHover(null, 0, 0);
-                }
-              }}
-              activeAchievementMarker={activeAchievementMarker}
-              setActiveAchievementMarker={setActiveAchievementMarker}
-              hoveredAchievement={hoveredAchievement}
-              setHoveredAchievement={(achievement: { person: Person; year: number; index: number } | null) => {
-                if (achievement) {
-                  handleAchievementHover(achievement, mousePosition.x, mousePosition.y);
-                } else {
-                  handleAchievementHover(null, 0, 0);
-                }
-              }}
-              showAchievementTooltip={showAchievementTooltip}
-              setShowAchievementTooltip={(show: boolean) => {
-                if (!show && hoveredAchievement) {
-                  handleAchievementHover(null, 0, 0);
-                }
-              }}
-              handlePersonHover={handlePersonHover}
-              handleAchievementHover={handleAchievementHover}
-              hoverTimerRef={hoverTimerRef}
-              sortedData={sortedData}
-              selectedPerson={selectedPerson}
-              setSelectedPerson={setSelectedPerson}
-              timelineRef={timelineRef}
-              isDragging={isDragging}
-              isDraggingTimeline={isDraggingTimeline}
-              handleMouseDown={handleMouseDown}
-              handleMouseMove={handleMouseMove}
-              handleMouseUp={handleMouseUp}
-              handleTouchStart={handleTouchStart}
-              handleTouchMove={handleTouchMove}
-              handleTouchEnd={handleTouchEnd}
-            />
+            {persons.length > 0 && (
+              <Timeline
+                isLoading={false}
+                timelineWidth={timelineWidth}
+                totalHeight={totalHeight}
+                centuryBoundaries={centuryBoundaries}
+                minYear={minYear}
+                pixelsPerYear={pixelsPerYear}
+                LEFT_PADDING_PX={LEFT_PADDING_PX}
+                rowPlacement={rowPlacement}
+                filters={filters}
+                groupingType={groupingType}
+                categoryDividers={categoryDividers}
+                getGroupColor={getGroupColor}
+                getGroupColorDark={getGroupColorDark}
+                getGroupColorMuted={getGroupColorMuted}
+                getPersonGroup={(person) => getPersonGroup(person, groupingType)}
+                hoveredPerson={hoveredPerson}
+                setHoveredPerson={(person: Person | null) => {
+                  if (person) {
+                    handlePersonHover(person, mousePosition.x, mousePosition.y);
+                  } else {
+                    handlePersonHover(null, 0, 0);
+                  }
+                }}
+                mousePosition={mousePosition}
+                setMousePosition={(position: { x: number; y: number }) => {
+                  if (hoveredPerson) {
+                    handlePersonHover(hoveredPerson, position.x, position.y);
+                  }
+                }}
+                showTooltip={showTooltip}
+                setShowTooltip={(show: boolean) => {
+                  if (!show && hoveredPerson) {
+                    handlePersonHover(null, 0, 0);
+                  }
+                }}
+                activeAchievementMarker={activeAchievementMarker}
+                setActiveAchievementMarker={setActiveAchievementMarker}
+                hoveredAchievement={hoveredAchievement}
+                setHoveredAchievement={(achievement: { person: Person; year: number; index: number } | null) => {
+                  if (achievement) {
+                    handleAchievementHover(achievement, mousePosition.x, mousePosition.y);
+                  } else {
+                    handleAchievementHover(null, 0, 0);
+                  }
+                }}
+                showAchievementTooltip={showAchievementTooltip}
+                setShowAchievementTooltip={(show: boolean) => {
+                  if (!show && hoveredAchievement) {
+                    handleAchievementHover(null, 0, 0);
+                  }
+                }}
+                handlePersonHover={handlePersonHover}
+                handleAchievementHover={handleAchievementHover}
+                hoverTimerRef={hoverTimerRef}
+                sortedData={sortedData}
+                selectedPerson={selectedPerson}
+                setSelectedPerson={setSelectedPerson}
+                timelineRef={timelineRef}
+                isDragging={isDragging}
+                isDraggingTimeline={isDraggingTimeline}
+                handleMouseDown={handleMouseDown}
+                handleMouseMove={handleMouseMove}
+                handleMouseUp={handleMouseUp}
+                handleTouchStart={handleTouchStart}
+                handleTouchMove={handleTouchMove}
+                handleTouchEnd={handleTouchEnd}
+              />
+            )}
+            
+            {/* Показываем сообщение о пустой временной линии */}
+            {!isLoading && persons.length === 0 && (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                minHeight: '200px',
+                textAlign: 'center', 
+                padding: '40px 20px', 
+                opacity: 0.7, 
+                fontSize: 16,
+                color: '#f4e4c1'
+              }}>
+                <div>
+                  <div style={{ fontSize: '2rem', marginBottom: '16px' }}>📅</div>
+                  <div>Нет данных для отображения на временной линии</div>
+                  <div style={{ fontSize: '14px', marginTop: '8px', opacity: 0.6 }}>
+                    Попробуйте изменить фильтры или проверить подключение к интернету
+                  </div>
+                </div>
+              </div>
+            )}
           </main>
         </div>
 

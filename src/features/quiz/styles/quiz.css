@@ -560,27 +560,29 @@
 }
 
 .quiz-start-button {
-  background: linear-gradient(135deg, #cd853f, #8b4513);
-  color: #f4e4c1;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(205, 133, 63, 0.3);
+  background: linear-gradient(135deg, #cd853f, #8b4513) !important;
+  color: #f4e4c1 !important;
+  border: none !important;
+  padding: 1rem 2rem !important;
+  border-radius: 8px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(205, 133, 63, 0.3) !important;
 }
 
 .quiz-start-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(205, 133, 63, 0.4);
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(205, 133, 63, 0.4) !important;
 }
 
 .quiz-start-button:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
-  box-shadow: none;
+  background: #6c757d !important;
+  color: rgba(244, 228, 193, 0.5) !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 /* Quiz Question Styles */

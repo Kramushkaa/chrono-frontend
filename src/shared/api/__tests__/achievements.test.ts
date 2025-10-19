@@ -63,6 +63,32 @@ describe('achievements API', () => {
         addAchievement('person-1', { year: 1900, description: 'Test' })
       ).rejects.toThrow('Error message')
     })
+
+    it('should use default error message when response has no message', async () => {
+      const mockResponse = {
+        ok: false,
+        json: jest.fn().mockResolvedValue({}),
+      } as any
+
+      mockApiFetch.mockResolvedValue(mockResponse)
+
+      await expect(
+        addAchievement('person-1', { year: 1900, description: 'Test' })
+      ).rejects.toThrow('Не удалось создать достижение')
+    })
+
+    it('should handle JSON parse errors', async () => {
+      const mockResponse = {
+        ok: false,
+        json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
+      } as any
+
+      mockApiFetch.mockResolvedValue(mockResponse)
+
+      await expect(
+        addAchievement('person-1', { year: 1900, description: 'Test' })
+      ).rejects.toThrow('Не удалось создать достижение')
+    })
   })
 
   describe('getMyAchievements', () => {
@@ -90,6 +116,33 @@ describe('achievements API', () => {
       await getMyAchievements()
 
       expect(mockApiFetch).toHaveBeenCalledWith('/api/achievements/mine?')
+    })
+
+    it('should handle only limit parameter', async () => {
+      const mockResponse = {
+        ok: true,
+        json: jest.fn().mockResolvedValue({ data: [] }),
+      } as any
+
+      mockApiFetch.mockResolvedValue(mockResponse)
+
+      await getMyAchievements(20)
+
+      expect(mockApiFetch).toHaveBeenCalledWith('/api/achievements/mine?limit=20')
+    })
+
+    it('should not include offset when it is 0', async () => {
+      const mockResponse = {
+        ok: true,
+        json: jest.fn().mockResolvedValue({ data: [] }),
+      } as any
+
+      mockApiFetch.mockResolvedValue(mockResponse)
+
+      await getMyAchievements(10, 0)
+
+      // When offset is 0 (falsy), it's not included
+      expect(mockApiFetch).toHaveBeenCalledWith('/api/achievements/mine?limit=10')
     })
   })
 

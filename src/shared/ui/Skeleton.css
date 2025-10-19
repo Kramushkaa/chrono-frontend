@@ -1,0 +1,75 @@
+/* ===== SKELETON LOADER STYLES ===== */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(26, 26, 26, 0.95) 0px,
+    rgba(44, 24, 16, 0.8) 40px,
+    rgba(26, 26, 26, 0.95) 80px
+  );
+  background-size: 200px;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Light theme variant */
+@media (prefers-color-scheme: light) {
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(240, 240, 240, 0.8) 0px,
+      rgba(255, 255, 255, 0.6) 40px,
+      rgba(240, 240, 240, 0.8) 80px
+    );
+    background-size: 200px;
+  }
+}
+
+/* Variants */
+.skeleton--text {
+  height: 16px;
+  width: 100%;
+}
+
+.skeleton--circle {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+.skeleton--rectangle {
+  height: 120px;
+  width: 100%;
+}
+
+/* Speed variants */
+.skeleton--slow {
+  animation-duration: 2.5s;
+}
+
+.skeleton--fast {
+  animation-duration: 0.8s;
+}
+
+/* Container for multi-line text */
+.skeleton-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .skeleton {
+    border-radius: 3px;
+  }
+  
+  .skeleton--circle {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .skeleton--rectangle {
+    height: 100px;
+  }
+}

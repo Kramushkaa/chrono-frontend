@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react'
 import { ItemCard } from './ItemCard'
+import { ListItemSkeleton } from './skeletons'
 
 interface ItemsListProps {
   items: Array<{
@@ -86,8 +87,16 @@ export const ItemsList = React.memo(function ItemsList({
       style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto', paddingRight: 6, ...style }}
       onScroll={handleScroll}
     >
-      {isLoading && items.length === 0 && <div>{loadingMessage}</div>}
+      {/* Показываем скелетоны только при первой загрузке (когда нет элементов) */}
+      {isLoading && items.length === 0 && (
+        <div className="items-list__skeleton-container">
+          {Array.from({ length: 6 }, (_, index) => (
+            <ListItemSkeleton key={index} isListMode={isListMode} />
+          ))}
+        </div>
+      )}
       
+      {/* Показываем сообщение о пустом списке только когда не загружаемся и нет элементов */}
       {!isLoading && items.length === 0 && (
         <div style={{ 
           textAlign: 'center', 
@@ -102,31 +111,34 @@ export const ItemsList = React.memo(function ItemsList({
         </div>
       )}
       
-      <div className="items-list__grid" style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${gridMinWidth}px, 1fr))`, gap: 12 }}>
-        {items.map((item) => (
-          <ItemCard
-            key={item.id}
-            id={item.id}
-            title={item.title}
-            subtitle={item.subtitle}
-            description={item.description}
-            year={item.year}
-            startYear={item.startYear}
-            endYear={item.endYear}
-            person={item.person}
-            onPersonSelect={onPersonSelect}
-            type={item.type}
-            onAddToList={onAddToList ? () => handleAddToList(item.id) : undefined}
-            onRemoveFromList={onRemoveFromList ? () => handleRemoveFromList(item.id) : undefined}
-            onSelect={onSelect ? () => handleSelect(item.id) : undefined}
-            isAuthenticated={isAuthenticated}
-            emailVerified={emailVerified}
-            showAuthModal={showAuthModal}
-            showToast={showToast}
-            isListMode={isListMode}
-          />
-        ))}
-      </div>
+      {/* Показываем элементы если они есть (независимо от состояния загрузки) */}
+      {items.length > 0 && (
+        <div className="items-list__grid" style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${gridMinWidth}px, 1fr))`, gap: 12 }}>
+          {items.map((item) => (
+            <ItemCard
+              key={item.id}
+              id={item.id}
+              title={item.title}
+              subtitle={item.subtitle}
+              description={item.description}
+              year={item.year}
+              startYear={item.startYear}
+              endYear={item.endYear}
+              person={item.person}
+              onPersonSelect={onPersonSelect}
+              type={item.type}
+              onAddToList={onAddToList ? () => handleAddToList(item.id) : undefined}
+              onRemoveFromList={onRemoveFromList ? () => handleRemoveFromList(item.id) : undefined}
+              onSelect={onSelect ? () => handleSelect(item.id) : undefined}
+              isAuthenticated={isAuthenticated}
+              emailVerified={emailVerified}
+              showAuthModal={showAuthModal}
+              showToast={showToast}
+              isListMode={isListMode}
+            />
+          ))}
+        </div>
+      )}
       
       {!isLoading && hasMore && (
         <div style={{ marginTop: 12 }}>

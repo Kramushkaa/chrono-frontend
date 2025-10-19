@@ -45,7 +45,7 @@ export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, min
         {/* Always show "Мои" for authenticated users */}
         <div role="button" tabIndex={0} style={itemStyle(selectedKey === 'mine')}
              onClick={() => onSelect({ type: 'mine' })}
-             onKeyDown={(e) => { if (e.key === 'Enter') onSelect({ type: 'mine' }) }}>Мои {mineCount != null ? `(${mineCount})` : ''}</div>
+             onKeyDown={(e) => { if (e.key === 'Enter') onSelect({ type: 'mine' }) }}>Мои {typeof mineCount === 'number' ? `(${mineCount})` : ''}</div>
         {userLists.map((l) => {
           const active = selectedKey === `list:${l.id}`
           return (

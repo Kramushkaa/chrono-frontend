@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFilters } from '../../../shared/hooks/useFilters'
 import { getGroupColor } from 'features/persons/utils/groupingUtils'
@@ -110,7 +110,7 @@ export default function ManagePage() {
   })
 
   // Handler for deleting list item
-  const handleDeleteListItem = async (listItemId: number) => {
+  const handleDeleteListItem = useCallback(async (listItemId: number) => {
     if (!state.selectedListId) return
     try {
       const ok = await apiFetch(`/api/lists/${state.selectedListId}/items/${listItemId}`, { method: 'DELETE' })
@@ -124,7 +124,7 @@ export default function ManagePage() {
     } catch (e) {
       showToast('Ошибка при удалении', 'error')
     }
-  }
+  }, [state.selectedListId, state.setListItems, loadUserLists, showToast])
 
   return (
     <div

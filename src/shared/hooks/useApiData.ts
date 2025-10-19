@@ -69,20 +69,35 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
   const cacheRef = useRef<Map<string, CacheEntry<T>>>(new Map())
   const responseReceivedRef = useRef(false)
 
+  // Стабилизируем queryParams для предотвращения лишних перерендеров
+  const queryParamsStringified = useMemo(() => JSON.stringify(queryParams), [queryParams]);
+  
+  const stableQueryParams = useMemo(() => {
+    if (!enabled) {
+      return {}
+    }
+    if (typeof queryParams !== 'object' || queryParams === null || Array.isArray(queryParams)) {
+      return {}
+    }
+    // Возвращаем новый объект только если содержимое действительно изменилось
+    return { ...queryParams }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryParamsStringified, enabled])
+
   // Стабильная сериализация queryParams (только если enabled)
   const queryParamsString = useMemo(() => {
     if (!enabled) {
       return ''
     }
-    if (typeof queryParams !== 'object' || queryParams === null || Array.isArray(queryParams)) {
+    if (Object.keys(stableQueryParams).length === 0) {
       return ''
     }
     // Сортируем ключи для стабильной сериализации
-    const sortedEntries = Object.entries(queryParams)
+    const sortedEntries = Object.entries(stableQueryParams)
       .filter(([_, value]) => value !== undefined && value !== null && value !== '')
       .sort(([a], [b]) => a.localeCompare(b))
     return JSON.stringify(sortedEntries)
-  }, [queryParams, enabled])
+  }, [stableQueryParams, enabled])
 
   // Генерация ключа кэша
   const effectiveCacheKey = useMemo(() => {
@@ -148,7 +163,7 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
       params.set('limit', String(pageSize))
       params.set('offset', String(offset))
       
-      Object.entries(queryParams).forEach(([key, value]) => {
+      Object.entries(stableQueryParams).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
           params.set(key, String(value))
         }
@@ -252,7 +267,7 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
     } finally {
       loadingRef.current = false
     }
-  }, [enabled, endpoint, pageSize, queryParams, effectiveCacheKey, transformData, dedupeBy, onError])
+  }, [enabled, endpoint, pageSize, stableQueryParams, effectiveCacheKey, transformData, dedupeBy, onError])
 
   // Загрузка дополнительных данных
   const loadMore = useCallback(() => {

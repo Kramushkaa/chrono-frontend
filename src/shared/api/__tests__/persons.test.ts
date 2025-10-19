@@ -67,6 +67,29 @@ describe('persons API', () => {
       expect(call).toContain('offset=10')
     })
 
+    it('should handle partial filters', async () => {
+      mockApiData.mockResolvedValue([] as any)
+
+      await getPersons({
+        category: 'Test',
+        limit: 100,
+      })
+
+      const call = mockApiData.mock.calls[0][0] as string
+      expect(call).toContain('category=Test')
+      expect(call).toContain('limit=100')
+      expect(call).not.toContain('offset')
+      expect(call).not.toContain('startYear')
+    })
+
+    it('should handle only limit filter', async () => {
+      mockApiData.mockResolvedValue([] as any)
+
+      await getPersons({ limit: 200 })
+
+      expect(mockApiData).toHaveBeenCalledWith('/api/persons?limit=200')
+    })
+
     it('should transform persons data correctly', async () => {
       const mockPersons = [
         {

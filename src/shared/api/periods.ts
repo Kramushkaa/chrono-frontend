@@ -24,10 +24,34 @@ export async function saveLifePeriods(personId: string, periods: LifePeriodInput
 
 // Get count of user's periods
 export async function getMyPeriodsCount(): Promise<number> {
-  const payload = await apiData<{ count: number }>(`/api/periods/mine?count=true`)
-  const c = payload?.count
-  const n = Number(c)
-  return Number.isFinite(n) ? n : 0
+  try {
+    const payload = await apiData(`/api/periods/mine?count=true`)
+    
+    // Попробуем разные возможные форматы ответа
+    let count: number | string | undefined
+    
+    if (payload && typeof payload === 'object') {
+      // Случай 1: { count: number | string }
+      if ('count' in payload) {
+        count = payload.count as number | string
+      }
+      // Случай 2: { data: { count: number | string } } (если apiData не извлек data)
+      else if ('data' in payload && payload.data && typeof payload.data === 'object' && 'count' in payload.data) {
+        count = (payload.data as any).count as number | string
+      }
+    }
+    
+    // Преобразуем в число, если это строка
+    const numCount = typeof count === 'string' ? Number(count) : count
+    
+    if (typeof numCount === 'number' && Number.isFinite(numCount)) {
+      return numCount
+    }
+    
+    return 0
+  } catch (error) {
+    return 0
+  }
 }
 
 // Period drafts

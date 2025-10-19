@@ -2,3 +2,9 @@
 
 /* Импорт глобальных стилей приложения */
 @import './shared/styles/globals.css';
+
+/* Импорт библиотеки анимаций */
+@import './shared/styles/animations.css';
+
+/* Импорт стилей toast системы */
+@import './shared/styles/toasts.css';

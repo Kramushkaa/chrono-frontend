@@ -281,3 +281,24 @@
   flex-grow: 1;
 }
 
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(26, 26, 26, 0.95) 0px,
+    rgba(44, 24, 16, 0.8) 40px,
+    rgba(26, 26, 26, 0.95) 80px
+  );
+  background-size: 200px;
+  animation: shimmer 1.5s infinite;
+}
+

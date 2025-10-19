@@ -167,4 +167,12 @@
     -ms-overflow-style: none !important;
     scrollbar-width: none !important;
   }
+}
+
+/* Timeline skeleton container */
+.timeline-skeleton-container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 } 

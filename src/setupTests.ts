@@ -3,28 +3,32 @@ import '@testing-library/jest-dom'
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: (global as any).jest.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: (global as any).jest.fn(), // deprecated
+    removeListener: (global as any).jest.fn(), // deprecated
+    addEventListener: (global as any).jest.fn(),
+    removeEventListener: (global as any).jest.fn(),
+    dispatchEvent: (global as any).jest.fn(),
   })),
 })
 
 // Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
+;(global as any).IntersectionObserver = class IntersectionObserver {
   constructor() {}
   disconnect() {}
   observe() {}
   unobserve() {}
+  root = null
+  rootMargin = ''
+  thresholds = []
+  takeRecords() { return [] }
 }
 
 // Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
+;(global as any).ResizeObserver = class ResizeObserver {
   constructor() {}
   disconnect() {}
   observe() {}
@@ -33,30 +37,34 @@ global.ResizeObserver = class ResizeObserver {
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: (global as any).jest.fn(),
+  setItem: (global as any).jest.fn(),
+  removeItem: (global as any).jest.fn(),
+  clear: (global as any).jest.fn(),
+  length: 0,
+  key: (global as any).jest.fn(),
 }
-global.localStorage = localStorageMock
+;(global as any).localStorage = localStorageMock
 
 // Mock fetch
-global.fetch = jest.fn()
+;(global as any).fetch = (global as any).jest.fn()
 
-// Suppress console warnings in tests
-const originalError = console.error
-beforeAll(() => {
-  console.error = (...args: any[]) => {
-    if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render is no longer supported')
-    ) {
-      return
+// Suppress console warnings in tests (only in test environment)
+if ((global as any).beforeAll) {
+  const originalError = console.error
+  ;(global as any).beforeAll(() => {
+    console.error = (...args: any[]) => {
+      if (
+        typeof args[0] === 'string' &&
+        args[0].includes('Warning: ReactDOM.render is no longer supported')
+      ) {
+        return
+      }
+      originalError.call(console, ...args)
     }
-    originalError.call(console, ...args)
-  }
-})
+  })
 
-afterAll(() => {
-  console.error = originalError
-})
+  ;(global as any).afterAll(() => {
+    console.error = originalError
+  })
+}

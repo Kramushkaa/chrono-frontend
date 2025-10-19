@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Person, MixedListItem } from 'shared/types'
 import { AuthUser } from 'features/auth/services/auth'
 import { getCategories, getCountries, getCountryOptions, getPersonById, getMyPersonsCount, getMyAchievementsCount, getMyPeriodsCount, CountryOption, apiData } from 'shared/api/api'
@@ -79,6 +79,9 @@ function pickArray<T>(a: unknown, b: unknown): T[] {
 }
 
 export function useManageBusinessLogic(params: ManageBusinessLogicParams) {
+  // Ref для отслеживания отмены запроса
+  const cancelledRef = useRef(false)
+  
   const {
     selected,
     setSelected,
@@ -105,7 +108,7 @@ export function useManageBusinessLogic(params: ManageBusinessLogicParams) {
     menuSelection,
     selectedListId,
     setSelectedListId,
-    mineCounts,
+    mineCounts, // eslint-disable-line @typescript-eslint/no-unused-vars -- используется в интерфейсе для совместимости
     setMineCounts,
     countsLoadKeyRef,
     countsLastTsRef,
@@ -124,7 +127,7 @@ export function useManageBusinessLogic(params: ManageBusinessLogicParams) {
     sharedList,
   } = params
 
-  // Загрузка метаданных
+  // Загрузка метаданных - выполняем только один раз при монтировании
   useEffect(() => {
     let mounted = true
     ;(async () => {
@@ -139,23 +142,40 @@ export function useManageBusinessLogic(params: ManageBusinessLogicParams) {
     return () => {
       mounted = false
     }
-  }, [setCategories, setCountries, setCountryOptions])
+    // Убираем зависимости setState функций - они стабильны в React
+  }, [])
+
+  // Стабилизируем значения для предотвращения лишних вызовов useEffect
+  const userId = useMemo(() => user?.id, [user?.id])
+  const authStatus = useMemo(() => isAuthenticated, [isAuthenticated])
 
   // Загрузка стабильных счётчиков "Мои"
   useEffect(() => {
-    let cancelled = false
-    if (!isAuthenticated || !user?.id) {
+    // Сбрасываем флаг отмены при каждом запуске
+    cancelledRef.current = false
+    
+    if (!authStatus || !userId) {
       setMineCounts({ persons: 0, achievements: 0, periods: 0 })
+      // Сбрасываем ключи при logout
+      countsLoadKeyRef.current = null
+      countsLastTsRef.current = 0
       return
     }
-    const key = String(user.id)
+    
+    const key = String(userId)
     const now = Date.now()
-    if (countsLoadKeyRef.current === key && now - countsLastTsRef.current < 1500) {
-      const haveCounts = mineCounts.persons > 0 || mineCounts.achievements > 0 || mineCounts.periods > 0
-      if (haveCounts) return
+    
+    // Простая логика rate limiting: загружаем только если это новый пользователь или прошло достаточно времени
+    const shouldLoad = countsLoadKeyRef.current !== key || (now - countsLastTsRef.current >= 10000)
+    
+    if (!shouldLoad) {
+      return
     }
+    
+    // Обновляем ключи перед загрузкой
     countsLoadKeyRef.current = key
     countsLastTsRef.current = now
+    
     ;(async () => {
       try {
         const [pc, ac, prc] = await Promise.all([
@@ -163,13 +183,19 @@ export function useManageBusinessLogic(params: ManageBusinessLogicParams) {
           getMyAchievementsCount().catch(() => 0),
           getMyPeriodsCount().catch(() => 0),
         ])
-        if (!cancelled) setMineCounts({ persons: pc, achievements: ac, periods: prc })
-      } catch {}
+        
+        if (!cancelledRef.current) {
+          setMineCounts({ persons: pc, achievements: ac, periods: prc })
+        }
+      } catch (error) {
+        // Silent fail - don't spam console
+      }
     })()
+    
     return () => {
-      cancelled = true
+      cancelledRef.current = true
     }
-  }, [isAuthenticated, user?.id, mineCounts, setMineCounts, countsLoadKeyRef, countsLastTsRef])
+  }, [authStatus, userId])
 
   // Сброс данных при смене вкладки
   useEffect(() => {
@@ -224,7 +250,7 @@ export function useManageBusinessLogic(params: ManageBusinessLogicParams) {
     return () => {
       aborted = true
     }
-  }, [selected?.id, setSelected, fetchedDetailsIdsRef])
+  }, [selected?.id, setSelected])
 
   // Подготовка данных для редактирования личности
   useEffect(() => {
@@ -447,7 +473,7 @@ export function useManageBusinessLogic(params: ManageBusinessLogicParams) {
     ) {
       setSelected(lastSelectedRef.current)
     }
-  }, [menuSelection, listItems.length, listLoading, selected, lastSelectedRef, setSelected])
+  }, [menuSelection, listItems.length, listLoading, selected, setSelected])
 
   // Подготовка опций для селектов
   const countrySelectOptions = useMemo(

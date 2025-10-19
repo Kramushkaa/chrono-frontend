@@ -7,6 +7,7 @@ import { ErrorBoundary } from 'shared/components/ErrorBoundary'
 import './App.css'
 import { ToastProvider } from 'shared/context/ToastContext'
 import { Toasts } from 'shared/ui/Toasts'
+import { LoadingStates } from 'shared/ui/LoadingStates'
 
 // Lazy-loaded chunks
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
@@ -27,7 +28,7 @@ export default function App() {
     <ErrorBoundary>
       <AuthProvider>
         <ToastProvider>
-          <React.Suspense fallback={<div className="loading-overlay" role="status" aria-live="polite"><div className="spinner" aria-hidden="true"></div><span>Загрузка...</span></div>}>
+          <React.Suspense fallback={<LoadingStates size="large" message="Загрузка приложения..." />}>
             <ErrorBoundary>
               <Routes>
                 <Route path="/" element={<Navigate to="/timeline" replace />} />

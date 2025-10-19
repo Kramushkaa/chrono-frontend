@@ -64,6 +64,7 @@ export function useManageState() {
   // Обработка выбора личности (ref для предотвращения ненужных загрузок)
   const fetchedDetailsIdsRef = useRef<Set<string>>(new Set())
 
+
   return {
     isScrolled,
     showControls,

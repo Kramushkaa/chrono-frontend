@@ -1,0 +1,69 @@
+/* ===== QUIZ QUESTION SKELETON STYLES ===== */
+
+.quiz-question-skeleton {
+  background-color: rgba(44, 24, 16, 0.9);
+  border: 1px solid rgba(139, 69, 19, 0.4);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 16px 0;
+}
+
+.quiz-question-skeleton__header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.quiz-question-skeleton__header .skeleton {
+  margin-bottom: 8px;
+}
+
+.quiz-question-skeleton__content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.quiz-question-skeleton__question {
+  text-align: center;
+}
+
+.quiz-question-skeleton__options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quiz-question-skeleton__option {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.quiz-question-skeleton__additional {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(139, 69, 19, 0.1);
+  border-radius: 8px;
+}
+
+.quiz-question-skeleton__additional-text {
+  flex: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .quiz-question-skeleton {
+    padding: 16px;
+    margin: 12px 0;
+  }
+  
+  .quiz-question-skeleton__additional {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .quiz-question-skeleton__additional-text {
+    width: 100%;
+  }
+}

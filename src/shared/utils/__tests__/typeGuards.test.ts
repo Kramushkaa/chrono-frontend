@@ -1,7 +1,13 @@
 import {
   isPerson,
   isPeriod,
+  isRulerPeriod,
   isAchievement,
+  isEntityStatus,
+  isPeriodType,
+  assertPerson,
+  assertPeriod,
+  assertAchievement,
   isPersonArray,
   isPeriodArray,
   isAchievementArray,
@@ -9,7 +15,7 @@ import {
   asPeriodOrNull,
   asAchievementOrNull,
 } from '../typeGuards'
-import type { Person, Period, Achievement } from '../../types'
+import type { Person, Period, Achievement, RulerPeriod } from '../typeGuards'
 
 describe('typeGuards', () => {
   const mockPerson: Person = {
@@ -62,11 +68,48 @@ describe('typeGuards', () => {
       expect(isPeriod(mockPeriod)).toBe(true)
     })
 
+    it('should return true for period with null endYear', () => {
+      const periodWithNullEnd = {
+        startYear: 1920,
+        endYear: null,
+        type: 'life',
+      }
+      expect(isPeriod(periodWithNullEnd)).toBe(true)
+    })
+
     it('should return false for invalid period', () => {
       expect(isPeriod({})).toBe(false)
       expect(isPeriod(null)).toBe(false)
       expect(isPeriod(undefined)).toBe(false)
       expect(isPeriod('string')).toBe(false)
+    })
+
+    it('should return false for period with invalid endYear', () => {
+      expect(isPeriod({ startYear: 1920, endYear: 'invalid', type: 'life' })).toBe(false)
+    })
+  })
+
+  describe('isRulerPeriod', () => {
+    const mockRulerPeriod: RulerPeriod = {
+      startYear: 1900,
+      endYear: 1950,
+      countryId: 1,
+      countryName: 'Russia',
+    }
+
+    it('should return true for valid ruler period', () => {
+      expect(isRulerPeriod(mockRulerPeriod)).toBe(true)
+    })
+
+    it('should return true for minimal ruler period', () => {
+      expect(isRulerPeriod({ startYear: 1900, endYear: 1950 })).toBe(true)
+    })
+
+    it('should return false for invalid ruler period', () => {
+      expect(isRulerPeriod({})).toBe(false)
+      expect(isRulerPeriod(null)).toBe(false)
+      expect(isRulerPeriod({ startYear: 1900 })).toBe(false)
+      expect(isRulerPeriod({ endYear: 1950 })).toBe(false)
     })
   })
 
@@ -152,6 +195,75 @@ describe('typeGuards', () => {
     it('should return null for invalid achievement', () => {
       expect(asAchievementOrNull({})).toBe(null)
       expect(asAchievementOrNull(null)).toBe(null)
+    })
+  })
+
+  describe('isEntityStatus', () => {
+    it('should return true for valid entity statuses', () => {
+      expect(isEntityStatus('draft')).toBe(true)
+      expect(isEntityStatus('pending')).toBe(true)
+      expect(isEntityStatus('approved')).toBe(true)
+      expect(isEntityStatus('rejected')).toBe(true)
+    })
+
+    it('should return false for invalid entity status', () => {
+      expect(isEntityStatus('invalid')).toBe(false)
+      expect(isEntityStatus('')).toBe(false)
+      expect(isEntityStatus(null)).toBe(false)
+      expect(isEntityStatus(undefined)).toBe(false)
+      expect(isEntityStatus(123)).toBe(false)
+    })
+  })
+
+  describe('isPeriodType', () => {
+    it('should return true for valid period types', () => {
+      expect(isPeriodType('life')).toBe(true)
+      expect(isPeriodType('ruler')).toBe(true)
+      expect(isPeriodType('other')).toBe(true)
+    })
+
+    it('should return false for invalid period type', () => {
+      expect(isPeriodType('invalid')).toBe(false)
+      expect(isPeriodType('')).toBe(false)
+      expect(isPeriodType(null)).toBe(false)
+      expect(isPeriodType(undefined)).toBe(false)
+      expect(isPeriodType(123)).toBe(false)
+    })
+  })
+
+  describe('assertPerson', () => {
+    it('should not throw for valid person', () => {
+      expect(() => assertPerson(mockPerson)).not.toThrow()
+    })
+
+    it('should throw for invalid person', () => {
+      expect(() => assertPerson({})).toThrow('Invalid Person object')
+      expect(() => assertPerson(null)).toThrow('Invalid Person object')
+      expect(() => assertPerson({ id: '1' })).toThrow('Invalid Person object')
+    })
+  })
+
+  describe('assertPeriod', () => {
+    it('should not throw for valid period', () => {
+      expect(() => assertPeriod(mockPeriod)).not.toThrow()
+    })
+
+    it('should throw for invalid period', () => {
+      expect(() => assertPeriod({})).toThrow('Invalid Period object')
+      expect(() => assertPeriod(null)).toThrow('Invalid Period object')
+      expect(() => assertPeriod({ startYear: 1900 })).toThrow('Invalid Period object')
+    })
+  })
+
+  describe('assertAchievement', () => {
+    it('should not throw for valid achievement', () => {
+      expect(() => assertAchievement(mockAchievement)).not.toThrow()
+    })
+
+    it('should throw for invalid achievement', () => {
+      expect(() => assertAchievement({})).toThrow('Invalid Achievement object')
+      expect(() => assertAchievement(null)).toThrow('Invalid Achievement object')
+      expect(() => assertAchievement({ id: 1 })).toThrow('Invalid Achievement object')
     })
   })
 })

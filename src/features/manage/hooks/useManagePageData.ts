@@ -99,19 +99,28 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
 
   // Загружаем элементы "Моих" только когда вкладка открыта
   const enablePersonsMine = isAuthenticated && menuSelection === 'mine' && activeTab === 'persons'
+  
+  // Стабилизируем зависимости для предотвращения бесконечных вызовов
+  const categoriesString = useMemo(() => filters.categories.join(','), [filters.categories]);
+  const countriesString = useMemo(() => filters.countries.join(','), [filters.countries]);
+  const statusFiltersString = useMemo(() => JSON.stringify(statusFilters), [statusFilters]);
+  
+  const personsQueryParams = useMemo(() => {
+    const shouldApplyFilters = activeTab === 'persons' && isMineOrPendingMode;
+    return buildMineParams(shouldApplyFilters, {
+      q: searchPersons,
+      categoryList: filters.categories,
+      countryList: filters.countries,
+      statusMap: statusFilters
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isMineOrPendingMode, searchPersons, categoriesString, countriesString, statusFiltersString]);
+  
   const personsMineResult = useApiData<Person>({
     endpoint: '/api/persons/mine',
     enabled: enablePersonsMine,
     pageSize: 100,
-    queryParams: useMemo(() => {
-      const shouldApplyFilters = activeTab === 'persons' && isMineOrPendingMode;
-      return buildMineParams(shouldApplyFilters, {
-        q: searchPersons,
-        categoryList: filters.categories,
-        countryList: filters.countries,
-        statusMap: statusFilters
-      });
-    }, [activeTab, isMineOrPendingMode, searchPersons, filters, statusFilters])
+    queryParams: personsQueryParams
   });
   const personsMineState = personsMineResult[0];
   const personsMineActions = personsMineResult[1];
@@ -122,17 +131,24 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   // removed unused achievementsMineQueryKey
 
   const enableAchievementsMine = isAuthenticated && menuSelection === 'mine' && activeTab === 'achievements'
+  
+  // Стабилизируем зависимости для achievements
+  const achStatusFiltersString = useMemo(() => JSON.stringify(achStatusFilters), [achStatusFilters]);
+  
+  const achievementsQueryParams = useMemo(() => {
+    const shouldApplyFilters = activeTab === 'achievements' && isMineOrPendingMode;
+    return buildMineParams(shouldApplyFilters, {
+      q: searchAch,
+      statusMap: achStatusFilters
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isMineOrPendingMode, searchAch, achStatusFiltersString]);
+  
   const achievementsMineResult = useApiData<Achievement>({
     endpoint: '/api/achievements/mine',
     enabled: enableAchievementsMine,
     pageSize: 100,
-    queryParams: useMemo(() => {
-      const shouldApplyFilters = activeTab === 'achievements' && isMineOrPendingMode;
-      return buildMineParams(shouldApplyFilters, {
-        q: searchAch,
-        statusMap: achStatusFilters
-      });
-    }, [activeTab, isMineOrPendingMode, searchAch, achStatusFilters])
+    queryParams: achievementsQueryParams
   });
   const achievementsMineState = achievementsMineResult[0];
   const achievementsMineActions = achievementsMineResult[1];
@@ -141,18 +157,25 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   // removed unused periodsMineQueryKey
 
   const enablePeriodsMine = isAuthenticated && menuSelection === 'mine' && activeTab === 'periods'
+  
+  // Стабилизируем зависимости для periods
+  const periodsStatusFiltersString = useMemo(() => JSON.stringify(periodsStatusFilters), [periodsStatusFilters]);
+  
+  const periodsQueryParams = useMemo(() => {
+    const shouldApplyFilters = activeTab === 'periods' && isMineOrPendingMode;
+    return buildMineParams(shouldApplyFilters, {
+      q: searchPeriods,
+      statusMap: periodsStatusFilters,
+      extra: { type: periodType || undefined }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isMineOrPendingMode, searchPeriods, periodType, periodsStatusFiltersString]);
+  
   const periodsMineResult = useApiData<PeriodItem>({
     endpoint: '/api/periods/mine',
     enabled: enablePeriodsMine,
     pageSize: 100,
-    queryParams: useMemo(() => {
-      const shouldApplyFilters = activeTab === 'periods' && isMineOrPendingMode;
-      return buildMineParams(shouldApplyFilters, {
-        q: searchPeriods,
-        statusMap: periodsStatusFilters,
-        extra: { type: periodType || undefined }
-      });
-    }, [activeTab, isMineOrPendingMode, searchPeriods, periodType, periodsStatusFilters])
+    queryParams: periodsQueryParams
   });
   const periodsMineState = periodsMineResult[0];
   const periodsMineActions = periodsMineResult[1];

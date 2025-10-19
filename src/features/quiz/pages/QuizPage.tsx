@@ -12,6 +12,7 @@ import { renderQuestionByType } from '../utils/questionRenderer'
 import { SEO } from 'shared/ui/SEO'
 import { AppHeader } from 'shared/layout/AppHeader'
 import { ContactFooter } from 'shared/ui/ContactFooter'
+import { QuizQuestionSkeleton } from 'shared/ui/skeletons'
 import { getMinimalHeaderProps } from '../utils/headerProps'
 import '../styles/quiz.css'
 
@@ -207,7 +208,7 @@ const QuizPage: React.FC = () => {
         
         <div className="quiz-content">
           <div className="quiz-question-container">
-            {renderQuestion()}
+            {currentQuestion ? renderQuestion() : <QuizQuestionSkeleton />}
           </div>
           <ContactFooter />
         </div>

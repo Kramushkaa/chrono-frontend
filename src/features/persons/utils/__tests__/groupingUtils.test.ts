@@ -1,4 +1,4 @@
-import { getPersonGroup, getGroupColor, sortGroupedData } from '../groupingUtils'
+import { getPersonGroup, getGroupColor, getGroupColorDark, getGroupColorMuted, getCategoryPriority, sortGroupedData } from '../groupingUtils'
 import type { Person, GroupingType } from 'shared/types'
 
 describe('groupingUtils', () => {
@@ -91,6 +91,78 @@ describe('groupingUtils', () => {
     it('should handle empty array', () => {
       const result = sortGroupedData([], 'none')
       expect(result).toEqual([])
+    })
+
+    it('should group by country when groupingType is country', () => {
+      const personsWithCountries: Person[] = [
+        { ...mockPerson, id: '1', country: 'Russia', birthYear: 1950 },
+        { ...mockPerson, id: '2', country: 'Germany', birthYear: 1900 },
+        { ...mockPerson, id: '3', country: 'Russia', birthYear: 1920 },
+      ]
+
+      const result = sortGroupedData(personsWithCountries, 'country')
+
+      // Should group by country and sort within groups by birth year
+      expect(result.map(p => p.country)).toEqual(['Germany', 'Russia', 'Russia'])
+      expect(result.map(p => p.birthYear)).toEqual([1900, 1920, 1950])
+    })
+  })
+
+  describe('getCategoryPriority', () => {
+    it('should return correct priority for known categories', () => {
+      expect(getCategoryPriority('Правители')).toBe(1)
+      expect(getCategoryPriority('Военачальники')).toBe(2)
+      expect(getCategoryPriority('Ученые')).toBe(3)
+      expect(getCategoryPriority('Музыканты')).toBe(9)
+    })
+
+    it('should return 999 for unknown category', () => {
+      expect(getCategoryPriority('Unknown Category')).toBe(999)
+    })
+  })
+
+  describe('getGroupColor variants', () => {
+    it('should return specific colors for category groups', () => {
+      expect(getGroupColor('Правители группа')).toBe('#d32f2f')
+      expect(getGroupColor('Военачальники группа')).toBe('#f57c00')
+      expect(getGroupColor('Ученые группа')).toBe('#1976d2')
+    })
+
+    it('should return dark colors correctly', () => {
+      expect(getGroupColorDark('Правители группа')).toBe('#b71c1c')
+      expect(getGroupColorDark('Музыканты группа')).toBe('#e65100')
+    })
+
+    it('should return muted colors correctly', () => {
+      expect(getGroupColorMuted('Художники группа')).toBe('#c8e6c9')
+      expect(getGroupColorMuted('Писатели группа')).toBe('#e1bee7')
+    })
+  })
+
+  describe('getPersonGroup', () => {
+    it('should return none for none grouping type', () => {
+      const person = { ...mockPerson, category: 'artist', country: 'Russia' }
+      expect(getPersonGroup(person, 'none')).toBe('none')
+    })
+
+    it('should return category for category grouping', () => {
+      const person = { ...mockPerson, category: 'artist' }
+      expect(getPersonGroup(person, 'category')).toBe('artist')
+    })
+
+    it('should return unknown for missing category', () => {
+      const person = { ...mockPerson, category: undefined }
+      expect(getPersonGroup(person, 'category')).toBe('Неизвестно')
+    })
+
+    it('should return country for country grouping', () => {
+      const person = { ...mockPerson, country: 'Russia' }
+      expect(getPersonGroup(person, 'country')).toBe('Russia')
+    })
+
+    it('should return unknown for missing country', () => {
+      const person = { ...mockPerson, country: undefined }
+      expect(getPersonGroup(person, 'country')).toBe('Неизвестно')
     })
   })
 })

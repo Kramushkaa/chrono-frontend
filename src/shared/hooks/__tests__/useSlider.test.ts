@@ -85,4 +85,124 @@ describe('useSlider', () => {
     expect(result.current.isDraggingSlider).toBe(true)
     expect(result.current.draggedHandle).toBe('end')
   })
+
+  it('should handle mouse move with proper parameters', () => {
+    const { result } = renderHook(() => useSlider())
+    const mockEvent = createMockEvent()
+
+    // Mock DOM elements
+    const mockSliderElement = document.createElement('div')
+    mockSliderElement.getBoundingClientRect = jest.fn(() => ({
+      left: 100,
+      width: 200,
+      top: 0,
+      height: 50,
+      right: 300,
+      bottom: 50,
+      x: 100,
+      y: 0,
+      toJSON: jest.fn(),
+    }))
+
+    // Mock querySelectorAll to return our mock element
+    const originalQuerySelectorAll = document.querySelectorAll
+    document.querySelectorAll = jest.fn(() => [mockSliderElement] as any)
+
+    // Start dragging
+    act(() => {
+      result.current.handleSliderMouseDown(mockEvent, 'start')
+    })
+
+    // Mock mouse event - ensure touches is properly defined
+    const mockMouseEvent = {
+      clientX: 150, // 50px from left (25% of 200px width)
+    } as MouseEvent
+
+    const mockYearInputs = { start: '1800', end: '1900' }
+    const mockApplyYearFilter = jest.fn()
+    const mockSetYearInputs = jest.fn()
+
+    act(() => {
+      result.current.handleSliderMouseMove(mockMouseEvent, mockYearInputs, mockApplyYearFilter, mockSetYearInputs)
+    })
+
+    expect(result.current.isDraggingSlider).toBe(true)
+    expect(result.current.draggedHandle).toBe('start')
+
+    // Cleanup
+    document.querySelectorAll = originalQuerySelectorAll
+  })
+
+  it('should not handle mouse move when not dragging', () => {
+    const { result } = renderHook(() => useSlider())
+
+    const mockMouseEvent = {
+      clientX: 150,
+    } as MouseEvent
+
+    const mockYearInputs = { start: '1800', end: '1900' }
+    const mockApplyYearFilter = jest.fn()
+    const mockSetYearInputs = jest.fn()
+
+    act(() => {
+      result.current.handleSliderMouseMove(mockMouseEvent, mockYearInputs, mockApplyYearFilter, mockSetYearInputs)
+    })
+
+    expect(mockApplyYearFilter).not.toHaveBeenCalled()
+    expect(mockSetYearInputs).not.toHaveBeenCalled()
+  })
+
+  it('should handle touch events', () => {
+    const { result } = renderHook(() => useSlider())
+    
+    const mockTouchEvent = {
+      preventDefault: jest.fn(),
+      currentTarget: {
+        closest: jest.fn().mockReturnValue(document.createElement('div')),
+      },
+      touches: [{ clientX: 100, clientY: 50 }],
+    } as any
+
+    act(() => {
+      result.current.handleSliderMouseDown(mockTouchEvent, 'start')
+    })
+
+    expect(result.current.isDraggingSlider).toBe(true)
+    expect(result.current.draggedHandle).toBe('start')
+    expect(mockTouchEvent.preventDefault).toHaveBeenCalled()
+  })
+
+  it('should handle closest returning null', () => {
+    const { result } = renderHook(() => useSlider())
+
+    const mockEvent = {
+      preventDefault: jest.fn(),
+      currentTarget: {
+        closest: jest.fn().mockReturnValue(null),
+      },
+    } as any
+
+    act(() => {
+      result.current.handleSliderMouseDown(mockEvent, 'start')
+    })
+
+    expect(result.current.isDraggingSlider).toBe(true)
+    expect(result.current.draggedHandle).toBe('start')
+    expect(mockEvent.preventDefault).toHaveBeenCalled()
+  })
+
+  it('should return all expected properties', () => {
+    const { result } = renderHook(() => useSlider())
+
+    expect(result.current).toHaveProperty('isDraggingSlider')
+    expect(result.current).toHaveProperty('draggedHandle')
+    expect(result.current).toHaveProperty('sliderRect')
+    expect(result.current).toHaveProperty('handleSliderMouseDown')
+    expect(result.current).toHaveProperty('handleSliderMouseMove')
+    expect(result.current).toHaveProperty('handleSliderMouseUp')
+
+    expect(typeof result.current.handleSliderMouseDown).toBe('function')
+    expect(typeof result.current.handleSliderMouseMove).toBe('function')
+    expect(typeof result.current.handleSliderMouseUp).toBe('function')
+  })
 })

@@ -1,0 +1,85 @@
+/* ===== LOADING STATES COMPONENT STYLES ===== */
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.loading-spinner__inner {
+  border: 3px solid rgba(205, 133, 63, 0.2);
+  border-top: 3px solid rgba(205, 133, 63, 0.8);
+  border-radius: 50%;
+  animation: loadingSpinner 1s linear infinite;
+}
+
+.loading-spinner__message {
+  color: #f4e4c1;
+  font-size: 14px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+/* Sizes */
+.loading-spinner--small {
+  gap: 8px;
+  padding: 8px;
+}
+
+.loading-spinner--small .loading-spinner__inner {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.loading-spinner--small .loading-spinner__message {
+  font-size: 12px;
+}
+
+.loading-spinner--medium .loading-spinner__inner {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.loading-spinner--medium .loading-spinner__message {
+  font-size: 14px;
+}
+
+.loading-spinner--large {
+  gap: 16px;
+  padding: 24px;
+}
+
+.loading-spinner--large .loading-spinner__inner {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+}
+
+.loading-spinner--large .loading-spinner__message {
+  font-size: 16px;
+}
+
+@keyframes loadingSpinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .loading-spinner {
+    padding: 12px;
+  }
+  
+  .loading-spinner__message {
+    font-size: 13px;
+  }
+}
