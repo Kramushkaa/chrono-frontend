@@ -299,14 +299,17 @@ export async function revertPersonToDraft(personId: string) {
 }
 
 // Count helpers with caching
-let PERSONS_COUNT_CACHE: { count: number; ts: number } | null = null
+const COUNT_CACHE_VERSION = '1.0.0' // Increment to invalidate cache
+let PERSONS_COUNT_CACHE: { count: number; ts: number; version: string } | null = null
 const PERSONS_COUNT_TTL = 180000 // 3 minutes
 
 export async function getMyPersonsCount(): Promise<number> {
   const now = Date.now()
   
-  // Return cached result if still valid
-  if (PERSONS_COUNT_CACHE && (now - PERSONS_COUNT_CACHE.ts) < PERSONS_COUNT_TTL) {
+  // Return cached result if still valid and version matches
+  if (PERSONS_COUNT_CACHE && 
+      (now - PERSONS_COUNT_CACHE.ts) < PERSONS_COUNT_TTL &&
+      PERSONS_COUNT_CACHE.version === COUNT_CACHE_VERSION) {
     return PERSONS_COUNT_CACHE.count
   }
   
@@ -332,7 +335,7 @@ export async function getMyPersonsCount(): Promise<number> {
     
     if (typeof numCount === 'number' && Number.isFinite(numCount)) {
       // Cache the result
-      PERSONS_COUNT_CACHE = { count: numCount, ts: Date.now() }
+      PERSONS_COUNT_CACHE = { count: numCount, ts: Date.now(), version: COUNT_CACHE_VERSION }
       return numCount
     }
     

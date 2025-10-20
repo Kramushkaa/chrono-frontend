@@ -23,14 +23,17 @@ export async function saveLifePeriods(personId: string, periods: LifePeriodInput
 }
 
 // Get count of user's periods with caching
-let PERIODS_COUNT_CACHE: { count: number; ts: number } | null = null
+const COUNT_CACHE_VERSION = '1.0.0' // Increment to invalidate cache
+let PERIODS_COUNT_CACHE: { count: number; ts: number; version: string } | null = null
 const PERIODS_COUNT_TTL = 180000 // 3 minutes
 
 export async function getMyPeriodsCount(): Promise<number> {
   const now = Date.now()
   
-  // Return cached result if still valid
-  if (PERIODS_COUNT_CACHE && (now - PERIODS_COUNT_CACHE.ts) < PERIODS_COUNT_TTL) {
+  // Return cached result if still valid and version matches
+  if (PERIODS_COUNT_CACHE && 
+      (now - PERIODS_COUNT_CACHE.ts) < PERIODS_COUNT_TTL &&
+      PERIODS_COUNT_CACHE.version === COUNT_CACHE_VERSION) {
     return PERIODS_COUNT_CACHE.count
   }
   
@@ -56,7 +59,7 @@ export async function getMyPeriodsCount(): Promise<number> {
     
     if (typeof numCount === 'number' && Number.isFinite(numCount)) {
       // Cache the result
-      PERIODS_COUNT_CACHE = { count: numCount, ts: Date.now() }
+      PERIODS_COUNT_CACHE = { count: numCount, ts: Date.now(), version: COUNT_CACHE_VERSION }
       return numCount
     }
     

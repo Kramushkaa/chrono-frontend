@@ -34,14 +34,17 @@ export async function getMyAchievements(limit?: number, offset?: number) {
 }
 
 // Get count of user's achievements with caching
-let ACHIEVEMENTS_COUNT_CACHE: { count: number; ts: number } | null = null
+const COUNT_CACHE_VERSION = '1.0.0' // Increment to invalidate cache
+let ACHIEVEMENTS_COUNT_CACHE: { count: number; ts: number; version: string } | null = null
 const ACHIEVEMENTS_COUNT_TTL = 180000 // 3 minutes
 
 export async function getMyAchievementsCount(): Promise<number> {
   const now = Date.now()
   
-  // Return cached result if still valid
-  if (ACHIEVEMENTS_COUNT_CACHE && (now - ACHIEVEMENTS_COUNT_CACHE.ts) < ACHIEVEMENTS_COUNT_TTL) {
+  // Return cached result if still valid and version matches
+  if (ACHIEVEMENTS_COUNT_CACHE && 
+      (now - ACHIEVEMENTS_COUNT_CACHE.ts) < ACHIEVEMENTS_COUNT_TTL &&
+      ACHIEVEMENTS_COUNT_CACHE.version === COUNT_CACHE_VERSION) {
     return ACHIEVEMENTS_COUNT_CACHE.count
   }
   
@@ -67,7 +70,7 @@ export async function getMyAchievementsCount(): Promise<number> {
     
     if (typeof numCount === 'number' && Number.isFinite(numCount)) {
       // Cache the result
-      ACHIEVEMENTS_COUNT_CACHE = { count: numCount, ts: Date.now() }
+      ACHIEVEMENTS_COUNT_CACHE = { count: numCount, ts: Date.now(), version: COUNT_CACHE_VERSION }
       return numCount
     }
     

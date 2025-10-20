@@ -2,24 +2,29 @@ import { apiData } from './core'
 import { maybePercentDecode } from './core'
 
 const CACHE_TTL_MS = 300000 // 5 minutes
+const CACHE_VERSION = '1.0.0' // Increment to invalidate all caches
 
 // Get all categories
-let CACHED_CATEGORIES: { items: string[]; ts: number } | null = null
+let CACHED_CATEGORIES: { items: string[]; ts: number; version: string } | null = null
 
 export const getCategories = async (): Promise<string[]> => {
-  if (CACHED_CATEGORIES && Date.now() - CACHED_CATEGORIES.ts < CACHE_TTL_MS) {
+  if (CACHED_CATEGORIES && 
+      Date.now() - CACHED_CATEGORIES.ts < CACHE_TTL_MS && 
+      CACHED_CATEGORIES.version === CACHE_VERSION) {
     return CACHED_CATEGORIES.items
   }
   const raw = await apiData<string[]>(`/api/categories`)
   const items = raw.map((category: string) => maybePercentDecode(category || ''))
-  CACHED_CATEGORIES = { items, ts: Date.now() }
+  CACHED_CATEGORIES = { items, ts: Date.now(), version: CACHE_VERSION }
   return items
 }
 
 // Get all countries
-let CACHED_COUNTRIES: { items: string[]; ts: number } | null = null
+let CACHED_COUNTRIES: { items: string[]; ts: number; version: string } | null = null
 export const getCountries = async (): Promise<string[]> => {
-  if (CACHED_COUNTRIES && Date.now() - CACHED_COUNTRIES.ts < CACHE_TTL_MS) {
+  if (CACHED_COUNTRIES && 
+      Date.now() - CACHED_COUNTRIES.ts < CACHE_TTL_MS && 
+      CACHED_COUNTRIES.version === CACHE_VERSION) {
     return CACHED_COUNTRIES.items
   }
   const raw = await apiData<(string | null)[]>(`/api/countries`)
@@ -36,29 +41,31 @@ export const getCountries = async (): Promise<string[]> => {
     }
   })
   const list = Array.from(allCountries).sort()
-  CACHED_COUNTRIES = { items: list, ts: Date.now() }
+  CACHED_COUNTRIES = { items: list, ts: Date.now(), version: CACHE_VERSION }
   return list
 }
 
 // Country options with IDs
 export type CountryOption = { id: number; name: string }
-let CACHED_COUNTRY_OPTIONS: { items: CountryOption[]; ts: number } | null = null
+let CACHED_COUNTRY_OPTIONS: { items: CountryOption[]; ts: number; version: string } | null = null
 
 export async function getCountryOptions(): Promise<CountryOption[]> {
-  if (CACHED_COUNTRY_OPTIONS && Date.now() - CACHED_COUNTRY_OPTIONS.ts < CACHE_TTL_MS) {
+  if (CACHED_COUNTRY_OPTIONS && 
+      Date.now() - CACHED_COUNTRY_OPTIONS.ts < CACHE_TTL_MS && 
+      CACHED_COUNTRY_OPTIONS.version === CACHE_VERSION) {
     return CACHED_COUNTRY_OPTIONS.items
   }
   try {
     const items = await apiData<CountryOption[]>(`/api/countries/options`)
     if (Array.isArray(items) && items.length > 0) {
-      CACHED_COUNTRY_OPTIONS = { items, ts: Date.now() }
+      CACHED_COUNTRY_OPTIONS = { items, ts: Date.now(), version: CACHE_VERSION }
       return items
     }
   } catch {}
   // Fallback: build options from names
   const names = await getCountries()
   const mapped = names.map((name, idx) => ({ id: idx + 1, name }))
-  CACHED_COUNTRY_OPTIONS = { items: mapped, ts: Date.now() }
+  CACHED_COUNTRY_OPTIONS = { items: mapped, ts: Date.now(), version: CACHE_VERSION }
   return mapped
 }
 
