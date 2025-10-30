@@ -137,7 +137,7 @@ describe('Profile', () => {
       expect(screen.getByText('Личный кабинет')).toBeInTheDocument();
     });
 
-    const editButton = screen.getByRole('button', { name: /редактировать/i });
+    const editButton = screen.getByRole('button', { name: /редактировать профиль/i });
     fireEvent.click(editButton);
 
     expect(screen.getByDisplayValue('testuser')).toBeInTheDocument();
@@ -155,14 +155,14 @@ describe('Profile', () => {
     });
 
     // Enter edit mode
-    const editButton = screen.getByRole('button', { name: /редактировать/i });
+    const editButton = screen.getByRole('button', { name: /редактировать профиль/i });
     fireEvent.click(editButton);
 
     // Cancel edit mode
     const cancelButton = screen.getByRole('button', { name: /отмена/i });
     fireEvent.click(cancelButton);
 
-    expect(screen.getByRole('button', { name: /редактировать/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /редактировать профиль/i })).toBeInTheDocument();
     expect(screen.queryByDisplayValue('testuser')).not.toBeInTheDocument();
   });
 
@@ -177,7 +177,7 @@ describe('Profile', () => {
     });
 
     // Enter edit mode
-    const editButton = screen.getByRole('button', { name: /редактировать/i });
+    const editButton = screen.getByRole('button', { name: /редактировать профиль/i });
     fireEvent.click(editButton);
 
     // Update values

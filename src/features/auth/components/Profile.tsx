@@ -220,26 +220,6 @@ export function Profile() {
         {/* Profile Card */}
         {profile && (
           <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <div></div>
-              {!isEditing && !isChangingPassword && (
-                <div className={styles.buttonGroup}>
-                  <button 
-                    className={`${styles.button} ${styles.buttonSecondary}`}
-                    onClick={handleEditClick}
-                  >
-                    ✏️ Редактировать
-                  </button>
-                  <button 
-                    className={`${styles.button} ${styles.buttonSecondary}`}
-                    onClick={handleChangePasswordClick}
-                  >
-                    🔑 Сменить пароль
-                  </button>
-                </div>
-              )}
-            </div>
-
             {!isEditing && !isChangingPassword ? (
               <>
                 <div className={styles.profileHeader}>
@@ -291,10 +271,23 @@ export function Profile() {
                     <span className={styles.infoLabel}>Полное имя:</span>
                     <span className={styles.infoValue}>{profile.full_name || '—'}</span>
                   </div>
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Email:</span>
-                    <span className={styles.infoValue}>{profile.email}</span>
-                  </div>
+                </div>
+
+                <div className={styles.divider}></div>
+
+                <div className={styles.buttonGroup}>
+                  <button 
+                    className={`${styles.button} ${styles.buttonSecondary}`}
+                    onClick={handleEditClick}
+                  >
+                    ✏️ Редактировать профиль
+                  </button>
+                  <button 
+                    className={`${styles.button} ${styles.buttonSecondary}`}
+                    onClick={handleChangePasswordClick}
+                  >
+                    🔑 Сменить пароль
+                  </button>
                 </div>
               </>
             ) : isEditing ? (
