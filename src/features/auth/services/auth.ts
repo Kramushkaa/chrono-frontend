@@ -16,9 +16,24 @@ export interface AuthState {
   refreshToken: string | null;
 }
 
+// Version to track auth storage format changes
+const AUTH_STORAGE_VERSION = 'v2-vite'; // Changed after Vite migration
+
 export const authStorage = {
   load(): AuthState {
     try {
+      // Check storage version
+      const version = localStorage.getItem('auth_version');
+      if (version !== AUTH_STORAGE_VERSION) {
+        // Clear old auth data if version mismatch
+        if (import.meta.env.MODE !== 'production') {
+          console.log('Auth storage version mismatch, clearing old tokens');
+        }
+        this.clear();
+        localStorage.setItem('auth_version', AUTH_STORAGE_VERSION);
+        return { user: null, accessToken: null, refreshToken: null };
+      }
+
       const raw = localStorage.getItem('auth');
       return raw ? JSON.parse(raw) : { user: null, accessToken: null, refreshToken: null };
     } catch {
@@ -27,9 +42,11 @@ export const authStorage = {
   },
   save(state: AuthState) {
     localStorage.setItem('auth', JSON.stringify(state));
+    localStorage.setItem('auth_version', AUTH_STORAGE_VERSION);
   },
   clear() {
     localStorage.removeItem('auth');
+    localStorage.removeItem('auth_version');
   }
 };
 

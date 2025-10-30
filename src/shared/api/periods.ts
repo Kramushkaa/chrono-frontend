@@ -6,7 +6,7 @@ import { validateDto } from '../dto'
 export type LifePeriodInput = Pick<LifePeriodItemDTO, 'country_id' | 'start_year' | 'end_year'>
 
 export async function saveLifePeriods(personId: string, periods: LifePeriodInput[]) {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     const pack = {
       periods: periods.map((p) => ({ country_id: p.country_id, start_year: p.start_year, end_year: p.end_year })),
     }
