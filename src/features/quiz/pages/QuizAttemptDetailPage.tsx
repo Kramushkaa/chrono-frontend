@@ -109,7 +109,6 @@ export const QuizAttemptDetailPage: React.FC = () => {
         <div className="quiz-container">
           <h1 className="quiz-title">
             {data.attempt.quizTitle}
-            {!data.attempt.isShared && <span className="quiz-type-badge">Обычный</span>}
           </h1>
 
           <div className="quiz-session-info">
@@ -237,6 +236,14 @@ export const QuizAttemptDetailPage: React.FC = () => {
           </div>
 
           <div className="quiz-actions">
+            {data.attempt.isShared && data.attempt.shareCode && (
+              <button 
+                onClick={() => navigate(`/quiz/${data.attempt.shareCode}/leaderboard`)} 
+                className="quiz-button quiz-button-primary"
+              >
+                📊 Посмотреть лидерборд
+              </button>
+            )}
             <ShareFromHistoryButton
               attemptId={data.attempt.attemptId}
               isShared={data.attempt.isShared}
