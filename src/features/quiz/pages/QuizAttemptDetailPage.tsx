@@ -6,6 +6,7 @@ import { AppHeader } from 'shared/layout/AppHeader';
 import { getMinimalHeaderProps } from '../utils/headerProps';
 import { ContactFooter } from 'shared/ui/ContactFooter';
 import { QuizPersonPanel } from '../components/QuizPersonPanel';
+import { ShareFromHistoryButton } from '../components/ShareFromHistoryButton';
 import { QuizLoading, QuizError } from '../components/QuizStateMessages';
 import { usePersonPanel } from '../hooks/usePersonPanel';
 import { formatTime, formatDate, getScorePercentage } from '../utils/formatters';
@@ -236,6 +237,12 @@ export const QuizAttemptDetailPage: React.FC = () => {
           </div>
 
           <div className="quiz-actions">
+            <ShareFromHistoryButton
+              attemptId={data.attempt.attemptId}
+              isShared={data.attempt.isShared}
+              shareCode={data.attempt.shareCode}
+              quizTitle={data.attempt.quizTitle}
+            />
             <button onClick={handleBackToHistory} className="quiz-button">
               Вернуться к истории
             </button>

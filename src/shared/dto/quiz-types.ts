@@ -217,6 +217,7 @@ export interface QuizHistoryEntry {
   sessionToken?: string;
   quizTitle: string;
   sharedQuizId?: number;
+  shareCode?: string;
   isShared: boolean;
   correctAnswers: number;
   totalQuestions: number;
@@ -241,6 +242,7 @@ export interface QuizAttemptDetailResponse {
       attemptId: number;
       quizTitle: string;
       isShared: boolean;
+      shareCode?: string;
       createdAt: string;
     };
     results: {

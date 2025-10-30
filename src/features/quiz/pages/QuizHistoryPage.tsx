@@ -67,33 +67,32 @@ export const QuizHistoryPage: React.FC = () => {
                   className="quiz-history-item"
                   onClick={() => handleViewAttempt(attempt.attemptId)}
                 >
-                  <div className="quiz-history-header">
-                    <h3>
-                      {attempt.quizTitle}
-                      {!attempt.isShared && <span className="quiz-type-badge">Обычный</span>}
-                    </h3>
-                    <span className="quiz-history-date">
-                      {formatDate(attempt.createdAt)}
-                    </span>
-                  </div>
-
-                  <div className="quiz-history-stats">
-                    <div className="quiz-history-stat">
-                      <span className="stat-label">Результат:</span>
-                      <span className={`stat-value ${attempt.correctAnswers === attempt.totalQuestions ? 'perfect' : ''}`}>
-                        {attempt.correctAnswers} / {attempt.totalQuestions}
-                        {' '}({getScorePercentage(attempt.correctAnswers, attempt.totalQuestions)}%)
+                  <div className="quiz-history-main">
+                    <div className="quiz-history-header">
+                      <h3>{attempt.quizTitle}</h3>
+                      <span className="quiz-history-date">
+                        {formatDate(attempt.createdAt)}
                       </span>
                     </div>
 
-                    <div className="quiz-history-stat">
-                      <span className="stat-label">Время:</span>
-                      <span className="stat-value">{formatTime(attempt.totalTimeMs)}</span>
-                    </div>
+                    <div className="quiz-history-stats">
+                      <div className="quiz-history-stat">
+                        <span className="stat-label">Результат:</span>
+                        <span className={`stat-value ${attempt.correctAnswers === attempt.totalQuestions ? 'perfect' : ''}`}>
+                          {attempt.correctAnswers} / {attempt.totalQuestions}
+                          {' '}({getScorePercentage(attempt.correctAnswers, attempt.totalQuestions)}%)
+                        </span>
+                      </div>
 
-                    <div className="quiz-history-stat">
-                      <span className="stat-label">Рейтинг:</span>
-                      <span className="stat-value">{Math.round(Number(attempt.ratingPoints))} очков</span>
+                      <div className="quiz-history-stat">
+                        <span className="stat-label">Время:</span>
+                        <span className="stat-value">{formatTime(attempt.totalTimeMs)}</span>
+                      </div>
+
+                      <div className="quiz-history-stat">
+                        <span className="stat-label">Рейтинг:</span>
+                        <span className="stat-value">{Math.round(Number(attempt.ratingPoints))} очков</span>
+                      </div>
                     </div>
                   </div>
 
