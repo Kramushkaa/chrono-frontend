@@ -170,7 +170,7 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
             <h4>💡 Как переключиться:</h4>
             <ul>
               <li>Создайте файл <code>.env.local</code> в корне проекта</li>
-              <li>Добавьте: <code>REACT_APP_USE_LOCAL_BACKEND=true</code></li>
+              <li>Добавьте: <code>VITE_USE_LOCAL_BACKEND=true</code></li>
               <li>Перезапустите приложение</li>
               <li>Убедитесь, что локальный backend запущен на порту 3001</li>
             </ul>

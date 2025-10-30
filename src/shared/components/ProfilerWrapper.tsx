@@ -54,7 +54,7 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
   }
 
   // In production, just render children without profiling
-  if (process.env.NODE_ENV === 'production' || !enabled) {
+  if (import.meta.env.MODE === 'production' || !enabled) {
     return <>{children}</>
   }
 

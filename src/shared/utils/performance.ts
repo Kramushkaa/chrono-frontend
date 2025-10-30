@@ -79,7 +79,7 @@ export function getPerformanceStats() {
  * Measure function execution time
  */
 export function measureExecution<T>(name: string, fn: () => T): T {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     const start = performance.now()
     const result = fn()
     const duration = performance.now() - start
@@ -99,7 +99,7 @@ export function measureExecution<T>(name: string, fn: () => T): T {
  * Measure async function execution time
  */
 export async function measureExecutionAsync<T>(name: string, fn: () => Promise<T>): Promise<T> {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     const start = performance.now()
     const result = await fn()
     const duration = performance.now() - start
@@ -119,7 +119,7 @@ export async function measureExecutionAsync<T>(name: string, fn: () => Promise<T
  * Print performance report to console
  */
 export function printPerformanceReport() {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     const stats = getPerformanceStats()
     if (!stats) {
       console.log('[Performance] No performance data collected yet')
@@ -160,7 +160,7 @@ declare global {
 }
 
 // Expose to window for easy access in dev tools
-if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+if (typeof window !== 'undefined' && import.meta.env.MODE !== 'production') {
   window.__performanceUtils = {
     getMarks: getPerformanceMarks,
     getStats: getPerformanceStats,
