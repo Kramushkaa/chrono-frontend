@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSharedQuiz } from '../hooks/useSharedQuiz';
+import { formatDate } from '../utils/formatters';
 import type { SharedQuizLeaderboardEntry } from '../../../shared/dto/quiz-types';
 
 interface SharedQuizLeaderboardProps {
@@ -55,6 +56,7 @@ export const SharedQuizLeaderboard: React.FC<SharedQuizLeaderboardProps> = ({ sh
     >
       <div className="leaderboard-rank">{entry.rank}</div>
       <div className="leaderboard-username">{entry.username}</div>
+      <div className="leaderboard-date">{formatDate(entry.completedAt)}</div>
       <div className="leaderboard-stats">
         <span className="leaderboard-score">
           {entry.correctAnswers}/{entry.totalQuestions}
@@ -78,6 +80,7 @@ export const SharedQuizLeaderboard: React.FC<SharedQuizLeaderboardProps> = ({ sh
           <div className="leaderboard-list-header">
             <div className="leaderboard-rank-header">#</div>
             <div className="leaderboard-username-header">Игрок</div>
+            <div className="leaderboard-date-header">Дата прохождения</div>
             <div className="leaderboard-stats-header">Результат</div>
           </div>
 
