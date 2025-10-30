@@ -238,7 +238,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
           <div className="quiz-actions">
             {data.attempt.isShared && data.attempt.shareCode && (
               <button 
-                onClick={() => navigate(`/quiz/${data.attempt.shareCode}/leaderboard`)} 
+                onClick={() => navigate(`/quiz/${data.attempt.shareCode}?view=leaderboard`)} 
                 className="quiz-button quiz-button-primary"
               >
                 📊 Посмотреть лидерборд

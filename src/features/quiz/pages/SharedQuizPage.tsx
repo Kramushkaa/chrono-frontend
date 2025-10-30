@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { SEO } from 'shared/ui/SEO';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { ContactFooter } from 'shared/ui/ContactFooter';
@@ -20,6 +20,7 @@ type QuizPhase = 'loading' | 'auth-prompt' | 'ready' | 'playing' | 'finished' | 
 
 const SharedQuizPage: React.FC = () => {
   const { shareCode } = useParams<{ shareCode: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthUser();
   const {
@@ -46,12 +47,18 @@ const SharedQuizPage: React.FC = () => {
     if (shareCode) {
       loadSharedQuiz(shareCode).then((success) => {
         if (success) {
-          // Show auth prompt if user is not logged in
-          setPhase(isAuthenticated ? 'ready' : 'auth-prompt');
+          // Check if view=leaderboard query parameter is present
+          const view = searchParams.get('view');
+          if (view === 'leaderboard') {
+            setPhase('leaderboard');
+          } else {
+            // Show auth prompt if user is not logged in
+            setPhase(isAuthenticated ? 'ready' : 'auth-prompt');
+          }
         }
       });
     }
-  }, [shareCode, loadSharedQuiz, isAuthenticated]);
+  }, [shareCode, loadSharedQuiz, isAuthenticated, searchParams]);
 
   const handleContinueAsGuest = () => {
     setPhase('ready');
