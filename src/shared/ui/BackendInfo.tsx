@@ -9,10 +9,9 @@ interface BackendInfoProps {
 
 export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
   const backendInfo = getBackendInfo();
-  const env = (typeof process !== 'undefined' && process.env) || {};
-  const isDev = env.NODE_ENV === 'development';
-  const useLocal = env.REACT_APP_USE_LOCAL_BACKEND === 'true';
-  const showOverride = env.REACT_APP_SHOW_BACKEND_INFO === 'true';
+  const isDev = import.meta.env.MODE === 'development';
+  const useLocal = import.meta.env.VITE_USE_LOCAL_BACKEND === 'true';
+  const showOverride = import.meta.env.VITE_SHOW_BACKEND_INFO === 'true';
   const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
   // Показываем только в деве/локале/override
   const shouldHide = !showOverride && !(isDev || useLocal || backendInfo.isLocal || isLocalHost);

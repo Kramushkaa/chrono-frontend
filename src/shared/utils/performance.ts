@@ -20,7 +20,7 @@ const MAX_MARKS = 100
  * Log performance mark
  */
 export function logPerformanceMark(mark: PerformanceMark) {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     performanceMarks.push(mark)
 
     // Keep only last N marks

@@ -7,7 +7,7 @@ interface ErrorFallbackProps {
 }
 
 export function ErrorFallback({ error, errorInfo, onReset }: ErrorFallbackProps) {
-  const isDevelopment = process.env.NODE_ENV === 'development'
+  const isDevelopment = import.meta.env.MODE === 'development'
 
   return (
     <div

@@ -3,14 +3,14 @@
 Use env vars at build time:
 
 ```
-REACT_APP_USE_LOCAL_BACKEND=false
-REACT_APP_API_URL=
-REACT_APP_LOCAL_BACKEND_URL=http://localhost:3001
-REACT_APP_REMOTE_BACKEND_URL=https://chrono-back-kramushka.amvera.io
-REACT_APP_SERVER_BACKEND_URL=
+VITE_USE_LOCAL_BACKEND=false
+VITE_API_URL=
+VITE_LOCAL_BACKEND_URL=http://localhost:3001
+VITE_REMOTE_BACKEND_URL=https://chrono-back-kramushka.amvera.io
+VITE_DEBUG_MODE=true
+VITE_LOG_API_CALLS=true
 # Optional overrides
-# REACT_APP_FORCE_API_URL=https://example.com
-# REACT_APP_ENV=server
+# VITE_FORCE_API_URL=https://example.com
 ```
 
 # Хронониндзя Frontend
@@ -21,7 +21,14 @@ REACT_APP_SERVER_BACKEND_URL=
 
 ```bash
 npm install
-npm start
+npm run dev
+```
+
+Или для production build:
+
+```bash
+npm run build
+npm run preview
 ```
 
 ## 📋 Основные возможности
@@ -36,6 +43,7 @@ npm start
 ## 🛠 Технологический стек
 
 - **React 18** с TypeScript
+- **Vite** - современный и быстрый build tool
 - **CSS3** с кастомными стилями
 - **Service Worker** для PWA функциональности
 - **Responsive Design** для всех устройств

@@ -6,7 +6,7 @@ export async function addAchievement(
   personId: string,
   payload: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null }
 ) {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     const v = validateDto('AchievementPerson', payload)
     // eslint-disable-next-line no-console
     if (!v.ok) console.warn('DTO validation failed (AchievementPerson):', v.errors)
@@ -112,7 +112,7 @@ export async function addGenericAchievement(payload: {
   image_url?: string | null
   country_id?: number | null
 }) {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     const v = validateDto('AchievementGeneric', payload)
     // eslint-disable-next-line no-console
     if (!v.ok) console.warn('DTO validation failed (AchievementGeneric):', v.errors)

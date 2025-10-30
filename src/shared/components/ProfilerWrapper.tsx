@@ -27,7 +27,7 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
     commitTime: any,
     interactions: any
   ) => {
-    if (process.env.NODE_ENV !== 'production' && enabled) {
+    if (import.meta.env.MODE !== 'production' && enabled) {
       // Log performance mark
       logPerformanceMark({
         component: profilerId,
