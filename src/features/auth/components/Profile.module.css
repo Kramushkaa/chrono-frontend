@@ -4,21 +4,6 @@
   padding: 24px;
 }
 
-.header {
-  margin-bottom: 32px;
-}
-
-.header h2 {
-  margin: 0 0 8px 0;
-  font-size: 32px;
-  font-weight: 700;
-}
-
-.headerSubtitle {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 16px;
-}
-
 .grid {
   display: grid;
   gap: 24px;
@@ -57,6 +42,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Profile Wrapper - desktop layout */
+.profileWrapper {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.profileContent {
+  flex: 1;
+}
+
+.profileActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 180px;
 }
 
 /* Profile Info */
@@ -358,9 +361,23 @@
 }
 
 /* Responsive */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .container {
     padding: 16px;
+  }
+
+  .profileWrapper {
+    flex-direction: column;
+  }
+
+  .profileActions {
+    width: 100%;
+    flex-direction: row;
+    min-width: unset;
+  }
+
+  .profileActions .button {
+    flex: 1;
   }
 
   .profileHeader {

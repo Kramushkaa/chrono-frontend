@@ -73,7 +73,7 @@ describe('Profile', () => {
     render(<Profile />);
 
     await waitFor(() => {
-      expect(screen.getByText('Личный кабинет')).toBeInTheDocument();
+      expect(screen.getByText('Test User')).toBeInTheDocument();
     });
 
     // Email and other data appear in multiple places, so use getAllByText
@@ -134,10 +134,10 @@ describe('Profile', () => {
     render(<Profile />);
 
     await waitFor(() => {
-      expect(screen.getByText('Личный кабинет')).toBeInTheDocument();
+      expect(screen.getByText('Test User')).toBeInTheDocument();
     });
 
-    const editButton = screen.getByRole('button', { name: /редактировать профиль/i });
+    const editButton = screen.getByRole('button', { name: /✏️ редактировать/i });
     fireEvent.click(editButton);
 
     expect(screen.getByDisplayValue('testuser')).toBeInTheDocument();
@@ -151,18 +151,18 @@ describe('Profile', () => {
     render(<Profile />);
 
     await waitFor(() => {
-      expect(screen.getByText('Личный кабинет')).toBeInTheDocument();
+      expect(screen.getByText('Test User')).toBeInTheDocument();
     });
 
     // Enter edit mode
-    const editButton = screen.getByRole('button', { name: /редактировать профиль/i });
+    const editButton = screen.getByRole('button', { name: /✏️ редактировать/i });
     fireEvent.click(editButton);
 
     // Cancel edit mode
     const cancelButton = screen.getByRole('button', { name: /отмена/i });
     fireEvent.click(cancelButton);
 
-    expect(screen.getByRole('button', { name: /редактировать профиль/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /✏️ редактировать/i })).toBeInTheDocument();
     expect(screen.queryByDisplayValue('testuser')).not.toBeInTheDocument();
   });
 
@@ -173,11 +173,11 @@ describe('Profile', () => {
     render(<Profile />);
 
     await waitFor(() => {
-      expect(screen.getByText('Личный кабинет')).toBeInTheDocument();
+      expect(screen.getByText('Test User')).toBeInTheDocument();
     });
 
     // Enter edit mode
-    const editButton = screen.getByRole('button', { name: /редактировать профиль/i });
+    const editButton = screen.getByRole('button', { name: /✏️ редактировать/i });
     fireEvent.click(editButton);
 
     // Update values
@@ -204,7 +204,7 @@ describe('Profile', () => {
     render(<Profile />);
 
     await waitFor(() => {
-      expect(screen.getByText('Личный кабинет')).toBeInTheDocument();
+      expect(screen.getByText('Test User')).toBeInTheDocument();
     });
 
     // Open password form by clicking the button
@@ -241,7 +241,7 @@ describe('Profile', () => {
     render(<Profile />);
 
     await waitFor(() => {
-      expect(screen.getByText('Личный кабинет')).toBeInTheDocument();
+      expect(screen.getByText('Test User')).toBeInTheDocument();
     });
 
     // Open password form

@@ -206,10 +206,6 @@ export function Profile() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>Личный кабинет</h2>
-      </div>
-
       {loadError && (
         <div className={`${styles.alert} ${styles.alertError}`}>
           ⚠️ {loadError}
@@ -222,72 +218,70 @@ export function Profile() {
           <div className={styles.card}>
             {!isEditing && !isChangingPassword ? (
               <>
-                <div className={styles.profileHeader}>
-                  {profile.avatar_url ? (
-                    <img 
-                      src={profile.avatar_url} 
-                      alt="Аватар" 
-                      className={styles.avatar}
-                      onError={(e) => { 
-                        (e.currentTarget as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  ) : (
-                    <div className={styles.avatarPlaceholder}>
-                      {getInitials(profile.full_name, profile.email)}
-                    </div>
-                  )}
-                  
-                  <div className={styles.profileInfo}>
-                    <h3 className={styles.profileName}>
-                      {profile.full_name || profile.username || 'Пользователь'}
-                    </h3>
-                    <p className={styles.profileEmail}>{profile.email}</p>
-                    <div className={styles.badges}>
-                      {profile.email_verified ? (
-                        <span className={`${styles.badge} ${styles.badgeVerified}`}>
-                          ✓ Email подтверждён
-                        </span>
+                <div className={styles.profileWrapper}>
+                  <div className={styles.profileContent}>
+                    <div className={styles.profileHeader}>
+                      {profile.avatar_url ? (
+                        <img 
+                          src={profile.avatar_url} 
+                          alt="Аватар" 
+                          className={styles.avatar}
+                          onError={(e) => { 
+                            (e.currentTarget as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
                       ) : (
-                        <span className={`${styles.badge} ${styles.badgeUnverified}`}>
-                          ⚠ Email не подтверждён
-                        </span>
+                        <div className={styles.avatarPlaceholder}>
+                          {getInitials(profile.full_name, profile.email)}
+                        </div>
                       )}
-                      <span className={`${styles.badge} ${styles.badgeRole}`}>
-                        {profile.role}
-                      </span>
+                      
+                      <div className={styles.profileInfo}>
+                        <h3 className={styles.profileName}>
+                          {profile.full_name || profile.username || 'Пользователь'}
+                        </h3>
+                        <p className={styles.profileEmail}>{profile.email}</p>
+                        <div className={styles.badges}>
+                          {profile.email_verified ? (
+                            <span className={`${styles.badge} ${styles.badgeVerified}`}>
+                              ✓ Email подтверждён
+                            </span>
+                          ) : (
+                            <span className={`${styles.badge} ${styles.badgeUnverified}`}>
+                              ⚠ Email не подтверждён
+                            </span>
+                          )}
+                          <span className={`${styles.badge} ${styles.badgeRole}`}>
+                            {profile.role}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.divider}></div>
+
+                    <div className={styles.infoGrid}>
+                      <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>Логин:</span>
+                        <span className={styles.infoValue}>{profile.username || '—'}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className={styles.divider}></div>
-
-                <div className={styles.infoGrid}>
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Логин:</span>
-                    <span className={styles.infoValue}>{profile.username || '—'}</span>
+                  <div className={styles.profileActions}>
+                    <button 
+                      className={`${styles.button} ${styles.buttonSecondary}`}
+                      onClick={handleEditClick}
+                    >
+                      ✏️ Редактировать
+                    </button>
+                    <button 
+                      className={`${styles.button} ${styles.buttonSecondary}`}
+                      onClick={handleChangePasswordClick}
+                    >
+                      🔑 Сменить пароль
+                    </button>
                   </div>
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Полное имя:</span>
-                    <span className={styles.infoValue}>{profile.full_name || '—'}</span>
-                  </div>
-                </div>
-
-                <div className={styles.divider}></div>
-
-                <div className={styles.buttonGroup}>
-                  <button 
-                    className={`${styles.button} ${styles.buttonSecondary}`}
-                    onClick={handleEditClick}
-                  >
-                    ✏️ Редактировать профиль
-                  </button>
-                  <button 
-                    className={`${styles.button} ${styles.buttonSecondary}`}
-                    onClick={handleChangePasswordClick}
-                  >
-                    🔑 Сменить пароль
-                  </button>
                 </div>
               </>
             ) : isEditing ? (
