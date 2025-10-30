@@ -3,15 +3,15 @@ import '@testing-library/jest-dom'
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: (global as any).jest.fn().mockImplementation((query: string) => ({
+  value: jest.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: (global as any).jest.fn(), // deprecated
-    removeListener: (global as any).jest.fn(), // deprecated
-    addEventListener: (global as any).jest.fn(),
-    removeEventListener: (global as any).jest.fn(),
-    dispatchEvent: (global as any).jest.fn(),
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
   })),
 })
 
@@ -37,17 +37,17 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: (global as any).jest.fn(),
-  setItem: (global as any).jest.fn(),
-  removeItem: (global as any).jest.fn(),
-  clear: (global as any).jest.fn(),
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
   length: 0,
-  key: (global as any).jest.fn(),
+  key: jest.fn(),
 }
 ;(global as any).localStorage = localStorageMock
 
 // Mock fetch
-;(global as any).fetch = (global as any).jest.fn()
+;(global as any).fetch = jest.fn()
 
 // Suppress console warnings in tests (only in test environment)
 if ((global as any).beforeAll) {

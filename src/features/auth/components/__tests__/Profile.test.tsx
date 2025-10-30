@@ -62,7 +62,9 @@ describe('Profile', () => {
 
     render(<Profile />);
     
-    expect(screen.getByText('Загрузка профиля...')).toBeInTheDocument();
+    // Spinner is rendered, not text anymore
+    const spinner = document.querySelector('.spinner');
+    expect(spinner).toBeInTheDocument();
   });
 
   it('renders profile data after loading', async () => {
@@ -74,11 +76,12 @@ describe('Profile', () => {
       expect(screen.getByText('Личный кабинет')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('test@test.com')).toBeInTheDocument();
+    // Email and other data appear in multiple places, so use getAllByText
+    expect(screen.getAllByText('test@test.com').length).toBeGreaterThan(0);
     expect(screen.getByText('testuser')).toBeInTheDocument();
-    expect(screen.getByText('Test User')).toBeInTheDocument();
+    expect(screen.getAllByText('Test User').length).toBeGreaterThan(0);
     expect(screen.getByText('user')).toBeInTheDocument();
-    expect(screen.getByText('нет')).toBeInTheDocument();
+    expect(screen.getAllByText(/Email не подтверждён/i).length).toBeGreaterThan(0);
   });
 
   it('renders error state when profile load fails', async () => {
@@ -87,7 +90,7 @@ describe('Profile', () => {
     render(<Profile />);
 
     await waitFor(() => {
-      expect(screen.getByText('Не удалось загрузить профиль')).toBeInTheDocument();
+      expect(screen.getByText(/Не удалось загрузить профиль/i)).toBeInTheDocument();
     });
   });
 
@@ -97,10 +100,10 @@ describe('Profile', () => {
     render(<Profile />);
 
     await waitFor(() => {
-      expect(screen.getByText('Подтверждение почты')).toBeInTheDocument();
+      expect(screen.getByText('Подтверждение email')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Ваш email не подтвержден. Пожалуйста, перейдите по ссылке из письма.')).toBeInTheDocument();
+    expect(screen.getByText(/Ваш email не подтверждён/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /отправить письмо повторно/i })).toBeInTheDocument();
   });
 
@@ -111,7 +114,7 @@ describe('Profile', () => {
     render(<Profile />);
 
     await waitFor(() => {
-      expect(screen.getByText('Подтверждение почты')).toBeInTheDocument();
+      expect(screen.getByText('Подтверждение email')).toBeInTheDocument();
     });
 
     const resendButton = screen.getByRole('button', { name: /отправить письмо повторно/i });
@@ -204,22 +207,30 @@ describe('Profile', () => {
       expect(screen.getByText('Личный кабинет')).toBeInTheDocument();
     });
 
-    // Find and fill password form
-    const currentPasswordInput = screen.getByPlaceholderText(/текущий пароль/i);
-    const newPasswordInput = screen.getByPlaceholderText(/новый пароль/i);
-    const confirmPasswordInput = screen.getByPlaceholderText(/подтвердите новый пароль/i);
+    // Open password form by clicking the button
+    const openPasswordFormButton = screen.getByRole('button', { name: /🔑 изменить пароль/i });
+    fireEvent.click(openPasswordFormButton);
+
+    // Wait for form to appear and fill password form
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/введите текущий пароль/i)).toBeInTheDocument();
+    });
+
+    const currentPasswordInput = screen.getByPlaceholderText(/введите текущий пароль/i);
+    const newPasswordInput = screen.getByPlaceholderText(/минимум 8 символов/i);
+    const confirmPasswordInput = screen.getByPlaceholderText(/повторите новый пароль/i);
 
     fireEvent.change(currentPasswordInput, { target: { value: 'oldpassword' } });
-    fireEvent.change(newPasswordInput, { target: { value: 'newpassword' } });
-    fireEvent.change(confirmPasswordInput, { target: { value: 'newpassword' } });
+    fireEvent.change(newPasswordInput, { target: { value: 'newpassword123' } });
+    fireEvent.change(confirmPasswordInput, { target: { value: 'newpassword123' } });
 
-    const changePasswordButton = screen.getByRole('button', { name: /сменить пароль/i });
-    fireEvent.click(changePasswordButton);
+    const savePasswordButton = screen.getByRole('button', { name: /сохранить новый пароль/i });
+    fireEvent.click(savePasswordButton);
 
     await waitFor(() => {
       expect(mockChangePassword).toHaveBeenCalledWith('mock-token', {
-        currentPassword: 'oldpassword',
-        newPassword: 'newpassword',
+        current_password: 'oldpassword',
+        new_password: 'newpassword123',
       });
     });
   });
@@ -233,20 +244,29 @@ describe('Profile', () => {
       expect(screen.getByText('Личный кабинет')).toBeInTheDocument();
     });
 
+    // Open password form
+    const openPasswordFormButton = screen.getByRole('button', { name: /🔑 изменить пароль/i });
+    fireEvent.click(openPasswordFormButton);
+
+    // Wait for form to appear
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/введите текущий пароль/i)).toBeInTheDocument();
+    });
+
     // Fill password form with mismatched passwords
-    const currentPasswordInput = screen.getByPlaceholderText(/текущий пароль/i);
-    const newPasswordInput = screen.getByPlaceholderText(/новый пароль/i);
-    const confirmPasswordInput = screen.getByPlaceholderText(/подтвердите новый пароль/i);
+    const currentPasswordInput = screen.getByPlaceholderText(/введите текущий пароль/i);
+    const newPasswordInput = screen.getByPlaceholderText(/минимум 8 символов/i);
+    const confirmPasswordInput = screen.getByPlaceholderText(/повторите новый пароль/i);
 
     fireEvent.change(currentPasswordInput, { target: { value: 'oldpassword' } });
-    fireEvent.change(newPasswordInput, { target: { value: 'newpassword' } });
+    fireEvent.change(newPasswordInput, { target: { value: 'newpassword123' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'differentpassword' } });
 
-    const changePasswordButton = screen.getByRole('button', { name: /сменить пароль/i });
-    fireEvent.click(changePasswordButton);
+    const savePasswordButton = screen.getByRole('button', { name: /сохранить новый пароль/i });
+    fireEvent.click(savePasswordButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/пароли не совпадают/i)).toBeInTheDocument();
+      expect(screen.getByText(/новые пароли не совпадают/i)).toBeInTheDocument();
     });
 
     expect(mockChangePassword).not.toHaveBeenCalled();
