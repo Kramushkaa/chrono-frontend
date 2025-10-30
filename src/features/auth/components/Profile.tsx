@@ -17,6 +17,7 @@ export function Profile() {
   
   // Edit profile state
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [draft, setDraft] = useState<{ username: string; full_name: string; avatar_url: string }>({ 
     username: '', 
     full_name: '', 
@@ -27,7 +28,6 @@ export function Profile() {
   const [validationError, setValidationError] = useState<string | null>(null);
   
   // Change password state
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [pwdSaving, setPwdSaving] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
@@ -40,77 +40,92 @@ export function Profile() {
   }, [state.accessToken]);
 
   const loadProfile = async () => {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      const token = state.accessToken;
-      if (!token) throw new Error('Нет токена доступа');
-      const data = await getProfile(token);
-      setProfile(data?.data?.user || null);
-    } catch (e) {
-      setLoadError('Не удалось загрузить профиль');
-    } finally {
-      setLoading(false);
-    }
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const token = state.accessToken;
+        if (!token) throw new Error('Нет токена доступа');
+        const data = await getProfile(token);
+        setProfile(data?.data?.user || null);
+      } catch (e) {
+        setLoadError('Не удалось загрузить профиль');
+      } finally {
+        setLoading(false);
+      }
   };
 
   const handleEditClick = () => {
     setValidationError(null);
     setUpdateError(null);
+    setPasswordError(null);
+    setPasswordSuccess(null);
     setDraft({ 
       username: profile.username || '', 
       full_name: profile.full_name || '', 
       avatar_url: profile.avatar_url || '' 
     });
     setIsEditing(true);
+    setIsChangingPassword(false);
+  };
+
+  const handleChangePasswordClick = () => {
+    setValidationError(null);
+    setUpdateError(null);
+    setPasswordError(null);
+    setPasswordSuccess(null);
+    setIsChangingPassword(true);
+    setIsEditing(false);
   };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
+    setIsChangingPassword(false);
     setValidationError(null);
     setUpdateError(null);
+    setPasswordError(null);
+    setPasswordSuccess(null);
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!state.accessToken) return;
+              e.preventDefault();
+              if (!state.accessToken) return;
     
     // Validation
-    if (draft.username && (draft.username.length < 3 || draft.username.length > 30)) {
+              if (draft.username && (draft.username.length < 3 || draft.username.length > 30)) {
       setValidationError('Логин должен содержать от 3 до 30 символов');
-      return;
-    }
-    if (draft.full_name.length > 100) {
+                return;
+              }
+              if (draft.full_name.length > 100) {
       setValidationError('Имя не может быть длиннее 100 символов');
-      return;
-    }
+                return;
+              }
     
-    setValidationError(null);
-    setSaving(true);
-    setUpdateError(null);
+              setValidationError(null);
+              setSaving(true);
+              setUpdateError(null);
     
-    try {
-      await updateProfile(state.accessToken, draft);
+              try {
+                await updateProfile(state.accessToken, draft);
       await loadProfile();
       showToast('Профиль успешно обновлён', 'success');
-      setIsEditing(false);
-    } catch (e: any) {
-      setUpdateError(e?.message || 'Не удалось сохранить профиль');
+                setIsEditing(false);
+              } catch (e: any) {
+                setUpdateError(e?.message || 'Не удалось сохранить профиль');
       showToast('Ошибка при сохранении профиля', 'error');
-    } finally {
-      setSaving(false);
-    }
+              } finally {
+                setSaving(false);
+              }
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!state.accessToken) return;
+            e.preventDefault();
+            if (!state.accessToken) return;
     
-    const form = e.currentTarget as HTMLFormElement;
-    const formData = new FormData(form);
-    const current_password = String(formData.get('current_password') || '');
-    const new_password = String(formData.get('new_password') || '');
-    const new_password2 = String(formData.get('new_password2') || '');
+            const form = e.currentTarget as HTMLFormElement;
+            const formData = new FormData(form);
+            const current_password = String(formData.get('current_password') || '');
+            const new_password = String(formData.get('new_password') || '');
+            const new_password2 = String(formData.get('new_password2') || '');
     
     if (!current_password || !new_password) {
       setPasswordError('Заполните все поля');
@@ -122,38 +137,31 @@ export function Profile() {
       return;
     }
     
-    if (new_password !== new_password2) {
-      setPasswordError('Новые пароли не совпадают');
-      return;
-    }
+            if (new_password !== new_password2) {
+              setPasswordError('Новые пароли не совпадают');
+              return;
+            }
     
-    setPwdSaving(true);
-    setPasswordError(null);
-    setPasswordSuccess(null);
+            setPwdSaving(true);
+            setPasswordError(null);
+            setPasswordSuccess(null);
     
-    try {
-      await changePassword(state.accessToken, { current_password, new_password });
+            try {
+              await changePassword(state.accessToken, { current_password, new_password });
       setPasswordSuccess('Пароль успешно изменён');
       showToast('Пароль успешно изменён', 'success');
-      form.reset();
+              form.reset();
       // Закрываем форму после успешной смены пароля
       setTimeout(() => {
-        setShowPasswordForm(false);
+        setIsChangingPassword(false);
         setPasswordSuccess(null);
       }, 2000);
-    } catch (e: any) {
-      setPasswordError(e?.message || 'Не удалось изменить пароль');
+            } catch (e: any) {
+              setPasswordError(e?.message || 'Не удалось изменить пароль');
       showToast('Ошибка при смене пароля', 'error');
-    } finally {
-      setPwdSaving(false);
-    }
-  };
-
-  const handleTogglePasswordForm = () => {
-    setShowPasswordForm(!showPasswordForm);
-    // Очищаем ошибки при открытии/закрытии
-    setPasswordError(null);
-    setPasswordSuccess(null);
+            } finally {
+              setPwdSaving(false);
+            }
   };
 
   const handleResendVerification = async () => {
@@ -200,7 +208,6 @@ export function Profile() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>Личный кабинет</h2>
-        <p className={styles.headerSubtitle}>Управление профилем и настройками аккаунта</p>
       </div>
 
       {loadError && (
@@ -210,25 +217,30 @@ export function Profile() {
       )}
 
       <div className={styles.grid}>
-        {/* Profile Info Card */}
+        {/* Profile Card */}
         {profile && (
           <div className={styles.card}>
             <div className={styles.cardHeader}>
-              <h3 className={styles.cardTitle}>
-                <span className={styles.cardIcon}>👤</span>
-                Информация о профиле
-              </h3>
-              {!isEditing && (
-                <button 
-                  className={`${styles.button} ${styles.buttonSecondary}`}
-                  onClick={handleEditClick}
-                >
-                  ✏️ Редактировать
-                </button>
+              <div></div>
+              {!isEditing && !isChangingPassword && (
+                <div className={styles.buttonGroup}>
+                  <button 
+                    className={`${styles.button} ${styles.buttonSecondary}`}
+                    onClick={handleEditClick}
+                  >
+                    ✏️ Редактировать
+                  </button>
+                  <button 
+                    className={`${styles.button} ${styles.buttonSecondary}`}
+                    onClick={handleChangePasswordClick}
+                  >
+                    🔑 Сменить пароль
+                  </button>
+                </div>
               )}
             </div>
 
-            {!isEditing ? (
+            {!isEditing && !isChangingPassword ? (
               <>
                 <div className={styles.profileHeader}>
                   {profile.avatar_url ? (
@@ -285,7 +297,7 @@ export function Profile() {
                   </div>
                 </div>
               </>
-            ) : (
+            ) : isEditing ? (
               <>
                 <form onSubmit={handleSaveProfile} className={styles.form}>
                   <div className={styles.formGroup}>
@@ -367,7 +379,74 @@ export function Profile() {
                   </div>
                 </form>
               </>
-            )}
+            ) : isChangingPassword ? (
+              <>
+                <form onSubmit={handleChangePassword} className={styles.form}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Текущий пароль</label>
+                    <input 
+                      className={styles.input}
+                      name="current_password" 
+                      type="password" 
+                      placeholder="Введите текущий пароль"
+                      autoComplete="current-password"
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Новый пароль</label>
+                    <input 
+                      className={styles.input}
+                      name="new_password" 
+                      type="password" 
+                      placeholder="Минимум 8 символов"
+                      autoComplete="new-password"
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Повторите новый пароль</label>
+                    <input 
+                      className={styles.input}
+                      name="new_password2" 
+                      type="password" 
+                      placeholder="Повторите новый пароль"
+                      autoComplete="new-password"
+                    />
+                  </div>
+
+                  {passwordError && (
+                    <div className={`${styles.alert} ${styles.alertError}`}>
+                      ❌ {passwordError}
+                    </div>
+                  )}
+
+                  {passwordSuccess && (
+                    <div className={`${styles.alert} ${styles.alertSuccess}`}>
+                      ✓ {passwordSuccess}
+                    </div>
+                  )}
+
+                  <div className={styles.buttonGroup}>
+                    <button 
+                      type="submit" 
+                      className={`${styles.button} ${styles.buttonPrimary}`}
+                      disabled={pwdSaving}
+                    >
+                      {pwdSaving ? '🔄 Изменяем...' : '💾 Сохранить новый пароль'}
+                    </button>
+                    <button 
+                      type="button"
+                      className={`${styles.button} ${styles.buttonSecondary}`}
+                      onClick={handleCancelEdit}
+                      disabled={pwdSaving}
+                    >
+                      Отмена
+                    </button>
+                  </div>
+        </form>
+              </>
+            ) : null}
           </div>
         )}
 
@@ -414,95 +493,6 @@ export function Profile() {
           >
             📊 Посмотреть историю
           </button>
-        </div>
-
-        {/* Change Password Card */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h3 className={styles.cardTitle}>
-              <span className={styles.cardIcon}>🔒</span>
-              Смена пароля
-            </h3>
-            {!showPasswordForm && (
-              <button 
-                className={`${styles.button} ${styles.buttonSecondary}`}
-                onClick={handleTogglePasswordForm}
-              >
-                🔑 Изменить пароль
-              </button>
-            )}
-          </div>
-
-          {!showPasswordForm ? (
-            <p style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: 0 }}>
-              Для безопасности вашего аккаунта рекомендуем периодически менять пароль.
-            </p>
-          ) : (
-            <form onSubmit={handleChangePassword} className={styles.form}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Текущий пароль</label>
-                <input 
-                  className={styles.input}
-                  name="current_password" 
-                  type="password" 
-                  placeholder="Введите текущий пароль"
-                  autoComplete="current-password"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Новый пароль</label>
-                <input 
-                  className={styles.input}
-                  name="new_password" 
-                  type="password" 
-                  placeholder="Минимум 8 символов"
-                  autoComplete="new-password"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Повторите новый пароль</label>
-                <input 
-                  className={styles.input}
-                  name="new_password2" 
-                  type="password" 
-                  placeholder="Повторите новый пароль"
-                  autoComplete="new-password"
-                />
-              </div>
-
-              {passwordError && (
-                <div className={`${styles.alert} ${styles.alertError}`}>
-                  ❌ {passwordError}
-                </div>
-              )}
-
-              {passwordSuccess && (
-                <div className={`${styles.alert} ${styles.alertSuccess}`}>
-                  ✓ {passwordSuccess}
-                </div>
-              )}
-
-              <div className={styles.buttonGroup}>
-                <button 
-                  type="submit" 
-                  className={`${styles.button} ${styles.buttonPrimary}`}
-                  disabled={pwdSaving}
-                >
-                  {pwdSaving ? '🔄 Изменяем...' : '💾 Сохранить новый пароль'}
-                </button>
-                <button 
-                  type="button"
-                  className={`${styles.button} ${styles.buttonSecondary}`}
-                  onClick={handleTogglePasswordForm}
-                  disabled={pwdSaving}
-                >
-                  Отмена
-                </button>
-              </div>
-            </form>
-          )}
         </div>
       </div>
 

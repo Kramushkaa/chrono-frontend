@@ -208,7 +208,7 @@ describe('Profile', () => {
     });
 
     // Open password form by clicking the button
-    const openPasswordFormButton = screen.getByRole('button', { name: /🔑 изменить пароль/i });
+    const openPasswordFormButton = screen.getByRole('button', { name: /🔑 сменить пароль/i });
     fireEvent.click(openPasswordFormButton);
 
     // Wait for form to appear and fill password form
@@ -245,7 +245,7 @@ describe('Profile', () => {
     });
 
     // Open password form
-    const openPasswordFormButton = screen.getByRole('button', { name: /🔑 изменить пароль/i });
+    const openPasswordFormButton = screen.getByRole('button', { name: /🔑 сменить пароль/i });
     fireEvent.click(openPasswordFormButton);
 
     // Wait for form to appear
