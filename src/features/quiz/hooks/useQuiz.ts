@@ -320,7 +320,9 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
         setRatingPoints(response.data.ratingPoints);
       }
     } catch (error) {
-      console.error('Failed to save quiz attempt:', error);
+      if (import.meta.env.MODE !== 'production') {
+        console.error('Failed to save quiz attempt:', error);
+      }
       // Don't throw error - quiz results should still be shown
     }
   }, [getResults, questions, setup]);

@@ -8,8 +8,10 @@ export function useDtoVersionWarning(expectedVersion: string) {
       try {
         const v = await getDtoVersion()
         if (!cancelled && v && v !== expectedVersion) {
-          // eslint-disable-next-line no-console
-          console.warn(`⚠️ DTO Version Mismatch: Frontend=${expectedVersion}, Backend=${v}. Please update versions to avoid data inconsistencies.`)
+          if (import.meta.env.MODE !== 'production') {
+            // eslint-disable-next-line no-console
+            console.warn(`⚠️ DTO Version Mismatch: Frontend=${expectedVersion}, Backend=${v}. Please update versions to avoid data inconsistencies.`)
+          }
         }
       } catch {}
     })()

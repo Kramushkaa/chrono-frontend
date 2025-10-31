@@ -42,7 +42,9 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
       const connected = await testBackendConnection();
       setIsConnected(connected);
     } catch (error) {
-      console.error('Connection test failed:', error);
+      if (import.meta.env.MODE !== 'production') {
+        console.error('Connection test failed:', error);
+      }
       setIsConnected(false);
     } finally {
       setIsTesting(false);

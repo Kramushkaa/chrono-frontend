@@ -49,7 +49,7 @@ export function usePerformanceMonitor({ componentName, enabled = true }: UsePerf
     })
 
     // Log render count for debugging
-    if (renderCountRef.current % 10 === 0) {
+    if (renderCountRef.current % 10 === 0 && import.meta.env.MODE !== 'production') {
       console.log(`[Performance] ${componentName} rendered ${renderCountRef.current} times`)
     }
   })

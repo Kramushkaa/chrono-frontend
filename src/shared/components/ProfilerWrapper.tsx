@@ -38,7 +38,7 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
 
       // Additional logging for significant differences
       const difference = actualDuration - baseDuration
-      if (difference > 10) {
+      if (difference > 10 && import.meta.env.MODE !== 'production') {
         // eslint-disable-next-line no-console
         console.warn(
           `[Profiler] ${profilerId} took ${actualDuration.toFixed(2)}ms (${difference.toFixed(2)}ms slower than base)`
@@ -46,7 +46,7 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
       }
 
       // Log interactions if present
-      if (interactions.size > 0) {
+      if (interactions.size > 0 && import.meta.env.MODE !== 'production') {
         // eslint-disable-next-line no-console
         console.log(`[Profiler] ${profilerId} rendered with ${interactions.size} interaction(s)`)
       }

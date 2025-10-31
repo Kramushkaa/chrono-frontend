@@ -8,8 +8,10 @@ export async function addAchievement(
 ) {
   if (import.meta.env.MODE !== 'production') {
     const v = validateDto('AchievementPerson', payload)
-    // eslint-disable-next-line no-console
-    if (!v.ok) console.warn('DTO validation failed (AchievementPerson):', v.errors)
+    if (!v.ok && import.meta.env.MODE !== 'production') {
+      // eslint-disable-next-line no-console
+      console.warn('DTO validation failed (AchievementPerson):', v.errors)
+    }
   }
   const res = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/achievements`, {
     method: 'POST',
@@ -114,8 +116,10 @@ export async function addGenericAchievement(payload: {
 }) {
   if (import.meta.env.MODE !== 'production') {
     const v = validateDto('AchievementGeneric', payload)
-    // eslint-disable-next-line no-console
-    if (!v.ok) console.warn('DTO validation failed (AchievementGeneric):', v.errors)
+    if (!v.ok && import.meta.env.MODE !== 'production') {
+      // eslint-disable-next-line no-console
+      console.warn('DTO validation failed (AchievementGeneric):', v.errors)
+    }
   }
   const res = await apiFetch(`/api/achievements`, {
     method: 'POST',

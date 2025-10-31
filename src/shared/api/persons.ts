@@ -126,7 +126,9 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
 
     return transformedData
   } catch (error) {
-    if (import.meta.env.MODE !== 'production') console.error('Error fetching persons:', error)
+    if (import.meta.env.MODE !== 'production') {
+      console.error('Error fetching persons:', error)
+    }
     throw error
   }
 }
@@ -184,8 +186,10 @@ type UpsertPersonPayload = UpsertPersonDTO
 export async function adminUpsertPerson(payload: UpsertPersonPayload) {
   if (import.meta.env.MODE !== 'production') {
     const v = validateDto('UpsertPerson', payload)
-    // eslint-disable-next-line no-console
-    if (!v.ok) console.warn('DTO validation failed (UpsertPerson):', v.errors)
+    if (!v.ok && import.meta.env.MODE !== 'production') {
+      // eslint-disable-next-line no-console
+      console.warn('DTO validation failed (UpsertPerson):', v.errors)
+    }
   }
   const res = await apiFetch(`/api/admin/persons`, {
     method: 'POST',

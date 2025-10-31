@@ -29,7 +29,7 @@ export function logPerformanceMark(mark: PerformanceMark) {
     }
 
     // Log slow renders
-    if (mark.duration > SLOW_RENDER_THRESHOLD) {
+    if (mark.duration > SLOW_RENDER_THRESHOLD && import.meta.env.MODE !== 'production') {
       console.warn(
         `[Performance] Slow ${mark.phase} detected in ${mark.component}: ${mark.duration.toFixed(2)}ms`
       )

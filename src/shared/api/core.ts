@@ -244,7 +244,9 @@ export const testBackendConnection = async (): Promise<boolean> => {
     const response = await apiRequest(`${API_BASE_URL}/api/health`)
     return response.ok
   } catch (error) {
-    if (import.meta.env.MODE !== 'production') console.error('Backend connection test failed:', error)
+    if (import.meta.env.MODE !== 'production') {
+      console.error('Backend connection test failed:', error)
+    }
     return false
   }
 }
