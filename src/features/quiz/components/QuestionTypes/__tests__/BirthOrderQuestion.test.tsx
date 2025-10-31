@@ -64,7 +64,7 @@ describe('BirthOrderQuestion', () => {
   it('should render without crashing', () => {
     render(<BirthOrderQuestion {...defaultProps} />)
     
-    expect(screen.getByText(/расположите в порядке рождения/i)).toBeInTheDocument()
+    expect(screen.getByText(/расставьте по году рождения/i)).toBeInTheDocument()
   })
 
   it('should render all persons', () => {
@@ -85,7 +85,7 @@ describe('BirthOrderQuestion', () => {
   it('should render instruction text', () => {
     render(<BirthOrderQuestion {...defaultProps} />)
     
-    expect(screen.getByText(/перетащите карточки/i)).toBeInTheDocument()
+    expect(screen.getByText(/перетащите личности/i)).toBeInTheDocument()
   })
 
   it('should show feedback when showFeedback is true', () => {

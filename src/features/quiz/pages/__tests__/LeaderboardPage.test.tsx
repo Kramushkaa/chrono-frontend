@@ -9,7 +9,7 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn(),
 }));
 
-jest.mock('../components/GlobalLeaderboard', () => ({
+jest.mock('../../components/GlobalLeaderboard', () => ({
   GlobalLeaderboard: () => <div data-testid="global-leaderboard">Global Leaderboard</div>,
 }));
 

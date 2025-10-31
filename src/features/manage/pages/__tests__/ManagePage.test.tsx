@@ -9,7 +9,7 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn(),
 }))
 
-jest.mock('../../../shared/hooks/useFilters', () => ({
+jest.mock('shared/hooks/useFilters', () => ({
   useFilters: () => ({
     filters: {},
     setFilters: jest.fn(),

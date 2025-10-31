@@ -64,9 +64,11 @@ describe('CenturyGridLinesOverlay', () => {
     expect(container).toBeInTheDocument()
     
     if (container) {
-      expect(container.style.position).toBe('absolute')
-      expect(container.style.width).toBe('1000px')
-      expect(container.style.height).toBe('700px') // totalHeight + 200
+      // Проверяем что style атрибут содержит нужные значения (JSDOM не всегда парсит inline стили)
+      const styleAttr = container.getAttribute('style') || ''
+      expect(styleAttr).toContain('position: absolute')
+      expect(styleAttr).toContain('width: 1000px')
+      expect(styleAttr).toContain('height: 700px')
     }
   })
 
@@ -102,8 +104,10 @@ describe('CenturyGridLinesOverlay', () => {
     expect(container).toBeInTheDocument()
     
     if (container) {
-      expect(container.style.width).toBe('2000px')
-      expect(container.style.height).toBe('1200px') // totalHeight + 200
+      // Проверяем через style атрибут
+      const styleAttr = container.getAttribute('style') || ''
+      expect(styleAttr).toContain('width: 2000px')
+      expect(styleAttr).toContain('height: 1200px')
     }
   })
 })

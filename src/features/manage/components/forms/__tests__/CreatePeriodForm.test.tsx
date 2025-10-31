@@ -50,8 +50,8 @@ describe('CreatePeriodForm', () => {
     
     // Should render form fields
     expect(screen.getByRole('textbox', { name: /название/i })).toBeInTheDocument()
-    expect(screen.getByRole('spinbutton', { name: /начало/i })).toBeInTheDocument()
-    expect(screen.getByRole('spinbutton', { name: /конец/i })).toBeInTheDocument()
+    expect(screen.getByLabelText(/год начала/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/год окончания/i)).toBeInTheDocument()
     expect(screen.getByRole('textbox', { name: /описание/i })).toBeInTheDocument()
   })
 

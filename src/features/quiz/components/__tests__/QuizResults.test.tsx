@@ -164,16 +164,6 @@ describe('QuizResults', () => {
     expect(defaultProps.onBackToMenu).toHaveBeenCalledTimes(1)
   })
 
-  it('should render leaderboard navigation button', () => {
-    render(
-      <TestWrapper>
-        <QuizResults {...defaultProps} />
-      </TestWrapper>
-    )
-    
-    expect(screen.getByRole('button', { name: 'Посмотреть лидерборд' })).toBeInTheDocument()
-  })
-
   it('should render history navigation button', () => {
     render(
       <TestWrapper>

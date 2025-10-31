@@ -4,9 +4,10 @@ import { BrowserRouter } from 'react-router-dom';
 import QuizPage from '../QuizPage';
 
 // Mock all the hooks and components
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('features/quiz/hooks/useQuizData', () => ({
@@ -95,11 +96,8 @@ jest.mock('features/quiz/utils/headerProps', () => ({
 }));
 
 describe('QuizPage', () => {
-  const mockNavigate = jest.fn();
-  
   beforeEach(() => {
     jest.clearAllMocks();
-    require('react-router-dom').useNavigate.mockReturnValue(mockNavigate);
   });
 
   const renderWithRouter = (component: React.ReactElement) => {

@@ -8,7 +8,7 @@ jest.mock('shared/hooks/useMobile', () => ({
   useMobile: () => false,
 }))
 
-jest.mock('../../hooks/useContemporariesGroups', () => ({
+jest.mock('../../../hooks/useContemporariesGroups', () => ({
   useContemporariesGroups: () => ({
     groups: [['person1', 'person2'], ['person3']],
     createGroup: jest.fn(),
@@ -17,7 +17,7 @@ jest.mock('../../hooks/useContemporariesGroups', () => ({
   }),
 }))
 
-jest.mock('../../hooks/useContemporariesDragDrop', () => ({
+jest.mock('../../../hooks/useContemporariesDragDrop', () => ({
   useContemporariesDragDrop: () => ({
     draggedOverGroup: -1,
     draggedItem: null,
@@ -38,7 +38,7 @@ jest.mock('../../hooks/useContemporariesDragDrop', () => ({
   }),
 }))
 
-jest.mock('../../hooks/useContemporariesFeedback', () => ({
+jest.mock('../../../hooks/useContemporariesFeedback', () => ({
   useContemporariesFeedback: () => ({
     getPersonStatus: jest.fn(),
   }),

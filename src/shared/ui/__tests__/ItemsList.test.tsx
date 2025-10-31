@@ -63,13 +63,17 @@ describe('ItemsList', () => {
   it('should show loading state', () => {
     render(<ItemsList {...defaultProps} items={[]} isLoading={true} />)
 
-    expect(screen.getByText('Загрузка...')).toBeInTheDocument()
+    // При загрузке показываются скелетоны, а не текст
+    const skeletonContainer = document.querySelector('.items-list__skeleton-container')
+    expect(skeletonContainer).toBeInTheDocument()
   })
 
   it('should show custom loading message', () => {
     render(<ItemsList {...defaultProps} items={[]} isLoading={true} loadingMessage="Loading..." />)
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    // При загрузке показываются скелетоны вне зависимости от loadingMessage
+    const skeletonContainer = document.querySelector('.items-list__skeleton-container')
+    expect(skeletonContainer).toBeInTheDocument()
   })
 
   it('should show load more button when hasMore is true', () => {

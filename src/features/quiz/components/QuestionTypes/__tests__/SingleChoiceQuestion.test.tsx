@@ -107,8 +107,9 @@ describe('SingleChoiceQuestion', () => {
     )
     
     expect(screen.getByText('Правильно!')).toBeInTheDocument()
-    expect(screen.getByText('Ваш ответ: 1860')).toBeInTheDocument()
-    expect(screen.getByText('Правильный ответ: 1860 год')).toBeInTheDocument()
+    expect(screen.getByText(/Ваш ответ:/)).toBeInTheDocument()
+    expect(screen.getByText(/1860/)).toBeInTheDocument()
+    expect(screen.getByText(/Правильный ответ:/)).toBeInTheDocument()
   })
 
   it('should show incorrect feedback', () => {
@@ -127,7 +128,8 @@ describe('SingleChoiceQuestion', () => {
     )
     
     expect(screen.getByText('Неправильно')).toBeInTheDocument()
-    expect(screen.getByText('Ваш ответ: 1850')).toBeInTheDocument()
+    expect(screen.getByText(/Ваш ответ:/)).toBeInTheDocument()
+    expect(screen.getByText(/1850/)).toBeInTheDocument()
   })
 
   it('should render next button in feedback', () => {

@@ -128,7 +128,8 @@ describe('PersonYearLabels', () => {
     expect(deathYearLabel.style.position).toBe('absolute')
     expect(deathYearLabel.style.fontSize).toBe('11px')
     
-    expect(reignStartLabel.style.color).toBe('#E57373')
+    // Цвет может быть в формате rgb() или hex в зависимости от браузера
+    expect(reignStartLabel.style.color).toMatch(/(#E57373|rgb\(229, 115, 115\))/)
     expect(reignStartLabel.style.fontWeight).toBe('bold')
   })
 })
