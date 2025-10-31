@@ -238,19 +238,6 @@ jest.mock('shared/api/api', () => ({
   apiData: {},
 }))
 
-// Mock window.location
-const mockLocation = {
-  href: 'http://localhost:3000',
-  origin: 'http://localhost:3000',
-  reload: jest.fn(),
-}
-delete (window as any).location
-Object.defineProperty(window, 'location', {
-  value: mockLocation,
-  writable: true,
-  configurable: true,
-})
-
 const renderWithRouter = (component: React.ReactElement) => {
   return render(
     <BrowserRouter>
@@ -260,6 +247,25 @@ const renderWithRouter = (component: React.ReactElement) => {
 }
 
 describe('ManagePage', () => {
+  beforeAll(() => {
+    // Mock window.location only for this test suite
+    const mockLocation = {
+      href: 'http://localhost:3000',
+      origin: 'http://localhost:3000',
+      reload: jest.fn(),
+    }
+    try {
+      delete (window as any).location
+      Object.defineProperty(window, 'location', {
+        value: mockLocation,
+        writable: true,
+        configurable: true,
+      })
+    } catch (e) {
+      // Already defined, that's okay
+    }
+  })
+
   it('should render without crashing', () => {
     renderWithRouter(<ManagePage />)
     
