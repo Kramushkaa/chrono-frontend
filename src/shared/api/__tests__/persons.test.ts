@@ -385,28 +385,37 @@ describe('persons API', () => {
 
   describe('getMyPersonsCount', () => {
     it('should return count', async () => {
-      mockApiData.mockResolvedValue({ count: 25 } as any)
+      await jest.isolateModulesAsync(async () => {
+        const { getMyPersonsCount: getCount } = await import('../persons')
+        mockApiData.mockResolvedValue({ count: 25 } as any)
 
-      const result = await getMyPersonsCount()
+        const result = await getCount()
 
-      expect(result).toBe(25)
-      expect(mockApiData).toHaveBeenCalledWith('/api/persons/mine?count=true')
+        expect(result).toBe(25)
+        expect(mockApiData).toHaveBeenCalledWith('/api/persons/mine?count=true')
+      })
     })
 
     it('should return 0 for invalid count', async () => {
-      mockApiData.mockResolvedValue({ count: 'invalid' } as any)
+      await jest.isolateModulesAsync(async () => {
+        const { getMyPersonsCount: getCount } = await import('../persons')
+        mockApiData.mockResolvedValue({ count: 'invalid' } as any)
 
-      const result = await getMyPersonsCount()
+        const result = await getCount()
 
-      expect(result).toBe(0)
+        expect(result).toBe(0)
+      })
     })
 
     it('should return 0 for missing count', async () => {
-      mockApiData.mockResolvedValue({} as any)
+      await jest.isolateModulesAsync(async () => {
+        const { getMyPersonsCount: getCount } = await import('../persons')
+        mockApiData.mockResolvedValue({} as any)
 
-      const result = await getMyPersonsCount()
+        const result = await getCount()
 
-      expect(result).toBe(0)
+        expect(result).toBe(0)
+      })
     })
   })
 })

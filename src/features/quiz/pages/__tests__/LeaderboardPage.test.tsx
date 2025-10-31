@@ -4,9 +4,10 @@ import { BrowserRouter } from 'react-router-dom';
 import LeaderboardPage from '../LeaderboardPage';
 
 // Mock dependencies
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('../../components/GlobalLeaderboard', () => ({
@@ -35,11 +36,8 @@ jest.mock('../../utils/headerProps', () => ({
 }));
 
 describe('LeaderboardPage', () => {
-  const mockNavigate = jest.fn();
-  
   beforeEach(() => {
     jest.clearAllMocks();
-    require('react-router-dom').useNavigate.mockReturnValue(mockNavigate);
   });
 
   const renderWithRouter = (component: React.ReactElement) => {

@@ -108,7 +108,9 @@ describe('SingleChoiceQuestion', () => {
     
     expect(screen.getByText('Правильно!')).toBeInTheDocument()
     expect(screen.getByText(/Ваш ответ:/)).toBeInTheDocument()
-    expect(screen.getByText(/1860/)).toBeInTheDocument()
+    // Проверяем что год есть в feedback-details (не в описании)
+    const feedbackDetails = document.querySelector('.feedback-details')
+    expect(feedbackDetails).toHaveTextContent('1860')
     expect(screen.getByText(/Правильный ответ:/)).toBeInTheDocument()
   })
 
@@ -129,7 +131,9 @@ describe('SingleChoiceQuestion', () => {
     
     expect(screen.getByText('Неправильно')).toBeInTheDocument()
     expect(screen.getByText(/Ваш ответ:/)).toBeInTheDocument()
-    expect(screen.getByText(/1850/)).toBeInTheDocument()
+    // Проверяем что год есть в feedback-details
+    const feedbackDetails = document.querySelector('.feedback-details')
+    expect(feedbackDetails).toHaveTextContent('1850')
   })
 
   it('should render next button in feedback', () => {

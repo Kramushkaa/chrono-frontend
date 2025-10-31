@@ -75,14 +75,14 @@ describe('ViewportCenturyLabelsOverlay', () => {
   })
 
   it('should apply correct container styles', () => {
-    render(<ViewportCenturyLabelsOverlay {...defaultProps} />)
+    const { container } = render(<ViewportCenturyLabelsOverlay {...defaultProps} />)
     
-    const container = document.querySelector('div')
-    expect(container).toBeInTheDocument()
+    const overlayContainer = container.firstChild as HTMLElement
+    expect(overlayContainer).toBeInTheDocument()
     
-    if (container) {
+    if (overlayContainer) {
       // Проверяем через style атрибут (JSDOM не всегда парсит inline стили)
-      const styleAttr = container.getAttribute('style') || ''
+      const styleAttr = overlayContainer.getAttribute('style') || ''
       expect(styleAttr).toContain('position: absolute')
       expect(styleAttr).toContain('width: 1000px')
       expect(styleAttr).toContain('height: 700px')
@@ -96,14 +96,14 @@ describe('ViewportCenturyLabelsOverlay', () => {
       totalHeight: 1000,
     }
     
-    render(<ViewportCenturyLabelsOverlay {...customProps} />)
+    const { container } = render(<ViewportCenturyLabelsOverlay {...customProps} />)
     
-    const container = document.querySelector('div')
-    expect(container).toBeInTheDocument()
+    const overlayContainer = container.firstChild as HTMLElement
+    expect(overlayContainer).toBeInTheDocument()
     
-    if (container) {
+    if (overlayContainer) {
       // Проверяем через style атрибут
-      const styleAttr = container.getAttribute('style') || ''
+      const styleAttr = overlayContainer.getAttribute('style') || ''
       expect(styleAttr).toContain('width: 2000px')
       expect(styleAttr).toContain('height: 1200px')
     }

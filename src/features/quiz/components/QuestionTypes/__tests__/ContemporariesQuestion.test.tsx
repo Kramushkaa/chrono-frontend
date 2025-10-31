@@ -148,7 +148,9 @@ describe('ContemporariesQuestion', () => {
     )
     
     expect(screen.getByText('Правильно!')).toBeInTheDocument()
-    expect(screen.getByText(/Время: 10с/)).toBeInTheDocument()
+    // Время разбито на несколько элементов - проверяем отдельно
+    expect(screen.getByText(/Время:/)).toBeInTheDocument()
+    expect(screen.getByText(/10/)).toBeInTheDocument()
   })
 
   it('should show incorrect feedback', () => {
