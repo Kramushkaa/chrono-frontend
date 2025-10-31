@@ -166,7 +166,7 @@ describe('ErrorFallback', () => {
     const homeButton = screen.getByText('На главную')
     fireEvent.click(homeButton)
 
-    expect(mockLocation.href).toBe('/')
+    expect(mockLocationHref).toBe('/')
   })
 
   it('should show error details in development mode', () => {

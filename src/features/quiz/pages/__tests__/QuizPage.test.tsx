@@ -135,7 +135,7 @@ describe('QuizPage', () => {
 
   it('should render quiz game when isQuizActive is true', () => {
     // Mock quiz active state
-    require('../hooks/useQuiz').useQuiz.mockReturnValue({
+    require('features/quiz/hooks/useQuiz').useQuiz.mockReturnValue({
       setup: {
         selectedCategories: ['Category1'],
         selectedCountries: ['Country1'],
@@ -169,7 +169,7 @@ describe('QuizPage', () => {
 
   it('should render quiz results when quiz is completed', () => {
     // Mock completed quiz state
-    require('../hooks/useQuiz').useQuiz.mockReturnValue({
+    require('features/quiz/hooks/useQuiz').useQuiz.mockReturnValue({
       setup: {
         selectedCategories: ['Category1'],
         selectedCountries: ['Country1'],
@@ -219,7 +219,7 @@ describe('QuizPage', () => {
         { id: 1, question: 'Test question 1', type: 'single-choice', options: ['A', 'B', 'C'] }
       ];
 
-      require('../hooks/useQuiz').useQuiz.mockReturnValue({
+      require('features/quiz/hooks/useQuiz').useQuiz.mockReturnValue({
         setup: {
           selectedCategories: ['Category1'],
           selectedCountries: ['Country1'],
@@ -263,7 +263,7 @@ describe('QuizPage', () => {
         { id: 2, question: 'Question 2', type: 'single-choice', options: ['C', 'D'] }
       ];
 
-      require('../hooks/useQuiz').useQuiz.mockReturnValue({
+      require('features/quiz/hooks/useQuiz').useQuiz.mockReturnValue({
         setup: {
           selectedCategories: ['Category1'],
           selectedCountries: ['Country1'],
@@ -296,7 +296,7 @@ describe('QuizPage', () => {
     });
 
     it('should handle answer submission and results', () => {
-      require('../hooks/useQuiz').useQuiz.mockReturnValue({
+      require('features/quiz/hooks/useQuiz').useQuiz.mockReturnValue({
         setup: {
           selectedCategories: ['Category1'],
           selectedCountries: ['Country1'],
