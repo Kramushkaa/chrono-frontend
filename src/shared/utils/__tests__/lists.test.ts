@@ -56,35 +56,18 @@ describe('lists utils', () => {
     const originalLocation = window.location
 
     beforeEach(() => {
-      // Mock window.location before each test with a more robust approach
-      try {
-        delete (window as any).location
-        Object.defineProperty(window, 'location', {
-          value: { search: '' },
-          writable: true,
-          configurable: true,
-        })
-      } catch (e) {
-        // Fallback if property cannot be deleted
-        ;(window as any).location = { search: '' }
-      }
+      // Mock window.location with search property that doesn't trigger navigation
+      delete (window as any).location
+      ;(window as any).location = { search: '', origin: 'http://localhost' }
     })
 
     afterEach(() => {
       // Restore original location
-      try {
-        Object.defineProperty(window, 'location', {
-          value: originalLocation,
-          writable: true,
-          configurable: true,
-        })
-      } catch (e) {
-        ;(window as any).location = originalLocation
-      }
+      ;(window as any).location = originalLocation
     })
 
     it('should return null when no share code in URL', async () => {
-      window.location.search = '?other=value'
+      ;(window as any).location.search = '?other=value'
       
       const result = await copySharedListFromUrl('fallback title')
       
@@ -92,7 +75,7 @@ describe('lists utils', () => {
     })
 
     it('should return null when API request fails', async () => {
-      window.location.search = '?share=test-code'
+      ;(window as any).location.search = '?share=test-code'
       ;(apiFetch as jest.Mock).mockResolvedValue({ ok: false })
       
       const result = await copySharedListFromUrl('fallback title')
@@ -101,7 +84,7 @@ describe('lists utils', () => {
     })
 
     it('should copy shared list successfully with valid response', async () => {
-      window.location.search = '?share=test-code'
+      ;(window as any).location.search = '?share=test-code'
       const mockResponse = {
         ok: true,
         json: jest.fn().mockResolvedValue({
@@ -121,7 +104,7 @@ describe('lists utils', () => {
     })
 
     it('should handle invalid response data gracefully', async () => {
-      window.location.search = '?share=test-code'
+      ;(window as any).location.search = '?share=test-code'
       const mockResponse = {
         ok: true,
         json: jest.fn().mockResolvedValue({ data: { id: 'invalid', title: null } })
@@ -202,17 +185,9 @@ describe('lists utils', () => {
         configurable: true,
       })
       
-      // Mock window.location.origin
-      try {
-        delete (window as any).location
-        Object.defineProperty(window, 'location', {
-          value: { origin: 'http://localhost' },
-          writable: true,
-          configurable: true,
-        })
-      } catch (e) {
-        ;(window as any).location = { origin: 'http://localhost' }
-      }
+      // Mock window.location.origin (simple mock that doesn't trigger navigation)
+      delete (window as any).location
+      ;(window as any).location = { origin: 'http://localhost', search: '' }
       
       ;(api.createListShareCode as jest.Mock).mockResolvedValue('test-code-456')
 
@@ -228,6 +203,12 @@ describe('lists utils', () => {
   describe('openListOnTimeline', () => {
     // Note: Skipping tests requiring window.location due to jsdom limitations
     // These are better suited for E2E tests
+    
+    beforeEach(() => {
+      // Mock window.location to avoid navigation errors
+      delete (window as any).location
+      ;(window as any).location = { search: '', origin: 'http://localhost', href: '' }
+    })
 
     it('should show error when code creation fails', async () => {
       const mockShowToast = jest.fn()

@@ -32,7 +32,10 @@ describe('Auth Service', () => {
         accessToken: 'access-token',
         refreshToken: 'refresh-token',
       };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(mockState));
+      // Мокаем getItem для версии (первый вызов) и данных (второй вызов)
+      localStorageMock.getItem
+        .mockReturnValueOnce('v2-vite') // Версия совпадает
+        .mockReturnValueOnce(JSON.stringify(mockState)); // Данные
 
       const result = authStorage.load();
 
