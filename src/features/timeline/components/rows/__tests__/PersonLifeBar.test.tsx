@@ -139,17 +139,20 @@ describe('PersonLifeBar', () => {
   })
 
   it('should handle keyboard events', () => {
-    render(<PersonLifeBar {...defaultProps} />)
+    // На desktop keyboard события должны показывать tooltip, а не выбирать персону
+    render(<PersonLifeBar {...defaultProps} isMobile={false} />)
     
     const lifeBar = document.querySelector('#life-bar-1')
     
     fireEvent.keyDown(lifeBar!, { key: 'Enter' })
-    expect(mockSetSelectedPerson).toHaveBeenCalledWith(mockPerson)
+    expect(mockSetHoveredPerson).toHaveBeenCalledWith(mockPerson)
+    expect(mockSetShowTooltip).toHaveBeenCalledWith(true)
     
     jest.clearAllMocks()
     
     fireEvent.keyDown(lifeBar!, { key: ' ' })
-    expect(mockSetSelectedPerson).toHaveBeenCalledWith(mockPerson)
+    expect(mockSetHoveredPerson).toHaveBeenCalledWith(mockPerson)
+    expect(mockSetShowTooltip).toHaveBeenCalledWith(true)
   })
 
   it('should handle keyboard events differently on mobile', () => {

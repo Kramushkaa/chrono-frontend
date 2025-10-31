@@ -123,6 +123,8 @@ describe('PersonReignBars', () => {
     const personWithEmptyRulerPeriods = {
       ...mockPerson,
       rulerPeriods: [],
+      reignStart: undefined,
+      reignEnd: undefined,
     }
     
     const { container } = render(
@@ -141,7 +143,8 @@ describe('PersonReignBars', () => {
     const reignBar = document.querySelector('#reign-bar-1') as HTMLElement
     expect(reignBar.style.position).toBe('absolute')
     expect(reignBar.style.backgroundColor).toBe('rgba(211, 47, 47, 0.25)')
-    expect(reignBar.style.borderLeft).toBe('2px solid #D32F2F')
-    expect(reignBar.style.borderRight).toBe('2px solid #D32F2F')
+    // Цвет может быть в формате rgb() или hex
+    expect(reignBar.style.borderLeft).toMatch(/2px solid (rgb\(211, 47, 47\)|#D32F2F)/)
+    expect(reignBar.style.borderRight).toMatch(/2px solid (rgb\(211, 47, 47\)|#D32F2F)/)
   })
 })
