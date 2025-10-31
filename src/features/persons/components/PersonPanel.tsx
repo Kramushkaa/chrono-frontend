@@ -2,6 +2,7 @@ import React from 'react'
 import { Person } from 'shared/types'
 import { usePersonAchievements } from '../hooks/usePersonAchievements'
 import { PersonStructuredData } from 'shared/ui/PersonStructuredData'
+import { formatYear } from 'shared/utils/formatters'
 
 interface PersonPanelProps {
   selectedPerson: Person | null
@@ -197,7 +198,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
             <div 
               className="mobile-panel-person-years"
               id="mobile-panel-person-years"
-              aria-label={`Годы жизни: ${selectedPerson.birthYear} - ${selectedPerson.deathYear || 'н.в.'}`}
+              aria-label={`Годы жизни: ${formatYear(selectedPerson.birthYear)} - ${formatYear(selectedPerson.deathYear)}`}
               style={{
                 fontSize: '1.1rem',
                 fontWeight: 'bold',
@@ -205,7 +206,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
                 marginBottom: '0.5rem'
               }}
             >
-              {selectedPerson.birthYear} - {selectedPerson.deathYear || 'н.в.'}
+              {formatYear(selectedPerson.birthYear)} - {formatYear(selectedPerson.deathYear)}
             </div>
             
             <div 
@@ -247,7 +248,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
                 <ul style={{ margin: '0.25rem 0 0 1rem', padding: 0, listStyle: 'disc', color: '#f4e4c1', fontSize: '0.9rem' }}>
                   {selectedPerson.rulerPeriods.map((rp, idx: number) => (
                     <li key={idx}>
-                      {rp.startYear} — {rp.endYear}{rp.countryName ? ` • ${rp.countryName}` : ''}
+                      {formatYear(rp.startYear)} — {formatYear(rp.endYear)}{rp.countryName ? ` • ${rp.countryName}` : ''}
                     </li>
                   ))}
                 </ul>
@@ -256,7 +257,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
               <div 
                 className="mobile-panel-person-reign"
                 id="mobile-panel-person-reign"
-                aria-label={`Период правления: ${selectedPerson.reignStart} - ${selectedPerson.reignEnd}`}
+                aria-label={`Период правления: ${formatYear(selectedPerson.reignStart)} - ${formatYear(selectedPerson.reignEnd)}`}
                 style={{
                   fontSize: '0.9rem',
                   color: '#E57373',
@@ -264,7 +265,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
                   marginBottom: '0.5rem'
                 }}
               >
-                👑 Правление: {selectedPerson.reignStart} - {selectedPerson.reignEnd}
+                👑 Правление: {formatYear(selectedPerson.reignStart)} - {formatYear(selectedPerson.reignEnd)}
               </div>
             ) : null}
           </div>
@@ -364,7 +365,7 @@ export const PersonPanel: React.FC<PersonPanelProps> = ({
                         marginBottom: '0.25rem'
                       }}
                     >
-                      {achievementYear} г.
+                      {formatYear(achievementYear)} г.
                     </div>
                     <div 
                       className="mobile-panel-achievement-text"

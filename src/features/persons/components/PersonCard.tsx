@@ -1,5 +1,6 @@
 import React from 'react'
 import { Person } from 'shared/types'
+import { formatYear } from 'shared/utils/formatters'
 
 type PersonCardProps = {
   person: Person
@@ -45,7 +46,7 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, g
         )}
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 'bold', color: getGroupColor(getPersonGroup(person)), marginBottom: 6 }}>
-            {person.birthYear} - {person.deathYear ? person.deathYear : 'н.в.'}
+            {formatYear(person.birthYear)} - {formatYear(person.deathYear)}
           </div>
           <div style={{ marginBottom: 6 }}>
             <span style={{ color: getCategoryColor(person.category), fontWeight: 'bold' }}>{safeText(person.category)}</span>
@@ -57,12 +58,12 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, g
               <div style={{ fontSize: '0.95rem', color: '#E57373', fontWeight: 'bold' }}>👑 Периоды правления:</div>
               <ul style={{ margin: '4px 0 0 18px' }}>
                 {person.rulerPeriods.map((rp, idx: number) => (
-                  <li key={idx}>{rp.startYear} — {rp.endYear}{rp.countryName ? ` • ${rp.countryName}` : ''}</li>
+                  <li key={idx}>{formatYear(rp.startYear)} — {formatYear(rp.endYear)}{rp.countryName ? ` • ${rp.countryName}` : ''}</li>
                 ))}
               </ul>
             </div>
           ) : (person.reignStart && person.reignEnd) ? (
-            <div style={{ marginBottom: 6, color: '#E57373', fontWeight: 'bold' }}>👑 Правление: {person.reignStart} - {person.reignEnd}</div>
+            <div style={{ marginBottom: 6, color: '#E57373', fontWeight: 'bold' }}>👑 Правление: {formatYear(person.reignStart)} - {formatYear(person.reignEnd)}</div>
           ) : null}
         </div>
       </div>
@@ -96,7 +97,7 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, getGroupColor, g
                 return (
                   <div key={index} style={{ padding: 8, background: 'rgba(139, 69, 19, 0.1)', borderRadius: 4, border: `1px solid ${getGroupColor(getPersonGroup(person))}40` }}>
                     {year != null && (
-                      <div style={{ fontSize: '0.85rem', color: getGroupColor(getPersonGroup(person)), fontWeight: 'bold', marginBottom: 4 }}>{year} г.</div>
+                      <div style={{ fontSize: '0.85rem', color: getGroupColor(getPersonGroup(person)), fontWeight: 'bold', marginBottom: 4 }}>{formatYear(year)} г.</div>
                     )}
                     <div style={{ fontSize: '0.9rem' }}>
                       {achievement}

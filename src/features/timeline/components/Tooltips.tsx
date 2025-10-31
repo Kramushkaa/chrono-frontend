@@ -1,6 +1,7 @@
 import React from 'react'
 import { useMobile } from '../../../shared/hooks/useMobile'
 import { Person } from 'shared/types'
+import { formatYear } from 'shared/utils/formatters'
 
 interface TooltipsProps {
   hoveredPerson: Person | null
@@ -114,7 +115,7 @@ export const Tooltips: React.FC<TooltipsProps> = ({
             color: getGroupColor(getPersonGroup(hoveredAchievement.person)),
             fontSize: '0.9rem'
           }}>
-            🎯 {hoveredAchievement.year}
+            🎯 {formatYear(hoveredAchievement.year)}
           </p>
           
           <p style={{ 
@@ -230,7 +231,7 @@ export const Tooltips: React.FC<TooltipsProps> = ({
           
           <div style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
             <p style={{ margin: '0.25rem 0', fontWeight: 'bold' }}>
-              {hoveredPerson.birthYear} - {hoveredPerson.deathYear || 'н.в.'}
+              {formatYear(hoveredPerson.birthYear)} - {formatYear(hoveredPerson.deathYear)}
             </p>
             <p style={{ margin: '0.25rem 0' }}>
               <span style={{ color: getCategoryColor(hoveredPerson.category), fontWeight: 'bold' }}>

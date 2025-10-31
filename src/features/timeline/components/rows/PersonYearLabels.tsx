@@ -1,5 +1,6 @@
 import React from 'react'
 import { Person } from 'shared/types'
+import { formatYear } from 'shared/utils/formatters'
 
 interface PersonYearLabelsProps {
   person: Person
@@ -12,7 +13,7 @@ export const PersonYearLabels: React.FC<PersonYearLabelsProps> = ({ person, getA
       <span 
         className="birth-year-label"
         id={`birth-year-${person.id}`}
-        aria-label={`Год рождения: ${person.birthYear}`}
+        aria-label={`Год рождения: ${formatYear(person.birthYear)}`}
         style={{
           position: 'absolute',
           left: `${getAdjustedPosition(person.birthYear)}px`,
@@ -24,14 +25,14 @@ export const PersonYearLabels: React.FC<PersonYearLabelsProps> = ({ person, getA
           transform: 'translateX(-100%) translateY(-10px)'
         }}
       >
-        {person.birthYear}
+        {formatYear(person.birthYear)}
       </span>
 
       {person.reignStart ? (
         <span 
           className="reign-label" 
           id={`reign-start-${person.id}`}
-          aria-label={`Начало правления: ${person.reignStart}`}
+          aria-label={`Начало правления: ${formatYear(person.reignStart)}`}
           style={{
             position: 'absolute',
             left: `${getAdjustedPosition(person.reignStart)}px`,
@@ -43,7 +44,7 @@ export const PersonYearLabels: React.FC<PersonYearLabelsProps> = ({ person, getA
             transform: 'translateX(-100%) translateY(-22px)'
           }}
         >
-          👑 {person.reignStart}
+          👑 {formatYear(person.reignStart)}
         </span>
       ) : null}
 
@@ -51,7 +52,7 @@ export const PersonYearLabels: React.FC<PersonYearLabelsProps> = ({ person, getA
         <span 
           className="reign-label" 
           id={`reign-end-${person.id}`}
-          aria-label={`Конец правления: ${person.reignEnd}`}
+          aria-label={`Конец правления: ${formatYear(person.reignEnd)}`}
           style={{
             position: 'absolute',
             left: `${getAdjustedPosition(person.reignEnd)}px`,
@@ -63,14 +64,14 @@ export const PersonYearLabels: React.FC<PersonYearLabelsProps> = ({ person, getA
             transform: 'translateY(-22px)'
           }}
         >
-          {person.reignEnd}
+          {formatYear(person.reignEnd)}
         </span>
       ) : null}
 
       <span 
         className="death-year-label"
         id={`death-year-${person.id}`}
-        aria-label={`Год смерти: ${person.deathYear}`}
+        aria-label={`Год смерти: ${formatYear(person.deathYear)}`}
         style={{
           position: 'absolute',
           left: `${getAdjustedPosition(person.deathYear ?? new Date().getFullYear())}px`,
@@ -82,7 +83,7 @@ export const PersonYearLabels: React.FC<PersonYearLabelsProps> = ({ person, getA
           transform: 'translateY(-10px)'
         }}
       >
-        {person.deathYear}
+        {formatYear(person.deathYear)}
       </span>
     </>
   )
