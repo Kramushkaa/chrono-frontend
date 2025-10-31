@@ -97,7 +97,8 @@ describe('PeriodsTab', () => {
   it('renders without crashing', () => {
     render(<PeriodsTab {...mockProps} />);
     
-    expect(screen.getByTestId('manage-periods-section')).toBeInTheDocument();
+    // ID находится в DOM, но не data-testid - проверяем по unified-manage-section
+    expect(document.getElementById('manage-periods-section')).toBeInTheDocument();
     expect(screen.getByTestId('unified-manage-section')).toBeInTheDocument();
   });
 

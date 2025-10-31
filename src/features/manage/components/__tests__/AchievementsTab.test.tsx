@@ -97,7 +97,8 @@ describe('AchievementsTab', () => {
   it('renders without crashing', () => {
     render(<AchievementsTab {...mockProps} />);
     
-    expect(screen.getByTestId('manage-achievements-section')).toBeInTheDocument();
+    // ID находится в DOM, но не data-testid - проверяем по ID
+    expect(document.getElementById('manage-achievements-section')).toBeInTheDocument();
     expect(screen.getByTestId('unified-manage-section')).toBeInTheDocument();
   });
 

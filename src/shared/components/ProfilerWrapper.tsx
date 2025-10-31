@@ -45,8 +45,8 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
         )
       }
 
-      // Log interactions if present
-      if (interactions.size > 0 && process.env.NODE_ENV !== 'production') {
+      // Log interactions if present (interactions может быть undefined в некоторых средах)
+      if (interactions && interactions.size > 0 && process.env.NODE_ENV !== 'production') {
         // eslint-disable-next-line no-console
         console.log(`[Profiler] ${profilerId} rendered with ${interactions.size} interaction(s)`)
       }

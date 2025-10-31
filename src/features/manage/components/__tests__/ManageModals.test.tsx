@@ -156,7 +156,8 @@ describe('ManageModals', () => {
   it('renders without crashing', () => {
     render(<ManageModals {...mockProps} />);
     
-    expect(screen.getByTestId('manage-page__modals')).toBeInTheDocument();
+    // Компонент рендерит div с классом, но без data-testid
+    expect(document.querySelector('.manage-page__modals')).toBeInTheDocument();
   });
 
   it('shows auth modal when showAuthModal is true', () => {
