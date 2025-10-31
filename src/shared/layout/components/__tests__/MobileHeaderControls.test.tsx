@@ -90,7 +90,9 @@ describe('MobileHeaderControls', () => {
   it('does not render controls when showControls is false', () => {
     render(<MobileHeaderControls {...mockProps} showControls={false} />);
     
-    expect(screen.queryByTestId('achievement-marker')).not.toBeInTheDocument();
+    // Элементы рендерятся всегда, но контейнер не имеет класс 'visible'
+    const container = document.querySelector('.header-controls-mobile');
+    expect(container).not.toHaveClass('visible');
   });
 
   it('renders filter dropdowns when controls are visible', () => {

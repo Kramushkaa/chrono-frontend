@@ -14,8 +14,10 @@ afterEach(() => {
 })
 
 // Mock window.location (используем delete для избежания ошибки redefine)
+let mockLocationHref = ''
 const mockLocation = {
-  href: '',
+  get href() { return mockLocationHref },
+  set href(value: string) { mockLocationHref = value },
   reload: jest.fn(),
 }
 try {
@@ -43,7 +45,7 @@ const NoError: React.FC = () => <div>No error</div>
 describe('ErrorBoundary', () => {
   beforeEach(() => {
     // Reset location mock
-    mockLocation.href = ''
+    mockLocationHref = ''
   })
 
   it('should render children when there is no error', () => {
@@ -114,7 +116,7 @@ describe('ErrorBoundary', () => {
 
 describe('ErrorFallback', () => {
   beforeEach(() => {
-    mockLocation.href = ''
+    mockLocationHref = ''
   })
 
   it('should render error message', () => {
