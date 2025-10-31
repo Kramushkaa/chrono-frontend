@@ -11,7 +11,6 @@ interface QuizSetupProps {
   canStart: boolean;
   checkStrictFilters: (setup: QuizSetupConfig, allCategories: string[], allCountries: string[]) => string[];
   isLoading?: boolean;
-  onViewLeaderboard?: () => void;
   onViewHistory?: () => void;
 }
 
@@ -38,7 +37,6 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
   canStart,
   checkStrictFilters,
   isLoading,
-  onViewLeaderboard,
   onViewHistory,
 }) => {
   // Локальное состояние для фильтров (стран и категорий)
@@ -360,14 +358,6 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
         </button>
         
         <div className="quiz-setup-links">
-          {onViewLeaderboard && (
-            <button 
-              onClick={onViewLeaderboard}
-              className="quiz-link-button"
-            >
-              🏆 Лидерборд
-            </button>
-          )}
           {onViewHistory && (
             <button 
               onClick={onViewHistory}

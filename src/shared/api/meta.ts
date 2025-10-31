@@ -2,7 +2,7 @@ import { apiData } from './core'
 import { maybePercentDecode } from './core'
 
 const CACHE_TTL_MS = 300000 // 5 minutes
-const CACHE_VERSION = '1.0.0' // Increment to invalidate all caches
+const CACHE_VERSION = '1.0.1' // Increment to invalidate all caches
 
 // Get all categories
 let CACHED_CATEGORIES: { items: string[]; ts: number; version: string } | null = null

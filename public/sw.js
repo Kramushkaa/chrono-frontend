@@ -1,6 +1,6 @@
 // Service Worker для Хронониндзя PWA
 // Важно: обновляйте версию при каждом релизе, чтобы сбрасывать устаревший кэш
-const CACHE_NAME = 'chrononinja-v1.1.1';
+const CACHE_NAME = 'chrononinja-v1.1.2';
 const urlsToCache = [
   '/index.html',
   '/manifest.json',

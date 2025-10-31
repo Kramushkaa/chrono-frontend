@@ -98,12 +98,6 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
             Играть снова
           </button>
           <button
-            onClick={() => navigate('/quiz/leaderboard')}
-            className="quiz-button quiz-button-primary"
-          >
-            Посмотреть лидерборд
-          </button>
-          <button
             onClick={() => navigate('/quiz/history')}
             className="quiz-button quiz-button-primary"
           >

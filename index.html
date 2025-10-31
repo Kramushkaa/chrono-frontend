@@ -13,7 +13,7 @@
     <meta name="author" content="Хронониндзя Team" />
     <meta name="robots" content="index, follow" />
     <meta http-equiv="Content-Language" content="ru" />
-    <meta name="version" content="1.0.0" />
+    <meta name="version" content="1.0.1" />
     <!-- Fonts: preconnect + non-blocking stylesheet (Inter only) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,7 +72,7 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js?v=2025-10-13-1')
+          navigator.serviceWorker.register('/sw.js?v=2025-10-31-1')
             .then((registration) => {
               // При обновлении SW, сразу активируем новую версию и перезагружаем страницу
               if (registration.waiting) {

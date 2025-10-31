@@ -167,7 +167,9 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     const generatedQuestions: QuizQuestion[] = [];
     
     for (let i = 0; i < questionCount; i++) {
-      const questionType = finalAvailableTypes[i % finalAvailableTypes.length];
+      // Случайно выбираем тип вопроса из доступных
+      const randomIndex = Math.floor(Math.random() * finalAvailableTypes.length);
+      const questionType = finalAvailableTypes[randomIndex];
       const generator = questionGenerators[questionType];
       if (generator) {
         const question = generator(filteredPersons);
