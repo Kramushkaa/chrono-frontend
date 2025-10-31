@@ -156,6 +156,13 @@ describe('ErrorFallback', () => {
   })
 
   it('should navigate to home when home button is clicked', () => {
+    // Spy on window.location.href setter
+    const hrefSetter = jest.fn()
+    Object.defineProperty(window.location, 'href', {
+      set: hrefSetter,
+      configurable: true,
+    })
+
     render(
       <ErrorFallback 
         error={new Error('Test error')} 
@@ -166,7 +173,7 @@ describe('ErrorFallback', () => {
     const homeButton = screen.getByText('На главную')
     fireEvent.click(homeButton)
 
-    expect(mockLocationHref).toBe('/')
+    expect(hrefSetter).toHaveBeenCalledWith('/')
   })
 
   it('should show error details in development mode', () => {
