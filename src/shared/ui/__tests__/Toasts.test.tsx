@@ -99,7 +99,9 @@ describe('Toasts', () => {
     const closeButtons = screen.getAllByLabelText('Закрыть уведомление')
     fireEvent.click(closeButtons[0])
     
-    expect(screen.queryByText('Test message')).not.toBeInTheDocument()
+    // Toast should have 'removing' class but still be in DOM briefly (300ms animation)
+    const toastElement = screen.queryByText('Test message')?.closest('.toast-item')
+    expect(toastElement).toHaveClass('toast-item--removing')
   })
 
   it('should separate error toasts from other toasts', () => {
@@ -149,11 +151,11 @@ describe('Toasts', () => {
     
     fireEvent.click(screen.getByText('Add Error'))
     
-    const errorContainers = screen.getAllByRole('alert')
-    expect(errorContainers.length).toBeGreaterThan(0)
-    // Check the first container (wrapper)
-    expect(errorContainers[0]).toHaveAttribute('aria-live', 'assertive')
-    expect(errorContainers[0]).toHaveAttribute('aria-atomic', 'true')
+    // Check the main toast container (has aria-live="assertive" for errors)
+    const container = document.querySelector('.toast-container')
+    expect(container).toBeInTheDocument()
+    expect(container).toHaveAttribute('aria-live', 'assertive')
+    expect(container).toHaveAttribute('aria-atomic', 'true')
   })
 
   it('should render multiple toasts', () => {
