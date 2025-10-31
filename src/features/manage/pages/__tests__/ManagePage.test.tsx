@@ -240,11 +240,15 @@ jest.mock('shared/api/api', () => ({
 
 // Mock window.location
 const mockLocation = {
+  href: 'http://localhost:3000',
   origin: 'http://localhost:3000',
+  reload: jest.fn(),
 }
+delete (window as any).location
 Object.defineProperty(window, 'location', {
   value: mockLocation,
   writable: true,
+  configurable: true,
 })
 
 const renderWithRouter = (component: React.ReactElement) => {
