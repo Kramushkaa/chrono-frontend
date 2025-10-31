@@ -30,7 +30,7 @@ jest.mock('shared/ui/ContactFooter', () => ({
   ContactFooter: () => <div data-testid="contact-footer">Contact Footer</div>,
 }));
 
-jest.mock('../utils/headerProps', () => ({
+jest.mock('../../utils/headerProps', () => ({
   getMinimalHeaderProps: () => ({}),
 }));
 

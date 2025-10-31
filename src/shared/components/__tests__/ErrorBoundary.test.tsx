@@ -13,13 +13,16 @@ afterEach(() => {
   console.error = originalConsoleError
 })
 
-// Mock window.location
+// Mock window.location (используем delete для избежания ошибки redefine)
 const mockLocation = {
   href: '',
+  reload: jest.fn(),
 }
+delete (window as any).location
 Object.defineProperty(window, 'location', {
   value: mockLocation,
   writable: true,
+  configurable: true,
 })
 
 // Component that throws an error for testing

@@ -81,7 +81,7 @@ jest.mock('features/manage/context/ManageUIContext', () => ({
   ),
 }))
 
-jest.mock('../hooks/useManagePageData', () => ({
+jest.mock('../../hooks/useManagePageData', () => ({
   useManagePageData: () => ({
     personsAlt: [],
     personsAltLoading: false,
