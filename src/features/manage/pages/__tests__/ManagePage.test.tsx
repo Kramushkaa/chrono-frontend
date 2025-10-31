@@ -114,7 +114,7 @@ jest.mock('../../hooks/useManagePageData', () => ({
   }),
 }))
 
-jest.mock('../hooks/useManageState', () => ({
+jest.mock('../../hooks/useManageState', () => ({
   useManageState: () => ({
     activeTab: 'persons',
     setActiveTab: jest.fn(),
@@ -159,7 +159,7 @@ jest.mock('../hooks/useManageState', () => ({
   }),
 }))
 
-jest.mock('../hooks/useManageModals', () => ({
+jest.mock('../../hooks/useManageModals', () => ({
   useManageModals: () => ({
     showAuthModal: false,
     setShowAuthModal: jest.fn(),
@@ -178,14 +178,14 @@ jest.mock('../hooks/useManageModals', () => ({
   }),
 }))
 
-jest.mock('../hooks/useManageBusinessLogic', () => ({
+jest.mock('../../hooks/useManageBusinessLogic', () => ({
   useManageBusinessLogic: () => ({
     countrySelectOptions: [],
     categorySelectOptions: [],
   }),
 }))
 
-jest.mock('../components/PersonsTab', () => ({
+jest.mock('../../components/PersonsTab', () => ({
   PersonsTab: ({ children, ...props }: any) => (
     <div data-testid="persons-tab" {...props}>
       {children}
@@ -193,7 +193,7 @@ jest.mock('../components/PersonsTab', () => ({
   ),
 }))
 
-jest.mock('../components/AchievementsTab', () => ({
+jest.mock('../../components/AchievementsTab', () => ({
   AchievementsTab: ({ children, ...props }: any) => (
     <div data-testid="achievements-tab" {...props}>
       {children}
@@ -201,7 +201,7 @@ jest.mock('../components/AchievementsTab', () => ({
   ),
 }))
 
-jest.mock('../components/PeriodsTab', () => ({
+jest.mock('../../components/PeriodsTab', () => ({
   PeriodsTab: ({ children, ...props }: any) => (
     <div data-testid="periods-tab" {...props}>
       {children}
@@ -209,7 +209,7 @@ jest.mock('../components/PeriodsTab', () => ({
   ),
 }))
 
-jest.mock('../components/ManageModals', () => ({
+jest.mock('../../components/ManageModals', () => ({
   ManageModals: ({ children, ...props }: any) => (
     <div data-testid="manage-modals" {...props}>
       {children}
