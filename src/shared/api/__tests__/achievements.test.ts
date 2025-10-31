@@ -148,28 +148,38 @@ describe('achievements API', () => {
 
   describe('getMyAchievementsCount', () => {
     it('should return count from response', async () => {
-      mockApiData.mockResolvedValue({ count: 42 } as any)
+      // Используем isolateModules чтобы избежать проблем с кешем
+      await jest.isolateModulesAsync(async () => {
+        const { getMyAchievementsCount: getCount } = await import('../achievements')
+        mockApiData.mockResolvedValue({ count: 42 } as any)
 
-      const result = await getMyAchievementsCount()
+        const result = await getCount()
 
-      expect(result).toBe(42)
-      expect(mockApiData).toHaveBeenCalledWith('/api/achievements/mine?count=true')
+        expect(result).toBe(42)
+        expect(mockApiData).toHaveBeenCalledWith('/api/achievements/mine?count=true')
+      })
     })
 
     it('should return 0 for invalid count', async () => {
-      mockApiData.mockResolvedValue({ count: 'invalid' } as any)
+      await jest.isolateModulesAsync(async () => {
+        const { getMyAchievementsCount: getCount } = await import('../achievements')
+        mockApiData.mockResolvedValue({ count: 'invalid' } as any)
 
-      const result = await getMyAchievementsCount()
+        const result = await getCount()
 
-      expect(result).toBe(0)
+        expect(result).toBe(0)
+      })
     })
 
     it('should return 0 for missing count', async () => {
-      mockApiData.mockResolvedValue({} as any)
+      await jest.isolateModulesAsync(async () => {
+        const { getMyAchievementsCount: getCount } = await import('../achievements')
+        mockApiData.mockResolvedValue({} as any)
 
-      const result = await getMyAchievementsCount()
+        const result = await getCount()
 
-      expect(result).toBe(0)
+        expect(result).toBe(0)
+      })
     })
   })
 

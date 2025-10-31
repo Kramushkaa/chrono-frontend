@@ -42,9 +42,9 @@ jest.mock('shared/ui/ToggleButton', () => ({
   ToggleButton: jest.fn(({ checked, onChange, label }) => (
     <button 
       onClick={() => onChange(!checked)} 
-      data-testid={`toggle-${label.toLowerCase().replace(/\s+/g, '-')}`}
+      data-testid={label ? `toggle-${label.toLowerCase().replace(/\s+/g, '-')}` : 'toggle-button'}
     >
-      {label}
+      {label || 'Toggle'}
     </button>
   )),
 }));

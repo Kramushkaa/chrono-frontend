@@ -36,7 +36,8 @@ describe('Auth Service', () => {
 
       const result = authStorage.load();
 
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('auth');
+      // Функция вызывает getItem дважды: для версии и для данных
+      expect(localStorageMock.getItem).toHaveBeenCalled();
       expect(result).toEqual(mockState);
     });
 

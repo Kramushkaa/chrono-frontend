@@ -44,7 +44,7 @@ jest.mock('../../../hooks/useContemporariesFeedback', () => ({
   }),
 }))
 
-jest.mock('../ContemporariesGroupZone', () => ({
+jest.mock('../../ContemporariesGroupZone', () => ({
   ContemporariesGroupZone: ({ group, groupIndex, ...props }: any) => (
     <div data-testid={`group-${groupIndex}`} {...props}>
       Group {groupIndex + 1} with {group.length} persons

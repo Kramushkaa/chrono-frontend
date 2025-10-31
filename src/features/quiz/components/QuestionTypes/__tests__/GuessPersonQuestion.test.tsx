@@ -42,7 +42,7 @@ describe('GuessPersonQuestion', () => {
   it('should render without crashing', () => {
     render(<GuessPersonQuestion {...defaultProps} />)
     
-    expect(screen.getByText(/угадай личность/i)).toBeInTheDocument()
+    expect(screen.getByText(/угадайте.*о ком идёт речь/i)).toBeInTheDocument()
   })
 
   it('should render input field for guessing', () => {
@@ -148,7 +148,7 @@ describe('GuessPersonQuestion', () => {
       />
     )
     
-    expect(screen.getByText(/угадай личность/i)).toBeInTheDocument()
+    expect(screen.getByText(/угадайте.*о ком идёт речь/i)).toBeInTheDocument()
   })
 
   it('should handle person without description', () => {
@@ -167,6 +167,6 @@ describe('GuessPersonQuestion', () => {
       />
     )
     
-    expect(screen.getByText(/угадай личность/i)).toBeInTheDocument()
+    expect(screen.getByText(/угадайте.*о ком идёт речь/i)).toBeInTheDocument()
   })
 })

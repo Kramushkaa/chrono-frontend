@@ -158,6 +158,6 @@ describe('AchievementsMatchQuestion', () => {
   it('should render drag and drop instruction', () => {
     render(<AchievementsMatchQuestion {...defaultProps} />)
     
-    expect(screen.getByText(/перетащите достижения/i)).toBeInTheDocument()
+    expect(screen.getByText(/сопоставьте достижения/i)).toBeInTheDocument()
   })
 })

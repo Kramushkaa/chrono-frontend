@@ -59,36 +59,48 @@ describe('periods API', () => {
 
   describe('getMyPeriodsCount', () => {
     it('should return count from response', async () => {
-      mockApiData.mockResolvedValue({ count: 15 } as any)
+      await jest.isolateModulesAsync(async () => {
+        const { getMyPeriodsCount: getCount } = await import('../periods')
+        mockApiData.mockResolvedValue({ count: 15 } as any)
 
-      const result = await getMyPeriodsCount()
+        const result = await getCount()
 
-      expect(result).toBe(15)
-      expect(mockApiData).toHaveBeenCalledWith('/api/periods/mine?count=true')
+        expect(result).toBe(15)
+        expect(mockApiData).toHaveBeenCalledWith('/api/periods/mine?count=true')
+      })
     })
 
     it('should return 0 for invalid count', async () => {
-      mockApiData.mockResolvedValue({ count: 'invalid' } as any)
+      await jest.isolateModulesAsync(async () => {
+        const { getMyPeriodsCount: getCount } = await import('../periods')
+        mockApiData.mockResolvedValue({ count: 'invalid' } as any)
 
-      const result = await getMyPeriodsCount()
+        const result = await getCount()
 
-      expect(result).toBe(0)
+        expect(result).toBe(0)
+      })
     })
 
     it('should return 0 for missing count', async () => {
-      mockApiData.mockResolvedValue({} as any)
+      await jest.isolateModulesAsync(async () => {
+        const { getMyPeriodsCount: getCount } = await import('../periods')
+        mockApiData.mockResolvedValue({} as any)
 
-      const result = await getMyPeriodsCount()
+        const result = await getCount()
 
-      expect(result).toBe(0)
+        expect(result).toBe(0)
+      })
     })
 
     it('should return 0 for null count', async () => {
-      mockApiData.mockResolvedValue({ count: null } as any)
+      await jest.isolateModulesAsync(async () => {
+        const { getMyPeriodsCount: getCount } = await import('../periods')
+        mockApiData.mockResolvedValue({ count: null } as any)
 
-      const result = await getMyPeriodsCount()
+        const result = await getCount()
 
-      expect(result).toBe(0)
+        expect(result).toBe(0)
+      })
     })
   })
 
