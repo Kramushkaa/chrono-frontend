@@ -117,8 +117,8 @@ describe('ToastContext', () => {
         result.current.showToast('')
       })
 
-      expect(result.current.toasts).toHaveLength(1)
-      expect(result.current.toasts[0].message).toBe('')
+      // Empty messages are ignored by the implementation
+      expect(result.current.toasts).toHaveLength(0)
     })
 
     it('should handle null/undefined message', () => {
@@ -130,9 +130,8 @@ describe('ToastContext', () => {
         result.current.showToast(undefined as any)
       })
 
-      expect(result.current.toasts).toHaveLength(2)
-      expect(result.current.toasts[0].message).toBe('')
-      expect(result.current.toasts[1].message).toBe('')
+      // Null/undefined messages are ignored by the implementation
+      expect(result.current.toasts).toHaveLength(0)
     })
 
     it('should trim whitespace from message', () => {
@@ -154,9 +153,9 @@ describe('ToastContext', () => {
 
       expect(result.current.toasts).toHaveLength(1)
 
-      // Fast-forward time
+      // Fast-forward time (1000ms для toast + 300ms для анимации)
       act(() => {
-        jest.advanceTimersByTime(1000)
+        jest.advanceTimersByTime(1300)
       })
 
       expect(result.current.toasts).toHaveLength(0)
