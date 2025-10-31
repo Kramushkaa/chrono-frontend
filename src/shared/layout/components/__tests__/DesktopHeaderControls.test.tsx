@@ -39,9 +39,9 @@ jest.mock('features/timeline/components/YearRangeSlider', () => ({
 }));
 
 jest.mock('shared/ui/ToggleButton', () => ({
-  ToggleButton: jest.fn(({ checked, onChange, label, children }) => (
+  ToggleButton: jest.fn(({ checked, onChange, onClick, label, children }) => (
     <button 
-      onClick={() => onChange(!checked)} 
+      onClick={onClick || (() => onChange?.(!checked))} 
       data-testid={label ? `toggle-${label.toLowerCase().replace(/\s+/g, '-')}` : 'toggle-button'}
     >
       {children || label || 'Toggle'}
@@ -123,7 +123,8 @@ describe('DesktopHeaderControls', () => {
     
     // ToggleButton не получает label, проверяем что рендерятся children
     expect(screen.getByTestId('achievement-marker')).toBeInTheDocument();
-    expect(screen.getByTestId('toggle-button')).toBeInTheDocument();
+    // Проверяем что есть несколько toggle buttons
+    expect(screen.getAllByTestId('toggle-button').length).toBeGreaterThan(0);
   });
 
   it('handles toggle button clicks', () => {

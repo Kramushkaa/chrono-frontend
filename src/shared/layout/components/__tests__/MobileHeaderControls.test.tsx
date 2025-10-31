@@ -39,9 +39,9 @@ jest.mock('features/timeline/components/YearRangeSlider', () => ({
 }));
 
 jest.mock('shared/ui/ToggleButton', () => ({
-  ToggleButton: jest.fn(({ checked, onChange, label, children }) => (
+  ToggleButton: jest.fn(({ checked, onChange, onClick, label, children }) => (
     <button 
-      onClick={() => onChange(!checked)} 
+      onClick={onClick || (() => onChange?.(!checked))} 
       data-testid={label ? `toggle-${label.toLowerCase().replace(/\s+/g, '-')}` : 'toggle-button'}
     >
       {children || label || 'Toggle'}
