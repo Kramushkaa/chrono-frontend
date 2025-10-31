@@ -42,10 +42,20 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
           const resolved = await resolveListShare(shareParam)
           if (resolved?.owner_user_id && isAuthenticated && ownerUserId && ownerUserId === resolved.owner_user_id && resolved.list_id) {
             setSelectedListId(resolved.list_id)
-            setListPersons(null)
             setSharedListMeta({ code: shareParam, title: resolved?.title || 'Список', listId: undefined })
             lastShareMetaRef.set({ code: shareParam, title: resolved?.title || 'Список', listId: undefined })
             setSelectedListKey(`list:${resolved.list_id}`)
+            // Load persons for this list
+            try {
+              const items = await apiData<Array<{ item_type: string; person_id?: string }>>(`/api/lists/${resolved.list_id}/items`)
+              const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
+              if (ids.length === 0) { setListPersons([]); return }
+              const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
+              setListPersons(arr)
+            } catch (e: any) {
+              showToast(e?.message || 'Не удалось загрузить содержимое списка', 'error')
+              setListPersons([])
+            }
             return
           }
           const items: Array<{ item_type: string; person_id?: string }> = resolved?.items || []
@@ -106,24 +116,8 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
         setSelectedListKey('')
       }
     })()
-  }, [isTimeline, location.search, isAuthenticated, ownerUserId, showToast, lastShareMetaRef])
-
-  // Reload when selected list id is chosen from UI
-  useEffect(() => {
-    if (!selectedListId) return
-    ;(async () => {
-      try {
-        const items = await apiData<Array<{ item_type: string; person_id?: string }>>(`/api/lists/${selectedListId}/items`)
-        const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
-        if (ids.length === 0) { setListPersons([]); return }
-        const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
-        setListPersons(arr)
-      } catch (e: any) {
-        showToast(e?.message || 'Не удалось загрузить содержимое списка', 'error')
-        setListPersons([])
-      }
-    })()
-  }, [selectedListId, showToast])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTimeline, location.search, isAuthenticated, ownerUserId])
 
   const handleListChange = useCallback((v: string) => {
     if (!v) {
@@ -141,57 +135,26 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
     }
     if (v.startsWith('share:')) {
       const code = v.slice('share:'.length)
-      setSelectedListId(null)
-      setSelectedListKey(v)
       const usp = new URLSearchParams(window.location.search)
       usp.set('share', code)
       usp.delete('list')
       window.history.replaceState(null, '', `/timeline?${usp.toString()}`)
-      // Immediately resolve and load shared list persons even if URL didn't change
-      ;(async () => {
-        try {
-          const resolved = await resolveListShare(code)
-          if (resolved?.owner_user_id && isAuthenticated && ownerUserId && ownerUserId === resolved.owner_user_id && resolved.list_id) {
-            setSelectedListId(resolved.list_id)
-            setListPersons(null)
-            setSharedListMeta({ code, title: resolved?.title || 'Список', listId: undefined })
-            lastShareMetaRef.set({ code, title: resolved?.title || 'Список', listId: undefined })
-            setSelectedListKey(`list:${resolved.list_id}`)
-            return
-          }
-          const items: Array<{ item_type: string; person_id?: string }> = resolved?.items || []
-          const ids = items.filter(i => i.item_type === 'person' && i.person_id).map(i => i.person_id!)
-          if (ids.length === 0) { setSelectedListId(null); setListPersons([]); return }
-          const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
-          setSelectedListId(null)
-          setListPersons(arr)
-          setSharedListMeta({ code, title: resolved?.title || 'Список', listId: undefined })
-          lastShareMetaRef.set({ code, title: resolved?.title || 'Список', listId: undefined })
-          setSelectedListKey(`share:${code}`)
-        } catch (e: any) {
-          showToast(e?.message || 'Не удалось загрузить общий список', 'error')
-          setSelectedListId(null)
-          setListPersons([])
-        }
-      })()
+      // The useEffect will handle loading via location.search change
       return
     }
     if (v.startsWith('list:')) {
       const id = Number(v.slice('list:'.length))
       if (Number.isFinite(id) && id > 0) {
-        setSelectedListId(id)
-        setSelectedListKey(`list:${id}`)
-        // keep pinned shared meta
-        const prev = lastShareMetaRef.get()
-        setSharedListMeta(prev || null)
         const usp = new URLSearchParams(window.location.search)
         usp.set('list', String(id))
         // preserve share param if we have pinned meta
+        const prev = lastShareMetaRef.get()
         if (!prev) usp.delete('share')
         window.history.replaceState(null, '', `/timeline?${usp.toString()}`)
+        // The useEffect will handle loading via location.search change
       }
     }
-  }, [isAuthenticated, lastShareMetaRef, ownerUserId, showToast])
+  }, [lastShareMetaRef])
 
   return {
     selectedListId,
