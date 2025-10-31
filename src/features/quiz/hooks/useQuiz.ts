@@ -322,7 +322,7 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
         setRatingPoints(response.data.ratingPoints);
       }
     } catch (error) {
-      if (import.meta.env.MODE !== 'production') {
+      if (process.env.NODE_ENV !== 'production') {
         console.error('Failed to save quiz attempt:', error);
       }
       // Don't throw error - quiz results should still be shown

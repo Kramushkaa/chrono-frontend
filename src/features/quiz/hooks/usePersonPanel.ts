@@ -16,12 +16,12 @@ export const usePersonPanel = () => {
       if (fullPerson) {
         setSelectedPerson(fullPerson);
       } else {
-        if (import.meta.env.MODE !== 'production') {
+        if (process.env.NODE_ENV !== 'production') {
           console.error('Person not found:', person.id);
         }
       }
     } catch (error) {
-      if (import.meta.env.MODE !== 'production') {
+      if (process.env.NODE_ENV !== 'production') {
         console.error('Failed to load person:', error);
       }
     }

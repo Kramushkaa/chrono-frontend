@@ -33,7 +33,7 @@ export const QuizSessionDetailPage: React.FC = () => {
       const response = await getQuizSessionDetail(sessionToken);
       setData(response.data);
     } catch (err) {
-      if (import.meta.env.MODE !== 'production') {
+      if (process.env.NODE_ENV !== 'production') {
         console.error('Failed to load session details:', err);
       }
       setError(err instanceof Error ? err.message : 'Не удалось загрузить детали сессии');

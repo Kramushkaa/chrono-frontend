@@ -29,7 +29,7 @@ export function usePerformanceMonitor({ componentName, enabled = true }: UsePerf
   }, [])
 
   useEffect(() => {
-    if (!enabled || import.meta.env.MODE === 'production') {
+    if (!enabled || process.env.NODE_ENV === 'production') {
       return
     }
 
@@ -49,7 +49,7 @@ export function usePerformanceMonitor({ componentName, enabled = true }: UsePerf
     })
 
     // Log render count for debugging
-    if (renderCountRef.current % 10 === 0 && import.meta.env.MODE !== 'production') {
+    if (renderCountRef.current % 10 === 0 && process.env.NODE_ENV !== 'production') {
       console.log(`[Performance] ${componentName} rendered ${renderCountRef.current} times`)
     }
   })
@@ -57,7 +57,7 @@ export function usePerformanceMonitor({ componentName, enabled = true }: UsePerf
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (import.meta.env.MODE !== 'production' && enabled) {
+      if (process.env.NODE_ENV !== 'production' && enabled) {
         const totalTime = mountTimeRef.current ? performance.now() - mountTimeRef.current : 0
         console.log(
           `[Performance] ${componentName} unmounted after ${renderCountRef.current} renders (${totalTime.toFixed(2)}ms total)`

@@ -26,7 +26,7 @@ export const authStorage = {
       const version = localStorage.getItem('auth_version');
       if (version !== AUTH_STORAGE_VERSION) {
         // Clear old auth data if version mismatch
-        if (import.meta.env.MODE !== 'production') {
+        if (process.env.NODE_ENV !== 'production') {
           console.log('Auth storage version mismatch, clearing old tokens');
         }
         this.clear();

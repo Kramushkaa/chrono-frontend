@@ -6,12 +6,12 @@ import { validateDto } from '../dto'
 export type LifePeriodInput = Pick<LifePeriodItemDTO, 'country_id' | 'start_year' | 'end_year'>
 
 export async function saveLifePeriods(personId: string, periods: LifePeriodInput[]) {
-  if (import.meta.env.MODE !== 'production') {
+  if (process.env.NODE_ENV !== 'production') {
     const pack = {
       periods: periods.map((p) => ({ country_id: p.country_id, start_year: p.start_year, end_year: p.end_year })),
     }
     const v = validateDto('LifePeriods', pack)
-    if (!v.ok && import.meta.env.MODE !== 'production') {
+    if (!v.ok && process.env.NODE_ENV !== 'production') {
       // eslint-disable-next-line no-console
       console.warn('DTO validation failed (LifePeriods):', v.errors)
     }
