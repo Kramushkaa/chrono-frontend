@@ -21,7 +21,7 @@ jest.mock('shared/ui/FilterDropdown', () => ({
 jest.mock('shared/ui/GroupingToggle', () => ({
   GroupingToggle: jest.fn(({ value, onChange, options }) => (
     <div data-testid="grouping-toggle">
-      {options.map((option: any) => (
+      {options?.map((option: any) => (
         <button 
           key={option.value} 
           onClick={() => onChange(option.value)}
@@ -29,7 +29,7 @@ jest.mock('shared/ui/GroupingToggle', () => ({
         >
           {option.label}
         </button>
-      ))}
+      )) || null}
     </div>
   )),
 }));

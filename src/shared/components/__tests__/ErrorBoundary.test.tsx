@@ -18,12 +18,16 @@ const mockLocation = {
   href: '',
   reload: jest.fn(),
 }
-delete (window as any).location
-Object.defineProperty(window, 'location', {
-  value: mockLocation,
-  writable: true,
-  configurable: true,
-})
+try {
+  delete (window as any).location
+  Object.defineProperty(window, 'location', {
+    value: mockLocation,
+    writable: true,
+    configurable: true,
+  })
+} catch (e) {
+  // Already mocked, that's okay
+}
 
 // Component that throws an error for testing
 const ThrowError: React.FC<{ shouldThrow?: boolean }> = ({ shouldThrow = true }) => {
