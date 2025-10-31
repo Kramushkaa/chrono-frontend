@@ -89,8 +89,9 @@ describe('DesktopHeaderControls', () => {
   it('renders filter dropdowns for categories and countries', () => {
     render(<DesktopHeaderControls {...mockProps} />);
     
-    expect(screen.getByTestId('filter-категории')).toBeInTheDocument();
-    expect(screen.getByTestId('filter-страны')).toBeInTheDocument();
+    // FilterDropdown использует emoji в title, не текст
+    expect(screen.getByTestId('filter-🎭')).toBeInTheDocument();
+    expect(screen.getByTestId('filter-🌍')).toBeInTheDocument();
   });
 
   it('renders grouping toggle', () => {
@@ -102,7 +103,7 @@ describe('DesktopHeaderControls', () => {
   it('handles category filter change', () => {
     render(<DesktopHeaderControls {...mockProps} />);
     
-    const categoryButton = screen.getByTestId('filter-категории-button');
+    const categoryButton = screen.getByTestId('filter-🎭-button');
     fireEvent.click(categoryButton);
     
     expect(mockProps.setFilters).toHaveBeenCalled();
@@ -111,7 +112,7 @@ describe('DesktopHeaderControls', () => {
   it('handles country filter change', () => {
     render(<DesktopHeaderControls {...mockProps} />);
     
-    const countryButton = screen.getByTestId('filter-страны-button');
+    const countryButton = screen.getByTestId('filter-🌍-button');
     fireEvent.click(countryButton);
     
     expect(mockProps.setFilters).toHaveBeenCalled();
@@ -120,15 +121,17 @@ describe('DesktopHeaderControls', () => {
   it('renders toggle buttons', () => {
     render(<DesktopHeaderControls {...mockProps} />);
     
-    expect(screen.getByTestId('toggle-показать-достижения')).toBeInTheDocument();
-    expect(screen.getByTestId('toggle-скрыть-пустые-века')).toBeInTheDocument();
+    // ToggleButton не получает label, проверяем что рендерятся children
+    expect(screen.getByTestId('achievement-marker')).toBeInTheDocument();
+    expect(screen.getByTestId('toggle-button')).toBeInTheDocument();
   });
 
   it('handles toggle button clicks', () => {
     render(<DesktopHeaderControls {...mockProps} />);
     
-    const achievementsToggle = screen.getByTestId('toggle-показать-достижения');
-    fireEvent.click(achievementsToggle);
+    // Получаем все toggle buttons и кликаем первый (achievements)
+    const toggleButtons = screen.getAllByTestId('toggle-button');
+    fireEvent.click(toggleButtons[0]);
     
     expect(mockProps.setFilters).toHaveBeenCalled();
   });
