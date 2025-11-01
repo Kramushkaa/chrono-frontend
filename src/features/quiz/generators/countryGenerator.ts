@@ -57,3 +57,6 @@ export const generateCountryQuestion = (persons: Person[]): QuizQuestion => {
   };
 };
 
+
+
+

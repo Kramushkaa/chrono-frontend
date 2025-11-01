@@ -7,30 +7,30 @@ import * as api from '../../api/api'
 import * as ToastContext from '../../context/ToastContext'
 
 // Mock API
-jest.mock('../../api/api')
+vi.mock('../../api/api')
 
 // Mock ToastContext
-jest.mock('../../context/ToastContext', () => ({
-  useToast: jest.fn(),
+vi.mock('../../context/ToastContext', () => ({
+  useToast: vi.fn(),
 }))
 
 describe('Simple Hooks', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.spyOn(console, 'warn').mockImplementation()
-    jest.spyOn(console, 'log').mockImplementation()
+    vi.clearAllMocks()
+    vi.spyOn(console, 'warn').mockImplementation()
+    vi.spyOn(console, 'log').mockImplementation()
   })
 
   afterEach(() => {
-    ;(console.warn as jest.Mock).mockRestore()
-    ;(console.log as jest.Mock).mockRestore()
+    ;(console.warn as vi.Mock).mockRestore()
+    ;(console.log as vi.Mock).mockRestore()
   })
 
   describe('useAchievementTooltipDismiss', () => {
     it('should add event listeners on mount', () => {
-      const mockHandler = jest.fn()
-      const addEventListenerSpy = jest.spyOn(window, 'addEventListener')
-      const docAddEventListenerSpy = jest.spyOn(document, 'addEventListener')
+      const mockHandler = vi.fn()
+      const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+      const docAddEventListenerSpy = vi.spyOn(document, 'addEventListener')
 
       renderHook(() => useAchievementTooltipDismiss(true, mockHandler))
 
@@ -43,9 +43,9 @@ describe('Simple Hooks', () => {
     })
 
     it('should remove event listeners on unmount', () => {
-      const mockHandler = jest.fn()
-      const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener')
-      const docRemoveEventListenerSpy = jest.spyOn(document, 'removeEventListener')
+      const mockHandler = vi.fn()
+      const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
+      const docRemoveEventListenerSpy = vi.spyOn(document, 'removeEventListener')
 
       const { unmount } = renderHook(() => useAchievementTooltipDismiss(true, mockHandler))
 
@@ -60,7 +60,7 @@ describe('Simple Hooks', () => {
     })
 
     it('should call handler on closeAchievementTooltip event', () => {
-      const mockHandler = jest.fn()
+      const mockHandler = vi.fn()
 
       renderHook(() => useAchievementTooltipDismiss(true, mockHandler))
 
@@ -72,7 +72,7 @@ describe('Simple Hooks', () => {
 
   describe('useDtoVersionWarning', () => {
     it('should not warn when versions match', async () => {
-      ;(api.getDtoVersion as jest.Mock).mockResolvedValue('1.0.0')
+      ;(api.getDtoVersion as vi.Mock).mockResolvedValue('1.0.0')
 
       renderHook(() => useDtoVersionWarning('1.0.0'))
 
@@ -84,7 +84,7 @@ describe('Simple Hooks', () => {
     })
 
     it('should warn when versions mismatch', async () => {
-      ;(api.getDtoVersion as jest.Mock).mockResolvedValue('2.0.0')
+      ;(api.getDtoVersion as vi.Mock).mockResolvedValue('2.0.0')
 
       renderHook(() => useDtoVersionWarning('1.0.0'))
 
@@ -96,7 +96,7 @@ describe('Simple Hooks', () => {
     })
 
     it('should handle API error gracefully', async () => {
-      ;(api.getDtoVersion as jest.Mock).mockRejectedValue(new Error('Network error'))
+      ;(api.getDtoVersion as vi.Mock).mockRejectedValue(new Error('Network error'))
 
       renderHook(() => useDtoVersionWarning('1.0.0'))
 
@@ -109,7 +109,7 @@ describe('Simple Hooks', () => {
     })
 
     it('should not warn when version is null', async () => {
-      ;(api.getDtoVersion as jest.Mock).mockResolvedValue(null)
+      ;(api.getDtoVersion as vi.Mock).mockResolvedValue(null)
 
       renderHook(() => useDtoVersionWarning('1.0.0'))
 
@@ -121,7 +121,7 @@ describe('Simple Hooks', () => {
     })
 
     it('should cancel request on unmount', async () => {
-      ;(api.getDtoVersion as jest.Mock).mockImplementation(
+      ;(api.getDtoVersion as vi.Mock).mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve('2.0.0'), 100))
       )
 
@@ -138,10 +138,10 @@ describe('Simple Hooks', () => {
 
   describe('useUnauthorizedToast', () => {
     it('should add event listener on mount', () => {
-      const mockShowToast = jest.fn()
-      ;(ToastContext.useToast as jest.Mock).mockReturnValue({ showToast: mockShowToast })
+      const mockShowToast = vi.fn()
+      ;(ToastContext.useToast as vi.Mock).mockReturnValue({ showToast: mockShowToast })
 
-      const addEventListenerSpy = jest.spyOn(window, 'addEventListener')
+      const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
 
       renderHook(() => useUnauthorizedToast())
 
@@ -151,10 +151,10 @@ describe('Simple Hooks', () => {
     })
 
     it('should remove event listener on unmount', () => {
-      const mockShowToast = jest.fn()
-      ;(ToastContext.useToast as jest.Mock).mockReturnValue({ showToast: mockShowToast })
+      const mockShowToast = vi.fn()
+      ;(ToastContext.useToast as vi.Mock).mockReturnValue({ showToast: mockShowToast })
 
-      const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener')
+      const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
 
       const { unmount } = renderHook(() => useUnauthorizedToast())
 
@@ -166,8 +166,8 @@ describe('Simple Hooks', () => {
     })
 
     it('should show toast on unauthorized event', () => {
-      const mockShowToast = jest.fn()
-      ;(ToastContext.useToast as jest.Mock).mockReturnValue({ showToast: mockShowToast })
+      const mockShowToast = vi.fn()
+      ;(ToastContext.useToast as vi.Mock).mockReturnValue({ showToast: mockShowToast })
 
       renderHook(() => useUnauthorizedToast())
 
@@ -181,10 +181,10 @@ describe('Simple Hooks', () => {
     })
 
     it('should handle toast errors gracefully', () => {
-      const mockShowToast = jest.fn().mockImplementation(() => {
+      const mockShowToast = vi.fn().mockImplementation(() => {
         throw new Error('Toast error')
       })
-      ;(ToastContext.useToast as jest.Mock).mockReturnValue({ showToast: mockShowToast })
+      ;(ToastContext.useToast as vi.Mock).mockReturnValue({ showToast: mockShowToast })
 
       renderHook(() => useUnauthorizedToast())
 
@@ -211,7 +211,7 @@ describe('Simple Hooks', () => {
       renderHook(() => usePerformanceMonitor({ componentName: 'TestComponent', enabled: false }))
 
       // No logs when disabled
-      const calls = (console.log as jest.Mock).mock.calls.filter(
+      const calls = (console.log as vi.Mock).mock.calls.filter(
         call => call[0]?.includes('[Performance]')
       )
       expect(calls.length).toBe(0)
@@ -250,11 +250,16 @@ describe('Simple Hooks', () => {
 
       renderHook(() => usePerformanceMonitor({ componentName: 'TestComponent' }))
 
-      const calls = (console.log as jest.Mock).mock.calls.filter(
+      const calls = (console.log as vi.Mock).mock.calls.filter(
         call => call[0]?.includes('[Performance]')
       )
       expect(calls.length).toBe(0)
     })
   })
 })
+
+
+
+
+
 

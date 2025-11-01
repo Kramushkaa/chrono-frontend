@@ -2,18 +2,18 @@ import { authStorage } from '../../features/auth/services/auth'
 
 // API configuration
 const getApiConfig = () => {
-  const isDevelopment = process.env.NODE_ENV === 'development'
-  const isLocalBackend = process.env.VITE_USE_LOCAL_BACKEND === 'true'
+  const isDevelopment = import.meta.env.MODE === 'development'
+  const isLocalBackend = import.meta.env.VITE_USE_LOCAL_BACKEND === 'true'
   
   const lsForcedApiUrl =
     typeof window !== 'undefined' && window.localStorage
       ? window.localStorage.getItem('FORCE_API_URL') || undefined
       : undefined
-  const forcedApiUrl = lsForcedApiUrl || process.env.VITE_FORCE_API_URL
+  const forcedApiUrl = lsForcedApiUrl || import.meta.env.VITE_FORCE_API_URL
 
-  const LOCAL_BACKEND_URL = process.env.VITE_LOCAL_BACKEND_URL || 'http://localhost:3001'
+  const LOCAL_BACKEND_URL = import.meta.env.VITE_LOCAL_BACKEND_URL || 'http://localhost:3001'
   const REMOTE_BACKEND_URL =
-    process.env.VITE_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io'
+    import.meta.env.VITE_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io'
 
   let apiUrl: string
   if (forcedApiUrl) {
@@ -21,7 +21,7 @@ const getApiConfig = () => {
   } else if (isDevelopment && isLocalBackend) {
     apiUrl = LOCAL_BACKEND_URL
   } else {
-    apiUrl = process.env.VITE_API_URL || REMOTE_BACKEND_URL
+    apiUrl = import.meta.env.VITE_API_URL || REMOTE_BACKEND_URL
   }
 
   return {
@@ -244,7 +244,7 @@ export const testBackendConnection = async (): Promise<boolean> => {
     const response = await apiRequest(`${API_BASE_URL}/api/health`)
     return response.ok
   } catch (error) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.MODE !== 'production') {
       console.error('Backend connection test failed:', error)
     }
     return false
@@ -262,9 +262,9 @@ export const getBackendInfo = () => {
 
 // Export utilities for backend switching
 export const getApiCandidates = () => {
-  const LOCAL_BACKEND_URL = process.env.VITE_LOCAL_BACKEND_URL || 'http://localhost:3001'
+  const LOCAL_BACKEND_URL = import.meta.env.VITE_LOCAL_BACKEND_URL || 'http://localhost:3001'
   const REMOTE_BACKEND_URL =
-    process.env.VITE_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io'
+    import.meta.env.VITE_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io'
   const current = API_BASE_URL
   return { local: LOCAL_BACKEND_URL, remote: REMOTE_BACKEND_URL, current }
 }
@@ -289,4 +289,7 @@ export const maybePercentDecode = (input: unknown): string => {
     return input
   }
 }
+
+
+
 

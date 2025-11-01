@@ -58,3 +58,6 @@ export function useTimelineBounds(
   }, [sortedData, timeRange.start, timeRange.end, hideEmptyCenturies])
 }
 
+
+
+

@@ -4,23 +4,23 @@ import { useFilterDropdownState } from '../useFilterDropdownState'
 // Mock DOM methods
 const mockDropdownRef = {
   current: {
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    contains: jest.fn(() => false),
-    querySelector: jest.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    contains: vi.fn(() => false),
+    querySelector: vi.fn(),
   },
 }
 
 const mockContentRef = {
   current: {
-    querySelectorAll: jest.fn(() => []),
-    querySelector: jest.fn(),
+    querySelectorAll: vi.fn(() => []),
+    querySelector: vi.fn(),
   },
 }
 
 describe('useFilterDropdownState', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     // Reset DOM
     document.body.innerHTML = ''
@@ -147,8 +147,8 @@ describe('useFilterDropdownState', () => {
   })
 
   it('should handle button key down events', () => {
-    const mockInput = { focus: jest.fn() }
-    mockContentRef.current.querySelector = jest.fn(() => mockInput as any)
+    const mockInput = { focus: vi.fn() }
+    mockContentRef.current.querySelector = vi.fn(() => mockInput as any)
 
     const { result } = renderHook(() => useFilterDropdownState({
       isMobile: false,
@@ -158,7 +158,7 @@ describe('useFilterDropdownState', () => {
 
     const mockEvent = {
       key: 'Enter',
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
     }
 
     act(() => {
@@ -170,7 +170,7 @@ describe('useFilterDropdownState', () => {
     // Test ArrowDown
     const arrowEvent = {
       key: 'ArrowDown',
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
     }
 
     act(() => {
@@ -201,3 +201,8 @@ describe('useFilterDropdownState', () => {
     expect(typeof result.current.handleContentMouseLeave).toBe('function')
   })
 })
+
+
+
+
+

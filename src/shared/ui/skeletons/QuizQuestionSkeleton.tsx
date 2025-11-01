@@ -40,3 +40,6 @@ const QuizQuestionSkeleton: React.FC = () => {
 };
 
 export default QuizQuestionSkeleton;
+
+
+

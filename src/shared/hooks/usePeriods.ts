@@ -41,3 +41,6 @@ export function usePeriods(params: { query: string; type?: 'life' | 'ruler' | ''
 }
 
 
+
+
+

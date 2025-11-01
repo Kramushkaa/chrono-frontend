@@ -156,3 +156,5 @@ export const useTimelineDrag = ({ timelineWidth, containerWidth }: UseTimelineDr
     handleTouchEnd
   }
 } 
+
+

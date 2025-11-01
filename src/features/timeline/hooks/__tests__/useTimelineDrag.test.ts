@@ -8,7 +8,7 @@ describe('useTimelineDrag', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should initialize with default state', () => {
@@ -31,7 +31,7 @@ describe('useTimelineDrag', () => {
     const mockEvent = {
       clientX: 100,
       clientY: 50,
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       target: document.createElement('div'),
     }
 
@@ -60,12 +60,12 @@ describe('useTimelineDrag', () => {
     const mockEvent = {
       clientX: 100,
       clientY: 50,
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       target: interactiveElement,
     }
 
     // Mock closest for interactive element
-    interactiveElement.closest = jest.fn((selector: string) => {
+    interactiveElement.closest = vi.fn((selector: string) => {
       if (selector === '.life-bar') return interactiveElement
       return null
     })
@@ -85,7 +85,7 @@ describe('useTimelineDrag', () => {
     const mockMouseDownEvent = {
       clientX: 100,
       clientY: 50,
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       target: document.createElement('div'),
     }
 
@@ -112,7 +112,7 @@ describe('useTimelineDrag', () => {
     const mockMouseMoveEvent = {
       clientX: 150,
       clientY: 100,
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
     }
 
     act(() => {
@@ -129,7 +129,7 @@ describe('useTimelineDrag', () => {
     const mockMouseMoveEvent = {
       clientX: 150,
       clientY: 100,
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
     }
 
     act(() => {
@@ -146,7 +146,7 @@ describe('useTimelineDrag', () => {
     const mockMouseDownEvent = {
       clientX: 100,
       clientY: 50,
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       target: document.createElement('div'),
     }
 
@@ -186,7 +186,7 @@ describe('useTimelineDrag', () => {
     const mockMouseDownEvent = {
       clientX: 100,
       clientY: 50,
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       target: document.createElement('div'),
     }
 
@@ -198,7 +198,7 @@ describe('useTimelineDrag', () => {
     const mockMouseMoveEvent = {
       clientX: -1000,
       clientY: -1000,
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
     }
 
     act(() => {
@@ -221,7 +221,7 @@ describe('useTimelineDrag', () => {
 
     const mockTouchEvent = {
       touches: [{ clientX: 100, clientY: 50 }],
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       target: document.createElement('div'),
     }
 
@@ -245,7 +245,7 @@ describe('useTimelineDrag', () => {
     // Test touch move
     const mockTouchMoveEvent = {
       touches: [{ clientX: 150, clientY: 100 }],
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
     }
 
     act(() => {
@@ -270,14 +270,14 @@ describe('useTimelineDrag', () => {
     interactiveElement.className = 'life-bar'
     
     // Mock closest for interactive element
-    interactiveElement.closest = jest.fn((selector: string) => {
+    interactiveElement.closest = vi.fn((selector: string) => {
       if (selector === '.life-bar') return interactiveElement
       return null
     })
 
     const mockTouchEvent = {
       touches: [{ clientX: 100, clientY: 50 }],
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       target: interactiveElement,
     }
 
@@ -288,3 +288,8 @@ describe('useTimelineDrag', () => {
     expect(result.current.isDragging).toBe(false)
   })
 })
+
+
+
+
+

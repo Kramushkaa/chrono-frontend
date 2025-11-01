@@ -6,9 +6,9 @@ export async function addAchievement(
   personId: string,
   payload: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null }
 ) {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     const v = validateDto('AchievementPerson', payload)
-    if (!v.ok && process.env.NODE_ENV !== 'production') {
+    if (!v.ok && import.meta.env.MODE !== 'production') {
       // eslint-disable-next-line no-console
       console.warn('DTO validation failed (AchievementPerson):', v.errors)
     }
@@ -114,9 +114,9 @@ export async function addGenericAchievement(payload: {
   image_url?: string | null
   country_id?: number | null
 }) {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     const v = validateDto('AchievementGeneric', payload)
-    if (!v.ok && process.env.NODE_ENV !== 'production') {
+    if (!v.ok && import.meta.env.MODE !== 'production') {
       // eslint-disable-next-line no-console
       console.warn('DTO validation failed (AchievementGeneric):', v.errors)
     }
@@ -180,4 +180,7 @@ export async function createAchievementDraft(
   if (!res.ok) throw new Error(responseData?.message || 'Не удалось создать черновик достижения')
   return responseData
 }
+
+
+
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from '@testing-library/react'
 import { CenturyGridLinesOverlay } from '../CenturyGridLinesOverlay'
 
-const mockGetAdjustedPosition = jest.fn((year: number) => year * 10)
+const mockGetAdjustedPosition = vi.fn((year: number) => year * 10)
 
 const mockElements = [
   { type: 'century' as const, year: 1800 },
@@ -19,7 +19,7 @@ describe('CenturyGridLinesOverlay', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -111,3 +111,7 @@ describe('CenturyGridLinesOverlay', () => {
     }
   })
 })
+
+
+
+

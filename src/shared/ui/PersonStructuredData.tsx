@@ -35,3 +35,6 @@ export const PersonStructuredData: React.FC<PersonStructuredDataProps> = ({ pers
   );
 };
 
+
+
+

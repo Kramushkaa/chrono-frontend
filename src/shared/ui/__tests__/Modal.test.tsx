@@ -3,17 +3,17 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { Modal } from '../Modal'
 
 // Mock CSS import
-jest.mock('../Modal.css', () => ({}))
+vi.mock('../Modal.css', () => ({}))
 
 describe('Modal', () => {
   const defaultProps = {
     isOpen: true,
-    onClose: jest.fn(),
+    onClose: vi.fn(),
     children: <div>Test content</div>,
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render when open', () => {
@@ -31,7 +31,7 @@ describe('Modal', () => {
   })
 
   it('should call onClose when close button is clicked', () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     render(<Modal {...defaultProps} onClose={onClose} />)
     
     fireEvent.click(screen.getByLabelText('Закрыть модальное окно'))
@@ -51,7 +51,7 @@ describe('Modal', () => {
   })
 
   it('should call onClose when backdrop is clicked and closeOnBackdropClick is true', () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     render(<Modal {...defaultProps} onClose={onClose} closeOnBackdropClick={true} />)
     
     const backdrop = screen.getByRole('dialog')
@@ -60,7 +60,7 @@ describe('Modal', () => {
   })
 
   it('should not call onClose when backdrop is clicked and closeOnBackdropClick is false', () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     render(<Modal {...defaultProps} onClose={onClose} closeOnBackdropClick={false} />)
     
     const backdrop = screen.getByRole('dialog')
@@ -69,7 +69,7 @@ describe('Modal', () => {
   })
 
   it('should not call onClose when modal content is clicked', () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     render(<Modal {...defaultProps} onClose={onClose} closeOnBackdropClick={true} />)
     
     const modalContent = screen.getByText('Test content')
@@ -78,7 +78,7 @@ describe('Modal', () => {
   })
 
   it('should handle escape key when closeOnEscape is true', () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     render(<Modal {...defaultProps} onClose={onClose} closeOnEscape={true} />)
     
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -86,7 +86,7 @@ describe('Modal', () => {
   })
 
   it('should not handle escape key when closeOnEscape is false', () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     render(<Modal {...defaultProps} onClose={onClose} closeOnEscape={false} />)
     
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -119,3 +119,7 @@ describe('Modal', () => {
     expect(modal).toHaveAttribute('role', 'dialog')
   })
 })
+
+
+
+

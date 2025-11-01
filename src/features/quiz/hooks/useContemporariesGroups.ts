@@ -100,3 +100,6 @@ export function useContemporariesGroups({ persons, showFeedback, userAnswer }: U
   }
 }
 
+
+
+

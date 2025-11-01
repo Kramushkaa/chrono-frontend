@@ -2,18 +2,18 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { useDtoVersionWarning } from '../useDtoVersionWarning'
 import * as api from 'shared/api/api'
 
-jest.mock('shared/api/api', () => ({
-  getDtoVersion: jest.fn(),
+vi.mock('shared/api/api', () => ({
+  getDtoVersion: vi.fn(),
 }))
 
-const mockGetDtoVersion = api.getDtoVersion as jest.MockedFunction<typeof api.getDtoVersion>
+const mockGetDtoVersion = api.getDtoVersion as vi.MockedFunction<typeof api.getDtoVersion>
 
 describe('useDtoVersionWarning', () => {
-  let consoleWarnSpy: jest.SpyInstance
+  let consoleWarnSpy: vi.SpyInstance
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation()
+    vi.clearAllMocks()
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation()
   })
 
   afterEach(() => {
@@ -134,4 +134,9 @@ describe('useDtoVersionWarning', () => {
     })
   })
 })
+
+
+
+
+
 

@@ -118,3 +118,6 @@ export const generateSimpleFallback = (persons: Person[]): QuizQuestion => {
   }
 };
 
+
+
+

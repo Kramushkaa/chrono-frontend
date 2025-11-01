@@ -190,3 +190,6 @@ export const ContemporariesQuestion: React.FC<ContemporariesQuestionProps> = ({
     </div>
   );
 };
+
+
+

@@ -4,32 +4,35 @@ import { BrowserRouter } from 'react-router-dom';
 import { QuizHistoryPage } from '../QuizHistoryPage';
 
 // Mock all dependencies
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
-}));
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router-dom")>();
+  return {
+    ...actual,
+    useNavigate: () => vi.fn(),
+  };
+});
 
-jest.mock('shared/api/quiz', () => ({
-  getQuizHistory: jest.fn().mockResolvedValue({
+vi.mock('shared/api/quiz', () => ({
+  getQuizHistory: vi.fn().mockResolvedValue({
     data: {
       attempts: [],
     },
   }),
 }));
 
-jest.mock('shared/layout/AppHeader', () => ({
+vi.mock('shared/layout/AppHeader', () => ({
   AppHeader: () => <div data-testid="app-header">App Header</div>,
 }));
 
-jest.mock('features/quiz/utils/headerProps', () => ({
+vi.mock('features/quiz/utils/headerProps', () => ({
   getMinimalHeaderProps: () => ({}),
 }));
 
-jest.mock('shared/ui/ContactFooter', () => ({
+vi.mock('shared/ui/ContactFooter', () => ({
   ContactFooter: () => <div data-testid="contact-footer">Contact Footer</div>,
 }));
 
-jest.mock('features/quiz/components/QuizStateMessages', () => ({
+vi.mock('features/quiz/components/QuizStateMessages', () => ({
   QuizLoading: ({ message }: { message: string }) => (
     <div data-testid="quiz-loading">{message}</div>
   ),
@@ -41,10 +44,10 @@ jest.mock('features/quiz/components/QuizStateMessages', () => ({
   ),
 }));
 
-jest.mock('features/quiz/utils/formatters', () => ({
-  formatTime: jest.fn(),
-  formatDate: jest.fn(),
-  getScorePercentage: jest.fn(),
+vi.mock('features/quiz/utils/formatters', () => ({
+  formatTime: vi.fn(),
+  formatDate: vi.fn(),
+  getScorePercentage: vi.fn(),
 }));
 
 describe('QuizHistoryPage', () => {
@@ -82,3 +85,7 @@ describe('QuizHistoryPage', () => {
     expect(quizContent).toBeInTheDocument();
   });
 });
+
+
+
+

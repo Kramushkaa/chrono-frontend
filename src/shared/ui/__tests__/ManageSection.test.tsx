@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 import { ManageSection } from '../ManageSection'
 
 // Mock AdaptiveListsLayout
-jest.mock('features/manage/components/AdaptiveListsLayout', () => ({
+vi.mock('features/manage/components/AdaptiveListsLayout', () => ({
   AdaptiveListsLayout: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="adaptive-lists-layout">{children}</div>
   ),
@@ -13,20 +13,20 @@ describe('ManageSection', () => {
   const defaultProps = {
     sidebarCollapsed: false,
     menuSelection: 'persons' as const,
-    setMenuSelection: jest.fn(),
+    setMenuSelection: vi.fn(),
     isAuthenticated: true,
     isModerator: false,
     personLists: [],
     selectedListId: null,
-    setSelectedListId: jest.fn(),
-    loadUserLists: jest.fn(),
-    setShowAuthModal: jest.fn(),
-    setShowCreateList: jest.fn(),
-    showToast: jest.fn(),
+    setSelectedListId: vi.fn(),
+    loadUserLists: vi.fn(),
+    setShowAuthModal: vi.fn(),
+    setShowCreateList: vi.fn(),
+    showToast: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -40,3 +40,7 @@ describe('ManageSection', () => {
     expect(true).toBe(true)
   })
 })
+
+
+
+

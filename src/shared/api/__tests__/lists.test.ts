@@ -1,17 +1,17 @@
 import { createListShareCode, resolveListShare } from '../lists'
 
 // Mock core API functions
-jest.mock('../core', () => ({
-  apiData: jest.fn(),
+vi.mock('../core', () => ({
+  apiData: vi.fn(),
 }))
 
 import { apiData } from '../core'
 
-const mockApiData = apiData as jest.MockedFunction<typeof apiData>
+const mockApiData = apiData as vi.MockedFunction<typeof apiData>
 
 describe('lists API', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('createListShareCode', () => {
@@ -188,4 +188,9 @@ describe('lists API', () => {
     })
   })
 })
+
+
+
+
+
 

@@ -9,7 +9,7 @@ describe('ItemCard', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render with basic props', () => {
@@ -50,7 +50,7 @@ describe('ItemCard', () => {
   })
 
   it('should handle click events when onSelect is provided', () => {
-    const onSelect = jest.fn()
+    const onSelect = vi.fn()
     render(<ItemCard {...defaultProps} onSelect={onSelect} />)
     
     fireEvent.click(screen.getByText('Test Item').closest('div')!)
@@ -58,7 +58,7 @@ describe('ItemCard', () => {
   })
 
   it('should handle person selection when onPersonSelect is provided', () => {
-    const onPersonSelect = jest.fn()
+    const onPersonSelect = vi.fn()
     const person = { id: 1, name: 'Test Person' }
     render(<ItemCard {...defaultProps} person={person} onPersonSelect={onPersonSelect} />)
     
@@ -67,7 +67,7 @@ describe('ItemCard', () => {
   })
 
   it('should render add button when onAddToList is provided', () => {
-    const onAddToList = jest.fn()
+    const onAddToList = vi.fn()
     render(<ItemCard {...defaultProps} onAddToList={onAddToList} isAuthenticated={true} emailVerified={true} />)
     
     const addButton = screen.getByTitle('Добавить в список')
@@ -76,7 +76,7 @@ describe('ItemCard', () => {
   })
 
   it('should render remove button when in list mode', () => {
-    const onRemoveFromList = jest.fn()
+    const onRemoveFromList = vi.fn()
     render(<ItemCard {...defaultProps} onRemoveFromList={onRemoveFromList} isListMode={true} />)
     
     const removeButton = screen.getByTitle('Удалить из списка')
@@ -85,7 +85,7 @@ describe('ItemCard', () => {
   })
 
   it('should disable add button when disabled prop is true', () => {
-    const onAddToList = jest.fn()
+    const onAddToList = vi.fn()
     render(<ItemCard {...defaultProps} onAddToList={onAddToList} addButtonDisabled={true} />)
     
     const addButton = screen.getByTitle('Добавить в список')
@@ -93,8 +93,8 @@ describe('ItemCard', () => {
   })
 
   it('should show auth modal when not authenticated', () => {
-    const showAuthModal = jest.fn()
-    const onAddToList = jest.fn()
+    const showAuthModal = vi.fn()
+    const onAddToList = vi.fn()
     render(
       <ItemCard 
         {...defaultProps} 
@@ -110,8 +110,8 @@ describe('ItemCard', () => {
   })
 
   it('should show toast when email not verified', () => {
-    const showToast = jest.fn()
-    const onAddToList = jest.fn()
+    const showToast = vi.fn()
+    const onAddToList = vi.fn()
     render(
       <ItemCard 
         {...defaultProps} 
@@ -128,7 +128,7 @@ describe('ItemCard', () => {
   })
 
   it('should call onAddToList when authenticated and email verified', () => {
-    const onAddToList = jest.fn()
+    const onAddToList = vi.fn()
     render(
       <ItemCard 
         {...defaultProps} 
@@ -143,8 +143,8 @@ describe('ItemCard', () => {
   })
 
   it('should handle button click without propagating to parent', () => {
-    const onSelect = jest.fn()
-    const onAddToList = jest.fn()
+    const onSelect = vi.fn()
+    const onAddToList = vi.fn()
     render(
       <ItemCard 
         {...defaultProps} 
@@ -161,7 +161,7 @@ describe('ItemCard', () => {
   })
 
   it('should use custom button title', () => {
-    render(<ItemCard {...defaultProps} onAddToList={jest.fn()} addButtonTitle="Custom Add" />)
+    render(<ItemCard {...defaultProps} onAddToList={vi.fn()} addButtonTitle="Custom Add" />)
     
     expect(screen.getByTitle('Custom Add')).toBeInTheDocument()
   })
@@ -174,7 +174,7 @@ describe('ItemCard', () => {
   })
 
   it('should have proper cursor style when clickable', () => {
-    const onSelect = jest.fn()
+    const onSelect = vi.fn()
     render(<ItemCard {...defaultProps} onSelect={onSelect} />)
     
     const card = document.getElementById('item-card-1')!
@@ -188,3 +188,7 @@ describe('ItemCard', () => {
     expect(card.style.cursor).toBe('default')
   })
 })
+
+
+
+

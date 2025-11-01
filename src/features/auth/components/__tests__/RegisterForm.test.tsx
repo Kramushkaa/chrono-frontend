@@ -4,25 +4,25 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 // Mock auth service BEFORE importing the component
 // mockRegister is now accessed via mockAuthApi.register
 
-jest.mock('features/auth/services/auth', () => ({
-  register: jest.fn(),
-  login: jest.fn(),
+vi.mock('features/auth/services/auth', () => ({
+  register: vi.fn(),
+  login: vi.fn(),
 }))
 
 import { RegisterForm } from '../RegisterForm'
 import { ToastProvider } from 'shared/context/ToastContext'
 import * as authApi from 'features/auth/services/auth'
 
-const mockAuthApi = authApi as jest.Mocked<typeof authApi>
+const mockAuthApi = authApi as vi.Mocked<typeof authApi>
 
 // Mock AuthContext properly
-const mockLogin = jest.fn()
-jest.mock('shared/context/AuthContext', () => ({
+const mockLogin = vi.fn()
+vi.mock('shared/context/AuthContext', () => ({
   useAuth: () => ({
     login: mockLogin,
-    logout: jest.fn(),
-    refresh: jest.fn(),
-    updateUser: jest.fn(),
+    logout: vi.fn(),
+    refresh: vi.fn(),
+    updateUser: vi.fn(),
   }),
   useAuthUser: () => ({
     user: null,
@@ -31,17 +31,17 @@ jest.mock('shared/context/AuthContext', () => ({
   }),
   useAuthActions: () => ({
     login: mockLogin,
-    logout: jest.fn(),
-    refresh: jest.fn(),
-    updateUser: jest.fn(),
+    logout: vi.fn(),
+    refresh: vi.fn(),
+    updateUser: vi.fn(),
   }),
 }))
 
 // Mock useToast
-jest.mock('shared/context/ToastContext', () => ({
-  ...jest.requireActual('shared/context/ToastContext'),
+vi.mock('shared/context/ToastContext', () => ({
+  ...vi.importActual('shared/context/ToastContext'),
   useToast: () => ({
-    showToast: jest.fn(),
+    showToast: vi.fn(),
   }),
   ToastProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
@@ -54,7 +54,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('RegisterForm', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockLogin.mockClear()
   })
 
@@ -192,7 +192,7 @@ describe('RegisterForm', () => {
   })
 
   it('should call onSuccess when registration succeeds', async () => {
-    const mockOnSuccess = jest.fn()
+    const mockOnSuccess = vi.fn()
     mockAuthApi.register.mockResolvedValue({})
     
     render(
@@ -284,3 +284,7 @@ describe('RegisterForm', () => {
     })
   })
 })
+
+
+
+

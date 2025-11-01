@@ -4,8 +4,8 @@ import { BrowserRouter } from 'react-router-dom'
 import { UserMenu } from '../UserMenu'
 
 // Mock AuthContext
-const mockLogout = jest.fn()
-jest.mock('shared/context/AuthContext', () => ({
+const mockLogout = vi.fn()
+vi.mock('shared/context/AuthContext', () => ({
   useAuth: () => ({
     isAuthenticated: false,
     user: null,
@@ -14,16 +14,19 @@ jest.mock('shared/context/AuthContext', () => ({
 }))
 
 // Mock LoginForm
-jest.mock('features/auth/components/LoginForm', () => ({
+vi.mock('features/auth/components/LoginForm', () => ({
   LoginForm: () => <div data-testid="login-form">Login Form</div>,
 }))
 
 // Mock useNavigate
-const mockNavigate = jest.fn()
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}))
+const mockNavigate = vi.fn()
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router-dom")>();
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+})
 
 // Mock window.location
 const mockLocation = {
@@ -43,7 +46,7 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 describe('UserMenu', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockLocation.pathname = '/timeline' // Reset to default, but tests can override
   })
 
@@ -126,3 +129,7 @@ describe('UserMenu', () => {
     expect(document.querySelector('.user-menu')).toBeInTheDocument()
   })
 })
+
+
+
+

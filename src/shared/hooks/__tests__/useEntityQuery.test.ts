@@ -2,23 +2,23 @@ import { renderHook, waitFor, act } from '@testing-library/react'
 import { useEntityQuery, clearEntityQueryCache } from '../useEntityQuery'
 
 // Mock the API functions
-jest.mock('../../api/core', () => ({
-  apiData: jest.fn(),
+vi.mock('../../api/core', () => ({
+  apiData: vi.fn(),
 }))
 
 import { apiData } from '../../api/core'
 
-const mockApiData = apiData as jest.MockedFunction<typeof apiData>
+const mockApiData = apiData as vi.MockedFunction<typeof apiData>
 
 // Mock fetch globally
-global.fetch = jest.fn()
+global.fetch = vi.fn()
 
 describe('useEntityQuery', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     clearEntityQueryCache() // Clear cache between tests
     // Reset fetch mock
-    ;(global.fetch as jest.Mock).mockClear()
+    ;(global.fetch as vi.Mock).mockClear()
   })
 
   it('should fetch data successfully', async () => {
@@ -153,3 +153,8 @@ describe('useEntityQuery', () => {
     expect(mockApiData).toHaveBeenCalledTimes(1)
   })
 })
+
+
+
+
+

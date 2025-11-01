@@ -4,7 +4,7 @@ import { ToastProvider, useToast } from '../ToastContext'
 import { ToastType } from '../ToastContext'
 
 // Mock setTimeout to control timing in tests
-jest.useFakeTimers()
+vi.useFakeTimers()
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <ToastProvider>{children}</ToastProvider>
@@ -12,11 +12,11 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('ToastContext', () => {
   beforeEach(() => {
-    jest.clearAllTimers()
+    vi.clearAllTimers()
   })
 
   afterEach(() => {
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
   })
 
   describe('useToast', () => {
@@ -83,7 +83,7 @@ describe('ToastContext', () => {
 
       // Mock window.setTimeout to prevent automatic removal 
       const originalSetTimeout = window.setTimeout
-      window.setTimeout = jest.fn()
+      window.setTimeout = vi.fn()
 
       try {
         act(() => {
@@ -155,7 +155,7 @@ describe('ToastContext', () => {
 
       // Fast-forward time (1000ms для toast + 300ms для анимации)
       act(() => {
-        jest.advanceTimersByTime(1300)
+        vi.advanceTimersByTime(1300)
       })
 
       expect(result.current.toasts).toHaveLength(0)
@@ -174,7 +174,7 @@ describe('ToastContext', () => {
 
       // Fast-forward to test auto-removal
       act(() => {
-        jest.advanceTimersByTime(2600) // Just past info default (2500ms)
+        vi.advanceTimersByTime(2600) // Just past info default (2500ms)
       })
 
       // Should have 2 toasts left (success and error should still be there)
@@ -199,3 +199,7 @@ describe('ToastContext', () => {
     })
   })
 })
+
+
+
+

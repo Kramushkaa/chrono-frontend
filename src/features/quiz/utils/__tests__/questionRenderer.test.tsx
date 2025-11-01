@@ -4,23 +4,23 @@ import { renderQuestionByType } from '../questionRenderer'
 import type { QuizQuestion, QuizPerson } from '../../types'
 
 // Mock all question type components
-jest.mock('../../components/QuestionTypes/SingleChoiceQuestion', () => ({
+vi.mock('../../components/QuestionTypes/SingleChoiceQuestion', () => ({
   SingleChoiceQuestion: ({ data }: any) => <div data-testid="single-choice">{data.person.name}</div>,
 }))
 
-jest.mock('../../components/QuestionTypes/GuessPersonQuestion', () => ({
+vi.mock('../../components/QuestionTypes/GuessPersonQuestion', () => ({
   GuessPersonQuestion: ({ data }: any) => <div data-testid="guess-person">{data.correctPerson.name}</div>,
 }))
 
-jest.mock('../../components/QuestionTypes/AchievementsMatchQuestion', () => ({
+vi.mock('../../components/QuestionTypes/AchievementsMatchQuestion', () => ({
   AchievementsMatchQuestion: ({ data }: any) => <div data-testid="achievements-match">{data.persons.length} persons</div>,
 }))
 
-jest.mock('../../components/QuestionTypes/BirthOrderQuestion', () => ({
+vi.mock('../../components/QuestionTypes/BirthOrderQuestion', () => ({
   BirthOrderQuestion: ({ data }: any) => <div data-testid="birth-order">{data.persons.length} persons</div>,
 }))
 
-jest.mock('../../components/QuestionTypes/ContemporariesQuestion', () => ({
+vi.mock('../../components/QuestionTypes/ContemporariesQuestion', () => ({
   ContemporariesQuestion: ({ data }: any) => <div data-testid="contemporaries">{data.persons.length} persons</div>,
 }))
 
@@ -34,12 +34,12 @@ describe('questionRenderer', () => {
     imageUrl: '/test.jpg',
   }
 
-  const mockOnAnswer = jest.fn()
-  const mockOnNext = jest.fn()
-  const mockOnPersonInfoClick = jest.fn()
+  const mockOnAnswer = vi.fn()
+  const mockOnNext = vi.fn()
+  const mockOnPersonInfoClick = vi.fn()
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('renderQuestionByType', () => {
@@ -334,4 +334,8 @@ describe('questionRenderer', () => {
     })
   })
 })
+
+
+
+
 

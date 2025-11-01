@@ -110,3 +110,5 @@ export const sortGroupedData = (data: Person[], groupingType: 'category' | 'coun
   // Возвращаем плоский массив
   return sortedGroups.flatMap(group => grouped[group])
 } 
+
+

@@ -1,17 +1,18 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
+import { vi } from 'vitest'
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation((query: string) => ({
+  value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   })),
 })
 
@@ -37,34 +38,35 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
   length: 0,
-  key: jest.fn(),
+  key: vi.fn(),
 }
 ;(global as any).localStorage = localStorageMock
 
 // Mock fetch
-;(global as any).fetch = jest.fn()
+;(global as any).fetch = vi.fn()
 
 // Suppress console warnings in tests (only in test environment)
-if ((global as any).beforeAll) {
-  const originalError = console.error
-  ;(global as any).beforeAll(() => {
-    console.error = (...args: any[]) => {
-      if (
-        typeof args[0] === 'string' &&
-        args[0].includes('Warning: ReactDOM.render is no longer supported')
-      ) {
-        return
-      }
-      originalError.call(console, ...args)
+const originalError = console.error
+beforeAll(() => {
+  console.error = (...args: any[]) => {
+    if (
+      typeof args[0] === 'string' &&
+      args[0].includes('Warning: ReactDOM.render is no longer supported')
+    ) {
+      return
     }
-  })
+    originalError.call(console, ...args)
+  }
+})
 
-  ;(global as any).afterAll(() => {
-    console.error = originalError
-  })
-}
+afterAll(() => {
+  console.error = originalError
+})
+
+
+

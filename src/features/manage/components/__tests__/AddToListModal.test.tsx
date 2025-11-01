@@ -10,13 +10,13 @@ describe('AddToListModal', () => {
 
   const mockProps = {
     isOpen: true,
-    onClose: jest.fn(),
+    onClose: vi.fn(),
     lists: mockLists,
-    onAdd: jest.fn().mockResolvedValue(undefined),
+    onAdd: vi.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should not render when isOpen is false', () => {
@@ -72,7 +72,7 @@ describe('AddToListModal', () => {
   });
 
   it('should show "Создать список" button when onCreateList provided', () => {
-    const mockOnCreateList = jest.fn();
+    const mockOnCreateList = vi.fn();
     render(<AddToListModal {...mockProps} onCreateList={mockOnCreateList} />);
     
     const createButton = screen.getByText('Создать список');
@@ -108,4 +108,8 @@ describe('AddToListModal', () => {
     expect(select.value).toBe('1');
   });
 });
+
+
+
+
 

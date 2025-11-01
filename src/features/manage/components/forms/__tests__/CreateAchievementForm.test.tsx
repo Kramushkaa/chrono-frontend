@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { CreateAchievementForm } from '../CreateAchievementForm'
 
 // Mock the SearchableSelect component
-jest.mock('shared/ui/SearchableSelect', () => ({
+vi.mock('shared/ui/SearchableSelect', () => ({
   SearchableSelect: ({ children, ...props }: any) => (
     <div data-testid="searchable-select" {...props}>
       {children}
@@ -31,12 +31,12 @@ describe('CreateAchievementForm', () => {
     countryOptions: mockCountryOptions,
     personOptions: mockPersonOptions,
     personsSelectLoading: false,
-    onSearchPersons: jest.fn(),
-    onSubmit: jest.fn(),
+    onSearchPersons: vi.fn(),
+    onSubmit: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -117,3 +117,7 @@ describe('CreateAchievementForm', () => {
     expect(document.querySelector('form')).toBeInTheDocument()
   })
 })
+
+
+
+

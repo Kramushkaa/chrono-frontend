@@ -122,3 +122,6 @@ export function calculateRowPlacement(
   return calculateRowPlacementWithGrouping(people, groupingType, allGroups)
 }
 
+
+
+

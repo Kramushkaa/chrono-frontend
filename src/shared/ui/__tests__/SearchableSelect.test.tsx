@@ -11,14 +11,14 @@ describe('SearchableSelect', () => {
 
   const defaultProps = {
     value: '',
-    onChange: jest.fn(),
+    onChange: vi.fn(),
     options: mockOptions
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Mock scrollIntoView which is not available in JSDOM
-    Element.prototype.scrollIntoView = jest.fn()
+    Element.prototype.scrollIntoView = vi.fn()
   })
 
   it('should render select component', () => {
@@ -66,7 +66,7 @@ describe('SearchableSelect', () => {
   })
 
   it('should call onChange when option is selected', () => {
-    const mockOnChange = jest.fn()
+    const mockOnChange = vi.fn()
     render(<SearchableSelect {...defaultProps} onChange={mockOnChange} />)
     
     const button = screen.getByText('Выбрать...')
@@ -85,7 +85,7 @@ describe('SearchableSelect', () => {
   })
 
   it('should clear value when clear button is clicked', () => {
-    const mockOnChange = jest.fn()
+    const mockOnChange = vi.fn()
     render(<SearchableSelect {...defaultProps} value="1" onChange={mockOnChange} allowClear={true} />)
     
     const clearButton = screen.getByLabelText('Очистить выбор')
@@ -156,7 +156,7 @@ describe('SearchableSelect', () => {
   })
 
   it('should call onSearchChange when searching', async () => {
-    const mockOnSearchChange = jest.fn()
+    const mockOnSearchChange = vi.fn()
     render(<SearchableSelect {...defaultProps} onSearchChange={mockOnSearchChange} />)
     
     const button = screen.getByText('Выбрать...')
@@ -170,3 +170,7 @@ describe('SearchableSelect', () => {
     }, { timeout: 400 })
   })
 })
+
+
+
+

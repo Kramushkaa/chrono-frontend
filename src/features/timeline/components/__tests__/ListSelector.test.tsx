@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ListSelector } from '../ListSelector';
 
 describe('ListSelector', () => {
-  const mockOnChange = jest.fn();
+  const mockOnChange = vi.fn();
   
   const defaultProps = {
     isAuthenticated: false,
@@ -15,7 +15,7 @@ describe('ListSelector', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render without crashing', () => {
@@ -201,3 +201,7 @@ describe('ListSelector', () => {
     expect(screen.getByText('My List 1')).toBeInTheDocument();
   });
 });
+
+
+
+

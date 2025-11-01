@@ -3,8 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { BackendInfo } from '../BackendInfo'
 
 // Mock API functions
-jest.mock('shared/api/api', () => ({
-  getBackendInfo: jest.fn(() => ({
+vi.mock('shared/api/api', () => ({
+  getBackendInfo: vi.fn(() => ({
     baseUrl: 'http://localhost:3001',
     isLocal: true,
     config: {
@@ -12,17 +12,17 @@ jest.mock('shared/api/api', () => ({
       retries: 3
     }
   })),
-  testBackendConnection: jest.fn(() => Promise.resolve(true)),
-  getApiCandidates: jest.fn(() => ({
+  testBackendConnection: vi.fn(() => Promise.resolve(true)),
+  getApiCandidates: vi.fn(() => ({
     local: 'http://localhost:3001',
     remote: 'https://api.example.com'
   })),
-  applyBackendOverride: jest.fn(),
-  getDtoVersion: jest.fn(() => Promise.resolve('1.0.0'))
+  applyBackendOverride: vi.fn(),
+  getDtoVersion: vi.fn(() => Promise.resolve('1.0.0'))
 }))
 
 // Mock DTO version
-jest.mock('../../dto', () => ({
+vi.mock('../../dto', () => ({
   DTO_VERSION: '1.0.0'
 }))
 
@@ -93,3 +93,7 @@ describe('BackendInfo', () => {
     expect(container.firstChild).toHaveClass('backend-info', 'custom-class')
   })
 })
+
+
+
+

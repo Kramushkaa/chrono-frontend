@@ -4,15 +4,15 @@ import { usePeriods } from '../usePeriods'
 import * as useApiDataModule from '../useApiData'
 
 // Mock useApiData
-jest.mock('../useApiData')
+vi.mock('../useApiData')
 
 describe('Data Hooks', () => {
-  const mockLoadMore = jest.fn()
-  const mockReset = jest.fn()
+  const mockLoadMore = vi.fn()
+  const mockReset = vi.fn()
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    ;(useApiDataModule.useApiData as jest.Mock).mockReturnValue([
+    vi.clearAllMocks()
+    ;(useApiDataModule.useApiData as vi.Mock).mockReturnValue([
       { items: [], isLoading: false, hasMore: false },
       { loadMore: mockLoadMore, reset: mockReset },
     ])
@@ -64,7 +64,7 @@ describe('Data Hooks', () => {
 
     it('should return items and loading state', () => {
       const mockItems = [{ id: 1, title: 'Achievement' }]
-      ;(useApiDataModule.useApiData as jest.Mock).mockReturnValue([
+      ;(useApiDataModule.useApiData as vi.Mock).mockReturnValue([
         { items: mockItems, isLoading: true, hasMore: true },
         { loadMore: mockLoadMore, reset: mockReset },
       ])
@@ -96,7 +96,7 @@ describe('Data Hooks', () => {
     it('should have dedupeBy function', () => {
       renderHook(() => useAchievements('', true))
 
-      const call = (useApiDataModule.useApiData as jest.Mock).mock.calls[0][0]
+      const call = (useApiDataModule.useApiData as vi.Mock).mock.calls[0][0]
       expect(typeof call.dedupeBy).toBe('function')
       expect(call.dedupeBy({ id: 5 })).toBe(5)
     })
@@ -178,7 +178,7 @@ describe('Data Hooks', () => {
 
     it('should return items and loading state', () => {
       const mockItems = [{ id: 1, person_name: 'Person', start_year: 1900, end_year: 1950, period_type: 'life' }]
-      ;(useApiDataModule.useApiData as jest.Mock).mockReturnValue([
+      ;(useApiDataModule.useApiData as vi.Mock).mockReturnValue([
         { items: mockItems, isLoading: true, hasMore: true },
         { loadMore: mockLoadMore, reset: mockReset },
       ])
@@ -210,10 +210,15 @@ describe('Data Hooks', () => {
     it('should have dedupeBy function', () => {
       renderHook(() => usePeriods({ query: '', type: '' }, true))
 
-      const call = (useApiDataModule.useApiData as jest.Mock).mock.calls[0][0]
+      const call = (useApiDataModule.useApiData as vi.Mock).mock.calls[0][0]
       expect(typeof call.dedupeBy).toBe('function')
       expect(call.dedupeBy({ id: 10 })).toBe(10)
     })
   })
 })
+
+
+
+
+
 

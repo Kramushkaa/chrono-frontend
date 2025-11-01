@@ -4,12 +4,12 @@ import type { Person } from '../../../../shared/types'
 
 describe('useTooltip', () => {
   beforeEach(() => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {
-    jest.runOnlyPendingTimers()
-    jest.useRealTimers()
+    vi.runOnlyPendingTimers()
+    vi.useRealTimers()
   })
 
   const mockPerson: Person = {
@@ -56,7 +56,7 @@ describe('useTooltip', () => {
 
       // Fast-forward timers
       act(() => {
-        jest.advanceTimersByTime(200)
+        vi.advanceTimersByTime(200)
       })
 
       expect(result.current.showTooltip).toBe(false)
@@ -221,4 +221,9 @@ describe('useTooltip', () => {
     })
   })
 })
+
+
+
+
+
 

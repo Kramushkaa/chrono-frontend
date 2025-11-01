@@ -40,3 +40,6 @@ const PersonCardSkeleton: React.FC = () => {
 };
 
 export default PersonCardSkeleton;
+
+
+

@@ -4,12 +4,15 @@ import { BrowserRouter } from 'react-router-dom';
 import TimelinePage from '../TimelinePage';
 
 // Mock all the hooks and components
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
-}));
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router-dom")>();
+  return {
+    ...actual,
+    useNavigate: () => vi.fn(),
+  };
+});
 
-jest.mock('shared/context/AuthContext', () => ({
+vi.mock('shared/context/AuthContext', () => ({
   useAuth: () => ({
     isAuthenticated: true,
     user: { id: 1 },
@@ -17,14 +20,14 @@ jest.mock('shared/context/AuthContext', () => ({
 }));
 
 // Create mock functions that can be controlled in tests
-const mockSetFilters = jest.fn();
-const mockSetGroupingType = jest.fn();
-const mockSetYearInputs = jest.fn();
-const mockApplyYearFilter = jest.fn();
-const mockHandleYearKeyPress = jest.fn();
-const mockResetAllFilters = jest.fn();
+const mockSetFilters = vi.fn();
+const mockSetGroupingType = vi.fn();
+const mockSetYearInputs = vi.fn();
+const mockApplyYearFilter = vi.fn();
+const mockHandleYearKeyPress = vi.fn();
+const mockResetAllFilters = vi.fn();
 
-jest.mock('shared/hooks/useFilters', () => ({
+vi.mock('shared/hooks/useFilters', () => ({
   useFilters: () => ({
     filters: {
       categories: [],
@@ -65,7 +68,7 @@ const mockPersons = [
   },
 ];
 
-jest.mock('features/timeline/hooks/useTimelineData', () => ({
+vi.mock('features/timeline/hooks/useTimelineData', () => ({
   useTimelineData: () => ({
     persons: mockPersons,
     allCategories: ['Category1', 'Category2'],
@@ -74,7 +77,7 @@ jest.mock('features/timeline/hooks/useTimelineData', () => ({
   }),
 }));
 
-jest.mock('features/timeline/hooks/useTimelineBounds', () => ({
+vi.mock('features/timeline/hooks/useTimelineBounds', () => ({
   useTimelineBounds: () => ({
     minYear: -800,
     totalYears: 2800,
@@ -83,16 +86,16 @@ jest.mock('features/timeline/hooks/useTimelineBounds', () => ({
   }),
 }));
 
-jest.mock('shared/hooks/useSlider', () => ({
+vi.mock('shared/hooks/useSlider', () => ({
   useSlider: () => ({
     isDraggingSlider: false,
-    handleSliderMouseDown: jest.fn(),
-    handleSliderMouseMove: jest.fn(),
-    handleSliderMouseUp: jest.fn(),
+    handleSliderMouseDown: vi.fn(),
+    handleSliderMouseMove: vi.fn(),
+    handleSliderMouseUp: vi.fn(),
   }),
 }));
 
-jest.mock('features/timeline/hooks/useTooltip', () => ({
+vi.mock('features/timeline/hooks/useTooltip', () => ({
   useTooltip: () => ({
     hoveredPerson: null,
     mousePosition: { x: 0, y: 0 },
@@ -100,42 +103,42 @@ jest.mock('features/timeline/hooks/useTooltip', () => ({
     hoveredAchievement: null,
     showAchievementTooltip: false,
     hoverTimerRef: { current: null },
-    handlePersonHover: jest.fn(),
-    handleAchievementHover: jest.fn(),
+    handlePersonHover: vi.fn(),
+    handleAchievementHover: vi.fn(),
   }),
 }));
 
-jest.mock('features/timeline/hooks/useTimelineDrag', () => ({
+vi.mock('features/timeline/hooks/useTimelineDrag', () => ({
   useTimelineDrag: () => ({
     timelineRef: { current: null },
     isDragging: false,
     isDraggingTimeline: false,
-    handleMouseDown: jest.fn(),
-    handleMouseMove: jest.fn(),
-    handleMouseUp: jest.fn(),
-    handleTouchStart: jest.fn(),
-    handleTouchMove: jest.fn(),
-    handleTouchEnd: jest.fn(),
+    handleMouseDown: vi.fn(),
+    handleMouseMove: vi.fn(),
+    handleMouseUp: vi.fn(),
+    handleTouchStart: vi.fn(),
+    handleTouchMove: vi.fn(),
+    handleTouchEnd: vi.fn(),
   }),
 }));
 
-jest.mock('features/timeline/hooks/useListSelection', () => ({
+vi.mock('features/timeline/hooks/useListSelection', () => ({
   useListSelection: () => ({
     selectedListId: null,
     selectedListKey: null,
     listPersons: null,
     sharedListMeta: null,
-    handleListChange: jest.fn(),
+    handleListChange: vi.fn(),
   }),
 }));
 
-jest.mock('features/manage/hooks/useLists', () => ({
+vi.mock('features/manage/hooks/useLists', () => ({
   useLists: () => ({
     personLists: [],
   }),
 }));
 
-jest.mock('features/timeline/hooks/useCategoryDividers', () => ({
+vi.mock('features/timeline/hooks/useCategoryDividers', () => ({
   useCategoryDividers: () => [],
 }));
 
@@ -154,23 +157,23 @@ const MockPersonPanel = () => (
   <div data-testid="person-panel">Person Panel</div>
 );
 
-jest.mock('features/timeline/components/Timeline', () => ({
+vi.mock('features/timeline/components/Timeline', () => ({
   Timeline: MockTimeline,
 }));
 
-jest.mock('features/timeline/components/Tooltips', () => ({
+vi.mock('features/timeline/components/Tooltips', () => ({
   Tooltips: MockTooltips,
 }));
 
-jest.mock('features/persons/components/PersonPanel', () => ({
+vi.mock('features/persons/components/PersonPanel', () => ({
   PersonPanel: MockPersonPanel,
 }));
 
-jest.mock('shared/layout/headers/TimelineHeader', () => ({
+vi.mock('shared/layout/headers/TimelineHeader', () => ({
   TimelineHeader: () => <div data-testid="timeline-header">Timeline Header</div>,
 }));
 
-jest.mock('shared/ui/SEO', () => ({
+vi.mock('shared/ui/SEO', () => ({
   SEO: ({ title }: { title: string }) => <div data-testid="seo">{title}</div>,
 }));
 
@@ -197,7 +200,7 @@ describe('TimelinePage', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render without crashing', async () => {
@@ -328,3 +331,7 @@ describe('TimelinePage', () => {
     });
   });
 });
+
+
+
+

@@ -371,3 +371,6 @@ export const QuizSetup: React.FC<QuizSetupProps> = ({
     </div>
   );
 };
+
+
+

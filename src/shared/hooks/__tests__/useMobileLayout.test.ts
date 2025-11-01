@@ -158,7 +158,7 @@ describe('useMobileLayout', () => {
   })
 
   it('should clean up event listener on unmount', () => {
-    const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener')
+    const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
 
     const { unmount } = renderHook(() => useMobileLayout())
 
@@ -169,4 +169,9 @@ describe('useMobileLayout', () => {
     removeEventListenerSpy.mockRestore()
   })
 })
+
+
+
+
+
 

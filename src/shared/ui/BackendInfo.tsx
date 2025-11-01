@@ -9,9 +9,9 @@ interface BackendInfoProps {
 
 export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
   const backendInfo = getBackendInfo();
-  const isDev = process.env.NODE_ENV === 'development';
-  const useLocal = process.env.VITE_USE_LOCAL_BACKEND === 'true';
-  const showOverride = process.env.VITE_SHOW_BACKEND_INFO === 'true';
+  const isDev = import.meta.env.MODE === 'development';
+  const useLocal = import.meta.env.VITE_USE_LOCAL_BACKEND === 'true';
+  const showOverride = import.meta.env.VITE_SHOW_BACKEND_INFO === 'true';
   const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
   // Показываем только в деве/локале/override
   const shouldHide = !showOverride && !(isDev || useLocal || backendInfo.isLocal || isLocalHost);
@@ -42,7 +42,7 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
       const connected = await testBackendConnection();
       setIsConnected(connected);
     } catch (error) {
-      if (process.env.NODE_ENV !== 'production') {
+      if (import.meta.env.MODE !== 'production') {
         console.error('Connection test failed:', error);
       }
       setIsConnected(false);
@@ -182,3 +182,5 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
     </div>
   );
 }; 
+
+

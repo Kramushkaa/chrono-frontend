@@ -20,7 +20,7 @@ const MAX_MARKS = 100
  * Log performance mark
  */
 export function logPerformanceMark(mark: PerformanceMark) {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     performanceMarks.push(mark)
 
     // Keep only last N marks
@@ -29,7 +29,7 @@ export function logPerformanceMark(mark: PerformanceMark) {
     }
 
     // Log slow renders
-    if (mark.duration > SLOW_RENDER_THRESHOLD && process.env.NODE_ENV !== 'production') {
+    if (mark.duration > SLOW_RENDER_THRESHOLD && import.meta.env.MODE !== 'production') {
       console.warn(
         `[Performance] Slow ${mark.phase} detected in ${mark.component}: ${mark.duration.toFixed(2)}ms`
       )
@@ -79,7 +79,7 @@ export function getPerformanceStats() {
  * Measure function execution time
  */
 export function measureExecution<T>(name: string, fn: () => T): T {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     const start = performance.now()
     const result = fn()
     const duration = performance.now() - start
@@ -99,7 +99,7 @@ export function measureExecution<T>(name: string, fn: () => T): T {
  * Measure async function execution time
  */
 export async function measureExecutionAsync<T>(name: string, fn: () => Promise<T>): Promise<T> {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     const start = performance.now()
     const result = await fn()
     const duration = performance.now() - start
@@ -119,7 +119,7 @@ export async function measureExecutionAsync<T>(name: string, fn: () => Promise<T
  * Print performance report to console
  */
 export function printPerformanceReport() {
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.MODE !== 'production') {
     const stats = getPerformanceStats()
     if (!stats) {
       console.log('[Performance] No performance data collected yet')
@@ -160,7 +160,7 @@ declare global {
 }
 
 // Expose to window for easy access in dev tools
-if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+if (typeof window !== 'undefined' && import.meta.env.MODE !== 'production') {
   window.__performanceUtils = {
     getMarks: getPerformanceMarks,
     getStats: getPerformanceStats,
@@ -168,4 +168,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
     clear: clearPerformanceMarks,
   }
 }
+
+
+
 

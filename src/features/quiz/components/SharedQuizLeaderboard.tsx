@@ -106,3 +106,6 @@ export const SharedQuizLeaderboard: React.FC<SharedQuizLeaderboardProps> = ({ sh
   );
 };
 
+
+
+

@@ -283,3 +283,6 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
     resetPeriods: periodsMineActions.reset
   };
 }
+
+
+

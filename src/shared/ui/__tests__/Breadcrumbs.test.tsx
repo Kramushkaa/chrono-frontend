@@ -11,10 +11,13 @@ const mockLocation = {
   state: null
 }
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: () => mockLocation
-}))
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router-dom")>();
+  return {
+    ...actual,
+    useLocation: () => mockLocation
+  };
+})
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <BrowserRouter>
@@ -24,7 +27,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('Breadcrumbs', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render breadcrumbs for timeline page', () => {
@@ -134,3 +137,7 @@ describe('Breadcrumbs', () => {
     expect(currentPage).toHaveAttribute('aria-current', 'page')
   })
 })
+
+
+
+

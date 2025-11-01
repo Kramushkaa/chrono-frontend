@@ -4,7 +4,7 @@ import { BirthOrderQuestion } from '../BirthOrderQuestion'
 import { BirthOrderQuestionData, QuizAnswer } from '../../../types'
 
 // Mock useMobile hook
-jest.mock('shared/hooks/useMobile', () => ({
+vi.mock('shared/hooks/useMobile', () => ({
   useMobile: () => false,
 }))
 
@@ -48,17 +48,17 @@ const mockUserAnswer: QuizAnswer = {
 describe('BirthOrderQuestion', () => {
   const defaultProps = {
     data: mockQuestionData,
-    onAnswer: jest.fn(),
+    onAnswer: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Mock Math.random to make tests deterministic
-    jest.spyOn(Math, 'random').mockReturnValue(0.5)
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
   })
 
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -119,7 +119,7 @@ describe('BirthOrderQuestion', () => {
   })
 
   it('should render next button in feedback', () => {
-    const onNext = jest.fn()
+    const onNext = vi.fn()
     render(
       <BirthOrderQuestion 
         {...defaultProps}
@@ -149,3 +149,7 @@ describe('BirthOrderQuestion', () => {
     expect(screen.getByText('Екатерина II')).toBeInTheDocument()
   })
 })
+
+
+
+

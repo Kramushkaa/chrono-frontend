@@ -1,7 +1,7 @@
 import { apiRequest, apiFetch, apiData, apiJson } from '../core'
 
 // Mock fetch
-global.fetch = jest.fn()
+global.fetch = vi.fn()
 
 // Mock Response class for Jest environment
 class MockResponse {
@@ -41,14 +41,14 @@ global.Response = MockResponse as any
 
 describe('API core', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    ;(global.fetch as jest.Mock).mockClear()
+    vi.clearAllMocks()
+    ;(global.fetch as vi.Mock).mockClear()
   })
 
   describe('apiRequest', () => {
     it('should successfully fetch data', async () => {
       const mockResponse = new MockResponse('{"data": "test"}', { status: 200 })
-      ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
+      ;(global.fetch as vi.Mock).mockResolvedValue(mockResponse)
 
       const result = await apiRequest('http://test.com/api')
       
@@ -57,7 +57,7 @@ describe('API core', () => {
     })
 
     it('should retry on failure', async () => {
-      ;(global.fetch as jest.Mock)
+      ;(global.fetch as vi.Mock)
         .mockRejectedValueOnce(new Error('Network error'))
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce(new MockResponse('{"data": "test"}', { status: 200 }))
@@ -70,7 +70,7 @@ describe('API core', () => {
     })
 
     it('should throw after all retries fail', async () => {
-      ;(global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'))
+      ;(global.fetch as vi.Mock).mockRejectedValue(new Error('Network error'))
 
       await expect(apiRequest('http://test.com/api')).rejects.toThrow()
       
@@ -80,7 +80,7 @@ describe('API core', () => {
 
     it('should respect timeout', async () => {
       // Simulate a timeout by never resolving the promise
-      ;(global.fetch as jest.Mock).mockImplementation(() => 
+      ;(global.fetch as vi.Mock).mockImplementation(() => 
         new Promise((_, reject) => {
           setTimeout(() => reject(new Error('AbortError: The operation was aborted')), 100)
         })
@@ -94,10 +94,10 @@ describe('API core', () => {
     it('should parse JSON response', async () => {
       const mockData = { test: 'data' }
       const mockResponse = new MockResponse(JSON.stringify(mockData), { status: 200 })
-      ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
+      ;(global.fetch as vi.Mock).mockResolvedValue(mockResponse)
 
       // Mock apiRequest
-      jest.spyOn(require('../core'), 'apiRequest').mockResolvedValue(mockResponse)
+      vi.spyOn(await import('../core'), 'apiRequest').mockResolvedValue(mockResponse)
 
       const result = await apiJson('/api/test')
       
@@ -106,7 +106,7 @@ describe('API core', () => {
 
     it('should throw on non-OK response', async () => {
       const mockResponse = new MockResponse('{"error": "Not found"}', { status: 404 })
-      ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
+      ;(global.fetch as vi.Mock).mockResolvedValue(mockResponse)
 
       // This test would need proper mocking of apiFetch
       // Simplified version
@@ -126,3 +126,8 @@ describe('API core', () => {
     })
   })
 })
+
+
+
+
+

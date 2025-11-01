@@ -87,3 +87,5 @@ export const getWidth = (birthYear: number, deathYear: number, pixelsPerYear: nu
 
 // Вспомогательная функция для извлечения первой страны из списка
 // Перенесено в features/persons/utils/getFirstCountry
+
+

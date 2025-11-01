@@ -4,7 +4,7 @@ import { QuizSetup } from '../QuizSetup'
 import { QuizSetupConfig } from '../../types'
 
 // Mock FilterDropdown
-jest.mock('shared/ui/FilterDropdown', () => ({
+vi.mock('shared/ui/FilterDropdown', () => ({
   FilterDropdown: ({ title, selectedItems, onSelectionChange }: any) => (
     <div data-testid={`filter-${title.toLowerCase()}`}>
       <span>{title}</span>
@@ -30,17 +30,17 @@ describe('QuizSetup', () => {
 
   const defaultProps = {
     setup: defaultSetup,
-    onSetupChange: jest.fn(),
+    onSetupChange: vi.fn(),
     allCategories: ['Politics', 'Science', 'Arts'],
     allCountries: ['Russia', 'USA', 'Germany'],
-    onStartQuiz: jest.fn(),
+    onStartQuiz: vi.fn(),
     canStart: true,
-    checkStrictFilters: jest.fn(() => []),
+    checkStrictFilters: vi.fn(() => []),
     isLoading: false,
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render quiz setup form', () => {
@@ -122,14 +122,14 @@ describe('QuizSetup', () => {
 
   it('should display filter warnings when checkStrictFilters returns warnings', () => {
     const warnings = ['Too restrictive filters']
-    render(<QuizSetup {...defaultProps} checkStrictFilters={jest.fn(() => warnings)} />)
+    render(<QuizSetup {...defaultProps} checkStrictFilters={vi.fn(() => warnings)} />)
     
     expect(screen.getByText('Too restrictive filters')).toBeInTheDocument()
   })
 
   it('should render leaderboard and history buttons when provided', () => {
-    const onViewLeaderboard = jest.fn()
-    const onViewHistory = jest.fn()
+    const onViewLeaderboard = vi.fn()
+    const onViewHistory = vi.fn()
     
     render(
       <QuizSetup 
@@ -187,3 +187,7 @@ describe('QuizSetup', () => {
     expect(screen.getByTestId('filter-категории')).toBeInTheDocument()
   })
 })
+
+
+
+

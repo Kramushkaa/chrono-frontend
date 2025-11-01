@@ -2,20 +2,20 @@ import { renderHook, act, waitFor } from '@testing-library/react'
 import { usePersonPanel } from '../usePersonPanel'
 import * as api from '../../../../shared/api/api'
 
-jest.mock('../../../../shared/api/api', () => ({
-  getPersonById: jest.fn(),
+vi.mock('../../../../shared/api/api', () => ({
+  getPersonById: vi.fn(),
 }))
 
-const mockGetPersonById = api.getPersonById as jest.MockedFunction<typeof api.getPersonById>
+const mockGetPersonById = api.getPersonById as vi.MockedFunction<typeof api.getPersonById>
 
 describe('usePersonPanel', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.spyOn(console, 'error').mockImplementation()
+    vi.clearAllMocks()
+    vi.spyOn(console, 'error').mockImplementation()
   })
 
   afterEach(() => {
-    (console.error as jest.Mock).mockRestore()
+    (console.error as vi.Mock).mockRestore()
   })
 
   it('should initialize with null selectedPerson', () => {
@@ -134,4 +134,9 @@ describe('usePersonPanel', () => {
     expect(result.current.selectedPerson).toEqual(mockPerson)
   })
 })
+
+
+
+
+
 

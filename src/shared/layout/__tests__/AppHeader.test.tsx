@@ -4,37 +4,40 @@ import { BrowserRouter } from 'react-router-dom'
 import { AppHeader } from '../AppHeader'
 
 // Mock dependencies
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
-}))
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router-dom")>();
+  return {
+    ...actual,
+    useNavigate: () => vi.fn(),
+  };
+})
 
-jest.mock('shared/context/ToastContext', () => ({
+vi.mock('shared/context/ToastContext', () => ({
   useToast: () => ({
-    showToast: jest.fn(),
+    showToast: vi.fn(),
   }),
 }))
 
-jest.mock('shared/ui/BrandTitle', () => ({
+vi.mock('shared/ui/BrandTitle', () => ({
   BrandTitle: () => <div data-testid="brand-title">Brand Title</div>,
 }))
 
-jest.mock('shared/ui/UserMenu', () => ({
+vi.mock('shared/ui/UserMenu', () => ({
   UserMenu: () => <div data-testid="user-menu">User Menu</div>,
 }))
 
-jest.mock('../components/DesktopHeaderControls', () => ({
+vi.mock('../components/DesktopHeaderControls', () => ({
   DesktopHeaderControls: () => <div data-testid="desktop-header-controls">Desktop Controls</div>,
 }))
 
-jest.mock('../components/MobileHeaderControls', () => ({
+vi.mock('../components/MobileHeaderControls', () => ({
   MobileHeaderControls: () => <div data-testid="mobile-header-controls">Mobile Controls</div>,
 }))
 
 const defaultProps = {
   isScrolled: false,
   showControls: true,
-  setShowControls: jest.fn(),
+  setShowControls: vi.fn(),
   mode: 'full' as const,
   filters: {
     showAchievements: true,
@@ -42,21 +45,21 @@ const defaultProps = {
     categories: [],
     countries: [],
   },
-  setFilters: jest.fn(),
+  setFilters: vi.fn(),
   groupingType: 'none' as const,
-  setGroupingType: jest.fn(),
+  setGroupingType: vi.fn(),
   allCategories: ['Politics', 'Science'],
   allCountries: ['Russia', 'USA'],
   yearInputs: { start: '-800', end: '2000' },
-  setYearInputs: jest.fn(),
-  applyYearFilter: jest.fn(),
-  handleYearKeyPress: jest.fn(),
-  resetAllFilters: jest.fn(),
-  getCategoryColor: jest.fn(() => '#000000'),
+  setYearInputs: vi.fn(),
+  applyYearFilter: vi.fn(),
+  handleYearKeyPress: vi.fn(),
+  resetAllFilters: vi.fn(),
+  getCategoryColor: vi.fn(() => '#000000'),
   sortedData: [],
-  handleSliderMouseDown: jest.fn(),
-  handleSliderMouseMove: jest.fn(),
-  handleSliderMouseUp: jest.fn(),
+  handleSliderMouseDown: vi.fn(),
+  handleSliderMouseMove: vi.fn(),
+  handleSliderMouseUp: vi.fn(),
   isDraggingSlider: false,
 }
 
@@ -68,7 +71,7 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 describe('AppHeader', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render in full mode', () => {
@@ -114,7 +117,7 @@ describe('AppHeader', () => {
   })
 
   it('should handle back to menu when onBackToMenu is provided', () => {
-    const mockOnBackToMenu = jest.fn()
+    const mockOnBackToMenu = vi.fn()
     render(
       <TestWrapper>
         <AppHeader {...defaultProps} onBackToMenu={mockOnBackToMenu} />
@@ -175,7 +178,7 @@ describe('AppHeader', () => {
   })
 
   it('should handle extra controls when provided', () => {
-    const extraLeftButton = { label: 'Custom Button', onClick: jest.fn() }
+    const extraLeftButton = { label: 'Custom Button', onClick: vi.fn() }
     const extraRightControls = <div data-testid="extra-right">Extra Right</div>
     const extraFilterControls = <div data-testid="extra-filter">Extra Filter</div>
 
@@ -208,3 +211,7 @@ describe('AppHeader', () => {
     expect(screen.getByTestId('brand-title')).toBeInTheDocument()
   })
 })
+
+
+
+

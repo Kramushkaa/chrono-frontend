@@ -5,12 +5,15 @@ import { QuizResults } from '../QuizResults'
 import { QuizResult } from '../../types'
 
 // Mock dependencies
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
-}))
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router-dom")>();
+  return {
+    ...actual,
+    useNavigate: () => vi.fn(),
+  };
+})
 
-jest.mock('../ShareQuizButton', () => ({
+vi.mock('../ShareQuizButton', () => ({
   ShareQuizButton: ({ questions, config }: any) => (
     <div data-testid="share-quiz-button">
       Share Quiz ({questions?.length} questions)
@@ -18,7 +21,7 @@ jest.mock('../ShareQuizButton', () => ({
   ),
 }))
 
-jest.mock('../QuizAnswerDetailsList', () => ({
+vi.mock('../QuizAnswerDetailsList', () => ({
   QuizAnswerDetailsList: ({ results }: any) => (
     <div data-testid="quiz-answer-details">
       Answer Details ({results?.length} results)
@@ -56,12 +59,12 @@ describe('QuizResults', () => {
 
   const defaultProps = {
     result: mockQuizResult,
-    onRestart: jest.fn(),
-    onBackToMenu: jest.fn(),
+    onRestart: vi.fn(),
+    onBackToMenu: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render results header', () => {
@@ -216,7 +219,7 @@ describe('QuizResults', () => {
   })
 
   it('should handle person info click when callback provided', () => {
-    const onPersonInfoClick = jest.fn()
+    const onPersonInfoClick = vi.fn()
     const mockQuestions = [
       { id: '1', question: 'Test question', type: 'birthYear' }
     ]
@@ -263,3 +266,7 @@ describe('QuizResults', () => {
     expect(screen.getByText('0')).toBeInTheDocument()
   })
 })
+
+
+
+

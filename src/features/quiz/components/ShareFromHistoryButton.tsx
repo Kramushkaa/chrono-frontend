@@ -111,7 +111,7 @@ export const ShareFromHistoryButton: React.FC<ShareFromHistoryButtonProps> = ({
         alert('Не удалось создать квиз. Проверьте, что вы авторизованы.');
       }
     } catch (error) {
-      if (process.env.NODE_ENV !== 'production') {
+      if (import.meta.env.MODE !== 'production') {
         console.error('Error creating shared quiz:', error);
       }
       alert('Ошибка при создании квиза: ' + (error instanceof Error ? error.message : 'Неизвестная ошибка'));
@@ -241,4 +241,7 @@ export const ShareFromHistoryButton: React.FC<ShareFromHistoryButtonProps> = ({
     </>
   );
 };
+
+
+
 

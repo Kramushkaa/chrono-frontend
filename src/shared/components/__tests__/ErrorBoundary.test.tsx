@@ -6,7 +6,7 @@ import { ErrorFallback } from '../ErrorFallback'
 // Mock console.error to avoid noise in tests
 const originalConsoleError = console.error
 beforeEach(() => {
-  console.error = jest.fn()
+  console.error = vi.fn()
 })
 
 afterEach(() => {
@@ -18,7 +18,7 @@ let mockLocationHref = ''
 const mockLocation = {
   get href() { return mockLocationHref },
   set href(value: string) { mockLocationHref = value },
-  reload: jest.fn(),
+  reload: vi.fn(),
 }
 try {
   delete (window as any).location
@@ -128,7 +128,7 @@ describe('ErrorFallback', () => {
   })
 
   it('should show reset button when onReset is provided', () => {
-    const onReset = jest.fn()
+    const onReset = vi.fn()
     render(
       <ErrorFallback 
         error={new Error('Test error')} 
@@ -163,7 +163,7 @@ describe('ErrorFallback', () => {
     ;(window as any).location = { 
       get href() { return capturedHref },
       set href(v) { capturedHref = v },
-      reload: jest.fn(),
+      reload: vi.fn(),
     }
 
     render(
@@ -180,8 +180,7 @@ describe('ErrorFallback', () => {
   })
 
   it('should show error details in development mode', () => {
-    const originalNodeEnv = process.env.NODE_ENV
-    process.env.NODE_ENV = 'development'
+    vi.stubEnv('MODE', 'development')
 
     const error = new Error('Test error message')
     error.stack = 'Error stack trace'
@@ -198,13 +197,11 @@ describe('ErrorFallback', () => {
 
     expect(screen.getByText('Информация об ошибке (dev mode)')).toBeInTheDocument()
 
-    // Restore original NODE_ENV
-    process.env.NODE_ENV = originalNodeEnv
+    vi.unstubAllEnvs()
   })
 
   it('should not show error details in production mode', () => {
-    const originalNodeEnv = process.env.NODE_ENV
-    process.env.NODE_ENV = 'production'
+    vi.stubEnv('MODE', 'production')
 
     const error = new Error('Test error message')
     error.stack = 'Error stack trace'
@@ -218,8 +215,7 @@ describe('ErrorFallback', () => {
 
     expect(screen.queryByText('Информация об ошибке (dev mode)')).not.toBeInTheDocument()
 
-    // Restore original NODE_ENV
-    process.env.NODE_ENV = originalNodeEnv
+    vi.unstubAllEnvs()
   })
 
   it('should handle hover effects on buttons', () => {
@@ -243,3 +239,7 @@ describe('ErrorFallback', () => {
     expect(homeButton).toBeInTheDocument()
   })
 })
+
+
+
+

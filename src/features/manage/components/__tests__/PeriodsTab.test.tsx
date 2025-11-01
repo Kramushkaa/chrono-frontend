@@ -3,8 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { PeriodsTab } from '../PeriodsTab';
 
 // Mock UnifiedManageSection component
-jest.mock('../UnifiedManageSection', () => ({
-  UnifiedManageSection: jest.fn(({ 
+vi.mock('../UnifiedManageSection', () => ({
+  UnifiedManageSection: vi.fn(({ 
     labelAll, 
     itemType, 
     emptyMessage, 
@@ -38,21 +38,21 @@ describe('PeriodsTab', () => {
   const mockProps = {
     sidebarCollapsed: false,
     menuSelection: 'all' as const,
-    setMenuSelection: jest.fn(),
+    setMenuSelection: vi.fn(),
     isModerator: false,
     mineCounts: { persons: 0, achievements: 0, periods: 3 },
     sharedList: null,
     personLists: [],
     isAuthenticated: true,
-    setShowAuthModal: jest.fn(),
-    setShowCreateList: jest.fn(),
-    setShowCreate: jest.fn(),
+    setShowAuthModal: vi.fn(),
+    setShowCreateList: vi.fn(),
+    setShowCreate: vi.fn(),
     createType: 'period' as const,
-    setCreateType: jest.fn(),
+    setCreateType: vi.fn(),
     selectedListId: null,
-    setSelectedListId: jest.fn(),
-    loadUserLists: jest.fn(),
-    showToast: jest.fn(),
+    setSelectedListId: vi.fn(),
+    loadUserLists: vi.fn(),
+    showToast: vi.fn(),
     listItems: [],
     listLoading: false,
     periodsData: {
@@ -62,36 +62,36 @@ describe('PeriodsTab', () => {
       ],
       isLoading: false,
       hasMore: false,
-      loadMore: jest.fn(),
+      loadMore: vi.fn(),
     },
     periodsMineData: {
       items: [],
       isLoading: false,
       hasMore: false,
-      loadMore: jest.fn(),
+      loadMore: vi.fn(),
     },
     searchPeriods: '',
-    setSearchPeriods: jest.fn(),
+    setSearchPeriods: vi.fn(),
     filters: { search: '', category: '', country: '', minYear: '', maxYear: '' },
-    setFilters: jest.fn(),
+    setFilters: vi.fn(),
     periodsStatusFilters: { showDraft: false, showPending: false, showApproved: true },
-    setPeriodsStatusFilters: jest.fn(),
+    setPeriodsStatusFilters: vi.fn(),
     listItemIdByDomainIdRef: { current: new Map() },
-    handleDeleteListItem: jest.fn(),
+    handleDeleteListItem: vi.fn(),
     addToList: {
       isOpen: false,
-      openForPerson: jest.fn(),
-      openForAchievement: jest.fn(),
-      openForPeriod: jest.fn(),
-      close: jest.fn(),
+      openForPerson: vi.fn(),
+      openForAchievement: vi.fn(),
+      openForPeriod: vi.fn(),
+      close: vi.fn(),
       includeLinked: false,
-      setIncludeLinked: jest.fn(),
-      onAdd: jest.fn(),
+      setIncludeLinked: vi.fn(),
+      onAdd: vi.fn(),
     },
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders without crashing', () => {
@@ -183,3 +183,7 @@ describe('PeriodsTab', () => {
     expect(screen.getByTestId('data-items-count')).toHaveTextContent('1');
   });
 });
+
+
+
+

@@ -16,12 +16,12 @@ export const usePersonPanel = () => {
       if (fullPerson) {
         setSelectedPerson(fullPerson);
       } else {
-        if (process.env.NODE_ENV !== 'production') {
+        if (import.meta.env.MODE !== 'production') {
           console.error('Person not found:', person.id);
         }
       }
     } catch (error) {
-      if (process.env.NODE_ENV !== 'production') {
+      if (import.meta.env.MODE !== 'production') {
         console.error('Failed to load person:', error);
       }
     }
@@ -38,5 +38,8 @@ export const usePersonPanel = () => {
     closePersonPanel,
   };
 };
+
+
+
 
 

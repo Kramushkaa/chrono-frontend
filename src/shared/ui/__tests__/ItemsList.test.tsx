@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { ItemsList } from '../ItemsList'
 
 // Mock ItemCard
-jest.mock('../ItemCard', () => ({
+vi.mock('../ItemCard', () => ({
   ItemCard: ({ title, onSelect }: any) => (
     <div data-testid="item-card" onClick={() => onSelect?.()}>
       {title}
@@ -33,11 +33,11 @@ describe('ItemsList', () => {
     items: mockItems,
     isLoading: false,
     hasMore: false,
-    onLoadMore: jest.fn(),
+    onLoadMore: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render items list', () => {
@@ -83,7 +83,7 @@ describe('ItemsList', () => {
   })
 
   it('should call onLoadMore when load more button is clicked', () => {
-    const mockOnLoadMore = jest.fn()
+    const mockOnLoadMore = vi.fn()
     render(<ItemsList {...defaultProps} hasMore={true} onLoadMore={mockOnLoadMore} />)
 
     fireEvent.click(screen.getByText('Показать ещё'))
@@ -105,7 +105,7 @@ describe('ItemsList', () => {
   })
 
   it('should handle item selection', () => {
-    const mockOnSelect = jest.fn()
+    const mockOnSelect = vi.fn()
     render(<ItemsList {...defaultProps} onSelect={mockOnSelect} />)
 
     fireEvent.click(screen.getByText('Item 1'))
@@ -118,3 +118,7 @@ describe('ItemsList', () => {
     expect(screen.queryByText('Показать ещё')).not.toBeInTheDocument()
   })
 })
+
+
+
+

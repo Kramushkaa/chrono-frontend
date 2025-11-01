@@ -4,30 +4,33 @@ import { BrowserRouter } from 'react-router-dom'
 import ManagePage from '../ManagePage'
 
 // Mock all the hooks and dependencies
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
-}))
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return {
+    ...actual,
+    useNavigate: () => vi.fn(),
+  };
+})
 
-jest.mock('shared/hooks/useFilters', () => ({
+vi.mock('shared/hooks/useFilters', () => ({
   useFilters: () => ({
     filters: {},
-    setFilters: jest.fn(),
+    setFilters: vi.fn(),
     groupingType: 'category',
-    setGroupingType: jest.fn(),
+    setGroupingType: vi.fn(),
     yearInputs: { min: '', max: '' },
-    setYearInputs: jest.fn(),
-    applyYearFilter: jest.fn(),
-    handleYearKeyPress: jest.fn(),
-    resetAllFilters: jest.fn(),
+    setYearInputs: vi.fn(),
+    applyYearFilter: vi.fn(),
+    handleYearKeyPress: vi.fn(),
+    resetAllFilters: vi.fn(),
   }),
 }))
 
-jest.mock('features/persons/utils/groupingUtils', () => ({
-  getGroupColor: jest.fn(() => '#000000'),
+vi.mock('features/persons/utils/groupingUtils', () => ({
+  getGroupColor: vi.fn(() => '#000000'),
 }))
 
-jest.mock('shared/layout/headers/ManageHeader', () => ({
+vi.mock('shared/layout/headers/ManageHeader', () => ({
   ManageHeader: ({ children, ...props }: any) => (
     <div data-testid="manage-header" {...props}>
       {children}
@@ -35,37 +38,37 @@ jest.mock('shared/layout/headers/ManageHeader', () => ({
   ),
 }))
 
-jest.mock('features/manage/hooks/useLists', () => ({
+vi.mock('features/manage/hooks/useLists', () => ({
   useLists: () => ({
     personLists: [],
     sharedList: null,
-    loadUserLists: { current: jest.fn() },
+    loadUserLists: { current: vi.fn() },
   }),
 }))
 
-jest.mock('features/manage/hooks/useAddToList', () => ({
+vi.mock('features/manage/hooks/useAddToList', () => ({
   useAddToList: () => ({
-    openForAchievement: jest.fn(),
-    openForPeriod: jest.fn(),
-    openForPerson: jest.fn(),
-    openForAchievement: jest.fn(),
+    openForAchievement: vi.fn(),
+    openForPeriod: vi.fn(),
+    openForPerson: vi.fn(),
+    openForAchievement: vi.fn(),
   }),
 }))
 
-jest.mock('shared/context/AuthContext', () => ({
+vi.mock('shared/context/AuthContext', () => ({
   useAuth: () => ({
     user: null,
     isAuthenticated: false,
   }),
 }))
 
-jest.mock('shared/context/ToastContext', () => ({
+vi.mock('shared/context/ToastContext', () => ({
   useToast: () => ({
-    showToast: jest.fn(),
+    showToast: vi.fn(),
   }),
 }))
 
-jest.mock('features/manage/components/AdaptiveTabs', () => ({
+vi.mock('features/manage/components/AdaptiveTabs', () => ({
   AdaptiveTabs: ({ children, ...props }: any) => (
     <div data-testid="adaptive-tabs" {...props}>
       {children}
@@ -73,7 +76,7 @@ jest.mock('features/manage/components/AdaptiveTabs', () => ({
   ),
 }))
 
-jest.mock('features/manage/context/ManageUIContext', () => ({
+vi.mock('features/manage/context/ManageUIContext', () => ({
   ManageUIProvider: ({ children, value }: any) => (
     <div data-testid="manage-ui-provider" data-value={JSON.stringify(value)}>
       {children}
@@ -81,111 +84,111 @@ jest.mock('features/manage/context/ManageUIContext', () => ({
   ),
 }))
 
-jest.mock('../../hooks/useManagePageData', () => ({
+vi.mock('../../hooks/useManagePageData', () => ({
   useManagePageData: () => ({
     personsAlt: [],
     personsAltLoading: false,
     personsAltInitialLoading: false,
     personsAltHasMore: false,
-    loadMorePersonsAlt: jest.fn(),
+    loadMorePersonsAlt: vi.fn(),
     personsAll: [],
     isPersonsLoadingAll: false,
     personsHasMoreAll: false,
-    loadMorePersonsAll: jest.fn(),
+    loadMorePersonsAll: vi.fn(),
     searchPersons: '',
-    setSearchPersons: jest.fn(),
+    setSearchPersons: vi.fn(),
     statusFilters: {},
-    setStatusFilters: jest.fn(),
+    setStatusFilters: vi.fn(),
     achievementsData: [],
     achievementsMineData: [],
     searchAch: '',
-    setSearchAch: jest.fn(),
+    setSearchAch: vi.fn(),
     achStatusFilters: {},
-    setAchStatusFilters: jest.fn(),
+    setAchStatusFilters: vi.fn(),
     periodsData: [],
     periodsMineData: [],
     searchPeriods: '',
-    setSearchPeriods: jest.fn(),
+    setSearchPeriods: vi.fn(),
     periodsStatusFilters: {},
-    setPeriodsStatusFilters: jest.fn(),
-    resetPersons: jest.fn(),
-    resetAchievements: jest.fn(),
-    resetPeriods: jest.fn(),
+    setPeriodsStatusFilters: vi.fn(),
+    resetPersons: vi.fn(),
+    resetAchievements: vi.fn(),
+    resetPeriods: vi.fn(),
   }),
 }))
 
-jest.mock('../../hooks/useManageState', () => ({
+vi.mock('../../hooks/useManageState', () => ({
   useManageState: () => ({
     activeTab: 'persons',
-    setActiveTab: jest.fn(),
+    setActiveTab: vi.fn(),
     sidebarCollapsed: false,
-    setSidebarCollapsed: jest.fn(),
+    setSidebarCollapsed: vi.fn(),
     isScrolled: false,
     showControls: false,
-    setShowControls: jest.fn(),
+    setShowControls: vi.fn(),
     menuSelection: 'all',
-    setMenuSelection: jest.fn(),
+    setMenuSelection: vi.fn(),
     selectedListId: null,
-    setSelectedListId: jest.fn(),
+    setSelectedListId: vi.fn(),
     mineCounts: { persons: 0, achievements: 0, periods: 0 },
-    setMineCounts: jest.fn(),
+    setMineCounts: vi.fn(),
     countsLoadKeyRef: { current: 0 },
     countsLastTsRef: { current: 0 },
     fetchedDetailsIdsRef: { current: new Set() },
     lastSelectedRef: { current: null },
     listItems: [],
-    setListItems: jest.fn(),
+    setListItems: vi.fn(),
     listItemIdByDomainIdRef: { current: new Map() },
     listLoading: false,
-    setListLoading: jest.fn(),
+    setListLoading: vi.fn(),
     selected: null,
-    setSelected: jest.fn(),
+    setSelected: vi.fn(),
     categories: [],
-    setCategories: jest.fn(),
+    setCategories: vi.fn(),
     countries: [],
-    setCountries: jest.fn(),
+    setCountries: vi.fn(),
     countryOptions: [],
-    setCountryOptions: jest.fn(),
+    setCountryOptions: vi.fn(),
     lifePeriods: [],
-    setLifePeriods: jest.fn(),
+    setLifePeriods: vi.fn(),
     editPersonCategory: '',
-    setEditPersonCategory: jest.fn(),
+    setEditPersonCategory: vi.fn(),
     editBirthYear: '',
-    setEditBirthYear: jest.fn(),
+    setEditBirthYear: vi.fn(),
     editDeathYear: '',
-    setEditDeathYear: jest.fn(),
+    setEditDeathYear: vi.fn(),
     newLifePeriods: [],
-    setNewLifePeriods: jest.fn(),
+    setNewLifePeriods: vi.fn(),
   }),
 }))
 
-jest.mock('../../hooks/useManageModals', () => ({
+vi.mock('../../hooks/useManageModals', () => ({
   useManageModals: () => ({
     showAuthModal: false,
-    setShowAuthModal: jest.fn(),
+    setShowAuthModal: vi.fn(),
     showCreate: false,
-    setShowCreate: jest.fn(),
+    setShowCreate: vi.fn(),
     createType: 'person',
-    setCreateType: jest.fn(),
+    setCreateType: vi.fn(),
     isEditing: false,
-    setIsEditing: jest.fn(),
+    setIsEditing: vi.fn(),
     showCreateList: false,
-    setShowCreateList: jest.fn(),
+    setShowCreateList: vi.fn(),
     showEditWarning: false,
-    setShowEditWarning: jest.fn(),
+    setShowEditWarning: vi.fn(),
     isReverting: false,
-    setIsReverting: jest.fn(),
+    setIsReverting: vi.fn(),
   }),
 }))
 
-jest.mock('../../hooks/useManageBusinessLogic', () => ({
+vi.mock('../../hooks/useManageBusinessLogic', () => ({
   useManageBusinessLogic: () => ({
     countrySelectOptions: [],
     categorySelectOptions: [],
   }),
 }))
 
-jest.mock('../../components/PersonsTab', () => ({
+vi.mock('../../components/PersonsTab', () => ({
   PersonsTab: ({ children, ...props }: any) => (
     <div data-testid="persons-tab" {...props}>
       {children}
@@ -193,7 +196,7 @@ jest.mock('../../components/PersonsTab', () => ({
   ),
 }))
 
-jest.mock('../../components/AchievementsTab', () => ({
+vi.mock('../../components/AchievementsTab', () => ({
   AchievementsTab: ({ children, ...props }: any) => (
     <div data-testid="achievements-tab" {...props}>
       {children}
@@ -201,7 +204,7 @@ jest.mock('../../components/AchievementsTab', () => ({
   ),
 }))
 
-jest.mock('../../components/PeriodsTab', () => ({
+vi.mock('../../components/PeriodsTab', () => ({
   PeriodsTab: ({ children, ...props }: any) => (
     <div data-testid="periods-tab" {...props}>
       {children}
@@ -209,7 +212,7 @@ jest.mock('../../components/PeriodsTab', () => ({
   ),
 }))
 
-jest.mock('../../components/ManageModals', () => ({
+vi.mock('../../components/ManageModals', () => ({
   ManageModals: ({ children, ...props }: any) => (
     <div data-testid="manage-modals" {...props}>
       {children}
@@ -217,7 +220,7 @@ jest.mock('../../components/ManageModals', () => ({
   ),
 }))
 
-jest.mock('shared/ui/ContactFooter', () => ({
+vi.mock('shared/ui/ContactFooter', () => ({
   ContactFooter: ({ children, ...props }: any) => (
     <div data-testid="contact-footer" {...props}>
       {children}
@@ -225,7 +228,7 @@ jest.mock('shared/ui/ContactFooter', () => ({
   ),
 }))
 
-jest.mock('shared/ui/SEO', () => ({
+vi.mock('shared/ui/SEO', () => ({
   SEO: ({ children, ...props }: any) => (
     <div data-testid="seo" {...props}>
       {children}
@@ -233,8 +236,8 @@ jest.mock('shared/ui/SEO', () => ({
   ),
 }))
 
-jest.mock('shared/api/api', () => ({
-  apiFetch: jest.fn(),
+vi.mock('shared/api/api', () => ({
+  apiFetch: vi.fn(),
   apiData: {},
 }))
 
@@ -252,7 +255,7 @@ describe('ManagePage', () => {
     const mockLocation = {
       href: 'http://localhost:3000',
       origin: 'http://localhost:3000',
-      reload: jest.fn(),
+      reload: vi.fn(),
     }
     try {
       delete (window as any).location
@@ -332,3 +335,7 @@ describe('ManagePage', () => {
     expect(mainElement).toHaveAttribute('aria-label', 'Управление контентом')
   })
 })
+
+
+
+

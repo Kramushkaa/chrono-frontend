@@ -4,19 +4,19 @@ import { LoginForm } from '../LoginForm'
 import { ToastProvider } from 'shared/context/ToastContext'
 
 // Mock authApi
-const mockLogin = jest.fn()
-jest.mock('features/auth/services/auth', () => ({
+const mockLogin = vi.fn()
+vi.mock('features/auth/services/auth', () => ({
   login: mockLogin,
 }))
 
 // Mock AuthContext properly including useAuth hook
-const mockLoginContext = jest.fn().mockResolvedValue({})
-jest.mock('shared/context/AuthContext', () => ({
+const mockLoginContext = vi.fn().mockResolvedValue({})
+vi.mock('shared/context/AuthContext', () => ({
   useAuth: () => ({
     login: mockLoginContext,
-    logout: jest.fn(),
-    refresh: jest.fn(),
-    updateUser: jest.fn(),
+    logout: vi.fn(),
+    refresh: vi.fn(),
+    updateUser: vi.fn(),
   }),
   useAuthUser: () => ({
     user: null,
@@ -25,17 +25,17 @@ jest.mock('shared/context/AuthContext', () => ({
   }),
   useAuthActions: () => ({
     login: mockLoginContext,
-    logout: jest.fn(),
-    refresh: jest.fn(),
-    updateUser: jest.fn(),
+    logout: vi.fn(),
+    refresh: vi.fn(),
+    updateUser: vi.fn(),
   }),
 }))
 
 // Mock useToast
-jest.mock('shared/context/ToastContext', () => ({
-  ...jest.requireActual('shared/context/ToastContext'),
+vi.mock('shared/context/ToastContext', () => ({
+  ...vi.importActual('shared/context/ToastContext'),
   useToast: () => ({
-    showToast: jest.fn(),
+    showToast: vi.fn(),
   }),
   ToastProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
@@ -48,7 +48,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('LoginForm', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render login form', () => {
@@ -82,7 +82,7 @@ describe('LoginForm', () => {
   })
 
   it('should call onSuccess when provided and login succeeds', async () => {
-    const mockOnSuccess = jest.fn()
+    const mockOnSuccess = vi.fn()
     mockLoginContext.mockResolvedValue({})
     
     render(
@@ -201,3 +201,7 @@ describe('LoginForm', () => {
     })
   })
 })
+
+
+
+

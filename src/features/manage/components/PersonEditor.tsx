@@ -77,3 +77,6 @@ export function PersonEditor({ person, editBirthYear, setEditBirthYear, editDeat
 
 
 
+
+
+

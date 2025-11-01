@@ -8,14 +8,14 @@ import * as api from '../../api/api'
 const { apiFetch } = api as any // Correctly import apiFetch
 
 // Mock API
-jest.mock('../../api/api')
+vi.mock('../../api/api')
 
 // Store original clipboard
 const originalClipboard = navigator.clipboard
 
 describe('lists utils', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Reset navigator.clipboard
     delete (navigator as any).clipboard
   })
@@ -27,7 +27,7 @@ describe('lists utils', () => {
 
   describe('deleteListItem', () => {
     it('should return true on successful delete', async () => {
-      ;(apiFetch as jest.Mock).mockResolvedValue({ ok: true })
+      ;(apiFetch as vi.Mock).mockResolvedValue({ ok: true })
 
       const result = await deleteListItem(1, 10)
 
@@ -36,7 +36,7 @@ describe('lists utils', () => {
     })
 
     it('should return false on failed delete', async () => {
-      ;(apiFetch as jest.Mock).mockResolvedValue({ ok: false })
+      ;(apiFetch as vi.Mock).mockResolvedValue({ ok: false })
 
       const result = await deleteListItem(1, 10)
 
@@ -44,7 +44,7 @@ describe('lists utils', () => {
     })
 
     it('should return false on error', async () => {
-      ;(apiFetch as jest.Mock).mockRejectedValue(new Error('Network error'))
+      ;(apiFetch as vi.Mock).mockRejectedValue(new Error('Network error'))
 
       const result = await deleteListItem(1, 10)
 
@@ -79,7 +79,7 @@ describe('lists utils', () => {
 
     it('should return null when API request fails', async () => {
       mockLocationSearch('?share=test-code')
-      ;(apiFetch as jest.Mock).mockResolvedValue({ ok: false })
+      ;(apiFetch as vi.Mock).mockResolvedValue({ ok: false })
       
       const result = await copySharedListFromUrl('fallback title')
       
@@ -91,11 +91,11 @@ describe('lists utils', () => {
       mockLocationSearch('?share=test-code')
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: { id: 123, title: 'Copied List' }
         })
       }
-      ;(apiFetch as jest.Mock).mockResolvedValue(mockResponse)
+      ;(apiFetch as vi.Mock).mockResolvedValue(mockResponse)
       
       const result = await copySharedListFromUrl('fallback title')
       
@@ -112,9 +112,9 @@ describe('lists utils', () => {
       mockLocationSearch('?share=test-code')
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({ data: { id: 'invalid', title: null } })
+        json: vi.fn().mockResolvedValue({ data: { id: 'invalid', title: null } })
       }
-      ;(apiFetch as jest.Mock).mockResolvedValue(mockResponse)
+      ;(apiFetch as vi.Mock).mockResolvedValue(mockResponse)
       
       const result = await copySharedListFromUrl('fallback title')
       
@@ -124,8 +124,8 @@ describe('lists utils', () => {
 
   describe('createAndCopyShareLink', () => {
     it('should return false when no code generated', async () => {
-      const mockShowToast = jest.fn()
-      ;(api.createListShareCode as jest.Mock).mockResolvedValue(null)
+      const mockShowToast = vi.fn()
+      ;(api.createListShareCode as vi.Mock).mockResolvedValue(null)
 
       const result = await createAndCopyShareLink(1, mockShowToast)
 
@@ -134,8 +134,8 @@ describe('lists utils', () => {
     })
 
     it('should return false on error', async () => {
-      const mockShowToast = jest.fn()
-      ;(api.createListShareCode as jest.Mock).mockRejectedValue(new Error('Error'))
+      const mockShowToast = vi.fn()
+      ;(api.createListShareCode as vi.Mock).mockRejectedValue(new Error('Error'))
 
       const result = await createAndCopyShareLink(1, mockShowToast)
 
@@ -144,8 +144,8 @@ describe('lists utils', () => {
     })
 
     it('should copy link to clipboard when clipboard API is available', async () => {
-      const mockShowToast = jest.fn()
-      const mockWriteText = jest.fn().mockResolvedValue(undefined)
+      const mockShowToast = vi.fn()
+      const mockWriteText = vi.fn().mockResolvedValue(undefined)
       
       // Mock navigator.clipboard
       Object.defineProperty(navigator, 'clipboard', {
@@ -154,7 +154,7 @@ describe('lists utils', () => {
         configurable: true,
       })
       
-      ;(api.createListShareCode as jest.Mock).mockResolvedValue('test-code-123')
+      ;(api.createListShareCode as vi.Mock).mockResolvedValue('test-code-123')
 
       const result = await createAndCopyShareLink(1, mockShowToast)
 
@@ -164,7 +164,7 @@ describe('lists utils', () => {
     })
 
     it('should work without showToast callback', async () => {
-      const mockWriteText = jest.fn().mockResolvedValue(undefined)
+      const mockWriteText = vi.fn().mockResolvedValue(undefined)
       
       Object.defineProperty(navigator, 'clipboard', {
         value: { writeText: mockWriteText },
@@ -172,7 +172,7 @@ describe('lists utils', () => {
         configurable: true,
       })
       
-      ;(api.createListShareCode as jest.Mock).mockResolvedValue('test-code')
+      ;(api.createListShareCode as vi.Mock).mockResolvedValue('test-code')
 
       const result = await createAndCopyShareLink(1)
 
@@ -180,8 +180,8 @@ describe('lists utils', () => {
     })
 
     it('should handle clipboard API fallback with alert when clipboard not available', async () => {
-      const mockAlert = jest.spyOn(window, 'alert').mockImplementation(() => {})
-      const mockShowToast = jest.fn()
+      const mockAlert = vi.spyOn(window, 'alert').mockImplementation(() => {})
+      const mockShowToast = vi.fn()
       
       // Mock navigator without clipboard
       Object.defineProperty(navigator, 'clipboard', {
@@ -204,7 +204,7 @@ describe('lists utils', () => {
         hash: ''
       }
       
-      ;(api.createListShareCode as jest.Mock).mockResolvedValue('test-code-456')
+      ;(api.createListShareCode as vi.Mock).mockResolvedValue('test-code-456')
 
       const result = await createAndCopyShareLink(2, mockShowToast)
 
@@ -233,8 +233,8 @@ describe('lists utils', () => {
         hash: ''
       }
       
-      const mockShowToast = jest.fn()
-      ;(api.createListShareCode as jest.Mock).mockResolvedValue(null)
+      const mockShowToast = vi.fn()
+      ;(api.createListShareCode as vi.Mock).mockResolvedValue(null)
 
       await openListOnTimeline(5, null, mockShowToast)
 
@@ -255,8 +255,8 @@ describe('lists utils', () => {
         hash: ''
       }
       
-      const mockShowToast = jest.fn()
-      ;(api.createListShareCode as jest.Mock).mockRejectedValue(new Error('Error'))
+      const mockShowToast = vi.fn()
+      ;(api.createListShareCode as vi.Mock).mockRejectedValue(new Error('Error'))
 
       await openListOnTimeline(5, null, mockShowToast)
 
@@ -264,4 +264,9 @@ describe('lists utils', () => {
     })
   })
 })
+
+
+
+
+
 

@@ -58,3 +58,6 @@ export const MinimalHeader: React.FC<MinimalHeaderProps> = ({ onBackToMenu, extr
   )
 }
 
+
+
+

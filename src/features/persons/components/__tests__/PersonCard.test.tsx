@@ -17,13 +17,13 @@ describe('PersonCard', () => {
 
   const defaultProps = {
     person: mockPerson,
-    getGroupColor: jest.fn(() => '#ff0000'),
-    getPersonGroup: jest.fn(() => 'Politics'),
-    getCategoryColor: jest.fn(() => '#00ff00'),
+    getGroupColor: vi.fn(() => '#ff0000'),
+    getPersonGroup: vi.fn(() => 'Politics'),
+    getCategoryColor: vi.fn(() => '#00ff00'),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render person name', () => {
@@ -146,7 +146,7 @@ describe('PersonCard', () => {
   })
 
   it('should call onAddAchievement when button is clicked', () => {
-    const onAddAchievement = jest.fn()
+    const onAddAchievement = vi.fn()
     
     render(<PersonCard {...defaultProps} onAddAchievement={onAddAchievement} />)
     
@@ -178,3 +178,7 @@ describe('PersonCard', () => {
     expect(screen.getByText('Russia,Germany')).toBeInTheDocument()
   })
 })
+
+
+
+

@@ -51,7 +51,7 @@ describe('answerRenderers', () => {
     })
 
     it('should render person info button when callback provided', () => {
-      const mockCallback = jest.fn()
+      const mockCallback = vi.fn()
       const result = renderMatchingTable('q1', mockQuestion, ['Достижение 1', 'Достижение 2'], mockCallback)
       render(<div>{result}</div>)
 
@@ -61,7 +61,7 @@ describe('answerRenderers', () => {
 
     it('should call onPersonInfoClick when info button clicked', async () => {
       const user = userEvent.setup()
-      const mockCallback = jest.fn()
+      const mockCallback = vi.fn()
       const result = renderMatchingTable('q1', mockQuestion, ['Достижение 1', 'Достижение 2'], mockCallback)
       render(<div>{result}</div>)
 
@@ -135,7 +135,7 @@ describe('answerRenderers', () => {
     })
 
     it('should render person info buttons when callback provided', () => {
-      const mockCallback = jest.fn()
+      const mockCallback = vi.fn()
       const result = renderBirthOrderList('q2', mockQuestion, ['person-1', 'person-2'], mockCallback)
       render(<div>{result}</div>)
 
@@ -209,7 +209,7 @@ describe('answerRenderers', () => {
     })
 
     it('should render person info buttons when callback provided', () => {
-      const mockCallback = jest.fn()
+      const mockCallback = vi.fn()
       const result = renderContemporariesGroups('q3', mockQuestion, [['person-1'], ['person-2']], mockCallback)
       render(<div>{result}</div>)
 
@@ -273,7 +273,7 @@ describe('answerRenderers', () => {
     })
 
     it('should render person info buttons when callback provided', () => {
-      const mockCallback = jest.fn()
+      const mockCallback = vi.fn()
       const result = renderGuessPersonDetails('q4', mockQuestion, 'person-1', mockCallback)
       render(<div>{result}</div>)
 
@@ -282,7 +282,7 @@ describe('answerRenderers', () => {
 
     it('should call onPersonInfoClick when info button clicked', async () => {
       const user = userEvent.setup()
-      const mockCallback = jest.fn()
+      const mockCallback = vi.fn()
       const result = renderGuessPersonDetails('q4', mockQuestion, 'person-1', mockCallback)
       render(<div>{result}</div>)
 
@@ -368,4 +368,8 @@ describe('answerRenderers', () => {
     })
   })
 })
+
+
+
+
 

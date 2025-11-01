@@ -5,30 +5,30 @@ import { useToast } from 'shared/context/ToastContext'
 import { apiData, resolveListShare } from 'shared/api/api'
 
 // Mock dependencies
-jest.mock('react-router-dom', () => ({
-  useLocation: jest.fn(),
+vi.mock('react-router-dom', () => ({
+  useLocation: vi.fn(),
 }))
 
-jest.mock('shared/context/ToastContext', () => ({
-  useToast: jest.fn(),
+vi.mock('shared/context/ToastContext', () => ({
+  useToast: vi.fn(),
 }))
 
-jest.mock('shared/api/api', () => ({
-  apiData: jest.fn(),
-  resolveListShare: jest.fn(),
+vi.mock('shared/api/api', () => ({
+  apiData: vi.fn(),
+  resolveListShare: vi.fn(),
 }))
 
-const mockUseLocation = useLocation as jest.MockedFunction<typeof useLocation>
-const mockUseToast = useToast as jest.MockedFunction<typeof useToast>
-const mockApiData = apiData as jest.MockedFunction<typeof apiData>
-const mockResolveListShare = resolveListShare as jest.MockedFunction<typeof resolveListShare>
+const mockUseLocation = useLocation as vi.MockedFunction<typeof useLocation>
+const mockUseToast = useToast as vi.MockedFunction<typeof useToast>
+const mockApiData = apiData as vi.MockedFunction<typeof apiData>
+const mockResolveListShare = resolveListShare as vi.MockedFunction<typeof resolveListShare>
 
 // Skipped due to very complex async logic with multiple useEffect dependencies that requires extensive mock setup
 describe.skip('useListSelection', () => {
-  const mockShowToast = jest.fn()
+  const mockShowToast = vi.fn()
   
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     // Mock window.location
     delete (window as any).location
@@ -39,14 +39,14 @@ describe.skip('useListSelection', () => {
     } as any
 
     // Mock window.history
-    window.history.replaceState = jest.fn()
+    window.history.replaceState = vi.fn()
 
     // Default mocks
     mockUseLocation.mockReturnValue({ search: '' } as any)
     mockUseToast.mockReturnValue({
       showToast: mockShowToast,
       toasts: [],
-      removeToast: jest.fn(),
+      removeToast: vi.fn(),
     })
   })
 
@@ -251,3 +251,8 @@ describe.skip('useListSelection', () => {
     expect(result.current.listPersons).toEqual([])
   })
 })
+
+
+
+
+

@@ -2,17 +2,17 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { useLeaderboard, useUserStats } from '../useLeaderboard'
 import * as api from '../../../../shared/api'
 
-jest.mock('../../../../shared/api', () => ({
-  getGlobalLeaderboard: jest.fn(),
-  getUserStats: jest.fn(),
+vi.mock('../../../../shared/api', () => ({
+  getGlobalLeaderboard: vi.fn(),
+  getUserStats: vi.fn(),
 }))
 
-const mockGetGlobalLeaderboard = api.getGlobalLeaderboard as jest.MockedFunction<typeof api.getGlobalLeaderboard>
-const mockGetUserStats = api.getUserStats as jest.MockedFunction<typeof api.getUserStats>
+const mockGetGlobalLeaderboard = api.getGlobalLeaderboard as vi.MockedFunction<typeof api.getGlobalLeaderboard>
+const mockGetUserStats = api.getUserStats as vi.MockedFunction<typeof api.getUserStats>
 
 describe('useLeaderboard', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should load leaderboard on mount', async () => {
@@ -100,7 +100,7 @@ describe('useLeaderboard', () => {
 
 describe('useUserStats', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should load user stats on mount', async () => {
@@ -192,4 +192,9 @@ describe('useUserStats', () => {
     })
   })
 })
+
+
+
+
+
 

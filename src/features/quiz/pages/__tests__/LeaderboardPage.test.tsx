@@ -4,17 +4,20 @@ import { BrowserRouter } from 'react-router-dom';
 import LeaderboardPage from '../LeaderboardPage';
 
 // Mock dependencies
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}));
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router-dom")>();
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
-jest.mock('../../components/GlobalLeaderboard', () => ({
+vi.mock('../../components/GlobalLeaderboard', () => ({
   GlobalLeaderboard: () => <div data-testid="global-leaderboard">Global Leaderboard</div>,
 }));
 
-jest.mock('shared/ui/SEO', () => ({
+vi.mock('shared/ui/SEO', () => ({
   SEO: ({ title, description }: { title: string; description: string }) => (
     <div data-testid="seo">
       <div data-testid="seo-title">{title}</div>
@@ -23,21 +26,21 @@ jest.mock('shared/ui/SEO', () => ({
   ),
 }));
 
-jest.mock('shared/layout/AppHeader', () => ({
+vi.mock('shared/layout/AppHeader', () => ({
   AppHeader: () => <div data-testid="app-header">App Header</div>,
 }));
 
-jest.mock('shared/ui/ContactFooter', () => ({
+vi.mock('shared/ui/ContactFooter', () => ({
   ContactFooter: () => <div data-testid="contact-footer">Contact Footer</div>,
 }));
 
-jest.mock('../../utils/headerProps', () => ({
+vi.mock('../../utils/headerProps', () => ({
   getMinimalHeaderProps: () => ({}),
 }));
 
 describe('LeaderboardPage', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   const renderWithRouter = (component: React.ReactElement) => {
@@ -107,3 +110,7 @@ describe('LeaderboardPage', () => {
     expect(homeButton).toHaveClass('quiz-button', 'quiz-button-secondary');
   });
 });
+
+
+
+

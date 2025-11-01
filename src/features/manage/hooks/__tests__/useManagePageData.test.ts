@@ -2,20 +2,20 @@ import { renderHook, act } from '@testing-library/react'
 import { useManagePageData } from '../useManagePageData'
 
 // Mock dependencies
-jest.mock('shared/hooks/useAchievements')
-jest.mock('shared/hooks/usePeriods')
-jest.mock('features/persons/hooks/usePersons')
-jest.mock('shared/hooks/useApiData')
+vi.mock('shared/hooks/useAchievements')
+vi.mock('shared/hooks/usePeriods')
+vi.mock('features/persons/hooks/usePersons')
+vi.mock('shared/hooks/useApiData')
 
 import { useAchievements } from 'shared/hooks/useAchievements'
 import { usePeriods } from 'shared/hooks/usePeriods'
 import { usePersons } from 'features/persons/hooks/usePersons'
 import { useApiData } from 'shared/hooks/useApiData'
 
-const mockUseAchievements = useAchievements as jest.MockedFunction<typeof useAchievements>
-const mockUsePeriods = usePeriods as jest.MockedFunction<typeof usePeriods>
-const mockUsePersons = usePersons as jest.MockedFunction<typeof usePersons>
-const mockUseApiData = useApiData as jest.MockedFunction<typeof useApiData>
+const mockUseAchievements = useAchievements as vi.MockedFunction<typeof useAchievements>
+const mockUsePeriods = usePeriods as vi.MockedFunction<typeof usePeriods>
+const mockUsePersons = usePersons as vi.MockedFunction<typeof usePersons>
+const mockUseApiData = useApiData as vi.MockedFunction<typeof useApiData>
 
 describe('useManagePageData', () => {
   const mockFilters = {
@@ -26,31 +26,31 @@ describe('useManagePageData', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default mocks for "all" mode
     mockUsePersons.mockReturnValue({
       items: [],
       isLoading: false,
       hasMore: false,
-      loadMore: jest.fn(),
-      reset: jest.fn(),
+      loadMore: vi.fn(),
+      reset: vi.fn(),
     })
 
     mockUseAchievements.mockReturnValue({
       items: [],
       isLoading: false,
       hasMore: false,
-      loadMore: jest.fn(),
-      reset: jest.fn(),
+      loadMore: vi.fn(),
+      reset: vi.fn(),
     })
 
     mockUsePeriods.mockReturnValue({
       items: [],
       isLoading: false,
       hasMore: false,
-      loadMore: jest.fn(),
-      reset: jest.fn(),
+      loadMore: vi.fn(),
+      reset: vi.fn(),
     })
 
     // Default mock for mine mode
@@ -62,8 +62,8 @@ describe('useManagePageData', () => {
         hasMore: false,
       },
       {
-        loadMore: jest.fn(),
-        reset: jest.fn(),
+        loadMore: vi.fn(),
+        reset: vi.fn(),
       },
     ])
   })
@@ -104,8 +104,8 @@ describe('useManagePageData', () => {
         items: mockPersons as any,
         isLoading: false,
         hasMore: true,
-        loadMore: jest.fn(),
-        reset: jest.fn(),
+        loadMore: vi.fn(),
+        reset: vi.fn(),
       })
 
       const { result } = renderHook(() =>
@@ -128,8 +128,8 @@ describe('useManagePageData', () => {
         items: mockAchievements as any,
         isLoading: true,
         hasMore: false,
-        loadMore: jest.fn(),
-        reset: jest.fn(),
+        loadMore: vi.fn(),
+        reset: vi.fn(),
       })
 
       const { result } = renderHook(() =>
@@ -152,8 +152,8 @@ describe('useManagePageData', () => {
         items: mockPeriods as any,
         isLoading: false,
         hasMore: true,
-        loadMore: jest.fn(),
-        reset: jest.fn(),
+        loadMore: vi.fn(),
+        reset: vi.fn(),
       })
 
       const { result } = renderHook(() =>
@@ -213,8 +213,8 @@ describe('useManagePageData', () => {
           hasMore: true,
         },
         {
-          loadMore: jest.fn(),
-          reset: jest.fn(),
+          loadMore: vi.fn(),
+          reset: vi.fn(),
         },
       ])
 
@@ -254,8 +254,8 @@ describe('useManagePageData', () => {
           hasMore: false,
         },
         {
-          loadMore: jest.fn(),
-          reset: jest.fn(),
+          loadMore: vi.fn(),
+          reset: vi.fn(),
         },
       ])
 
@@ -281,8 +281,8 @@ describe('useManagePageData', () => {
           hasMore: true,
         },
         {
-          loadMore: jest.fn(),
-          reset: jest.fn(),
+          loadMore: vi.fn(),
+          reset: vi.fn(),
         },
       ])
 
@@ -462,8 +462,8 @@ describe('useManagePageData', () => {
         items: mockAch as any,
         isLoading: false,
         hasMore: true,
-        loadMore: jest.fn(),
-        reset: jest.fn(),
+        loadMore: vi.fn(),
+        reset: vi.fn(),
       })
 
       const { result } = renderHook(() =>
@@ -478,7 +478,7 @@ describe('useManagePageData', () => {
 
       mockUseApiData.mockReturnValue([
         { items: mockMineAch, isLoading: false, isInitialLoading: false, hasMore: false },
-        { loadMore: jest.fn(), reset: jest.fn() },
+        { loadMore: vi.fn(), reset: vi.fn() },
       ])
 
       const { result } = renderHook(() =>
@@ -507,8 +507,8 @@ describe('useManagePageData', () => {
         items: mockPeriods as any,
         isLoading: true,
         hasMore: false,
-        loadMore: jest.fn(),
-        reset: jest.fn(),
+        loadMore: vi.fn(),
+        reset: vi.fn(),
       })
 
       const { result } = renderHook(() =>
@@ -524,7 +524,7 @@ describe('useManagePageData', () => {
 
       mockUseApiData.mockReturnValue([
         { items: mockMinePeriods, isLoading: false, isInitialLoading: false, hasMore: true },
-        { loadMore: jest.fn(), reset: jest.fn() },
+        { loadMore: vi.fn(), reset: vi.fn() },
       ])
 
       const { result } = renderHook(() =>
@@ -537,21 +537,21 @@ describe('useManagePageData', () => {
 
   describe('reset actions', () => {
     it('should expose reset actions', () => {
-      const mockResetPersons = jest.fn()
-      const mockResetAch = jest.fn()
-      const mockResetPeriods = jest.fn()
+      const mockResetPersons = vi.fn()
+      const mockResetAch = vi.fn()
+      const mockResetPeriods = vi.fn()
 
       mockUseApiData.mockReturnValueOnce([
         { items: [], isLoading: false, isInitialLoading: false, hasMore: false },
-        { loadMore: jest.fn(), reset: mockResetPersons },
+        { loadMore: vi.fn(), reset: mockResetPersons },
       ])
       mockUseApiData.mockReturnValueOnce([
         { items: [], isLoading: false, isInitialLoading: false, hasMore: false },
-        { loadMore: jest.fn(), reset: mockResetAch },
+        { loadMore: vi.fn(), reset: mockResetAch },
       ])
       mockUseApiData.mockReturnValueOnce([
         { items: [], isLoading: false, isInitialLoading: false, hasMore: false },
-        { loadMore: jest.fn(), reset: mockResetPeriods },
+        { loadMore: vi.fn(), reset: mockResetPeriods },
       ])
 
       const { result } = renderHook(() =>
@@ -568,4 +568,9 @@ describe('useManagePageData', () => {
     })
   })
 })
+
+
+
+
+
 

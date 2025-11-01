@@ -3,8 +3,8 @@ import { generateContemporariesQuestion } from '../contemporariesGenerator'
 import type { Person } from '../../../../shared/types'
 
 // Mock fallback generator
-jest.mock('../fallbackGenerator', () => ({
-  generateSimpleFallback: jest.fn().mockReturnValue({
+vi.mock('../fallbackGenerator', () => ({
+  generateSimpleFallback: vi.fn().mockReturnValue({
     id: 'fallback-1',
     type: 'birthYear',
     question: 'Fallback question',
@@ -13,10 +13,12 @@ jest.mock('../fallbackGenerator', () => ({
   }),
 }))
 
+vi.mock('../fallbackGenerator')
+
 describe('Advanced Quiz Generators', () => {
-  beforeEach(() => {
-    const { generateSimpleFallback } = require('../fallbackGenerator')
-    generateSimpleFallback.mockClear()
+  beforeEach(async () => {
+    const { generateSimpleFallback } = await import('../fallbackGenerator')
+    vi.mocked(generateSimpleFallback).mockClear()
   })
 
   describe('generateAchievementsMatchQuestion', () => {
@@ -96,8 +98,8 @@ describe('Advanced Quiz Generators', () => {
       expect(Array.isArray(question.correctAnswer)).toBe(true)
     })
 
-    it('should use fallback when no achievements available', () => {
-      const { generateSimpleFallback } = require('../fallbackGenerator')
+    it('should use fallback when no achievements available', async () => {
+      const { generateSimpleFallback } = await import('../fallbackGenerator')
       
       const personsNoAchievements = mockPersonsWithAchievements.map(p => ({
         ...p,
@@ -106,7 +108,7 @@ describe('Advanced Quiz Generators', () => {
 
       generateAchievementsMatchQuestion(personsNoAchievements)
 
-      expect(generateSimpleFallback).toHaveBeenCalled()
+      expect(vi.mocked(generateSimpleFallback)).toHaveBeenCalled()
     })
 
     it('should format question text', () => {
@@ -171,14 +173,14 @@ describe('Advanced Quiz Generators', () => {
       expect(question).toHaveProperty('data')
     })
 
-    it('should use fallback when not enough persons', () => {
-      const { generateSimpleFallback } = require('../fallbackGenerator')
-      
+    it('should use fallback when not enough persons', async () => {
+      const { generateSimpleFallback } = await import('../fallbackGenerator')
+
       const fewPersons = mockPersonsForContemporaries.slice(0, 3)
 
       generateContemporariesQuestion(fewPersons)
 
-      expect(generateSimpleFallback).toHaveBeenCalled()
+      expect(vi.mocked(generateSimpleFallback)).toHaveBeenCalled()
     })
 
     it('should have persons data', () => {
@@ -221,4 +223,9 @@ describe('Advanced Quiz Generators', () => {
     })
   })
 })
+
+
+
+
+
 

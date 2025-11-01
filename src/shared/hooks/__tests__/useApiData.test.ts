@@ -3,15 +3,15 @@ import { useApiData } from '../useApiData'
 import { apiFetch } from '../../api/api'
 
 // Mock apiFetch
-jest.mock('../../api/api', () => ({
-  apiFetch: jest.fn(),
+vi.mock('../../api/api', () => ({
+  apiFetch: vi.fn(),
 }))
 
-const mockApiFetch = apiFetch as jest.MockedFunction<typeof apiFetch>
+const mockApiFetch = apiFetch as vi.MockedFunction<typeof apiFetch>
 
 describe('useApiData', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Clear localStorage before each test
     localStorage.clear()
   })
@@ -51,7 +51,7 @@ describe('useApiData', () => {
   it.skip('should load initial data', async () => {
     const mockResponse = {
       ok: true,
-      json: jest.fn().mockResolvedValue([
+      json: vi.fn().mockResolvedValue([
         { id: 1, name: 'Item 1' },
         { id: 2, name: 'Item 2' },
       ]),
@@ -79,7 +79,7 @@ describe('useApiData', () => {
   it.skip('should handle loading more data', async () => {
     const mockResponse1 = {
       ok: true,
-      json: jest.fn().mockResolvedValue([
+      json: vi.fn().mockResolvedValue([
         { id: 1, name: 'Item 1' },
       ]),
       headers: new Headers(),
@@ -87,7 +87,7 @@ describe('useApiData', () => {
 
     const mockResponse2 = {
       ok: true,
-      json: jest.fn().mockResolvedValue([
+      json: vi.fn().mockResolvedValue([
         { id: 2, name: 'Item 2' },
       ]),
       headers: new Headers(),
@@ -121,7 +121,7 @@ describe('useApiData', () => {
     const mockError = new Error('Network error')
     mockApiFetch.mockRejectedValue(mockError)
 
-    const mockOnError = jest.fn()
+    const mockOnError = vi.fn()
 
     const { result } = renderHook(() => useApiData({
       endpoint: '/api/test',
@@ -141,9 +141,9 @@ describe('useApiData', () => {
   it.skip('should handle response with no more data', async () => {
     const mockResponse = {
       ok: true,
-      json: jest.fn().mockResolvedValue([]), // Empty response
+      json: vi.fn().mockResolvedValue([]), // Empty response
       headers: new Headers({
-        get: jest.fn().mockReturnValue(null), // No pagination header
+        get: vi.fn().mockReturnValue(null), // No pagination header
       }),
     }
 
@@ -166,7 +166,7 @@ describe('useApiData', () => {
   it.skip('should transform data when transformData function is provided', async () => {
     const mockResponse = {
       ok: true,
-      json: jest.fn().mockResolvedValue([
+      json: vi.fn().mockResolvedValue([
         { id: 1, name: 'Item 1' },
         { id: 2, name: 'Item 2' },
       ]),
@@ -197,7 +197,7 @@ describe('useApiData', () => {
   it.skip('should deduplicate items when dedupeBy function is provided', async () => {
     const mockResponse1 = {
       ok: true,
-      json: jest.fn().mockResolvedValue([
+      json: vi.fn().mockResolvedValue([
         { id: 1, name: 'Item 1' },
         { id: 2, name: 'Item 2' },
       ]),
@@ -206,7 +206,7 @@ describe('useApiData', () => {
 
     const mockResponse2 = {
       ok: true,
-      json: jest.fn().mockResolvedValue([
+      json: vi.fn().mockResolvedValue([
         { id: 2, name: 'Item 2 Updated' }, // Duplicate ID
         { id: 3, name: 'Item 3' },
       ]),
@@ -244,7 +244,7 @@ describe('useApiData', () => {
   it.skip('should reset state when reset is called', async () => {
     const mockResponse = {
       ok: true,
-      json: jest.fn().mockResolvedValue([
+      json: vi.fn().mockResolvedValue([
         { id: 1, name: 'Item 1' },
       ]),
       headers: new Headers(),
@@ -279,7 +279,7 @@ describe('useApiData', () => {
   it.skip('should refetch data when refetch is called', async () => {
     const mockResponse = {
       ok: true,
-      json: jest.fn().mockResolvedValue([
+      json: vi.fn().mockResolvedValue([
         { id: 1, name: 'Item 1' },
       ]),
       headers: new Headers(),
@@ -309,7 +309,7 @@ describe('useApiData', () => {
   it.skip('should handle query parameters', async () => {
     const mockResponse = {
       ok: true,
-      json: jest.fn().mockResolvedValue([]),
+      json: vi.fn().mockResolvedValue([]),
       headers: new Headers(),
     }
 
@@ -334,3 +334,8 @@ describe('useApiData', () => {
     )
   })
 })
+
+
+
+
+

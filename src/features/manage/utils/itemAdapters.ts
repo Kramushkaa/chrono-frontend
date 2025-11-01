@@ -42,3 +42,6 @@ export function adaptToItemCard(item: any, itemType: ItemType) {
 }
 
 
+
+
+

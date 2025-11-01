@@ -5,13 +5,13 @@ import { ConfirmDialog } from '../ConfirmDialog'
 describe('ConfirmDialog', () => {
   const defaultProps = {
     isOpen: true,
-    onClose: jest.fn(),
-    onConfirm: jest.fn(),
+    onClose: vi.fn(),
+    onConfirm: vi.fn(),
     message: 'Are you sure you want to proceed?',
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render when open', () => {
@@ -31,7 +31,7 @@ describe('ConfirmDialog', () => {
   })
 
   it('should call onConfirm when confirm button is clicked', () => {
-    const onConfirm = jest.fn()
+    const onConfirm = vi.fn()
     render(<ConfirmDialog {...defaultProps} onConfirm={onConfirm} />)
     
     fireEvent.click(screen.getByText('Подтвердить'))
@@ -39,7 +39,7 @@ describe('ConfirmDialog', () => {
   })
 
   it('should call onClose when cancel button is clicked', () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     render(<ConfirmDialog {...defaultProps} onClose={onClose} />)
     
     fireEvent.click(screen.getByText('Отмена'))
@@ -47,7 +47,7 @@ describe('ConfirmDialog', () => {
   })
 
   it('should handle async onConfirm', async () => {
-    const onConfirm = jest.fn().mockResolvedValue(undefined)
+    const onConfirm = vi.fn().mockResolvedValue(undefined)
     render(<ConfirmDialog {...defaultProps} onConfirm={onConfirm} />)
     
     fireEvent.click(screen.getByText('Подтвердить'))
@@ -127,3 +127,7 @@ describe('ConfirmDialog', () => {
     expect(cancelButton).not.toBeDisabled()
   })
 })
+
+
+
+

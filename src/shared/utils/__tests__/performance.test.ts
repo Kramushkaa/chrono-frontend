@@ -9,10 +9,10 @@ import {
 } from '../performance'
 
 // Mock console methods
-const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation()
-const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation()
-const mockConsoleGroup = jest.spyOn(console, 'group').mockImplementation()
-const mockConsoleGroupEnd = jest.spyOn(console, 'groupEnd').mockImplementation()
+const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation()
+const mockConsoleWarn = vi.spyOn(console, 'warn').mockImplementation()
+const mockConsoleGroup = vi.spyOn(console, 'group').mockImplementation()
+const mockConsoleGroupEnd = vi.spyOn(console, 'groupEnd').mockImplementation()
 
 describe('performance utilities', () => {
   beforeEach(() => {
@@ -118,7 +118,7 @@ describe('performance utilities', () => {
 
   describe('measureExecution', () => {
     it('should measure sync function execution', () => {
-      const fn = jest.fn(() => 'result')
+      const fn = vi.fn(() => 'result')
       
       const result = measureExecution('test-function', fn)
 
@@ -127,7 +127,7 @@ describe('performance utilities', () => {
     })
 
     it('should log slow executions', () => {
-      const fn = jest.fn(() => {
+      const fn = vi.fn(() => {
         // Simulate slow execution
         const start = Date.now()
         while (Date.now() - start < 10) {
@@ -146,7 +146,7 @@ describe('performance utilities', () => {
 
   describe('measureExecutionAsync', () => {
     it('should measure async function execution', async () => {
-      const fn = jest.fn().mockResolvedValue('async-result')
+      const fn = vi.fn().mockResolvedValue('async-result')
       
       const result = await measureExecutionAsync('async-function', fn)
 
@@ -155,7 +155,7 @@ describe('performance utilities', () => {
     })
 
     it('should log slow async executions', async () => {
-      const fn = jest.fn().mockImplementation(async () => {
+      const fn = vi.fn().mockImplementation(async () => {
         await new Promise(resolve => setTimeout(resolve, 150)) // 150ms
         return 'slow-async-result'
       })
@@ -220,3 +220,8 @@ describe('performance utilities', () => {
     })
   })
 })
+
+
+
+
+

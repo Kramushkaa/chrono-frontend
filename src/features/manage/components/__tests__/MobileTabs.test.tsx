@@ -5,13 +5,13 @@ import { MobileTabs } from '../MobileTabs'
 describe('MobileTabs', () => {
   const defaultProps = {
     activeTab: 'persons' as const,
-    setActiveTab: jest.fn(),
+    setActiveTab: vi.fn(),
     isAuthenticated: true,
     userEmailVerified: true,
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render all tab buttons', () => {
@@ -100,3 +100,7 @@ describe('MobileTabs', () => {
     expect(screen.getByRole('button', { name: 'Личности' })).toBeInTheDocument()
   })
 })
+
+
+
+

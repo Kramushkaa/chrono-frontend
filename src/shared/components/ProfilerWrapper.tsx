@@ -27,7 +27,7 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
     commitTime: any,
     interactions: any
   ) => {
-    if (process.env.NODE_ENV !== 'production' && enabled) {
+    if (import.meta.env.MODE !== 'production' && enabled) {
       // Log performance mark
       logPerformanceMark({
         component: profilerId,
@@ -38,7 +38,7 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
 
       // Additional logging for significant differences
       const difference = actualDuration - baseDuration
-      if (difference > 10 && process.env.NODE_ENV !== 'production') {
+      if (difference > 10 && import.meta.env.MODE !== 'production') {
         // eslint-disable-next-line no-console
         console.warn(
           `[Profiler] ${profilerId} took ${actualDuration.toFixed(2)}ms (${difference.toFixed(2)}ms slower than base)`
@@ -46,7 +46,7 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
       }
 
       // Log interactions if present (interactions может быть undefined в некоторых средах)
-      if (interactions && interactions.size > 0 && process.env.NODE_ENV !== 'production') {
+      if (interactions && interactions.size > 0 && import.meta.env.MODE !== 'production') {
         // eslint-disable-next-line no-console
         console.log(`[Profiler] ${profilerId} rendered with ${interactions.size} interaction(s)`)
       }
@@ -54,7 +54,7 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
   }
 
   // In production, just render children without profiling
-  if (process.env.NODE_ENV === 'production' || !enabled) {
+  if (import.meta.env.MODE === 'production' || !enabled) {
     return <>{children}</>
   }
 
@@ -82,4 +82,7 @@ export function withProfiler(id: string, enabled = true) {
     }
   }
 }
+
+
+
 

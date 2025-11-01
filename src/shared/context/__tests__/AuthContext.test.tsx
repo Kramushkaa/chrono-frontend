@@ -4,18 +4,18 @@ import { AuthProvider, useAuthUser, useAuthActions, useAuth } from '../AuthConte
 import * as authApi from 'features/auth/services/auth'
 
 // Mock auth service
-jest.mock('features/auth/services/auth', () => ({
+vi.mock('features/auth/services/auth', () => ({
   authStorage: {
-    load: jest.fn(),
-    save: jest.fn(),
-    clear: jest.fn(),
+    load: vi.fn(),
+    save: vi.fn(),
+    clear: vi.fn(),
   },
-  login: jest.fn(),
-  logout: jest.fn(),
-  refresh: jest.fn(),
+  login: vi.fn(),
+  logout: vi.fn(),
+  refresh: vi.fn(),
 }))
 
-const mockAuthApi = authApi as jest.Mocked<typeof authApi>
+const mockAuthApi = authApi as vi.Mocked<typeof authApi>
 
 describe('AuthContext', () => {
   const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -23,7 +23,7 @@ describe('AuthContext', () => {
   )
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAuthApi.authStorage.load.mockReturnValue({
       user: null,
       accessToken: null,
@@ -199,3 +199,7 @@ describe('AuthContext', () => {
     })
   })
 })
+
+
+
+

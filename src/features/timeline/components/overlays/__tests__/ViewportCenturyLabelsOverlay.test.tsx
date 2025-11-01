@@ -131,3 +131,7 @@ describe('ViewportCenturyLabelsOverlay', () => {
     expect(labels.length).toBeGreaterThan(0)
   })
 })
+
+
+
+

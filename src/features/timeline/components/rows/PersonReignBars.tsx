@@ -68,3 +68,6 @@ export const PersonReignBars: React.FC<PersonReignBarsProps> = ({ person, getAdj
 }
 
 
+
+
+

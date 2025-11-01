@@ -12,10 +12,10 @@ const createMockElement = () => {
 const createMockEvent = (button: number = 0) => {
   const mockElement = createMockElement()
   return {
-    preventDefault: jest.fn(),
+    preventDefault: vi.fn(),
     button,
     currentTarget: {
-      closest: jest.fn().mockReturnValue(mockElement),
+      closest: vi.fn().mockReturnValue(mockElement),
     },
   } as unknown as React.MouseEvent
 }
@@ -92,7 +92,7 @@ describe('useSlider', () => {
 
     // Mock DOM elements
     const mockSliderElement = document.createElement('div')
-    mockSliderElement.getBoundingClientRect = jest.fn(() => ({
+    mockSliderElement.getBoundingClientRect = vi.fn(() => ({
       left: 100,
       width: 200,
       top: 0,
@@ -101,12 +101,12 @@ describe('useSlider', () => {
       bottom: 50,
       x: 100,
       y: 0,
-      toJSON: jest.fn(),
+      toJSON: vi.fn(),
     }))
 
     // Mock querySelectorAll to return our mock element
     const originalQuerySelectorAll = document.querySelectorAll
-    document.querySelectorAll = jest.fn(() => [mockSliderElement] as any)
+    document.querySelectorAll = vi.fn(() => [mockSliderElement] as any)
 
     // Start dragging
     act(() => {
@@ -119,8 +119,8 @@ describe('useSlider', () => {
     } as MouseEvent
 
     const mockYearInputs = { start: '1800', end: '1900' }
-    const mockApplyYearFilter = jest.fn()
-    const mockSetYearInputs = jest.fn()
+    const mockApplyYearFilter = vi.fn()
+    const mockSetYearInputs = vi.fn()
 
     act(() => {
       result.current.handleSliderMouseMove(mockMouseEvent, mockYearInputs, mockApplyYearFilter, mockSetYearInputs)
@@ -141,8 +141,8 @@ describe('useSlider', () => {
     } as MouseEvent
 
     const mockYearInputs = { start: '1800', end: '1900' }
-    const mockApplyYearFilter = jest.fn()
-    const mockSetYearInputs = jest.fn()
+    const mockApplyYearFilter = vi.fn()
+    const mockSetYearInputs = vi.fn()
 
     act(() => {
       result.current.handleSliderMouseMove(mockMouseEvent, mockYearInputs, mockApplyYearFilter, mockSetYearInputs)
@@ -156,9 +156,9 @@ describe('useSlider', () => {
     const { result } = renderHook(() => useSlider())
     
     const mockTouchEvent = {
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       currentTarget: {
-        closest: jest.fn().mockReturnValue(document.createElement('div')),
+        closest: vi.fn().mockReturnValue(document.createElement('div')),
       },
       touches: [{ clientX: 100, clientY: 50 }],
     } as any
@@ -176,9 +176,9 @@ describe('useSlider', () => {
     const { result } = renderHook(() => useSlider())
 
     const mockEvent = {
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       currentTarget: {
-        closest: jest.fn().mockReturnValue(null),
+        closest: vi.fn().mockReturnValue(null),
       },
     } as any
 
@@ -206,3 +206,8 @@ describe('useSlider', () => {
     expect(typeof result.current.handleSliderMouseUp).toBe('function')
   })
 })
+
+
+
+
+

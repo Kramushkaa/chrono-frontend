@@ -4,11 +4,11 @@ import { useApiData } from 'shared/hooks/useApiData'
 import { Person } from 'shared/types'
 
 // Mock useApiData hook
-jest.mock('shared/hooks/useApiData', () => ({
-  useApiData: jest.fn(),
+vi.mock('shared/hooks/useApiData', () => ({
+  useApiData: vi.fn(),
 }))
 
-const mockUseApiData = useApiData as jest.MockedFunction<typeof useApiData>
+const mockUseApiData = useApiData as vi.MockedFunction<typeof useApiData>
 
 describe('usePersons', () => {
   const mockPerson: Person = {
@@ -31,13 +31,13 @@ describe('usePersons', () => {
   }
 
   const mockActions = {
-    loadMore: jest.fn(),
-    reset: jest.fn(),
-    refetch: jest.fn(),
+    loadMore: vi.fn(),
+    reset: vi.fn(),
+    refetch: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockUseApiData.mockReturnValue([mockState, mockActions])
   })
 
@@ -221,3 +221,8 @@ describe('usePersons', () => {
     expect(typeof dedupeBy).toBe('function')
   })
 })
+
+
+
+
+

@@ -14,24 +14,24 @@ import {
 } from '../quiz'
 
 // Mock core API functions
-jest.mock('../core', () => ({
-  apiFetch: jest.fn(),
+vi.mock('../core', () => ({
+  apiFetch: vi.fn(),
 }))
 
 import { apiFetch } from '../core'
 
-const mockApiFetch = apiFetch as jest.MockedFunction<typeof apiFetch>
+const mockApiFetch = apiFetch as vi.MockedFunction<typeof apiFetch>
 
 describe('quiz API', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('saveQuizAttempt', () => {
     it('should save quiz attempt', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: { attemptId: 1, rating: 85.5 },
         }),
       } as any
@@ -67,7 +67,7 @@ describe('quiz API', () => {
     it('should throw error on failure', async () => {
       const mockResponse = {
         ok: false,
-        json: jest.fn().mockResolvedValue({ message: 'Save failed' }),
+        json: vi.fn().mockResolvedValue({ message: 'Save failed' }),
       } as any
 
       mockApiFetch.mockResolvedValue(mockResponse)
@@ -78,7 +78,7 @@ describe('quiz API', () => {
     it('should use default error message', async () => {
       const mockResponse = {
         ok: false,
-        json: jest.fn().mockResolvedValue({}),
+        json: vi.fn().mockResolvedValue({}),
       } as any
 
       mockApiFetch.mockResolvedValue(mockResponse)
@@ -91,7 +91,7 @@ describe('quiz API', () => {
     it('should create shared quiz', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: { shareCode: 'abc123', sharedQuizId: 1 },
         }),
       } as any
@@ -119,7 +119,7 @@ describe('quiz API', () => {
     it('should fetch shared quiz', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: { id: 1, shareCode: 'abc123', questions: [] },
         }),
       } as any
@@ -135,7 +135,7 @@ describe('quiz API', () => {
     it('should throw error on not found', async () => {
       const mockResponse = {
         ok: false,
-        json: jest.fn().mockResolvedValue({ message: 'Quiz not found' }),
+        json: vi.fn().mockResolvedValue({ message: 'Quiz not found' }),
       } as any
 
       mockApiFetch.mockResolvedValue(mockResponse)
@@ -148,7 +148,7 @@ describe('quiz API', () => {
     it('should start quiz session', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: { sessionToken: 'session-123', expiresAt: '2025-01-01T00:00:00Z' },
         }),
       } as any
@@ -169,7 +169,7 @@ describe('quiz API', () => {
     it('should check answer', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: { isCorrect: true, correctAnswer: 'Answer', explanation: 'Explanation' },
         }),
       } as any
@@ -199,7 +199,7 @@ describe('quiz API', () => {
     it('should finish quiz', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: { rating: 92.5, rank: 5 },
         }),
       } as any
@@ -227,7 +227,7 @@ describe('quiz API', () => {
     it('should fetch global leaderboard', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: {
             topPlayers: [{ userId: 1, username: 'user1', totalRating: 1000 }],
             userEntry: null,
@@ -247,7 +247,7 @@ describe('quiz API', () => {
     it('should throw error on failure', async () => {
       const mockResponse = {
         ok: false,
-        json: jest.fn().mockResolvedValue({ message: 'Leaderboard error' }),
+        json: vi.fn().mockResolvedValue({ message: 'Leaderboard error' }),
       } as any
 
       mockApiFetch.mockResolvedValue(mockResponse)
@@ -260,7 +260,7 @@ describe('quiz API', () => {
     it('should fetch user stats', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: { totalGames: 50, averageScore: 85, bestScore: 100 },
         }),
       } as any
@@ -278,7 +278,7 @@ describe('quiz API', () => {
     it('should fetch shared quiz leaderboard', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: {
             entries: [{ username: 'user1', score: 95 }],
             totalAttempts: 25,
@@ -299,7 +299,7 @@ describe('quiz API', () => {
     it('should fetch quiz history without limit', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: { attempts: [] },
         }),
       } as any
@@ -314,7 +314,7 @@ describe('quiz API', () => {
     it('should fetch quiz history with limit', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: { attempts: [] },
         }),
       } as any
@@ -329,7 +329,7 @@ describe('quiz API', () => {
     it('should throw error on failure', async () => {
       const mockResponse = {
         ok: false,
-        json: jest.fn().mockResolvedValue({ message: 'History error' }),
+        json: vi.fn().mockResolvedValue({ message: 'History error' }),
       } as any
 
       mockApiFetch.mockResolvedValue(mockResponse)
@@ -342,7 +342,7 @@ describe('quiz API', () => {
     it('should fetch attempt details', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: {
             id: 1,
             correctAnswers: 8,
@@ -363,7 +363,7 @@ describe('quiz API', () => {
     it('should throw error on not found', async () => {
       const mockResponse = {
         ok: false,
-        json: jest.fn().mockResolvedValue({ message: 'Attempt not found' }),
+        json: vi.fn().mockResolvedValue({ message: 'Attempt not found' }),
       } as any
 
       mockApiFetch.mockResolvedValue(mockResponse)
@@ -376,7 +376,7 @@ describe('quiz API', () => {
     it('should fetch session details', async () => {
       const mockResponse = {
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           data: { sessionToken: 'session-123', quiz: { questions: [] } },
         }),
       } as any
@@ -392,7 +392,7 @@ describe('quiz API', () => {
     it('should throw error on invalid session', async () => {
       const mockResponse = {
         ok: false,
-        json: jest.fn().mockResolvedValue({ message: 'Session not found' }),
+        json: vi.fn().mockResolvedValue({ message: 'Session not found' }),
       } as any
 
       mockApiFetch.mockResolvedValue(mockResponse)
@@ -405,7 +405,7 @@ describe('quiz API', () => {
     it('should handle JSON parse errors gracefully', async () => {
       const mockResponse = {
         ok: false,
-        json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
+        json: vi.fn().mockRejectedValue(new Error('Invalid JSON')),
       } as any
 
       mockApiFetch.mockResolvedValue(mockResponse)
@@ -416,7 +416,7 @@ describe('quiz API', () => {
     it('should prioritize error message from response', async () => {
       const mockResponse = {
         ok: false,
-        json: jest.fn().mockResolvedValue({ message: 'Custom error' }),
+        json: vi.fn().mockResolvedValue({ message: 'Custom error' }),
       } as any
 
       mockApiFetch.mockResolvedValue(mockResponse)
@@ -425,4 +425,9 @@ describe('quiz API', () => {
     })
   })
 })
+
+
+
+
+
 

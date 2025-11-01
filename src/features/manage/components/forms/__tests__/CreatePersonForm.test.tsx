@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { CreatePersonForm } from '../CreatePersonForm'
 
 // Mock the SearchableSelect component
-jest.mock('shared/ui/SearchableSelect', () => ({
+vi.mock('shared/ui/SearchableSelect', () => ({
   SearchableSelect: ({ children, ...props }: any) => (
     <div data-testid="searchable-select" {...props}>
       {children}
@@ -12,7 +12,7 @@ jest.mock('shared/ui/SearchableSelect', () => ({
 }))
 
 // Mock LifePeriodsEditor
-jest.mock('features/persons/components/LifePeriodsEditor', () => ({
+vi.mock('features/persons/components/LifePeriodsEditor', () => ({
   LifePeriodsEditor: ({ children, ...props }: any) => (
     <div data-testid="life-periods-editor" {...props}>
       {children}
@@ -21,7 +21,7 @@ jest.mock('features/persons/components/LifePeriodsEditor', () => ({
 }))
 
 // Mock DraftModerationButtons
-jest.mock('shared/ui/DraftModerationButtons', () => ({
+vi.mock('shared/ui/DraftModerationButtons', () => ({
   DraftModerationButtons: ({ children, ...props }: any) => (
     <div data-testid="draft-moderation-buttons" {...props}>
       {children}
@@ -30,8 +30,8 @@ jest.mock('shared/ui/DraftModerationButtons', () => ({
 }))
 
 // Mock validation utility
-jest.mock('shared/utils/validation', () => ({
-  validateLifePeriodsClient: jest.fn(() => ({ isValid: true, error: null })),
+vi.mock('shared/utils/validation', () => ({
+  validateLifePeriodsClient: vi.fn(() => ({ isValid: true, error: null })),
 }))
 
 const mockCategories = ['Правители', 'Ученые', 'Художники']
@@ -45,11 +45,11 @@ describe('CreatePersonForm', () => {
   const defaultProps = {
     categories: mockCategories,
     countryOptions: mockCountryOptions,
-    onSubmit: jest.fn(),
+    onSubmit: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -135,3 +135,7 @@ describe('CreatePersonForm', () => {
     expect(document.querySelector('form')).toBeInTheDocument()
   })
 })
+
+
+
+

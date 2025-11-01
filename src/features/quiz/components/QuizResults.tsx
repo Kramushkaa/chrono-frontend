@@ -129,3 +129,6 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
     </div>
   );
 };
+
+
+

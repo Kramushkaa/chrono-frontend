@@ -3,29 +3,29 @@ import { useSharedQuiz } from '../useSharedQuiz'
 import * as api from 'shared/api/quiz'
 
 // Mock API
-jest.mock('shared/api/quiz', () => ({
-  createSharedQuiz: jest.fn(),
-  getSharedQuiz: jest.fn(),
-  startSharedQuiz: jest.fn(),
-  checkSharedQuizAnswer: jest.fn(),
-  finishSharedQuiz: jest.fn(),
-  getSharedQuizLeaderboard: jest.fn(),
+vi.mock('shared/api/quiz', () => ({
+  createSharedQuiz: vi.fn(),
+  getSharedQuiz: vi.fn(),
+  startSharedQuiz: vi.fn(),
+  checkSharedQuizAnswer: vi.fn(),
+  finishSharedQuiz: vi.fn(),
+  getSharedQuizLeaderboard: vi.fn(),
 }))
 
-const mockCreateSharedQuiz = api.createSharedQuiz as jest.MockedFunction<typeof api.createSharedQuiz>
-const mockGetSharedQuiz = api.getSharedQuiz as jest.MockedFunction<typeof api.getSharedQuiz>
-const mockStartSharedQuiz = api.startSharedQuiz as jest.MockedFunction<typeof api.startSharedQuiz>
-const mockCheckSharedQuizAnswer = api.checkSharedQuizAnswer as jest.MockedFunction<
+const mockCreateSharedQuiz = api.createSharedQuiz as vi.MockedFunction<typeof api.createSharedQuiz>
+const mockGetSharedQuiz = api.getSharedQuiz as vi.MockedFunction<typeof api.getSharedQuiz>
+const mockStartSharedQuiz = api.startSharedQuiz as vi.MockedFunction<typeof api.startSharedQuiz>
+const mockCheckSharedQuizAnswer = api.checkSharedQuizAnswer as vi.MockedFunction<
   typeof api.checkSharedQuizAnswer
 >
-const mockFinishSharedQuiz = api.finishSharedQuiz as jest.MockedFunction<typeof api.finishSharedQuiz>
-const mockGetSharedQuizLeaderboard = api.getSharedQuizLeaderboard as jest.MockedFunction<
+const mockFinishSharedQuiz = api.finishSharedQuiz as vi.MockedFunction<typeof api.finishSharedQuiz>
+const mockGetSharedQuizLeaderboard = api.getSharedQuizLeaderboard as vi.MockedFunction<
   typeof api.getSharedQuizLeaderboard
 >
 
 describe('useSharedQuiz', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should initialize with default state', () => {
@@ -334,4 +334,9 @@ describe('useSharedQuiz', () => {
     })
   })
 })
+
+
+
+
+
 

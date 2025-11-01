@@ -5,14 +5,14 @@ import { ToggleButton } from '../ToggleButton'
 describe('ToggleButton', () => {
   const defaultProps = {
     isActive: false,
-    onClick: jest.fn(),
+    onClick: vi.fn(),
     title: 'Test Button',
     ariaLabel: 'Test Button',
     children: 'Test',
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render toggle button', () => {
@@ -100,3 +100,7 @@ describe('ToggleButton', () => {
     expect(button).toHaveAttribute('tabIndex', '0')
   })
 })
+
+
+
+

@@ -3,8 +3,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ManageModals } from '../ManageModals';
 
 // Mock all modal components
-jest.mock('../AuthRequiredModal', () => ({
-  AuthRequiredModal: jest.fn(({ isOpen, onClose }) => (
+vi.mock('../AuthRequiredModal', () => ({
+  AuthRequiredModal: vi.fn(({ isOpen, onClose }) => (
     isOpen ? (
       <div data-testid="auth-required-modal">
         <button onClick={onClose} data-testid="close-auth-modal">Close</button>
@@ -13,8 +13,8 @@ jest.mock('../AuthRequiredModal', () => ({
   ))
 }));
 
-jest.mock('../CreateEntityModal', () => ({
-  CreateEntityModal: jest.fn(({ isOpen, onClose, type }) => (
+vi.mock('../CreateEntityModal', () => ({
+  CreateEntityModal: vi.fn(({ isOpen, onClose, type }) => (
     isOpen ? (
       <div data-testid="create-entity-modal">
         <div data-testid="modal-type">{type}</div>
@@ -24,8 +24,8 @@ jest.mock('../CreateEntityModal', () => ({
   ))
 }));
 
-jest.mock('../PersonEditModal', () => ({
-  PersonEditModal: jest.fn(({ isOpen, person }) => (
+vi.mock('../PersonEditModal', () => ({
+  PersonEditModal: vi.fn(({ isOpen, person }) => (
     isOpen ? (
       <div data-testid="person-edit-modal">
         <div data-testid="person-name">{person?.name}</div>
@@ -34,8 +34,8 @@ jest.mock('../PersonEditModal', () => ({
   ))
 }));
 
-jest.mock('../CreateListModal', () => ({
-  CreateListModal: jest.fn(({ isOpen, onClose }) => (
+vi.mock('../CreateListModal', () => ({
+  CreateListModal: vi.fn(({ isOpen, onClose }) => (
     isOpen ? (
       <div data-testid="create-list-modal">
         <button onClick={onClose} data-testid="close-list-modal">Close</button>
@@ -44,8 +44,8 @@ jest.mock('../CreateListModal', () => ({
   ))
 }));
 
-jest.mock('../AddToListModal', () => ({
-  AddToListModal: jest.fn(({ isOpen, onClose }) => (
+vi.mock('../AddToListModal', () => ({
+  AddToListModal: vi.fn(({ isOpen, onClose }) => (
     isOpen ? (
       <div data-testid="add-to-list-modal">
         <button onClick={onClose} data-testid="close-add-modal">Close</button>
@@ -54,8 +54,8 @@ jest.mock('../AddToListModal', () => ({
   ))
 }));
 
-jest.mock('shared/ui/EditWarningModal', () => ({
-  EditWarningModal: jest.fn(({ isOpen, personName, onRevertToDraft, onCancel }) => (
+vi.mock('shared/ui/EditWarningModal', () => ({
+  EditWarningModal: vi.fn(({ isOpen, personName, onRevertToDraft, onCancel }) => (
     isOpen ? (
       <div data-testid="edit-warning-modal">
         <div data-testid="warning-person-name">{personName}</div>
@@ -67,22 +67,22 @@ jest.mock('shared/ui/EditWarningModal', () => ({
 }));
 
 // Mock API functions
-jest.mock('shared/api/api', () => ({
-  apiFetch: jest.fn(),
-  getPersonById: jest.fn(),
-  proposePersonEdit: jest.fn(),
-  updatePerson: jest.fn(),
-  submitPersonDraft: jest.fn(),
-  revertPersonToDraft: jest.fn(),
-  createPersonDraft: jest.fn(),
-  createAchievementDraft: jest.fn(),
-  createPeriodDraft: jest.fn(),
-  adminUpsertPerson: jest.fn(),
-  proposeNewPerson: jest.fn(),
+vi.mock('shared/api/api', () => ({
+  apiFetch: vi.fn(),
+  getPersonById: vi.fn(),
+  proposePersonEdit: vi.fn(),
+  updatePerson: vi.fn(),
+  submitPersonDraft: vi.fn(),
+  revertPersonToDraft: vi.fn(),
+  createPersonDraft: vi.fn(),
+  createAchievementDraft: vi.fn(),
+  createPeriodDraft: vi.fn(),
+  adminUpsertPerson: vi.fn(),
+  proposeNewPerson: vi.fn(),
 }));
 
-jest.mock('shared/utils/slug', () => ({
-  slugifyIdFromName: jest.fn(() => 'test-id'),
+vi.mock('shared/utils/slug', () => ({
+  slugifyIdFromName: vi.fn(() => 'test-id'),
 }));
 
 describe('ManageModals', () => {
@@ -101,56 +101,56 @@ describe('ManageModals', () => {
 
   const mockProps = {
     showAuthModal: false,
-    setShowAuthModal: jest.fn(),
+    setShowAuthModal: vi.fn(),
     showCreate: false,
-    setShowCreate: jest.fn(),
+    setShowCreate: vi.fn(),
     createType: 'person' as const,
     isEditing: false,
-    setIsEditing: jest.fn(),
+    setIsEditing: vi.fn(),
     showCreateList: false,
-    setShowCreateList: jest.fn(),
+    setShowCreateList: vi.fn(),
     showEditWarning: false,
-    setShowEditWarning: jest.fn(),
+    setShowEditWarning: vi.fn(),
     isReverting: false,
-    setIsReverting: jest.fn(),
+    setIsReverting: vi.fn(),
     categories: ['category1', 'category2'],
     countryOptions: [{ value: 'US', label: 'United States' }],
     categorySelectOptions: [{ value: 'cat1', label: 'Category 1' }],
     countrySelectOptions: [{ value: 'US', label: 'United States' }],
     selected: mockPerson,
-    setSelected: jest.fn(),
+    setSelected: vi.fn(),
     lifePeriods: [],
-    setLifePeriods: jest.fn(),
+    setLifePeriods: vi.fn(),
     editBirthYear: 1800,
-    setEditBirthYear: jest.fn(),
+    setEditBirthYear: vi.fn(),
     editDeathYear: 1850,
-    setEditDeathYear: jest.fn(),
+    setEditDeathYear: vi.fn(),
     editPersonCategory: 'test-category',
-    setEditPersonCategory: jest.fn(),
+    setEditPersonCategory: vi.fn(),
     personLists: [{ id: 1, title: 'Test List' }],
     isAuthenticated: true,
     user: { id: '1', role: 'user', email_verified: true },
     isModerator: false,
     addToList: {
       isOpen: false,
-      openForPerson: jest.fn(),
-      openForAchievement: jest.fn(),
-      openForPeriod: jest.fn(),
-      close: jest.fn(),
+      openForPerson: vi.fn(),
+      openForAchievement: vi.fn(),
+      openForPeriod: vi.fn(),
+      close: vi.fn(),
       includeLinked: false,
-      setIncludeLinked: jest.fn(),
-      onAdd: jest.fn(),
+      setIncludeLinked: vi.fn(),
+      onAdd: vi.fn(),
     },
-    showToast: jest.fn(),
-    resetPersons: jest.fn(),
-    resetAchievements: jest.fn(),
-    resetPeriods: jest.fn(),
-    loadUserLists: jest.fn(),
-    navigate: jest.fn(),
+    showToast: vi.fn(),
+    resetPersons: vi.fn(),
+    resetAchievements: vi.fn(),
+    resetPeriods: vi.fn(),
+    loadUserLists: vi.fn(),
+    navigate: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders without crashing', () => {
@@ -243,3 +243,7 @@ describe('ManageModals', () => {
     expect(screen.getByTestId('warning-person-name')).toHaveTextContent('');
   });
 });
+
+
+
+

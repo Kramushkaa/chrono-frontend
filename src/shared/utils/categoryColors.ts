@@ -90,3 +90,5 @@ export const getCategoryColorDark = (category: string): string => {
 export const getCategoryColorMuted = (category: string): string => {
   return categoryColorsMuted[category] || '#a8926a';
 }; 
+
+

@@ -116,10 +116,10 @@ describe('useFilters', () => {
 
     const mockEvent = {
       key: 'Enter',
-      preventDefault: jest.fn(),
+      preventDefault: vi.fn(),
       currentTarget: { 
         value: '1900',
-        parentElement: { parentElement: { querySelectorAll: jest.fn(() => []) } },
+        parentElement: { parentElement: { querySelectorAll: vi.fn(() => []) } },
       },
     } as unknown as React.KeyboardEvent<HTMLInputElement>
 
@@ -130,3 +130,8 @@ describe('useFilters', () => {
     expect(result.current.filters.timeRange.start).toBe(1900)
   })
 })
+
+
+
+
+

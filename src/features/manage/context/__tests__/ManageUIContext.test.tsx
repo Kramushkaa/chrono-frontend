@@ -4,9 +4,9 @@ import { ManageUIProvider, useManageUI } from '../ManageUIContext'
 
 describe('ManageUIContext', () => {
   const mockValue = {
-    openAddAchievement: jest.fn(),
-    openAddPeriod: jest.fn(),
-    openAddForSelectedPerson: jest.fn(),
+    openAddAchievement: vi.fn(),
+    openAddPeriod: vi.fn(),
+    openAddForSelectedPerson: vi.fn(),
   }
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -14,7 +14,7 @@ describe('ManageUIContext', () => {
   )
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('useManageUI', () => {
@@ -57,3 +57,7 @@ describe('ManageUIContext', () => {
     })
   })
 })
+
+
+
+

@@ -66,3 +66,6 @@ export function useContemporariesFeedback({ showFeedback, userAnswer, data }: Us
   return personStatuses
 }
 
+
+
+

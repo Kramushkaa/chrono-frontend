@@ -25,7 +25,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error to console in development
-    if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.MODE !== 'production') {
       console.error('Error caught by ErrorBoundary:', error, errorInfo)
     }
 
@@ -65,4 +65,7 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children
   }
 }
+
+
+
 

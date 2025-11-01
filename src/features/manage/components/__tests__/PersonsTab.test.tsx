@@ -4,7 +4,7 @@ import { PersonsTab } from '../PersonsTab';
 import { Person } from 'shared/types';
 
 // Mock dependencies
-jest.mock('../UnifiedManageSection', () => ({
+vi.mock('../UnifiedManageSection', () => ({
   UnifiedManageSection: ({ onSelect, onPersonSelect, itemType, emptyMessage }: any) => (
     <div data-testid="unified-manage-section">
       <button onClick={() => onSelect && onSelect(mockPerson)}>
@@ -19,7 +19,7 @@ jest.mock('../UnifiedManageSection', () => ({
   ),
 }));
 
-jest.mock('features/persons/components/PersonCard', () => ({
+vi.mock('features/persons/components/PersonCard', () => ({
   PersonCard: ({ person, onAddAchievement }: any) => (
     <div data-testid="person-card">
       <span data-testid="person-name">{person.name}</span>
@@ -30,9 +30,9 @@ jest.mock('features/persons/components/PersonCard', () => ({
   ),
 }));
 
-jest.mock('features/persons/utils/groupingUtils', () => ({
-  getGroupColor: jest.fn(() => '#000'),
-  getPersonGroup: jest.fn(() => 'category'),
+vi.mock('features/persons/utils/groupingUtils', () => ({
+  getGroupColor: vi.fn(() => '#000'),
+  getPersonGroup: vi.fn(() => 'category'),
 }));
 
 const mockPerson: Person = {
@@ -48,7 +48,7 @@ const mockPerson: Person = {
 const defaultProps = {
   sidebarCollapsed: false,
   menuSelection: 'all' as const,
-  setMenuSelection: jest.fn(),
+  setMenuSelection: vi.fn(),
   isModerator: false,
   mineCounts: { persons: 5, achievements: 3, periods: 2 },
   sharedList: null,
@@ -56,56 +56,56 @@ const defaultProps = {
     { id: 1, title: 'My List', items_count: 10 }
   ],
   isAuthenticated: true,
-  setShowAuthModal: jest.fn(),
-  setShowCreateList: jest.fn(),
-  setShowCreate: jest.fn(),
+  setShowAuthModal: vi.fn(),
+  setShowCreateList: vi.fn(),
+  setShowCreate: vi.fn(),
   createType: 'person' as const,
-  setCreateType: jest.fn(),
+  setCreateType: vi.fn(),
   selectedListId: null,
-  setSelectedListId: jest.fn(),
-  loadUserLists: jest.fn(),
-  showToast: jest.fn(),
+  setSelectedListId: vi.fn(),
+  loadUserLists: vi.fn(),
+  showToast: vi.fn(),
   listItems: [],
   listLoading: false,
   personsAlt: [mockPerson],
   personsAltLoading: false,
   personsAltInitialLoading: false,
   personsAltHasMore: false,
-  loadMorePersonsAlt: jest.fn(),
+  loadMorePersonsAlt: vi.fn(),
   personsAll: [mockPerson],
   isPersonsLoadingAll: false,
   personsHasMoreAll: false,
-  loadMorePersonsAll: jest.fn(),
+  loadMorePersonsAll: vi.fn(),
   searchPersons: '',
-  setSearchPersons: jest.fn(),
+  setSearchPersons: vi.fn(),
   categories: ['philosopher', 'scientist'],
   countries: ['Russia', 'France'],
   filters: { category: [], country: [], timeRange: { start: -800, end: 2000 } },
-  setFilters: jest.fn(),
+  setFilters: vi.fn(),
   statusFilters: {},
-  setStatusFilters: jest.fn(),
+  setStatusFilters: vi.fn(),
   listItemIdByDomainIdRef: { current: new Map() },
-  handleDeleteListItem: jest.fn(),
+  handleDeleteListItem: vi.fn(),
   selected: null,
-  setSelected: jest.fn(),
+  setSelected: vi.fn(),
   addToList: {
     isOpen: false,
-    openForPerson: jest.fn(),
-    openForAchievement: jest.fn(),
-    openForPeriod: jest.fn(),
-    close: jest.fn(),
+    openForPerson: vi.fn(),
+    openForAchievement: vi.fn(),
+    openForPeriod: vi.fn(),
+    close: vi.fn(),
     includeLinked: false,
-    setIncludeLinked: jest.fn(),
-    onAdd: jest.fn(),
+    setIncludeLinked: vi.fn(),
+    onAdd: vi.fn(),
   },
   user: { email_verified: true } as any,
-  setIsEditing: jest.fn(),
-  setShowEditWarning: jest.fn(),
+  setIsEditing: vi.fn(),
+  setShowEditWarning: vi.fn(),
 };
 
 describe('PersonsTab', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render without crashing', () => {
@@ -133,7 +133,7 @@ describe('PersonsTab', () => {
   });
 
   it('should handle edit button click for authenticated user', () => {
-    const setIsEditing = jest.fn();
+    const setIsEditing = vi.fn();
     render(
       <PersonsTab 
         {...defaultProps} 
@@ -149,7 +149,7 @@ describe('PersonsTab', () => {
   });
 
   it('should show auth modal for unauthenticated user on edit', () => {
-    const setShowAuthModal = jest.fn();
+    const setShowAuthModal = vi.fn();
     render(
       <PersonsTab 
         {...defaultProps} 
@@ -165,7 +165,7 @@ describe('PersonsTab', () => {
   });
 
   it('should handle add to list button click', () => {
-    const mockOpenForPerson = jest.fn();
+    const mockOpenForPerson = vi.fn();
     render(
       <PersonsTab 
         {...defaultProps} 
@@ -184,7 +184,7 @@ describe('PersonsTab', () => {
   });
 
   it('should show edit warning for pending person', () => {
-    const setShowEditWarning = jest.fn();
+    const setShowEditWarning = vi.fn();
     const pendingPerson = { ...mockPerson, status: 'pending' };
     
     render(
@@ -202,8 +202,8 @@ describe('PersonsTab', () => {
   });
 
   it('should handle add achievement from person card', () => {
-    const setShowCreate = jest.fn();
-    const setCreateType = jest.fn();
+    const setShowCreate = vi.fn();
+    const setCreateType = vi.fn();
     
     render(
       <PersonsTab 
@@ -231,3 +231,7 @@ describe('PersonsTab', () => {
     expect(screen.getByTestId('item-type')).toHaveTextContent('person');
   });
 });
+
+
+
+

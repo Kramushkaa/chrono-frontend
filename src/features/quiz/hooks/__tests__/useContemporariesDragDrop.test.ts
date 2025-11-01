@@ -2,12 +2,12 @@ import { renderHook, act } from '@testing-library/react'
 import { useContemporariesDragDrop } from '../useContemporariesDragDrop'
 
 describe('useContemporariesDragDrop', () => {
-  const mockAddToGroup = jest.fn()
-  const mockCreateGroup = jest.fn()
+  const mockAddToGroup = vi.fn()
+  const mockCreateGroup = vi.fn()
   const mockGroups = [['person-1', 'person-2'], ['person-3']]
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Initial State', () => {
@@ -40,8 +40,8 @@ describe('useContemporariesDragDrop', () => {
       )
 
       const mockEvent = {
-        stopPropagation: jest.fn(),
-        dataTransfer: { effectAllowed: '', setData: jest.fn() },
+        stopPropagation: vi.fn(),
+        dataTransfer: { effectAllowed: '', setData: vi.fn() },
       } as any
 
       act(() => {
@@ -62,8 +62,8 @@ describe('useContemporariesDragDrop', () => {
       )
 
       const mockEvent = {
-        stopPropagation: jest.fn(),
-        dataTransfer: { effectAllowed: '', setData: jest.fn() },
+        stopPropagation: vi.fn(),
+        dataTransfer: { effectAllowed: '', setData: vi.fn() },
       } as any
 
       act(() => {
@@ -84,8 +84,8 @@ describe('useContemporariesDragDrop', () => {
 
       // Start drag first
       const mockStartEvent = {
-        stopPropagation: jest.fn(),
-        dataTransfer: { effectAllowed: '', setData: jest.fn() },
+        stopPropagation: vi.fn(),
+        dataTransfer: { effectAllowed: '', setData: vi.fn() },
       } as any
 
       act(() => {
@@ -111,7 +111,7 @@ describe('useContemporariesDragDrop', () => {
         })
       )
 
-      const mockEvent = { preventDefault: jest.fn(), dataTransfer: { dropEffect: '' } } as any
+      const mockEvent = { preventDefault: vi.fn(), dataTransfer: { dropEffect: '' } } as any
 
       act(() => {
         result.current.handleDragOverGroup(mockEvent)
@@ -130,7 +130,7 @@ describe('useContemporariesDragDrop', () => {
         })
       )
 
-      const mockEvent = { preventDefault: jest.fn(), dataTransfer: { dropEffect: '' } } as any
+      const mockEvent = { preventDefault: vi.fn(), dataTransfer: { dropEffect: '' } } as any
 
       act(() => {
         result.current.handleDragOverCreateZone(mockEvent)
@@ -215,9 +215,9 @@ describe('useContemporariesDragDrop', () => {
       )
 
       const mockEvent = {
-        stopPropagation: jest.fn(),
-        preventDefault: jest.fn(),
-        dataTransfer: { getData: jest.fn().mockReturnValue('person-1') },
+        stopPropagation: vi.fn(),
+        preventDefault: vi.fn(),
+        dataTransfer: { getData: vi.fn().mockReturnValue('person-1') },
       } as any
 
       act(() => {
@@ -239,9 +239,9 @@ describe('useContemporariesDragDrop', () => {
       )
 
       const mockEvent = {
-        stopPropagation: jest.fn(),
-        preventDefault: jest.fn(),
-        dataTransfer: { getData: jest.fn().mockReturnValue('person-1') },
+        stopPropagation: vi.fn(),
+        preventDefault: vi.fn(),
+        dataTransfer: { getData: vi.fn().mockReturnValue('person-1') },
       } as any
 
       act(() => {
@@ -264,7 +264,7 @@ describe('useContemporariesDragDrop', () => {
       )
 
       const mockEvent = {
-        preventDefault: jest.fn(),
+        preventDefault: vi.fn(),
         touches: [{ clientX: 100, clientY: 200 }],
         currentTarget: document.createElement('div'),
       } as any
@@ -287,7 +287,7 @@ describe('useContemporariesDragDrop', () => {
       )
 
       const mockEvent = {
-        preventDefault: jest.fn(),
+        preventDefault: vi.fn(),
         touches: [{ clientX: 100, clientY: 200 }],
         currentTarget: document.createElement('div'),
       } as any
@@ -312,8 +312,8 @@ describe('useContemporariesDragDrop', () => {
 
       // Set some state
       const mockEvent = {
-        stopPropagation: jest.fn(),
-        dataTransfer: { effectAllowed: '', setData: jest.fn() },
+        stopPropagation: vi.fn(),
+        dataTransfer: { effectAllowed: '', setData: vi.fn() },
       } as any
 
       act(() => {
@@ -361,4 +361,9 @@ describe('useContemporariesDragDrop', () => {
     })
   })
 })
+
+
+
+
+
 

@@ -4,11 +4,11 @@ import { useApiDataSimple } from 'shared/hooks/useApiData'
 import { Person } from 'shared/types'
 
 // Mock useApiDataSimple hook
-jest.mock('shared/hooks/useApiData', () => ({
-  useApiDataSimple: jest.fn(),
+vi.mock('shared/hooks/useApiData', () => ({
+  useApiDataSimple: vi.fn(),
 }))
 
-const mockUseApiDataSimple = useApiDataSimple as jest.MockedFunction<typeof useApiDataSimple>
+const mockUseApiDataSimple = useApiDataSimple as vi.MockedFunction<typeof useApiDataSimple>
 
 describe('usePersonAchievements', () => {
   const mockPerson: Person = {
@@ -35,7 +35,7 @@ describe('usePersonAchievements', () => {
   ]
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should return null achievements when no person provided', () => {
@@ -43,7 +43,7 @@ describe('usePersonAchievements', () => {
       data: null,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const { result } = renderHook(() => usePersonAchievements(null))
@@ -58,7 +58,7 @@ describe('usePersonAchievements', () => {
       data: null,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const { result } = renderHook(() => usePersonAchievements(mockPersonWithAchievements))
@@ -73,7 +73,7 @@ describe('usePersonAchievements', () => {
       data: null,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     renderHook(() => usePersonAchievements(mockPersonWithAchievements))
@@ -90,7 +90,7 @@ describe('usePersonAchievements', () => {
       data: mockAchievements,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     renderHook(() => usePersonAchievements(mockPerson))
@@ -107,7 +107,7 @@ describe('usePersonAchievements', () => {
       data: mockAchievements,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const { result } = renderHook(() => usePersonAchievements(mockPerson))
@@ -125,7 +125,7 @@ describe('usePersonAchievements', () => {
       data: null,
       isLoading: true,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const { result } = renderHook(() => usePersonAchievements(mockPerson))
@@ -139,7 +139,7 @@ describe('usePersonAchievements', () => {
       data: [],
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const { result } = renderHook(() => usePersonAchievements(mockPerson))
@@ -159,7 +159,7 @@ describe('usePersonAchievements', () => {
       data: achievementsWithEmptyUrls,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const { result } = renderHook(() => usePersonAchievements(mockPerson))
@@ -177,7 +177,7 @@ describe('usePersonAchievements', () => {
       data: null,
       isLoading: true,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const { result } = renderHook(() => usePersonAchievements(mockPerson))
@@ -193,7 +193,7 @@ describe('usePersonAchievements', () => {
       data: null,
       isLoading: false,
       error: apiError,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const { result } = renderHook(() => usePersonAchievements(mockPerson))
@@ -213,7 +213,7 @@ describe('usePersonAchievements', () => {
       data: mockAchievements,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const { result } = renderHook(() => usePersonAchievements(personWithEmptyAchievements))
@@ -232,3 +232,8 @@ describe('usePersonAchievements', () => {
     ])
   })
 })
+
+
+
+
+

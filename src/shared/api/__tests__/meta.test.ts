@@ -1,18 +1,18 @@
 import { getCategories, getCountries, getCountryOptions, getDtoVersion } from '../meta'
 
 // Mock core API functions
-jest.mock('../core', () => ({
-  apiData: jest.fn(),
-  maybePercentDecode: jest.fn((str) => str),
+vi.mock('../core', () => ({
+  apiData: vi.fn(),
+  maybePercentDecode: vi.fn((str) => str),
 }))
 
 import { apiData } from '../core'
 
-const mockApiData = apiData as jest.MockedFunction<typeof apiData>
+const mockApiData = apiData as vi.MockedFunction<typeof apiData>
 
 describe('meta API', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Provide default resolved values
     mockApiData.mockResolvedValue([] as any)
   })
@@ -72,4 +72,9 @@ describe('meta API', () => {
     })
   })
 })
+
+
+
+
+
 

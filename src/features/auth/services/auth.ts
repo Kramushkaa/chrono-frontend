@@ -26,7 +26,7 @@ export const authStorage = {
       const version = localStorage.getItem('auth_version');
       if (version !== AUTH_STORAGE_VERSION) {
         // Clear old auth data if version mismatch
-        if (process.env.NODE_ENV !== 'production') {
+        if (import.meta.env.MODE !== 'production') {
           console.log('Auth storage version mismatch, clearing old tokens');
         }
         this.clear();
@@ -136,4 +136,7 @@ export async function changePassword(accessToken: string, payload: { current_pas
   if (!res.ok) throw new Error(data?.message || 'Password change failed');
   return data;
 }
+
+
+
 

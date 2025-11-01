@@ -2,7 +2,7 @@ import { renderHook, act } from '@testing-library/react'
 import { useFilterDropdownPosition } from '../useFilterDropdownPosition'
 
 // Mock getBoundingClientRect
-const mockGetBoundingClientRect = jest.fn()
+const mockGetBoundingClientRect = vi.fn()
 
 // Mock DOM elements
 const createMockRef = (rect: DOMRect) => ({
@@ -18,12 +18,12 @@ describe('useFilterDropdownPosition', () => {
     Object.defineProperty(window, 'innerWidth', { value: 1200, writable: true })
 
     // Mock addEventListener and removeEventListener
-    window.addEventListener = jest.fn()
-    window.removeEventListener = jest.fn()
+    window.addEventListener = vi.fn()
+    window.removeEventListener = vi.fn()
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should initialize with default positions', () => {
@@ -246,3 +246,8 @@ describe('useFilterDropdownPosition', () => {
     )
   })
 })
+
+
+
+
+

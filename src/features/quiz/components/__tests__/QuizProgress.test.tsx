@@ -13,7 +13,7 @@ const mockInnerWidth = (width: number) => {
 
 describe('QuizProgress', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockInnerWidth(1024) // Default desktop width
   })
 
@@ -170,3 +170,7 @@ describe('QuizProgress', () => {
     expect(progressElement).toBeInTheDocument()
   })
 })
+
+
+
+

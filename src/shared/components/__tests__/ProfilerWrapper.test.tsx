@@ -4,8 +4,8 @@ import { ProfilerWrapper, withProfiler } from '../ProfilerWrapper'
 import { logPerformanceMark } from '../../utils/performance'
 
 // Mock the performance utility
-jest.mock('../../utils/performance', () => ({
-  logPerformanceMark: jest.fn(),
+vi.mock('../../utils/performance', () => ({
+  logPerformanceMark: vi.fn(),
 }))
 
 // Mock console methods to avoid noise in tests
@@ -13,9 +13,9 @@ const originalConsoleWarn = console.warn
 const originalConsoleLog = console.log
 
 beforeEach(() => {
-  console.warn = jest.fn()
-  console.log = jest.fn()
-  jest.clearAllMocks()
+  console.warn = vi.fn()
+  console.log = vi.fn()
+  vi.clearAllMocks()
 })
 
 afterEach(() => {
@@ -61,7 +61,7 @@ describe('ProfilerWrapper', () => {
     })
 
     it('should call logPerformanceMark when profiler renders', () => {
-      const mockLogPerformanceMark = logPerformanceMark as jest.MockedFunction<typeof logPerformanceMark>
+      const mockLogPerformanceMark = logPerformanceMark as vi.MockedFunction<typeof logPerformanceMark>
       
       render(
         <ProfilerWrapper id="TestComponent">
@@ -109,7 +109,7 @@ describe('ProfilerWrapper', () => {
     })
 
     it('should not call logPerformanceMark in production', () => {
-      const mockLogPerformanceMark = logPerformanceMark as jest.MockedFunction<typeof logPerformanceMark>
+      const mockLogPerformanceMark = logPerformanceMark as vi.MockedFunction<typeof logPerformanceMark>
       
       render(
         <ProfilerWrapper id="TestComponent">
@@ -213,3 +213,7 @@ describe('ProfilerWrapper edge cases', () => {
     expect(true).toBe(true)
   })
 })
+
+
+
+

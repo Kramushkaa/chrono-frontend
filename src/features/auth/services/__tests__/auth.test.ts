@@ -2,24 +2,24 @@ import { authStorage, register, login, refresh, getProfile, logout, changePasswo
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 };
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock apiFetch
-jest.mock('shared/api/api', () => ({
-  apiFetch: jest.fn(),
+vi.mock('shared/api/api', () => ({
+  apiFetch: vi.fn(),
 }));
 
 import { apiFetch } from 'shared/api/api';
-const mockApiFetch = apiFetch as jest.MockedFunction<typeof apiFetch>;
+const mockApiFetch = apiFetch as vi.MockedFunction<typeof apiFetch>;
 
 describe('Auth Service', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorageMock.getItem.mockClear();
     localStorageMock.setItem.mockClear();
     localStorageMock.removeItem.mockClear();
@@ -504,3 +504,8 @@ describe('Auth Service', () => {
     });
   });
 });
+
+
+
+
+

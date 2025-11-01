@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { CreatePeriodForm } from '../CreatePeriodForm'
 
 // Mock the SearchableSelect component
-jest.mock('shared/ui/SearchableSelect', () => ({
+vi.mock('shared/ui/SearchableSelect', () => ({
   SearchableSelect: ({ children, ...props }: any) => (
     <div data-testid="searchable-select" {...props}>
       {children}
@@ -31,12 +31,12 @@ describe('CreatePeriodForm', () => {
     countryOptions: mockCountryOptions,
     personOptions: mockPersonOptions,
     personsSelectLoading: false,
-    onSearchPersons: jest.fn(),
-    onSubmit: jest.fn(),
+    onSearchPersons: vi.fn(),
+    onSubmit: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -134,3 +134,7 @@ describe('CreatePeriodForm', () => {
     expect(buttons.length).toBeGreaterThan(0)
   })
 })
+
+
+
+

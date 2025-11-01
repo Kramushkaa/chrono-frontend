@@ -41,3 +41,5 @@ export const AchievementMarker: React.FC<AchievementMarkerProps> = ({ isActive }
     </div>
   )
 } 
+
+

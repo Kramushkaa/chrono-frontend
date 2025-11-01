@@ -5,16 +5,16 @@ import { DesktopTabs } from '../DesktopTabs'
 describe('DesktopTabs', () => {
   const defaultProps = {
     activeTab: 'persons' as const,
-    setActiveTab: jest.fn(),
+    setActiveTab: vi.fn(),
     sidebarCollapsed: false,
-    setSidebarCollapsed: jest.fn(),
+    setSidebarCollapsed: vi.fn(),
     isAuthenticated: true,
     userEmailVerified: true,
-    onAddClick: jest.fn(),
+    onAddClick: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render all tab buttons', () => {
@@ -161,3 +161,7 @@ describe('DesktopTabs', () => {
     expect(periodsTab).toHaveAttribute('aria-selected', 'true')
   })
 })
+
+
+
+

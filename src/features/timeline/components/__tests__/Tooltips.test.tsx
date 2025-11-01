@@ -4,12 +4,12 @@ import { Tooltips } from '../Tooltips'
 import { Person } from 'shared/types'
 
 // Mock useMobile hook
-jest.mock('shared/hooks/useMobile', () => ({
-  useMobile: jest.fn(() => false),
+vi.mock('shared/hooks/useMobile', () => ({
+  useMobile: vi.fn(() => false),
 }))
 
 import { useMobile } from 'shared/hooks/useMobile'
-const mockUseMobile = useMobile as jest.MockedFunction<typeof useMobile>
+const mockUseMobile = useMobile as vi.MockedFunction<typeof useMobile>
 
 describe('Tooltips', () => {
   const mockPerson: Person = {
@@ -30,13 +30,13 @@ describe('Tooltips', () => {
     mousePosition: { x: 100, y: 200 },
     hoveredAchievement: null,
     showAchievementTooltip: false,
-    getGroupColor: jest.fn(() => '#ff0000'),
-    getPersonGroup: jest.fn(() => 'Politics'),
-    getCategoryColor: jest.fn(() => '#00ff00'),
+    getGroupColor: vi.fn(() => '#ff0000'),
+    getPersonGroup: vi.fn(() => 'Politics'),
+    getCategoryColor: vi.fn(() => '#00ff00'),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockUseMobile.mockReturnValue(false) // Reset to default
   })
 
@@ -228,3 +228,7 @@ describe('Tooltips', () => {
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   })
 })
+
+
+
+

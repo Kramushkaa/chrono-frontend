@@ -62,3 +62,6 @@ export const QuizProgress: React.FC<QuizProgressProps> = ({
     </div>
   );
 };
+
+
+

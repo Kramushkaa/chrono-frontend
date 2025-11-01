@@ -5,12 +5,12 @@ import { CreateListModal } from '../CreateListModal';
 describe('CreateListModal', () => {
   const mockProps = {
     isOpen: true,
-    onClose: jest.fn(),
-    onCreate: jest.fn().mockResolvedValue(undefined),
+    onClose: vi.fn(),
+    onCreate: vi.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should not render when isOpen is false', () => {
@@ -111,4 +111,8 @@ describe('CreateListModal', () => {
     expect(newInput.value).toBe('');
   });
 });
+
+
+
+
 

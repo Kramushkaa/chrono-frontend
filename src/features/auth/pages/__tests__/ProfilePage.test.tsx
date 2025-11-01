@@ -3,62 +3,62 @@ import { render, screen } from '@testing-library/react';
 import ProfilePage from '../ProfilePage';
 
 // Mock all dependencies
-jest.mock('shared/context/AuthContext', () => ({
-  useAuth: jest.fn(),
+vi.mock('shared/context/AuthContext', () => ({
+  useAuth: vi.fn(),
 }));
 
-jest.mock('shared/context/ToastContext', () => ({
+vi.mock('shared/context/ToastContext', () => ({
   useToast: () => ({
-    showToast: jest.fn(),
+    showToast: vi.fn(),
   }),
 }));
 
-jest.mock('features/auth/components/Profile', () => ({
+vi.mock('features/auth/components/Profile', () => ({
   Profile: () => <div data-testid="profile-component">Profile Component</div>,
 }));
 
-jest.mock('features/auth/components/LoginForm', () => ({
+vi.mock('features/auth/components/LoginForm', () => ({
   LoginForm: () => <div data-testid="login-form">Login Form</div>,
 }));
 
-jest.mock('features/auth/components/RegisterForm', () => ({
+vi.mock('features/auth/components/RegisterForm', () => ({
   RegisterForm: () => <div data-testid="register-form">Register Form</div>,
 }));
 
-jest.mock('shared/layout/AppHeader', () => ({
+vi.mock('shared/layout/AppHeader', () => ({
   AppHeader: () => <div data-testid="app-header">App Header</div>,
 }));
 
-jest.mock('shared/ui/Breadcrumbs', () => ({
+vi.mock('shared/ui/Breadcrumbs', () => ({
   Breadcrumbs: () => <div data-testid="breadcrumbs">Breadcrumbs</div>,
 }));
 
-jest.mock('shared/ui/SEO', () => ({
+vi.mock('shared/ui/SEO', () => ({
   SEO: ({ title }: { title: string }) => <div data-testid="seo">{title}</div>,
 }));
 
-jest.mock('shared/hooks/useFilters', () => ({
+vi.mock('shared/hooks/useFilters', () => ({
   useFilters: () => ({
     filters: {},
-    setFilters: jest.fn(),
+    setFilters: vi.fn(),
     groupingType: 'none',
-    setGroupingType: jest.fn(),
+    setGroupingType: vi.fn(),
     yearInputs: { start: '1800', end: '2000' },
-    setYearInputs: jest.fn(),
-    applyYearFilter: jest.fn(),
-    handleYearKeyPress: jest.fn(),
-    resetAllFilters: jest.fn(),
+    setYearInputs: vi.fn(),
+    applyYearFilter: vi.fn(),
+    handleYearKeyPress: vi.fn(),
+    resetAllFilters: vi.fn(),
   }),
 }));
 
-jest.mock('shared/api/api', () => ({
-  apiFetch: jest.fn(),
-  getCategories: jest.fn().mockResolvedValue(['Category1']),
-  getCountries: jest.fn().mockResolvedValue(['Country1']),
+vi.mock('shared/api/api', () => ({
+  apiFetch: vi.fn(),
+  getCategories: vi.fn().mockResolvedValue(['Category1']),
+  getCountries: vi.fn().mockResolvedValue(['Country1']),
 }));
 
-jest.mock('features/persons/utils/groupingUtils', () => ({
-  getGroupColor: jest.fn(),
+vi.mock('features/persons/utils/groupingUtils', () => ({
+  getGroupColor: vi.fn(),
 }));
 
 // Mock window.location and window.history for the email verification logic
@@ -67,7 +67,7 @@ const mockLocation = {
   href: 'http://localhost/profile',
 };
 const mockHistory = {
-  replaceState: jest.fn(),
+  replaceState: vi.fn(),
 };
 
 // Try to mock window properties safely
@@ -93,12 +93,14 @@ try {
   (window as any).history = mockHistory;
 }
 
-describe('ProfilePage', () => {
-  const mockUseAuth = jest.requireMock('shared/context/AuthContext').useAuth as jest.MockedFunction<any>;
+import { useAuth } from 'shared/context/AuthContext'
 
+describe('ProfilePage', () => {
+  const mockUseAuth = vi.mocked(useAuth)
+  
   beforeEach(() => {
-    jest.clearAllMocks();
-    mockUseAuth.mockReturnValue({ isAuthenticated: true, user: { id: 1 } });
+    vi.clearAllMocks();
+    mockUseAuth.mockReturnValue({ isAuthenticated: true, user: { id: 1 } } as any);
   });
 
   it('should render without crashing', () => {
@@ -143,3 +145,7 @@ describe('ProfilePage', () => {
     expect(screen.getByText(/Для регистрации используется подтверждение почты/)).toBeInTheDocument();
   });
 });
+
+
+
+

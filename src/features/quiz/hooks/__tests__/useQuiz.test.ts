@@ -5,57 +5,57 @@ import * as generators from '../../generators'
 import { saveQuizAttempt } from '../../../../shared/api'
 
 // Mock generators and API
-jest.mock('../../generators', () => ({
-  generateBirthYearQuestion: jest.fn(() => ({
+vi.mock('../../generators', () => ({
+  generateBirthYearQuestion: vi.fn(() => ({
     id: '1',
     type: 'birthYear',
     question: 'Test question',
     options: ['Option 1', 'Option 2'],
     correctAnswer: 'Option 1',
   })),
-  generateDeathYearQuestion: jest.fn(() => ({
+  generateDeathYearQuestion: vi.fn(() => ({
     id: '2',
     type: 'deathYear',
     question: 'Test question',
     options: ['Option 1', 'Option 2'],
     correctAnswer: 'Option 1',
   })),
-  generateProfessionQuestion: jest.fn(() => ({
+  generateProfessionQuestion: vi.fn(() => ({
     id: '3',
     type: 'profession',
     question: 'Test question',
     options: ['Option 1', 'Option 2'],
     correctAnswer: 'Option 1',
   })),
-  generateCountryQuestion: jest.fn(() => ({
+  generateCountryQuestion: vi.fn(() => ({
     id: '4',
     type: 'country',
     question: 'Test question',
     options: ['Option 1', 'Option 2'],
     correctAnswer: 'Option 1',
   })),
-  generateAchievementsMatchQuestion: jest.fn(() => ({
+  generateAchievementsMatchQuestion: vi.fn(() => ({
     id: '5',
     type: 'achievementsMatch',
     question: 'Test question',
     options: ['Option 1', 'Option 2'],
     correctAnswer: 'Option 1',
   })),
-  generateBirthOrderQuestion: jest.fn(() => ({
+  generateBirthOrderQuestion: vi.fn(() => ({
     id: '6',
     type: 'birthOrder',
     question: 'Test question',
     options: ['Option 1', 'Option 2'],
     correctAnswer: 'Option 1',
   })),
-  generateContemporariesQuestion: jest.fn(() => ({
+  generateContemporariesQuestion: vi.fn(() => ({
     id: '7',
     type: 'contemporaries',
     question: 'Test question',
     options: ['Option 1', 'Option 2'],
     correctAnswer: 'Option 1',
   })),
-  generateGuessPersonQuestion: jest.fn(() => ({
+  generateGuessPersonQuestion: vi.fn(() => ({
     id: '8',
     type: 'guessPerson',
     question: 'Test question',
@@ -64,11 +64,11 @@ jest.mock('../../generators', () => ({
   })),
 }))
 
-jest.mock('../../../../shared/api', () => ({
-  saveQuizAttempt: jest.fn(),
+vi.mock('../../../../shared/api', () => ({
+  saveQuizAttempt: vi.fn(),
 }))
 
-const mockSaveQuizAttempt = saveQuizAttempt as jest.MockedFunction<typeof saveQuizAttempt>
+const mockSaveQuizAttempt = saveQuizAttempt as vi.MockedFunction<typeof saveQuizAttempt>
 
 describe('useQuiz', () => {
   const mockPersons: Person[] = [
@@ -98,12 +98,12 @@ describe('useQuiz', () => {
   const mockCountries = ['Russia', 'France']
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.useFakeTimers()
+    vi.clearAllMocks()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('should initialize with default setup', () => {
@@ -255,7 +255,7 @@ describe('useQuiz', () => {
 
     // Fast-forward timers to trigger debounced update
     act(() => {
-      jest.advanceTimersByTime(500)
+      vi.advanceTimersByTime(500)
     })
 
     // Setup should be updated
@@ -381,3 +381,8 @@ describe('useQuiz', () => {
     }
   })
 })
+
+
+
+
+

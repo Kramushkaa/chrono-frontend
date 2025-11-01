@@ -96,3 +96,5 @@ export const useTimelineData = (filters: Filters, enabled: boolean = true) => {
 
   return { persons, allCategories, allCountries, isLoading }
 } 
+
+

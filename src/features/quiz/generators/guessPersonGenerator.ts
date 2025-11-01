@@ -40,3 +40,6 @@ export const generateGuessPersonQuestion = (persons: Person[]): QuizQuestion => 
   };
 };
 
+
+
+

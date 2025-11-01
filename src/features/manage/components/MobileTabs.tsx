@@ -41,3 +41,6 @@ export function MobileTabs({
     </div>
   )
 }
+
+
+

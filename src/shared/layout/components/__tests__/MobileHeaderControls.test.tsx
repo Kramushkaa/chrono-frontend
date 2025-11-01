@@ -3,12 +3,12 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MobileHeaderControls } from '../MobileHeaderControls';
 
 // Mock all child components (same as DesktopHeaderControls but with mobile specific behavior)
-jest.mock('features/timeline/components/AchievementMarker', () => ({
-  AchievementMarker: jest.fn(() => <div data-testid="achievement-marker">Achievement Marker</div>),
+vi.mock('features/timeline/components/AchievementMarker', () => ({
+  AchievementMarker: vi.fn(() => <div data-testid="achievement-marker">Achievement Marker</div>),
 }));
 
-jest.mock('shared/ui/FilterDropdown', () => ({
-  FilterDropdown: jest.fn(({ title, selectedItems, onSelectionChange }) => (
+vi.mock('shared/ui/FilterDropdown', () => ({
+  FilterDropdown: vi.fn(({ title, selectedItems, onSelectionChange }) => (
     <div data-testid={`filter-${title.toLowerCase()}`}>
       <span>{title}</span>
       <button onClick={() => onSelectionChange(['test'])} data-testid={`filter-${title.toLowerCase()}-button`}>
@@ -18,8 +18,8 @@ jest.mock('shared/ui/FilterDropdown', () => ({
   )),
 }));
 
-jest.mock('shared/ui/GroupingToggle', () => ({
-  GroupingToggle: jest.fn(({ value, onChange, options }) => (
+vi.mock('shared/ui/GroupingToggle', () => ({
+  GroupingToggle: vi.fn(({ value, onChange, options }) => (
     <div data-testid="grouping-toggle">
       {options?.map((option: any) => (
         <button 
@@ -34,12 +34,12 @@ jest.mock('shared/ui/GroupingToggle', () => ({
   )),
 }));
 
-jest.mock('features/timeline/components/YearRangeSlider', () => ({
-  YearRangeSlider: jest.fn(() => <div data-testid="year-range-slider">Year Range Slider</div>),
+vi.mock('features/timeline/components/YearRangeSlider', () => ({
+  YearRangeSlider: vi.fn(() => <div data-testid="year-range-slider">Year Range Slider</div>),
 }));
 
-jest.mock('shared/ui/ToggleButton', () => ({
-  ToggleButton: jest.fn(({ checked, onChange, onClick, label, children }) => (
+vi.mock('shared/ui/ToggleButton', () => ({
+  ToggleButton: vi.fn(({ checked, onChange, onClick, label, children }) => (
     <button 
       onClick={onClick || (() => onChange?.(!checked))} 
       data-testid={label ? `toggle-${label.toLowerCase().replace(/\s+/g, '-')}` : 'toggle-button'}
@@ -58,26 +58,26 @@ describe('MobileHeaderControls', () => {
       categories: [],
       countries: [],
     },
-    setFilters: jest.fn(),
+    setFilters: vi.fn(),
     groupingType: 'category' as const,
-    setGroupingType: jest.fn(),
+    setGroupingType: vi.fn(),
     allCategories: ['Politics', 'Science'],
     allCountries: ['Russia', 'USA'],
     yearInputs: { start: '1800', end: '2000' },
-    setYearInputs: jest.fn(),
-    applyYearFilter: jest.fn(),
-    handleYearKeyPress: jest.fn(),
-    resetAllFilters: jest.fn(),
-    getCategoryColor: jest.fn(() => '#ff0000'),
-    handleSliderMouseDown: jest.fn(),
-    handleSliderMouseMove: jest.fn(),
-    handleSliderMouseUp: jest.fn(),
+    setYearInputs: vi.fn(),
+    applyYearFilter: vi.fn(),
+    handleYearKeyPress: vi.fn(),
+    resetAllFilters: vi.fn(),
+    getCategoryColor: vi.fn(() => '#ff0000'),
+    handleSliderMouseDown: vi.fn(),
+    handleSliderMouseMove: vi.fn(),
+    handleSliderMouseUp: vi.fn(),
     isDraggingSlider: false,
-    handleHideEmptyCenturiesToggle: jest.fn(),
+    handleHideEmptyCenturiesToggle: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders without crashing when showControls is true', () => {
@@ -153,3 +153,7 @@ describe('MobileHeaderControls', () => {
     expect(screen.getByTestId('extra-controls')).toBeInTheDocument();
   });
 });
+
+
+
+

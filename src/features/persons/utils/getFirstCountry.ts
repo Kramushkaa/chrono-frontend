@@ -3,3 +3,6 @@ export const getFirstCountry = (countryString: string): string => {
   const countries = countryString.split('/').map(c => c.trim())
   return countries[0] || countryString
 }
+
+
+

@@ -3,24 +3,24 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { MainMenu } from '../MainMenu'
 
 // Mock dependencies
-jest.mock('../UserMenu', () => ({
+vi.mock('../UserMenu', () => ({
   UserMenu: () => <div data-testid="user-menu">User Menu</div>,
 }))
 
-jest.mock('../BrandTitle', () => ({
+vi.mock('../BrandTitle', () => ({
   BrandTitle: () => <div data-testid="brand-title">Brand Title</div>,
 }))
 
-jest.mock('../SEO', () => ({
+vi.mock('../SEO', () => ({
   SEO: ({ title }: { title: string }) => <div data-testid="seo">{title}</div>,
 }))
 
-jest.mock('../ContactFooter', () => ({
+vi.mock('../ContactFooter', () => ({
   ContactFooter: () => <div data-testid="contact-footer">Contact Footer</div>,
 }))
 
 // Mock window.location
-const mockAssign = jest.fn()
+const mockAssign = vi.fn()
 try {
   delete (window as any).location
 } catch (e) {
@@ -45,11 +45,11 @@ try {
 
 describe('MainMenu', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render main menu components', () => {
-    const onOpenTimeline = jest.fn()
+    const onOpenTimeline = vi.fn()
     render(<MainMenu onOpenTimeline={onOpenTimeline} />)
     
     expect(screen.getByTestId('user-menu')).toBeInTheDocument()
@@ -59,7 +59,7 @@ describe('MainMenu', () => {
   })
 
   it('should handle timeline menu item click', () => {
-    const onOpenTimeline = jest.fn()
+    const onOpenTimeline = vi.fn()
     render(<MainMenu onOpenTimeline={onOpenTimeline} />)
     
     const timelineItem = screen.getByText('Открыть линию времени')
@@ -69,7 +69,7 @@ describe('MainMenu', () => {
   })
 
   it('should handle timeline menu item keyboard navigation', () => {
-    const onOpenTimeline = jest.fn()
+    const onOpenTimeline = vi.fn()
     render(<MainMenu onOpenTimeline={onOpenTimeline} />)
     
     const timelineItem = screen.getByText('Открыть линию времени')
@@ -79,7 +79,7 @@ describe('MainMenu', () => {
   })
 
   it('should handle timeline menu item space key', () => {
-    const onOpenTimeline = jest.fn()
+    const onOpenTimeline = vi.fn()
     render(<MainMenu onOpenTimeline={onOpenTimeline} />)
     
     const timelineItem = screen.getByText('Открыть линию времени')
@@ -90,7 +90,7 @@ describe('MainMenu', () => {
 
   // Skipped due to JSDOM limitations with window.location.assign
   it.skip('should navigate to quiz when quiz menu item is clicked', () => {
-    render(<MainMenu onOpenTimeline={jest.fn()} />)
+    render(<MainMenu onOpenTimeline={vi.fn()} />)
     
     const quizItem = screen.getByRole('button', { name: /Игра на проверку знаний.*Проверьте свои знания исторических личностей/ })
     fireEvent.click(quizItem)
@@ -100,7 +100,7 @@ describe('MainMenu', () => {
 
   // Skipped due to JSDOM limitations with window.location.assign
   it.skip('should navigate to quiz when quiz menu item keyboard navigation', () => {
-    render(<MainMenu onOpenTimeline={jest.fn()} />)
+    render(<MainMenu onOpenTimeline={vi.fn()} />)
     
     const quizItem = screen.getByRole('button', { name: /Игра на проверку знаний.*Проверьте свои знания исторических личностей/ })
     fireEvent.keyDown(quizItem, { key: 'Enter' })
@@ -109,7 +109,7 @@ describe('MainMenu', () => {
   })
 
   it('should have proper accessibility attributes', () => {
-    render(<MainMenu onOpenTimeline={jest.fn()} />)
+    render(<MainMenu onOpenTimeline={vi.fn()} />)
     
     const timelineItem = screen.getByRole('button', { name: /Открыть линию времени.*Исследуйте исторические события и личности/ })
     expect(timelineItem).toHaveAttribute('role', 'button')
@@ -118,7 +118,7 @@ describe('MainMenu', () => {
   })
 
   it('should render menu grid with navigation', () => {
-    render(<MainMenu onOpenTimeline={jest.fn()} />)
+    render(<MainMenu onOpenTimeline={vi.fn()} />)
     
     const nav = screen.getByLabelText('Главное меню навигации')
     expect(nav).toBeInTheDocument()
@@ -126,7 +126,7 @@ describe('MainMenu', () => {
   })
 
   it('should render main menu title', () => {
-    render(<MainMenu onOpenTimeline={jest.fn()} />)
+    render(<MainMenu onOpenTimeline={vi.fn()} />)
     
     expect(screen.getByText('Открыть линию времени')).toBeInTheDocument()
     expect(screen.getByText('Игра на проверку знаний')).toBeInTheDocument()
@@ -134,14 +134,14 @@ describe('MainMenu', () => {
   })
 
   it('should render structured data script', () => {
-    render(<MainMenu onOpenTimeline={jest.fn()} />)
+    render(<MainMenu onOpenTimeline={vi.fn()} />)
     
     const scripts = document.querySelectorAll('script[type="application/ld+json"]')
     expect(scripts.length).toBeGreaterThan(0)
   })
 
   it('should not call onOpenTimeline on unrelated key presses', () => {
-    const onOpenTimeline = jest.fn()
+    const onOpenTimeline = vi.fn()
     render(<MainMenu onOpenTimeline={onOpenTimeline} />)
     
     const timelineItem = screen.getByText('Открыть линию времени')
@@ -151,7 +151,7 @@ describe('MainMenu', () => {
   })
 
   it('should render with proper menu structure', () => {
-    render(<MainMenu onOpenTimeline={jest.fn()} />)
+    render(<MainMenu onOpenTimeline={vi.fn()} />)
     
     const timelineButton = screen.getByRole('button', { name: /Открыть линию времени.*Исследуйте исторические события и личности/ })
     const quizButton = screen.getByRole('button', { name: /Игра на проверку знаний.*Проверьте свои знания исторических личностей/ })
@@ -160,3 +160,7 @@ describe('MainMenu', () => {
     expect(quizButton).toHaveClass('main-menu-item')
   })
 })
+
+
+
+

@@ -32,11 +32,11 @@ const mockUserAnswer: QuizAnswer = {
 describe('GuessPersonQuestion', () => {
   const defaultProps = {
     data: mockQuestionData,
-    onAnswer: jest.fn(),
+    onAnswer: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -102,7 +102,7 @@ describe('GuessPersonQuestion', () => {
   })
 
   it('should render next button in feedback', () => {
-    const onNext = jest.fn()
+    const onNext = vi.fn()
     render(
       <GuessPersonQuestion 
         {...defaultProps}
@@ -117,7 +117,7 @@ describe('GuessPersonQuestion', () => {
   })
 
   it('should show finish button for last question', () => {
-    const onNext = jest.fn()
+    const onNext = vi.fn()
     render(
       <GuessPersonQuestion 
         {...defaultProps}
@@ -170,3 +170,7 @@ describe('GuessPersonQuestion', () => {
     expect(screen.getByText(/угадайте.*о ком идёт речь/i)).toBeInTheDocument()
   })
 })
+
+
+
+

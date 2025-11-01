@@ -2,11 +2,11 @@ import { renderHook, act, waitFor } from '@testing-library/react'
 import { useAddToList } from '../useAddToList'
 
 describe('useAddToList', () => {
-  const mockShowToast = jest.fn()
-  const mockReloadLists = jest.fn()
-  const mockGetSelectedPerson = jest.fn()
-  const mockApiFetch = jest.fn()
-  const mockApiData = jest.fn()
+  const mockShowToast = vi.fn()
+  const mockReloadLists = vi.fn()
+  const mockGetSelectedPerson = vi.fn()
+  const mockApiFetch = vi.fn()
+  const mockApiData = vi.fn()
 
   const defaultParams = {
     showToast: mockShowToast,
@@ -17,7 +17,7 @@ describe('useAddToList', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should initialize with default state', () => {
@@ -118,7 +118,7 @@ describe('useAddToList', () => {
     it('should add person to list successfully', async () => {
       mockApiFetch.mockResolvedValue({
         ok: true,
-        json: jest.fn().mockResolvedValue({ message: 'success' }),
+        json: vi.fn().mockResolvedValue({ message: 'success' }),
       })
 
       const { result } = renderHook(() => useAddToList(defaultParams))
@@ -148,7 +148,7 @@ describe('useAddToList', () => {
     it('should add achievement to list successfully', async () => {
       mockApiFetch.mockResolvedValue({
         ok: true,
-        json: jest.fn().mockResolvedValue({ message: 'success' }),
+        json: vi.fn().mockResolvedValue({ message: 'success' }),
       })
 
       const { result } = renderHook(() => useAddToList(defaultParams))
@@ -174,7 +174,7 @@ describe('useAddToList', () => {
     it('should add period to list successfully', async () => {
       mockApiFetch.mockResolvedValue({
         ok: true,
-        json: jest.fn().mockResolvedValue({ message: 'success' }),
+        json: vi.fn().mockResolvedValue({ message: 'success' }),
       })
 
       const { result } = renderHook(() => useAddToList(defaultParams))
@@ -200,7 +200,7 @@ describe('useAddToList', () => {
     it('should show info toast when item already exists', async () => {
       mockApiFetch.mockResolvedValue({
         ok: true,
-        json: jest.fn().mockResolvedValue({ message: 'already_exists' }),
+        json: vi.fn().mockResolvedValue({ message: 'already_exists' }),
       })
 
       const { result } = renderHook(() => useAddToList(defaultParams))
@@ -222,7 +222,7 @@ describe('useAddToList', () => {
     it('should handle error response', async () => {
       mockApiFetch.mockResolvedValue({
         ok: false,
-        json: jest.fn().mockResolvedValue({ message: 'List not found' }),
+        json: vi.fn().mockResolvedValue({ message: 'List not found' }),
       })
 
       const { result } = renderHook(() => useAddToList(defaultParams))
@@ -241,7 +241,7 @@ describe('useAddToList', () => {
     it('should use default error message when no message in response', async () => {
       mockApiFetch.mockResolvedValue({
         ok: false,
-        json: jest.fn().mockResolvedValue({}),
+        json: vi.fn().mockResolvedValue({}),
       })
 
       const { result } = renderHook(() => useAddToList(defaultParams))
@@ -279,7 +279,7 @@ describe('useAddToList', () => {
     it('should add linked achievements and periods when includeLinked is true', async () => {
       mockApiFetch.mockResolvedValue({
         ok: true,
-        json: jest.fn().mockResolvedValue({ message: 'success' }),
+        json: vi.fn().mockResolvedValue({ message: 'success' }),
       })
 
       mockApiData
@@ -315,7 +315,7 @@ describe('useAddToList', () => {
     it('should handle error when adding linked items', async () => {
       mockApiFetch.mockResolvedValueOnce({
         ok: true,
-        json: jest.fn().mockResolvedValue({ message: 'success' }),
+        json: vi.fn().mockResolvedValue({ message: 'success' }),
       })
 
       mockApiData.mockRejectedValue(new Error('Failed to fetch'))
@@ -343,7 +343,7 @@ describe('useAddToList', () => {
       mockGetSelectedPerson.mockReturnValue({ id: 'selected-person' })
       mockApiFetch.mockResolvedValue({
         ok: true,
-        json: jest.fn().mockResolvedValue({ message: 'success' }),
+        json: vi.fn().mockResolvedValue({ message: 'success' }),
       })
 
       const { result } = renderHook(() => useAddToList(defaultParams))
@@ -376,7 +376,7 @@ describe('useAddToList', () => {
     it('should handle non-array response for linked items', async () => {
       mockApiFetch.mockResolvedValue({
         ok: true,
-        json: jest.fn().mockResolvedValue({ message: 'success' }),
+        json: vi.fn().mockResolvedValue({ message: 'success' }),
       })
 
       mockApiData
@@ -399,4 +399,9 @@ describe('useAddToList', () => {
     })
   })
 })
+
+
+
+
+
 

@@ -3,15 +3,15 @@ import { render } from '@testing-library/react'
 import { PersonAchievementMarkers } from '../PersonAchievementMarkers'
 import { Person } from 'shared/types'
 
-const mockGetAdjustedPosition = jest.fn((year: number) => year * 10)
-const mockGetGroupColor = jest.fn(() => '#8B7355')
-const mockGetGroupColorDark = jest.fn(() => '#6B5A3A')
-const mockGetPersonGroup = jest.fn(() => 'Правители')
-const mockSetActiveAchievementMarker = jest.fn()
-const mockSetHoveredAchievement = jest.fn()
-const mockSetShowAchievementTooltip = jest.fn()
-const mockHandlePersonHover = jest.fn()
-const mockHandleAchievementHover = jest.fn()
+const mockGetAdjustedPosition = vi.fn((year: number) => year * 10)
+const mockGetGroupColor = vi.fn(() => '#8B7355')
+const mockGetGroupColorDark = vi.fn(() => '#6B5A3A')
+const mockGetPersonGroup = vi.fn(() => 'Правители')
+const mockSetActiveAchievementMarker = vi.fn()
+const mockSetHoveredAchievement = vi.fn()
+const mockSetShowAchievementTooltip = vi.fn()
+const mockHandlePersonHover = vi.fn()
+const mockHandleAchievementHover = vi.fn()
 
 const mockHoverTimerRef = { current: null }
 
@@ -46,7 +46,7 @@ describe('PersonAchievementMarkers', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -194,3 +194,7 @@ describe('PersonAchievementMarkers', () => {
     expect(document.querySelector('#achievement-1-2')).toBeInTheDocument()
   })
 })
+
+
+
+

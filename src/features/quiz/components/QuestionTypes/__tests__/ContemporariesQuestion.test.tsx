@@ -4,47 +4,47 @@ import { ContemporariesQuestion } from '../ContemporariesQuestion'
 import { ContemporariesQuestionData, QuizAnswer } from '../../../types'
 
 // Mock all the hooks
-jest.mock('shared/hooks/useMobile', () => ({
+vi.mock('shared/hooks/useMobile', () => ({
   useMobile: () => false,
 }))
 
-jest.mock('../../../hooks/useContemporariesGroups', () => ({
+vi.mock('../../../hooks/useContemporariesGroups', () => ({
   useContemporariesGroups: () => ({
     groups: [['person1', 'person2'], ['person3']],
-    createGroup: jest.fn(),
-    addToGroup: jest.fn(),
-    removeGroup: jest.fn(),
+    createGroup: vi.fn(),
+    addToGroup: vi.fn(),
+    removeGroup: vi.fn(),
   }),
 }))
 
-jest.mock('../../../hooks/useContemporariesDragDrop', () => ({
+vi.mock('../../../hooks/useContemporariesDragDrop', () => ({
   useContemporariesDragDrop: () => ({
     draggedOverGroup: -1,
     draggedItem: null,
     draggedOverCreateZone: false,
-    handleDragOverGroup: jest.fn(),
-    handleDragEnterGroup: jest.fn(),
-    handleDragLeaveGroup: jest.fn(),
-    handleDragStart: jest.fn(),
-    handleDragEnd: jest.fn(),
-    handleTouchStart: jest.fn(),
-    handleTouchMove: jest.fn(),
-    handleDragOverCreateZone: jest.fn(),
-    handleDragEnterCreateZone: jest.fn(),
-    handleDragLeaveCreateZone: jest.fn(),
-    handleDrop: jest.fn(),
-    handleDropToCreateGroup: jest.fn(),
-    handleTouchEnd: jest.fn(),
+    handleDragOverGroup: vi.fn(),
+    handleDragEnterGroup: vi.fn(),
+    handleDragLeaveGroup: vi.fn(),
+    handleDragStart: vi.fn(),
+    handleDragEnd: vi.fn(),
+    handleTouchStart: vi.fn(),
+    handleTouchMove: vi.fn(),
+    handleDragOverCreateZone: vi.fn(),
+    handleDragEnterCreateZone: vi.fn(),
+    handleDragLeaveCreateZone: vi.fn(),
+    handleDrop: vi.fn(),
+    handleDropToCreateGroup: vi.fn(),
+    handleTouchEnd: vi.fn(),
   }),
 }))
 
-jest.mock('../../../hooks/useContemporariesFeedback', () => ({
+vi.mock('../../../hooks/useContemporariesFeedback', () => ({
   useContemporariesFeedback: () => ({
-    getPersonStatus: jest.fn(),
+    getPersonStatus: vi.fn(),
   }),
 }))
 
-jest.mock('../../ContemporariesGroupZone', () => ({
+vi.mock('../../ContemporariesGroupZone', () => ({
   ContemporariesGroupZone: ({ group, groupIndex, ...props }: any) => (
     <div data-testid={`group-${groupIndex}`} {...props}>
       Group {groupIndex + 1} with {group.length} persons
@@ -94,11 +94,11 @@ const mockUserAnswer: QuizAnswer = {
 describe('ContemporariesQuestion', () => {
   const defaultProps = {
     data: mockQuestionData,
-    onAnswer: jest.fn(),
+    onAnswer: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -129,7 +129,7 @@ describe('ContemporariesQuestion', () => {
   })
 
   it('should call onAnswer when submit button is clicked', () => {
-    const onAnswer = jest.fn()
+    const onAnswer = vi.fn()
     render(<ContemporariesQuestion {...defaultProps} onAnswer={onAnswer} />)
     
     const submitButton = screen.getByText('Проверить ответ')
@@ -185,7 +185,7 @@ describe('ContemporariesQuestion', () => {
   })
 
   it('should render next button in feedback', () => {
-    const onNext = jest.fn()
+    const onNext = vi.fn()
     render(
       <ContemporariesQuestion 
         {...defaultProps}
@@ -203,7 +203,7 @@ describe('ContemporariesQuestion', () => {
   })
 
   it('should show finish button for last question', () => {
-    const onNext = jest.fn()
+    const onNext = vi.fn()
     render(
       <ContemporariesQuestion 
         {...defaultProps}
@@ -249,3 +249,7 @@ describe('ContemporariesQuestion', () => {
     expect(questionElement).toBeInTheDocument()
   })
 })
+
+
+
+

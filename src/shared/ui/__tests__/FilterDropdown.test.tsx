@@ -3,16 +3,16 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { FilterDropdown } from '../FilterDropdown'
 
 // Mock hooks
-const mockHandleClick = jest.fn()
-const mockHandleKeyDown = jest.fn()
-const mockHandleMouseEnter = jest.fn()
-const mockHandleMouseLeave = jest.fn()
+const mockHandleClick = vi.fn()
+const mockHandleKeyDown = vi.fn()
+const mockHandleMouseEnter = vi.fn()
+const mockHandleMouseLeave = vi.fn()
 
-jest.mock('../../hooks/useMobile', () => ({
+vi.mock('../../hooks/useMobile', () => ({
   useMobile: () => false,
 }))
 
-jest.mock('../../hooks/useFilterDropdownPosition', () => ({
+vi.mock('../../hooks/useFilterDropdownPosition', () => ({
   useFilterDropdownPosition: () => ({
     dropdownPosition: { top: 0, left: 0 },
     horizontalPosition: 'left',
@@ -20,24 +20,24 @@ jest.mock('../../hooks/useFilterDropdownPosition', () => ({
   }),
 }))
 
-jest.mock('../../hooks/useFilterDropdownState', () => ({
-  useFilterDropdownState: jest.fn(() => ({
+vi.mock('../../hooks/useFilterDropdownState', () => ({
+  useFilterDropdownState: vi.fn(() => ({
     isOpen: false,
-    setIsOpen: jest.fn(),
+    setIsOpen: vi.fn(),
     activeIndex: -1,
-    setActiveIndex: jest.fn(),
+    setActiveIndex: vi.fn(),
     portalContainer: null,
     handleMouseEnter: mockHandleMouseEnter,
     handleMouseLeave: mockHandleMouseLeave,
     handleClick: mockHandleClick,
     handleButtonKeyDown: mockHandleKeyDown,
-    handleContentMouseEnter: jest.fn(),
-    handleContentMouseLeave: jest.fn(),
+    handleContentMouseEnter: vi.fn(),
+    handleContentMouseLeave: vi.fn(),
   })),
 }))
 
 // Mock FilterDropdownContent
-jest.mock('../FilterDropdownContent', () => ({
+vi.mock('../FilterDropdownContent', () => ({
   FilterDropdownContent: ({ title }: { title: string }) => <div data-testid="dropdown-content">{title}</div>,
 }))
 
@@ -46,11 +46,11 @@ describe('FilterDropdown', () => {
     title: 'Test Filter',
     items: ['Item 1', 'Item 2', 'Item 3'],
     selectedItems: [],
-    onSelectionChange: jest.fn(),
+    onSelectionChange: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockHandleClick.mockClear()
     mockHandleKeyDown.mockClear()
     mockHandleMouseEnter.mockClear()
@@ -119,3 +119,7 @@ describe('FilterDropdown', () => {
     expect(mockHandleMouseLeave).toHaveBeenCalledTimes(1)
   })
 })
+
+
+
+

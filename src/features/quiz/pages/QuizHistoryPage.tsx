@@ -26,7 +26,7 @@ export const QuizHistoryPage: React.FC = () => {
       const response = await getQuizHistory(20);
       setAttempts(response.data.attempts);
     } catch (err) {
-      if (process.env.NODE_ENV !== 'production') {
+      if (import.meta.env.MODE !== 'production') {
         console.error('Failed to load quiz history:', err);
       }
       setError(err instanceof Error ? err.message : 'Не удалось загрузить историю');
@@ -112,4 +112,7 @@ export const QuizHistoryPage: React.FC = () => {
     </div>
   );
 };
+
+
+
 

@@ -50,3 +50,6 @@ export const generateProfessionQuestion = (persons: Person[]): QuizQuestion => {
   };
 };
 
+
+
+

@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 import { PersonYearLabels } from '../PersonYearLabels'
 import { Person } from 'shared/types'
 
-const mockGetAdjustedPosition = jest.fn((year: number) => year * 10)
+const mockGetAdjustedPosition = vi.fn((year: number) => year * 10)
 
 const mockPerson: Person = {
   id: '1',
@@ -23,7 +23,7 @@ describe('PersonYearLabels', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -133,3 +133,7 @@ describe('PersonYearLabels', () => {
     expect(reignStartLabel.style.fontWeight).toBe('bold')
   })
 })
+
+
+
+

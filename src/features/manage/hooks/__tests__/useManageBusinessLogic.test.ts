@@ -3,74 +3,74 @@ import { useManageBusinessLogic } from '../useManageBusinessLogic'
 import * as api from 'shared/api/api'
 
 // Mock API
-jest.mock('shared/api/api', () => ({
-  getCategories: jest.fn(),
-  getCountries: jest.fn(),
-  getCountryOptions: jest.fn(),
-  getPersonById: jest.fn(),
-  getMyPersonsCount: jest.fn(),
-  getMyAchievementsCount: jest.fn(),
-  getMyPeriodsCount: jest.fn(),
-  apiData: jest.fn(),
+vi.mock('shared/api/api', () => ({
+  getCategories: vi.fn(),
+  getCountries: vi.fn(),
+  getCountryOptions: vi.fn(),
+  getPersonById: vi.fn(),
+  getMyPersonsCount: vi.fn(),
+  getMyAchievementsCount: vi.fn(),
+  getMyPeriodsCount: vi.fn(),
+  apiData: vi.fn(),
 }))
 
-const mockGetCategories = api.getCategories as jest.MockedFunction<typeof api.getCategories>
-const mockGetCountries = api.getCountries as jest.MockedFunction<typeof api.getCountries>
-const mockGetCountryOptions = api.getCountryOptions as jest.MockedFunction<typeof api.getCountryOptions>
-const mockGetPersonById = api.getPersonById as jest.MockedFunction<typeof api.getPersonById>
-const mockGetMyPersonsCount = api.getMyPersonsCount as jest.MockedFunction<typeof api.getMyPersonsCount>
-const mockGetMyAchievementsCount = api.getMyAchievementsCount as jest.MockedFunction<typeof api.getMyAchievementsCount>
-const mockGetMyPeriodsCount = api.getMyPeriodsCount as jest.MockedFunction<typeof api.getMyPeriodsCount>
-const mockApiData = api.apiData as jest.MockedFunction<typeof api.apiData>
+const mockGetCategories = api.getCategories as vi.MockedFunction<typeof api.getCategories>
+const mockGetCountries = api.getCountries as vi.MockedFunction<typeof api.getCountries>
+const mockGetCountryOptions = api.getCountryOptions as vi.MockedFunction<typeof api.getCountryOptions>
+const mockGetPersonById = api.getPersonById as vi.MockedFunction<typeof api.getPersonById>
+const mockGetMyPersonsCount = api.getMyPersonsCount as vi.MockedFunction<typeof api.getMyPersonsCount>
+const mockGetMyAchievementsCount = api.getMyAchievementsCount as vi.MockedFunction<typeof api.getMyAchievementsCount>
+const mockGetMyPeriodsCount = api.getMyPeriodsCount as vi.MockedFunction<typeof api.getMyPeriodsCount>
+const mockApiData = api.apiData as vi.MockedFunction<typeof api.apiData>
 
 describe('useManageBusinessLogic', () => {
   const createMockParams = (overrides = {}) => ({
     selected: null,
-    setSelected: jest.fn(),
+    setSelected: vi.fn(),
     categories: [],
-    setCategories: jest.fn(),
+    setCategories: vi.fn(),
     countries: [],
-    setCountries: jest.fn(),
+    setCountries: vi.fn(),
     countryOptions: [],
-    setCountryOptions: jest.fn(),
+    setCountryOptions: vi.fn(),
     lifePeriods: [],
-    setLifePeriods: jest.fn(),
+    setLifePeriods: vi.fn(),
     editPersonCategory: '',
-    setEditPersonCategory: jest.fn(),
+    setEditPersonCategory: vi.fn(),
     editBirthYear: 0,
-    setEditBirthYear: jest.fn(),
+    setEditBirthYear: vi.fn(),
     editDeathYear: 0,
-    setEditDeathYear: jest.fn(),
+    setEditDeathYear: vi.fn(),
     newLifePeriods: [],
-    setNewLifePeriods: jest.fn(),
+    setNewLifePeriods: vi.fn(),
     showCreate: false,
     createType: 'person' as const,
     activeTab: 'persons' as const,
     menuSelection: 'all' as const,
     selectedListId: null,
-    setSelectedListId: jest.fn(),
+    setSelectedListId: vi.fn(),
     mineCounts: { persons: 0, achievements: 0, periods: 0 },
-    setMineCounts: jest.fn(),
+    setMineCounts: vi.fn(),
     countsLoadKeyRef: { current: null },
     countsLastTsRef: { current: 0 },
     fetchedDetailsIdsRef: { current: new Set() },
     lastSelectedRef: { current: null },
     listItems: [],
-    setListItems: jest.fn(),
+    setListItems: vi.fn(),
     listItemIdByDomainIdRef: { current: new Map() },
     listLoading: false,
-    setListLoading: jest.fn(),
+    setListLoading: vi.fn(),
     isAuthenticated: false,
     user: null,
-    resetPersons: jest.fn(),
-    resetAchievements: jest.fn(),
-    resetPeriods: jest.fn(),
+    resetPersons: vi.fn(),
+    resetAchievements: vi.fn(),
+    resetPeriods: vi.fn(),
     sharedList: null,
     ...overrides,
   })
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockGetCategories.mockResolvedValue(['Философ', 'Ученый'])
     mockGetCountries.mockResolvedValue(['Россия', 'США'])
     mockGetCountryOptions.mockResolvedValue([
@@ -556,4 +556,9 @@ describe('useManageBusinessLogic', () => {
     })
   })
 })
+
+
+
+
+
 

@@ -8,7 +8,7 @@ export function useDtoVersionWarning(expectedVersion: string) {
       try {
         const v = await getDtoVersion()
         if (!cancelled && v && v !== expectedVersion) {
-          if (process.env.NODE_ENV !== 'production') {
+          if (import.meta.env.MODE !== 'production') {
             // eslint-disable-next-line no-console
             console.warn(`⚠️ DTO Version Mismatch: Frontend=${expectedVersion}, Backend=${v}. Please update versions to avoid data inconsistencies.`)
           }
@@ -18,5 +18,8 @@ export function useDtoVersionWarning(expectedVersion: string) {
     return () => { cancelled = true }
   }, [expectedVersion])
 }
+
+
+
 
 

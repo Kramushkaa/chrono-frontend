@@ -44,7 +44,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
       const response = await getQuizAttemptDetail(parseInt(attemptId));
       setData(response.data);
     } catch (err) {
-      if (process.env.NODE_ENV !== 'production') {
+      if (import.meta.env.MODE !== 'production') {
         console.error('Failed to load attempt details:', err);
       }
       setError(err instanceof Error ? err.message : 'Не удалось загрузить детали попытки');
@@ -265,4 +265,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
     </div>
   );
 };
+
+
+
 

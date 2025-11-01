@@ -2,30 +2,30 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { useTimelineData } from '../useTimelineData'
 import * as api from '../../../../shared/api/api'
 
-jest.mock('../../../../shared/api/api', () => ({
-  getCategories: jest.fn(),
-  getCountries: jest.fn(),
+vi.mock('../../../../shared/api/api', () => ({
+  getCategories: vi.fn(),
+  getCountries: vi.fn(),
 }))
 
-jest.mock('../../../../shared/hooks/useEntityQuery', () => ({
-  useEntityQuery: jest.fn(),
+vi.mock('../../../../shared/hooks/useEntityQuery', () => ({
+  useEntityQuery: vi.fn(),
 }))
 
 import { useEntityQuery } from '../../../../shared/hooks/useEntityQuery'
 
-const mockUseEntityQuery = useEntityQuery as jest.MockedFunction<typeof useEntityQuery>
-const mockGetCategories = api.getCategories as jest.MockedFunction<typeof api.getCategories>
-const mockGetCountries = api.getCountries as jest.MockedFunction<typeof api.getCountries>
+const mockUseEntityQuery = useEntityQuery as vi.MockedFunction<typeof useEntityQuery>
+const mockGetCategories = api.getCategories as vi.MockedFunction<typeof api.getCategories>
+const mockGetCountries = api.getCountries as vi.MockedFunction<typeof api.getCountries>
 
 describe('useTimelineData', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     mockUseEntityQuery.mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     mockGetCategories.mockResolvedValue(['Философ', 'Художник'])
@@ -163,7 +163,7 @@ describe('useTimelineData', () => {
       data: [],
       isLoading: true,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const filters = {
@@ -192,7 +192,7 @@ describe('useTimelineData', () => {
       data: mockPersons,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const filters = {
@@ -207,4 +207,9 @@ describe('useTimelineData', () => {
     expect(result.current.persons).toEqual(mockPersons)
   })
 })
+
+
+
+
+
 

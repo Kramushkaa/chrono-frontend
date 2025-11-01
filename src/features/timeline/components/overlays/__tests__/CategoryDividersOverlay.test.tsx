@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from '@testing-library/react'
 import { CategoryDividersOverlay } from '../CategoryDividersOverlay'
 
-const mockGetGroupColor = jest.fn((category: string) => {
+const mockGetGroupColor = vi.fn((category: string) => {
   const colors: Record<string, string> = {
     'Правители': '#3b82f6',
     'Ученые': '#10b981',
@@ -26,7 +26,7 @@ describe('CategoryDividersOverlay', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -99,3 +99,7 @@ describe('CategoryDividersOverlay', () => {
     expect(firstDivider).toHaveAttribute('role', 'separator')
   })
 })
+
+
+
+

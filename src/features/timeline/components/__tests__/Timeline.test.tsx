@@ -4,40 +4,40 @@ import { Timeline } from '../Timeline'
 import { Person } from 'shared/types'
 
 // Mock hooks
-jest.mock('shared/hooks/useMobile', () => ({
+vi.mock('shared/hooks/useMobile', () => ({
   useMobile: () => false,
 }))
 
 // Mock overlay components
-jest.mock('../overlays/TimelineBackgroundOverlay', () => ({
+vi.mock('../overlays/TimelineBackgroundOverlay', () => ({
   TimelineBackgroundOverlay: () => <div data-testid="timeline-background" />,
 }))
 
-jest.mock('../overlays/ViewportCenturyLabelsOverlay', () => ({
+vi.mock('../overlays/ViewportCenturyLabelsOverlay', () => ({
   ViewportCenturyLabelsOverlay: () => <div data-testid="century-labels" />,
 }))
 
-jest.mock('../overlays/CategoryDividersOverlay', () => ({
+vi.mock('../overlays/CategoryDividersOverlay', () => ({
   CategoryDividersOverlay: () => <div data-testid="category-dividers" />,
 }))
 
-jest.mock('../overlays/CenturyGridLinesOverlay', () => ({
+vi.mock('../overlays/CenturyGridLinesOverlay', () => ({
   CenturyGridLinesOverlay: () => <div data-testid="grid-lines" />,
 }))
 
-jest.mock('../rows/PersonYearLabels', () => ({
+vi.mock('../rows/PersonYearLabels', () => ({
   PersonYearLabels: () => <div data-testid="person-year-labels" />,
 }))
 
-jest.mock('../rows/PersonReignBars', () => ({
+vi.mock('../rows/PersonReignBars', () => ({
   PersonReignBars: () => <div data-testid="person-reign-bars" />,
 }))
 
-jest.mock('../rows/PersonLifeBar', () => ({
+vi.mock('../rows/PersonLifeBar', () => ({
   PersonLifeBar: () => <div data-testid="person-life-bar" />,
 }))
 
-jest.mock('../rows/PersonAchievementMarkers', () => ({
+vi.mock('../rows/PersonAchievementMarkers', () => ({
   PersonAchievementMarkers: () => <div data-testid="achievement-markers" />,
 }))
 
@@ -68,41 +68,41 @@ describe('Timeline', () => {
     },
     groupingType: 'category' as const,
     categoryDividers: [{ category: 'Politics', top: 100 }],
-    getGroupColor: jest.fn(() => '#ff0000'),
-    getGroupColorDark: jest.fn(() => '#cc0000'),
-    getGroupColorMuted: jest.fn(() => '#ffcccc'),
-    getPersonGroup: jest.fn(() => 'Politics'),
+    getGroupColor: vi.fn(() => '#ff0000'),
+    getGroupColorDark: vi.fn(() => '#cc0000'),
+    getGroupColorMuted: vi.fn(() => '#ffcccc'),
+    getPersonGroup: vi.fn(() => 'Politics'),
     hoveredPerson: null,
-    setHoveredPerson: jest.fn(),
+    setHoveredPerson: vi.fn(),
     mousePosition: { x: 100, y: 200 },
-    setMousePosition: jest.fn(),
+    setMousePosition: vi.fn(),
     showTooltip: false,
-    setShowTooltip: jest.fn(),
-    handlePersonHover: jest.fn(),
+    setShowTooltip: vi.fn(),
+    handlePersonHover: vi.fn(),
     activeAchievementMarker: null,
-    setActiveAchievementMarker: jest.fn(),
+    setActiveAchievementMarker: vi.fn(),
     hoveredAchievement: null,
-    setHoveredAchievement: jest.fn(),
+    setHoveredAchievement: vi.fn(),
     showAchievementTooltip: false,
-    setShowAchievementTooltip: jest.fn(),
+    setShowAchievementTooltip: vi.fn(),
     hoverTimerRef: { current: null },
-    handleAchievementHover: jest.fn(),
+    handleAchievementHover: vi.fn(),
     sortedData: [mockPerson],
     selectedPerson: null,
-    setSelectedPerson: jest.fn(),
+    setSelectedPerson: vi.fn(),
     timelineRef: React.createRef<HTMLDivElement>(),
     isDragging: false,
     isDraggingTimeline: false,
-    handleMouseDown: jest.fn(),
-    handleMouseMove: jest.fn(),
-    handleMouseUp: jest.fn(),
-    handleTouchStart: jest.fn(),
-    handleTouchMove: jest.fn(),
-    handleTouchEnd: jest.fn(),
+    handleMouseDown: vi.fn(),
+    handleMouseMove: vi.fn(),
+    handleMouseUp: vi.fn(),
+    handleTouchStart: vi.fn(),
+    handleTouchMove: vi.fn(),
+    handleTouchEnd: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render timeline container', () => {
@@ -220,3 +220,7 @@ describe('Timeline', () => {
     expect(timelineContainer).toBeInTheDocument()
   })
 })
+
+
+
+

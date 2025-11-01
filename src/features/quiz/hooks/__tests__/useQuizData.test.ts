@@ -2,31 +2,31 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { useQuizData } from '../useQuizData'
 import * as api from '../../../../shared/api/api'
 
-jest.mock('../../../../shared/api/api', () => ({
-  getCategories: jest.fn(),
-  getCountries: jest.fn(),
+vi.mock('../../../../shared/api/api', () => ({
+  getCategories: vi.fn(),
+  getCountries: vi.fn(),
 }))
 
-jest.mock('../../../../shared/hooks/useEntityQuery', () => ({
-  useEntityQuery: jest.fn(),
+vi.mock('../../../../shared/hooks/useEntityQuery', () => ({
+  useEntityQuery: vi.fn(),
 }))
 
 import { useEntityQuery } from '../../../../shared/hooks/useEntityQuery'
 
-const mockUseEntityQuery = useEntityQuery as jest.MockedFunction<typeof useEntityQuery>
-const mockGetCategories = api.getCategories as jest.MockedFunction<typeof api.getCategories>
-const mockGetCountries = api.getCountries as jest.MockedFunction<typeof api.getCountries>
+const mockUseEntityQuery = useEntityQuery as vi.MockedFunction<typeof useEntityQuery>
+const mockGetCategories = api.getCategories as vi.MockedFunction<typeof api.getCategories>
+const mockGetCountries = api.getCountries as vi.MockedFunction<typeof api.getCountries>
 
 describe('useQuizData', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default mocks
     mockUseEntityQuery.mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     mockGetCategories.mockResolvedValue(['Философ', 'Ученый'])
@@ -38,7 +38,7 @@ describe('useQuizData', () => {
       data: [],
       isLoading: true,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const filters = {
@@ -155,7 +155,7 @@ describe('useQuizData', () => {
       data: mockPersons,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     })
 
     const filters = {
@@ -170,4 +170,9 @@ describe('useQuizData', () => {
     expect(result.current.persons).toEqual(mockPersons)
   })
 })
+
+
+
+
+
 

@@ -4,19 +4,22 @@ import { BrowserRouter } from 'react-router-dom'
 import { MinimalHeader } from '../MinimalHeader'
 
 // Mock useNavigate
-const mockNavigate = jest.fn()
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}))
+const mockNavigate = vi.fn()
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router-dom")>();
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+})
 
 // Mock BrandTitle
-jest.mock('shared/ui/BrandTitle', () => ({
+vi.mock('shared/ui/BrandTitle', () => ({
   BrandTitle: () => <div data-testid="brand-title">Brand Title</div>,
 }))
 
 // Mock UserMenu
-jest.mock('shared/ui/UserMenu', () => ({
+vi.mock('shared/ui/UserMenu', () => ({
   UserMenu: () => <div data-testid="user-menu">User Menu</div>,
 }))
 
@@ -28,7 +31,7 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 describe('MinimalHeader', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render minimal header', () => {
@@ -67,7 +70,7 @@ describe('MinimalHeader', () => {
   })
 
   it('should call onBackToMenu when provided', () => {
-    const mockOnBackToMenu = jest.fn()
+    const mockOnBackToMenu = vi.fn()
     render(
       <TestWrapper>
         <MinimalHeader onBackToMenu={mockOnBackToMenu} />
@@ -84,7 +87,7 @@ describe('MinimalHeader', () => {
   it('should render extra left button', () => {
     const extraLeftButton = {
       label: 'Extra Button',
-      onClick: jest.fn(),
+      onClick: vi.fn(),
     }
 
     render(
@@ -139,3 +142,7 @@ describe('MinimalHeader', () => {
     expect(menuButton).toHaveClass('app-header__back-button')
   })
 })
+
+
+
+

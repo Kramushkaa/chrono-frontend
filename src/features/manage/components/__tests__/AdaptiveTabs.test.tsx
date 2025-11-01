@@ -3,13 +3,13 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { AdaptiveTabs } from '../AdaptiveTabs';
 
 // Mock the useMobileLayout hook
-jest.mock('shared/hooks/useMobileLayout', () => ({
-  useMobileLayout: jest.fn(() => ({ isMobile: false }))
+vi.mock('shared/hooks/useMobileLayout', () => ({
+  useMobileLayout: vi.fn(() => ({ isMobile: false }))
 }));
 
 // Mock child components
-jest.mock('../MobileTabs', () => ({
-  MobileTabs: jest.fn(({ activeTab, setActiveTab }) => (
+vi.mock('../MobileTabs', () => ({
+  MobileTabs: vi.fn(({ activeTab, setActiveTab }) => (
     <div data-testid="mobile-tabs">
       <button onClick={() => setActiveTab('persons')} data-testid="mobile-persons">Mobile Persons</button>
       <button onClick={() => setActiveTab('achievements')} data-testid="mobile-achievements">Mobile Achievements</button>
@@ -19,8 +19,8 @@ jest.mock('../MobileTabs', () => ({
   ))
 }));
 
-jest.mock('../DesktopTabs', () => ({
-  DesktopTabs: jest.fn(({ activeTab, setActiveTab, onAddClick }) => (
+vi.mock('../DesktopTabs', () => ({
+  DesktopTabs: vi.fn(({ activeTab, setActiveTab, onAddClick }) => (
     <div data-testid="desktop-tabs">
       <button onClick={() => setActiveTab('persons')} data-testid="desktop-persons">Desktop Persons</button>
       <button onClick={() => setActiveTab('achievements')} data-testid="desktop-achievements">Desktop Achievements</button>
@@ -31,25 +31,27 @@ jest.mock('../DesktopTabs', () => ({
   ))
 }));
 
-const { useMobileLayout } = require('shared/hooks/useMobileLayout');
+import { useMobileLayout } from 'shared/hooks/useMobileLayout'
 
 describe('AdaptiveTabs', () => {
+  const mockUseMobileLayout = vi.mocked(useMobileLayout)
+  
   const mockProps = {
     activeTab: 'persons' as const,
-    setActiveTab: jest.fn(),
+    setActiveTab: vi.fn(),
     sidebarCollapsed: false,
-    setSidebarCollapsed: jest.fn(),
+    setSidebarCollapsed: vi.fn(),
     isAuthenticated: true,
     userEmailVerified: true,
-    onAddClick: jest.fn(),
+    onAddClick: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders DesktopTabs when not mobile', () => {
-    useMobileLayout.mockReturnValue({ isMobile: false });
+    mockUseMobileLayout.mockReturnValue({ isMobile: false });
     
     render(<AdaptiveTabs {...mockProps} />);
     
@@ -58,7 +60,7 @@ describe('AdaptiveTabs', () => {
   });
 
   it('renders MobileTabs when mobile', () => {
-    useMobileLayout.mockReturnValue({ isMobile: true });
+    mockUseMobileLayout.mockReturnValue({ isMobile: true });
     
     render(<AdaptiveTabs {...mockProps} />);
     
@@ -67,7 +69,7 @@ describe('AdaptiveTabs', () => {
   });
 
   it('passes all props to DesktopTabs when not mobile', () => {
-    useMobileLayout.mockReturnValue({ isMobile: false });
+    mockUseMobileLayout.mockReturnValue({ isMobile: false });
     
     render(<AdaptiveTabs {...mockProps} activeTab="achievements" />);
     
@@ -75,7 +77,7 @@ describe('AdaptiveTabs', () => {
   });
 
   it('passes all props to MobileTabs when mobile', () => {
-    useMobileLayout.mockReturnValue({ isMobile: true });
+    mockUseMobileLayout.mockReturnValue({ isMobile: true });
     
     render(<AdaptiveTabs {...mockProps} activeTab="periods" />);
     
@@ -83,7 +85,7 @@ describe('AdaptiveTabs', () => {
   });
 
   it('handles tab switching in desktop mode', () => {
-    useMobileLayout.mockReturnValue({ isMobile: false });
+    mockUseMobileLayout.mockReturnValue({ isMobile: false });
     
     render(<AdaptiveTabs {...mockProps} />);
     
@@ -94,7 +96,7 @@ describe('AdaptiveTabs', () => {
   });
 
   it('handles tab switching in mobile mode', () => {
-    useMobileLayout.mockReturnValue({ isMobile: true });
+    mockUseMobileLayout.mockReturnValue({ isMobile: true });
     
     render(<AdaptiveTabs {...mockProps} />);
     
@@ -105,7 +107,7 @@ describe('AdaptiveTabs', () => {
   });
 
   it('handles add button click in desktop mode', () => {
-    useMobileLayout.mockReturnValue({ isMobile: false });
+    mockUseMobileLayout.mockReturnValue({ isMobile: false });
     
     render(<AdaptiveTabs {...mockProps} />);
     
@@ -116,7 +118,7 @@ describe('AdaptiveTabs', () => {
   });
 
   it('shows correct active tab in desktop mode', () => {
-    useMobileLayout.mockReturnValue({ isMobile: false });
+    mockUseMobileLayout.mockReturnValue({ isMobile: false });
     
     render(<AdaptiveTabs {...mockProps} activeTab="achievements" />);
     
@@ -124,10 +126,15 @@ describe('AdaptiveTabs', () => {
   });
 
   it('shows correct active tab in mobile mode', () => {
-    useMobileLayout.mockReturnValue({ isMobile: true });
+    mockUseMobileLayout.mockReturnValue({ isMobile: true });
     
     render(<AdaptiveTabs {...mockProps} activeTab="periods" />);
     
     expect(screen.getByTestId('mobile-active-tab')).toHaveTextContent('periods');
   });
 });
+
+
+
+
+

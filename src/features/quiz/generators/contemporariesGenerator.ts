@@ -242,3 +242,6 @@ export const generateContemporariesQuestion = (persons: Person[]): QuizQuestion 
   };
 };
 
+
+
+

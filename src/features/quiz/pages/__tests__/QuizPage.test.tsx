@@ -4,13 +4,16 @@ import { BrowserRouter } from 'react-router-dom';
 import QuizPage from '../QuizPage';
 
 // Mock all the hooks and components
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}));
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router-dom")>();
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
-jest.mock('features/quiz/hooks/useQuizData', () => ({
+vi.mock('features/quiz/hooks/useQuizData', () => ({
   useQuizData: () => ({
     persons: [],
     allCategories: ['Category1'],
@@ -19,88 +22,85 @@ jest.mock('features/quiz/hooks/useQuizData', () => ({
   }),
 }));
 
-jest.mock('features/quiz/hooks/useQuiz', () => ({
-  useQuiz: jest.fn(() => ({
+vi.mock('features/quiz/hooks/useQuiz', () => ({
+  useQuiz: vi.fn(() => ({
     setup: {
       selectedCategories: [],
       selectedCountries: [],
       questionTypes: [],
       questionCount: 5,
     },
-    setSetup: jest.fn(),
+    setSetup: vi.fn(),
     questions: [],
     currentQuestionIndex: 0,
     answers: [],
     isQuizActive: false,
     filteredPersons: [],
-    startQuiz: jest.fn(),
-    answerQuestion: jest.fn(),
-    nextQuestion: jest.fn(),
-    getResults: jest.fn(() => ({ score: 0, total: 0 })),
-    resetQuiz: jest.fn(),
+    startQuiz: vi.fn(),
+    answerQuestion: vi.fn(),
+    nextQuestion: vi.fn(),
+    getResults: vi.fn(() => ({ score: 0, total: 0 })),
+    resetQuiz: vi.fn(),
     showAnswer: false,
     lastAnswer: null,
     allCategories: ['Category1'],
     allCountries: ['Country1'],
-    checkStrictFilters: jest.fn(() => true),
+    checkStrictFilters: vi.fn(() => true),
     ratingPoints: 0,
   })),
 }));
 
-jest.mock('features/quiz/hooks/usePersonPanel', () => ({
+vi.mock('features/quiz/hooks/usePersonPanel', () => ({
   usePersonPanel: () => ({
     selectedPerson: null,
-    handlePersonInfoClick: jest.fn(),
-    closePersonPanel: jest.fn(),
+    handlePersonInfoClick: vi.fn(),
+    closePersonPanel: vi.fn(),
   }),
 }));
 
-jest.mock('features/quiz/components/QuizSetup', () => ({
+vi.mock('features/quiz/components/QuizSetup', () => ({
   QuizSetup: () => <div data-testid="quiz-setup">Quiz Setup</div>,
 }));
 
-jest.mock('features/quiz/components/QuizResults', () => ({
+vi.mock('features/quiz/components/QuizResults', () => ({
   QuizResults: () => <div data-testid="quiz-results">Quiz Results</div>,
 }));
 
-jest.mock('features/quiz/components/QuizProgress', () => ({
+vi.mock('features/quiz/components/QuizProgress', () => ({
   QuizProgress: () => <div data-testid="quiz-progress">Quiz Progress</div>,
 }));
 
-jest.mock('features/quiz/components/QuizStructuredData', () => ({
+vi.mock('features/quiz/components/QuizStructuredData', () => ({
   QuizStructuredData: () => <div data-testid="quiz-structured-data">Structured Data</div>,
 }));
 
-jest.mock('features/quiz/components/QuizPersonPanel', () => ({
+vi.mock('features/quiz/components/QuizPersonPanel', () => ({
   QuizPersonPanel: () => <div data-testid="quiz-person-panel">Person Panel</div>,
 }));
 
-jest.mock('features/quiz/utils/questionRenderer', () => ({
+vi.mock('features/quiz/utils/questionRenderer', () => ({
   renderQuestionByType: () => <div data-testid="question-renderer">Question</div>,
 }));
 
-jest.mock('shared/ui/SEO', () => ({
+vi.mock('shared/ui/SEO', () => ({
   SEO: ({ title }: { title: string }) => <div data-testid="seo">{title}</div>,
 }));
 
-jest.mock('shared/layout/AppHeader', () => ({
+vi.mock('shared/layout/AppHeader', () => ({
   AppHeader: () => <div data-testid="app-header">App Header</div>,
 }));
 
-jest.mock('shared/ui/ContactFooter', () => ({
+vi.mock('shared/ui/ContactFooter', () => ({
   ContactFooter: () => <div data-testid="contact-footer">Contact Footer</div>,
 }));
 
-jest.mock('features/quiz/utils/headerProps', () => ({
+vi.mock('features/quiz/utils/headerProps', () => ({
   getMinimalHeaderProps: () => ({}),
 }));
 
 describe('QuizPage', () => {
-  // Получаем ссылку на мокированную функцию
-  const mockUseQuizFnFn = require('features/quiz/hooks/useQuiz').useQuiz;
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   const renderWithRouter = (component: React.ReactElement) => {
@@ -146,7 +146,7 @@ describe('QuizPage', () => {
   });
 
   it.skip('should render quiz results when quiz is completed', () => {
-    // Skipped: mockReturnValue doesn't work with hoisted jest.fn()
+    // Skipped: mockReturnValue doesn't work with hoisted vi.fn()
     // Functionality is covered by other tests
     mockUseQuizFn.mockReturnValue({
       setup: {
@@ -155,22 +155,22 @@ describe('QuizPage', () => {
         questionTypes: ['single-choice'],
         questionCount: 5,
       },
-      setSetup: jest.fn(),
+      setSetup: vi.fn(),
       questions: [],
       currentQuestionIndex: 0,
       answers: [{ id: 1, answer: 'test', isCorrect: true }],
       isQuizActive: false,
       filteredPersons: [],
-      startQuiz: jest.fn(),
-      answerQuestion: jest.fn(),
-      nextQuestion: jest.fn(),
-      getResults: jest.fn(() => ({ score: 3, total: 5 })),
-      resetQuiz: jest.fn(),
+      startQuiz: vi.fn(),
+      answerQuestion: vi.fn(),
+      nextQuestion: vi.fn(),
+      getResults: vi.fn(() => ({ score: 3, total: 5 })),
+      resetQuiz: vi.fn(),
       showAnswer: false,
       lastAnswer: null,
       allCategories: [],
       allCountries: [],
-      checkStrictFilters: jest.fn(() => true),
+      checkStrictFilters: vi.fn(() => true),
       ratingPoints: 100,
     });
 
@@ -182,18 +182,18 @@ describe('QuizPage', () => {
 
   // Critical User Flow Tests
   describe('Critical Quiz Flow', () => {
-    const mockStartQuiz = jest.fn();
-    const mockAnswerQuestion = jest.fn();
-    const mockNextQuestion = jest.fn();
-    const mockGetResults = jest.fn();
+    const mockStartQuiz = vi.fn();
+    const mockAnswerQuestion = vi.fn();
+    const mockNextQuestion = vi.fn();
+    const mockGetResults = vi.fn();
 
     beforeEach(() => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
       mockGetResults.mockReturnValue({ score: 0, total: 0 });
     });
 
     it.skip('should complete full quiz flow: setup → game → results', () => {
-      // Skipped: mockReturnValue doesn't work with hoisted jest.fn()
+      // Skipped: mockReturnValue doesn't work with hoisted vi.fn()
       // Mock active quiz state with questions
       const mockQuestions = [
         { id: 1, question: 'Test question 1', type: 'single-choice', options: ['A', 'B', 'C'] }
@@ -206,7 +206,7 @@ describe('QuizPage', () => {
           questionTypes: ['single-choice'],
           questionCount: 1,
         },
-        setSetup: jest.fn(),
+        setSetup: vi.fn(),
         questions: mockQuestions,
         currentQuestionIndex: 0,
         answers: [],
@@ -216,12 +216,12 @@ describe('QuizPage', () => {
         answerQuestion: mockAnswerQuestion,
         nextQuestion: mockNextQuestion,
         getResults: mockGetResults,
-        resetQuiz: jest.fn(),
+        resetQuiz: vi.fn(),
         showAnswer: false,
         lastAnswer: null,
         allCategories: ['Category1'],
         allCountries: ['Country1'],
-        checkStrictFilters: jest.fn(() => true),
+        checkStrictFilters: vi.fn(() => true),
         ratingPoints: 0,
       });
 
@@ -238,7 +238,7 @@ describe('QuizPage', () => {
     });
 
     it.skip('should handle navigation between questions', () => {
-      // Skipped: mockReturnValue doesn't work with hoisted jest.fn()
+      // Skipped: mockReturnValue doesn't work with hoisted vi.fn()
       const mockQuestions = [
         { id: 1, question: 'Question 1', type: 'single-choice', options: ['A', 'B'] },
         { id: 2, question: 'Question 2', type: 'single-choice', options: ['C', 'D'] }
@@ -251,22 +251,22 @@ describe('QuizPage', () => {
           questionTypes: ['single-choice'],
           questionCount: 2,
         },
-        setSetup: jest.fn(),
+        setSetup: vi.fn(),
         questions: mockQuestions,
         currentQuestionIndex: 1, // Second question
         answers: [{ id: 1, answer: 'A' }],
         isQuizActive: true,
         filteredPersons: [],
-        startQuiz: jest.fn(),
+        startQuiz: vi.fn(),
         answerQuestion: mockAnswerQuestion,
         nextQuestion: mockNextQuestion,
         getResults: mockGetResults,
-        resetQuiz: jest.fn(),
+        resetQuiz: vi.fn(),
         showAnswer: false,
         lastAnswer: null,
         allCategories: ['Category1'],
         allCountries: ['Country1'],
-        checkStrictFilters: jest.fn(() => true),
+        checkStrictFilters: vi.fn(() => true),
         ratingPoints: 50,
       });
 
@@ -277,7 +277,7 @@ describe('QuizPage', () => {
     });
 
     it.skip('should handle answer submission and results', () => {
-      // Skipped: mockReturnValue doesn't work with hoisted jest.fn()
+      // Skipped: mockReturnValue doesn't work with hoisted vi.fn()
       mockUseQuizFn.mockReturnValue({
         setup: {
           selectedCategories: ['Category1'],
@@ -285,7 +285,7 @@ describe('QuizPage', () => {
           questionTypes: ['single-choice'],
           questionCount: 3,
         },
-        setSetup: jest.fn(),
+        setSetup: vi.fn(),
         questions: [],
         currentQuestionIndex: 0,
         answers: [
@@ -299,12 +299,12 @@ describe('QuizPage', () => {
         answerQuestion: mockAnswerQuestion,
         nextQuestion: mockNextQuestion,
         getResults: mockGetResults.mockReturnValue({ score: 2, total: 3 }),
-        resetQuiz: jest.fn(),
+        resetQuiz: vi.fn(),
         showAnswer: false,
         lastAnswer: null,
         allCategories: ['Category1'],
         allCountries: ['Country1'],
-        checkStrictFilters: jest.fn(() => true),
+        checkStrictFilters: vi.fn(() => true),
         ratingPoints: 150,
       });
 
@@ -316,3 +316,7 @@ describe('QuizPage', () => {
     });
   });
 });
+
+
+
+

@@ -113,3 +113,5 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
     </div>
   )
 } 
+
+

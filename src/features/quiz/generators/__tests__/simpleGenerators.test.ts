@@ -4,8 +4,8 @@ import { generateCountryQuestion } from '../countryGenerator'
 import type { Person } from '../../../../shared/types'
 
 // Mock fallback generator
-jest.mock('../fallbackGenerator', () => ({
-  generateSimpleFallback: jest.fn().mockReturnValue({
+vi.mock('../fallbackGenerator', () => ({
+  generateSimpleFallback: vi.fn().mockReturnValue({
     id: 'fallback-1',
     type: 'birthYear',
     question: 'Fallback question',
@@ -93,8 +93,8 @@ describe('Simple Quiz Generators', () => {
       expect(question.question).toContain('В каком году умер')
     })
 
-    it('should use fallback for person without death year', () => {
-      const { generateSimpleFallback } = require('../fallbackGenerator')
+    it('should use fallback for person without death year', async () => {
+      const { generateSimpleFallback } = await import('../fallbackGenerator')
       
       const personWithoutDeath = [{
         ...mockPersons[0],
@@ -103,7 +103,7 @@ describe('Simple Quiz Generators', () => {
 
       generateDeathYearQuestion(personWithoutDeath as any)
 
-      expect(generateSimpleFallback).toHaveBeenCalled()
+      expect(vi.mocked(generateSimpleFallback)).toHaveBeenCalled()
     })
   })
 
@@ -136,8 +136,8 @@ describe('Simple Quiz Generators', () => {
       expect(question.question).toContain('К какой области деятельности относится')
     })
 
-    it('should use fallback when not enough categories', () => {
-      const { generateSimpleFallback } = require('../fallbackGenerator')
+    it('should use fallback when not enough categories', async () => {
+      const { generateSimpleFallback } = await import('../fallbackGenerator')
       
       const limitedPersons = [
         { ...mockPersons[0], category: 'Философ' },
@@ -146,7 +146,7 @@ describe('Simple Quiz Generators', () => {
 
       generateProfessionQuestion(limitedPersons)
 
-      expect(generateSimpleFallback).toHaveBeenCalled()
+      expect(vi.mocked(generateSimpleFallback)).toHaveBeenCalled()
     })
   })
 
@@ -190,8 +190,8 @@ describe('Simple Quiz Generators', () => {
       expect(typeof question.data.correctCountry).toBe('string')
     })
 
-    it('should use fallback when not enough countries', () => {
-      const { generateSimpleFallback } = require('../fallbackGenerator')
+    it('should use fallback when not enough countries', async () => {
+      const { generateSimpleFallback } = await import('../fallbackGenerator')
       
       const limitedPersons = [
         { ...mockPersons[0], country: 'Россия' },
@@ -200,8 +200,13 @@ describe('Simple Quiz Generators', () => {
 
       generateCountryQuestion(limitedPersons)
 
-      expect(generateSimpleFallback).toHaveBeenCalled()
+      expect(vi.mocked(generateSimpleFallback)).toHaveBeenCalled()
     })
   })
 })
+
+
+
+
+
 

@@ -3,18 +3,18 @@ import { render, fireEvent } from '@testing-library/react'
 import { PersonLifeBar } from '../PersonLifeBar'
 import { Person } from 'shared/types'
 
-const mockGetAdjustedPosition = jest.fn((year: number) => year * 10)
-const mockGetAdjustedWidth = jest.fn((startYear: number, endYear: number) => (endYear - startYear) * 10)
-const mockGetGroupColorMuted = jest.fn(() => '#8B7355')
-const mockGetPersonGroup = jest.fn(() => 'Правители')
-const mockHandlePersonHover = jest.fn()
-const mockScheduleMousePosition = jest.fn()
-const mockSetSelectedPerson = jest.fn()
-const mockSetHoveredPerson = jest.fn()
-const mockSetShowTooltip = jest.fn()
-const mockSetShowAchievementTooltip = jest.fn()
-const mockSetHoveredAchievement = jest.fn()
-const mockSetActiveAchievementMarker = jest.fn()
+const mockGetAdjustedPosition = vi.fn((year: number) => year * 10)
+const mockGetAdjustedWidth = vi.fn((startYear: number, endYear: number) => (endYear - startYear) * 10)
+const mockGetGroupColorMuted = vi.fn(() => '#8B7355')
+const mockGetPersonGroup = vi.fn(() => 'Правители')
+const mockHandlePersonHover = vi.fn()
+const mockScheduleMousePosition = vi.fn()
+const mockSetSelectedPerson = vi.fn()
+const mockSetHoveredPerson = vi.fn()
+const mockSetShowTooltip = vi.fn()
+const mockSetShowAchievementTooltip = vi.fn()
+const mockSetHoveredAchievement = vi.fn()
+const mockSetActiveAchievementMarker = vi.fn()
 
 const mockPerson: Person = {
   id: '1',
@@ -49,7 +49,7 @@ describe('PersonLifeBar', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -148,7 +148,7 @@ describe('PersonLifeBar', () => {
     expect(mockSetHoveredPerson).toHaveBeenCalledWith(mockPerson)
     expect(mockSetShowTooltip).toHaveBeenCalledWith(true)
     
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     fireEvent.keyDown(lifeBar!, { key: ' ' })
     expect(mockSetHoveredPerson).toHaveBeenCalledWith(mockPerson)
@@ -236,3 +236,7 @@ describe('PersonLifeBar', () => {
     expect(mockGetAdjustedWidth).toHaveBeenCalledWith(1850, expect.any(Number))
   })
 })
+
+
+
+

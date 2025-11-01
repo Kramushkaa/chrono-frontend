@@ -4,8 +4,8 @@ import { SingleChoiceQuestion } from '../SingleChoiceQuestion'
 import { SingleChoiceQuestionData, QuizAnswer, QuizPerson } from '../../../types'
 
 // Mock the textUtils
-jest.mock('../../../utils/textUtils', () => ({
-  hideYearsInText: jest.fn((text: string) => text.replace(/\d{4}/g, 'XXXX')),
+vi.mock('../../../utils/textUtils', () => ({
+  hideYearsInText: vi.fn((text: string) => text.replace(/\d{4}/g, 'XXXX')),
 }))
 
 const mockPerson: QuizPerson = {
@@ -33,11 +33,11 @@ const mockUserAnswer: QuizAnswer = {
 describe('SingleChoiceQuestion', () => {
   const defaultProps = {
     data: mockQuestionData,
-    onAnswer: jest.fn(),
+    onAnswer: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render without crashing', () => {
@@ -65,7 +65,7 @@ describe('SingleChoiceQuestion', () => {
   })
 
   it('should call onAnswer when option is clicked', () => {
-    const onAnswer = jest.fn()
+    const onAnswer = vi.fn()
     render(<SingleChoiceQuestion {...defaultProps} onAnswer={onAnswer} />)
     
     const optionButton = screen.getByText('1860')
@@ -75,7 +75,7 @@ describe('SingleChoiceQuestion', () => {
   })
 
   it('should not allow answering when showFeedback is true', () => {
-    const onAnswer = jest.fn()
+    const onAnswer = vi.fn()
     render(
       <SingleChoiceQuestion 
         {...defaultProps} 
@@ -137,7 +137,7 @@ describe('SingleChoiceQuestion', () => {
   })
 
   it('should render next button in feedback', () => {
-    const onNext = jest.fn()
+    const onNext = vi.fn()
     render(
       <SingleChoiceQuestion 
         {...defaultProps}
@@ -155,7 +155,7 @@ describe('SingleChoiceQuestion', () => {
   })
 
   it('should show finish button for last question', () => {
-    const onNext = jest.fn()
+    const onNext = vi.fn()
     render(
       <SingleChoiceQuestion 
         {...defaultProps}
@@ -171,7 +171,7 @@ describe('SingleChoiceQuestion', () => {
   })
 
   it('should render person info button when showFeedback is true', () => {
-    const onPersonInfoClick = jest.fn()
+    const onPersonInfoClick = vi.fn()
     render(
       <SingleChoiceQuestion 
         {...defaultProps}
@@ -238,3 +238,7 @@ describe('SingleChoiceQuestion', () => {
     expect(screen.queryByText(/Описание персоны/)).not.toBeInTheDocument()
   })
 })
+
+
+
+

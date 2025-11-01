@@ -22,3 +22,6 @@ export function AdaptiveTabs(props: Props) {
 
   return <DesktopTabs {...props} />
 }
+
+
+

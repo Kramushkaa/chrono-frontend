@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { AuthPrompt } from '../AuthPrompt';
 
 // Mock QuizAuthModal
-jest.mock('../QuizAuthModal', () => ({
+vi.mock('../QuizAuthModal', () => ({
   QuizAuthModal: ({ isOpen, onClose, onSuccess, message }: any) => 
     isOpen ? (
       <div data-testid="quiz-auth-modal">
@@ -17,9 +17,9 @@ jest.mock('../QuizAuthModal', () => ({
 // Mock window.location
 const mockLocation = { 
   href: 'http://localhost/',
-  assign: jest.fn(),
-  replace: jest.fn(),
-  reload: jest.fn()
+  assign: vi.fn(),
+  replace: vi.fn(),
+  reload: vi.fn()
 };
 
 // Create a getter/setter for href that works with our mock
@@ -52,10 +52,10 @@ try {
 }
 
 describe('AuthPrompt', () => {
-  const mockOnContinueAsGuest = jest.fn();
+  const mockOnContinueAsGuest = vi.fn();
   
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockLocation.href = 'http://localhost/';
     // Reset the mock location state
     locationMock.href = 'http://localhost/';
@@ -169,3 +169,7 @@ describe('AuthPrompt', () => {
     expect(screen.getByTestId('modal-message')).toHaveTextContent('Войдите, чтобы ваш результат отобразился в лидерборде!');
   });
 });
+
+
+
+

@@ -3,13 +3,13 @@ import { useCategoryDividers } from '../useCategoryDividers'
 import type { Person } from 'shared/types'
 
 // Mock groupingUtils
-jest.mock('features/persons/utils/groupingUtils', () => ({
-  getPersonGroup: jest.fn(),
+vi.mock('features/persons/utils/groupingUtils', () => ({
+  getPersonGroup: vi.fn(),
 }))
 
 import { getPersonGroup } from 'features/persons/utils/groupingUtils'
 
-const mockGetPersonGroup = getPersonGroup as jest.MockedFunction<typeof getPersonGroup>
+const mockGetPersonGroup = getPersonGroup as vi.MockedFunction<typeof getPersonGroup>
 
 describe('useCategoryDividers', () => {
   const createMockPerson = (id: string, category: string): Person => ({
@@ -24,7 +24,7 @@ describe('useCategoryDividers', () => {
   })
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should return empty array when grouping is none', () => {
@@ -255,4 +255,9 @@ describe('useCategoryDividers', () => {
     ])
   })
 })
+
+
+
+
+
 

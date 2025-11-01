@@ -3,8 +3,8 @@ import { generateGuessPersonQuestion } from '../guessPersonGenerator'
 import type { Person } from '../../../../shared/types'
 
 // Mock fallback generator
-jest.mock('../fallbackGenerator', () => ({
-  generateSimpleFallback: jest.fn().mockReturnValue({
+vi.mock('../fallbackGenerator', () => ({
+  generateSimpleFallback: vi.fn().mockReturnValue({
     id: 'fallback-1',
     type: 'birthYear',
     question: 'Fallback question',
@@ -27,10 +27,10 @@ describe('Complex Quiz Generators', () => {
     status: 'approved',
   }))
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Clear fallback mock before each test
-    const { generateSimpleFallback } = require('../fallbackGenerator')
-    generateSimpleFallback.mockClear()
+    const { generateSimpleFallback } = await import('../fallbackGenerator')
+    vi.mocked(generateSimpleFallback).mockClear()
   })
 
   describe('generateBirthOrderQuestion', () => {
@@ -69,8 +69,8 @@ describe('Complex Quiz Generators', () => {
       }
     })
 
-    it('should use fallback when not enough unique birth years', () => {
-      const { generateSimpleFallback } = require('../fallbackGenerator')
+    it('should use fallback when not enough unique birth years', async () => {
+      const { generateSimpleFallback } = await import('../fallbackGenerator')
       
       const singleYearPersons = [
         { ...mockPersons[0], birthYear: 1900 },
@@ -79,7 +79,7 @@ describe('Complex Quiz Generators', () => {
 
       generateBirthOrderQuestion(singleYearPersons)
 
-      expect(generateSimpleFallback).toHaveBeenCalled()
+      expect(vi.mocked(generateSimpleFallback)).toHaveBeenCalled()
     })
 
     it('should include person metadata', () => {
@@ -159,14 +159,14 @@ describe('Complex Quiz Generators', () => {
       expect(question.data.correctPerson.id).not.toBe('person-draft')
     })
 
-    it('should use fallback when not enough approved persons', () => {
-      const { generateSimpleFallback } = require('../fallbackGenerator')
+    it('should use fallback when not enough approved persons', async () => {
+      const { generateSimpleFallback } = await import('../fallbackGenerator')
       
       const fewPersons = mockPersons.slice(0, 5) // Less than 10
 
       generateGuessPersonQuestion(fewPersons)
 
-      expect(generateSimpleFallback).toHaveBeenCalled()
+      expect(vi.mocked(generateSimpleFallback)).toHaveBeenCalled()
     })
 
     it('should format question text', () => {
@@ -203,4 +203,9 @@ describe('Complex Quiz Generators', () => {
     })
   })
 })
+
+
+
+
+
 

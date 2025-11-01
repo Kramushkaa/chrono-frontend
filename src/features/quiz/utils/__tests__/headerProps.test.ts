@@ -17,14 +17,14 @@ describe('headerProps utils', () => {
     })
 
     it('should include onBackToMenu when provided', () => {
-      const mockCallback = jest.fn()
+      const mockCallback = vi.fn()
       const props = getMinimalHeaderProps({ onBackToMenu: mockCallback })
 
       expect(props.onBackToMenu).toBe(mockCallback)
     })
 
     it('should include extraLeftButton when provided', () => {
-      const mockButton = { label: 'Test Button', onClick: jest.fn() }
+      const mockButton = { label: 'Test Button', onClick: vi.fn() }
       const props = getMinimalHeaderProps({ extraLeftButton: mockButton })
 
       expect(props.extraLeftButton).toBe(mockButton)
@@ -89,8 +89,8 @@ describe('headerProps utils', () => {
     })
 
     it('should accept all optional parameters', () => {
-      const mockBackToMenu = jest.fn()
-      const mockExtraButton = { label: 'Extra', onClick: jest.fn() }
+      const mockBackToMenu = vi.fn()
+      const mockExtraButton = { label: 'Extra', onClick: vi.fn() }
       const mockExtraControls = 'extra-controls'
 
       const props = getMinimalHeaderProps({
@@ -114,4 +114,9 @@ describe('headerProps utils', () => {
     })
   })
 })
+
+
+
+
+
 

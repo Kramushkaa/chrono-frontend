@@ -98,3 +98,6 @@ export function LifePeriodsEditor({ periods, onChange, options, minYear, maxYear
 
 
 
+
+
+
