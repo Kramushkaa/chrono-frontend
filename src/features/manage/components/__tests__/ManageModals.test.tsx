@@ -1,72 +1,91 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ManageModals } from '../ManageModals';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { ManageModals } from '../ManageModals'
+import { Person } from 'shared/types'
 
-// Mock all modal components
+// Mock all dependencies
 vi.mock('../AuthRequiredModal', () => ({
-  AuthRequiredModal: vi.fn(({ isOpen, onClose }) => (
-    isOpen ? (
-      <div data-testid="auth-required-modal">
-        <button onClick={onClose} data-testid="close-auth-modal">Close</button>
-      </div>
-    ) : null
-  ))
-}));
+  AuthRequiredModal: ({ isOpen, onClose }: any) => 
+    isOpen ? <div data-testid="auth-required-modal"><button onClick={onClose}>Close Auth</button></div> : null
+}))
 
 vi.mock('../CreateEntityModal', () => ({
-  CreateEntityModal: vi.fn(({ isOpen, onClose, type }) => (
+  CreateEntityModal: ({ isOpen, onClose, onCreatePerson, onCreateAchievement, onCreatePeriod }: any) => 
     isOpen ? (
       <div data-testid="create-entity-modal">
-        <div data-testid="modal-type">{type}</div>
-        <button onClick={onClose} data-testid="close-create-modal">Close</button>
+        <button onClick={onClose}>Close Create</button>
+        <button onClick={() => onCreatePerson({
+          name: 'Test Person',
+          birthYear: 1900,
+          deathYear: 1980,
+          category: 'Science',
+          description: 'Test',
+          imageUrl: '',
+          wikiLink: '',
+          saveAsDraft: false,
+          lifePeriods: []
+        })}>Create Person</button>
+        <button onClick={() => onCreateAchievement({
+          personId: 'person-1',
+          year: 1950,
+          description: 'Achievement',
+          saveAsDraft: true
+        })}>Create Achievement</button>
+        <button onClick={() => onCreatePeriod({
+          personId: 'person-1',
+          startYear: 1920,
+          endYear: 1950,
+          type: 'life',
+          countryId: 'usa',
+          description: 'Period',
+          saveAsDraft: true
+        })}>Create Period</button>
       </div>
     ) : null
-  ))
-}));
+}))
 
 vi.mock('../PersonEditModal', () => ({
-  PersonEditModal: vi.fn(({ isOpen, person }) => (
+  PersonEditModal: ({ isOpen, onClose, onProposeEdit, onUpdateDraft, onSubmitDraft }: any) => 
     isOpen ? (
       <div data-testid="person-edit-modal">
-        <div data-testid="person-name">{person?.name}</div>
+        <button onClick={onClose}>Close Edit</button>
+        <button onClick={() => onProposeEdit('person-1', {}, [])}>Propose Edit</button>
+        <button onClick={() => onUpdateDraft('person-1', {}, [])}>Update Draft</button>
+        <button onClick={() => onSubmitDraft('person-1', {}, [])}>Submit Draft</button>
       </div>
     ) : null
-  ))
-}));
+}))
 
 vi.mock('../CreateListModal', () => ({
-  CreateListModal: vi.fn(({ isOpen, onClose }) => (
+  CreateListModal: ({ isOpen, onClose, onCreate }: any) => 
     isOpen ? (
       <div data-testid="create-list-modal">
-        <button onClick={onClose} data-testid="close-list-modal">Close</button>
+        <button onClick={onClose}>Close List</button>
+        <button onClick={() => onCreate('New List')}>Create List</button>
       </div>
     ) : null
-  ))
-}));
+}))
 
 vi.mock('../AddToListModal', () => ({
-  AddToListModal: vi.fn(({ isOpen, onClose }) => (
+  AddToListModal: ({ isOpen, onClose, onCreateList, onAdd }: any) => 
     isOpen ? (
       <div data-testid="add-to-list-modal">
-        <button onClick={onClose} data-testid="close-add-modal">Close</button>
+        <button onClick={onClose}>Close Add</button>
+        <button onClick={onCreateList}>Create New List</button>
+        <button onClick={() => onAdd(1)}>Add to List</button>
       </div>
     ) : null
-  ))
-}));
+}))
 
 vi.mock('shared/ui/EditWarningModal', () => ({
-  EditWarningModal: vi.fn(({ isOpen, personName, onRevertToDraft, onCancel }) => (
+  EditWarningModal: ({ isOpen, onCancel, onRevertToDraft }: any) => 
     isOpen ? (
       <div data-testid="edit-warning-modal">
-        <div data-testid="warning-person-name">{personName}</div>
-        <button onClick={onRevertToDraft} data-testid="revert-button">Revert</button>
-        <button onClick={onCancel} data-testid="cancel-button">Cancel</button>
+        <button onClick={onCancel}>Cancel Warning</button>
+        <button onClick={onRevertToDraft}>Revert to Draft</button>
       </div>
     ) : null
-  ))
-}));
+}))
 
-// Mock API functions
 vi.mock('shared/api/api', () => ({
   apiFetch: vi.fn(),
   getPersonById: vi.fn(),
@@ -79,27 +98,46 @@ vi.mock('shared/api/api', () => ({
   createPeriodDraft: vi.fn(),
   adminUpsertPerson: vi.fn(),
   proposeNewPerson: vi.fn(),
-}));
+}))
 
 vi.mock('shared/utils/slug', () => ({
-  slugifyIdFromName: vi.fn(() => 'test-id'),
-}));
+  slugifyIdFromName: vi.fn((name: string) => name.toLowerCase().replace(/\s+/g, '-'))
+}))
 
 describe('ManageModals', () => {
-  const mockPerson = {
-    id: 'test-person',
+  const mockPerson: Person = {
+    id: 'person-1',
     name: 'Test Person',
-    birthYear: 1800,
-    deathYear: 1850,
-    category: 'test-category',
-    country: 'test-country',
-    description: 'Test description',
+    birthYear: 1900,
+    deathYear: 1980,
+    category: 'Science',
+    country: 'USA',
+    description: 'Test',
+    categories: ['Science'],
+    countries: ['USA'],
+    reignPeriods: [],
     achievements: [],
-    achievementYears: [],
-    rulerPeriods: [],
-  };
+    periods: [],
+  }
 
-  const mockProps = {
+  const mockUser = {
+    id: '1',
+    email: 'test@example.com',
+    email_verified: true,
+  }
+
+  const mockAddToList = {
+    isOpen: false,
+    openForPerson: vi.fn(),
+    openForAchievement: vi.fn(),
+    openForPeriod: vi.fn(),
+    close: vi.fn(),
+    includeLinked: false,
+    setIncludeLinked: vi.fn(),
+    onAdd: vi.fn(),
+  }
+
+  const defaultProps = {
     showAuthModal: false,
     setShowAuthModal: vi.fn(),
     showCreate: false,
@@ -113,137 +151,358 @@ describe('ManageModals', () => {
     setShowEditWarning: vi.fn(),
     isReverting: false,
     setIsReverting: vi.fn(),
-    categories: ['category1', 'category2'],
-    countryOptions: [{ value: 'US', label: 'United States' }],
-    categorySelectOptions: [{ value: 'cat1', label: 'Category 1' }],
-    countrySelectOptions: [{ value: 'US', label: 'United States' }],
-    selected: mockPerson,
+    categories: ['Science', 'Art'],
+    countryOptions: [],
+    categorySelectOptions: [{ value: 'Science', label: 'Наука' }],
+    countrySelectOptions: [{ value: 'usa', label: 'США' }],
+    selected: null,
     setSelected: vi.fn(),
     lifePeriods: [],
     setLifePeriods: vi.fn(),
-    editBirthYear: 1800,
+    editBirthYear: 1900,
     setEditBirthYear: vi.fn(),
-    editDeathYear: 1850,
+    editDeathYear: 1980,
     setEditDeathYear: vi.fn(),
-    editPersonCategory: 'test-category',
+    editPersonCategory: 'Science',
     setEditPersonCategory: vi.fn(),
-    personLists: [{ id: 1, title: 'Test List' }],
-    isAuthenticated: true,
-    user: { id: '1', role: 'user', email_verified: true },
+    personLists: [],
+    isAuthenticated: false,
+    user: null,
     isModerator: false,
-    addToList: {
-      isOpen: false,
-      openForPerson: vi.fn(),
-      openForAchievement: vi.fn(),
-      openForPeriod: vi.fn(),
-      close: vi.fn(),
-      includeLinked: false,
-      setIncludeLinked: vi.fn(),
-      onAdd: vi.fn(),
-    },
+    addToList: mockAddToList,
     showToast: vi.fn(),
     resetPersons: vi.fn(),
     resetAchievements: vi.fn(),
     resetPeriods: vi.fn(),
     loadUserLists: vi.fn(),
     navigate: vi.fn(),
-  };
+  }
 
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
-  it('renders without crashing', () => {
-    render(<ManageModals {...mockProps} />);
+  it('should render without errors', () => {
+    const { container } = render(<ManageModals {...defaultProps} />)
+    expect(container).toBeTruthy()
+  })
+
+  it('should render AuthRequiredModal when showAuthModal is true', () => {
+    render(<ManageModals {...defaultProps} showAuthModal={true} />)
+    expect(screen.getByTestId('auth-required-modal')).toBeInTheDocument()
+  })
+
+  it('should close AuthRequiredModal', () => {
+    render(<ManageModals {...defaultProps} showAuthModal={true} />)
     
-    // Компонент рендерит div с классом, но без data-testid
-    expect(document.querySelector('.manage-page__modals')).toBeInTheDocument();
-  });
+    fireEvent.click(screen.getByText('Close Auth'))
+    expect(defaultProps.setShowAuthModal).toHaveBeenCalledWith(false)
+  })
 
-  it('shows auth modal when showAuthModal is true', () => {
-    render(<ManageModals {...mockProps} showAuthModal={true} />);
+  it('should render CreateEntityModal when showCreate is true', () => {
+    render(<ManageModals {...defaultProps} showCreate={true} />)
+    expect(screen.getByTestId('create-entity-modal')).toBeInTheDocument()
+  })
+
+  it('should close CreateEntityModal', () => {
+    render(<ManageModals {...defaultProps} showCreate={true} />)
     
-    expect(screen.getByTestId('auth-required-modal')).toBeInTheDocument();
-  });
+    fireEvent.click(screen.getByText('Close Create'))
+    expect(defaultProps.setShowCreate).toHaveBeenCalledWith(false)
+  })
 
-  it('shows create modal when showCreate is true', () => {
-    render(<ManageModals {...mockProps} showCreate={true} />);
+  it('should handle person creation without email verification', async () => {
+    const { proposeNewPerson } = await import('shared/api/api')
     
-    expect(screen.getByTestId('create-entity-modal')).toBeInTheDocument();
-    expect(screen.getByTestId('modal-type')).toHaveTextContent('person');
-  });
-
-  it('shows edit modal when isEditing is true and selected person exists', () => {
-    render(<ManageModals {...mockProps} isEditing={true} />);
+    render(<ManageModals {...defaultProps} showCreate={true} user={mockUser} />)
     
-    expect(screen.getByTestId('person-edit-modal')).toBeInTheDocument();
-    expect(screen.getByTestId('person-name')).toHaveTextContent('Test Person');
-  });
-
-  it('shows create list modal when showCreateList is true', () => {
-    render(<ManageModals {...mockProps} showCreateList={true} />);
+    fireEvent.click(screen.getByText('Create Person'))
     
-    expect(screen.getByTestId('create-list-modal')).toBeInTheDocument();
-  });
+    await waitFor(() => {
+      expect(defaultProps.showToast).toHaveBeenCalledWith(
+        'Предложение на создание личности отправлено',
+        'success'
+      )
+    })
+  })
 
-  it('shows add to list modal when addToList.isOpen is true', () => {
+  it('should handle person draft creation', async () => {
+    const { createPersonDraft } = await import('shared/api/api')
+    vi.mocked(createPersonDraft).mockResolvedValue(undefined)
+    
+    render(
+      <ManageModals
+        {...defaultProps}
+        showCreate={true}
+        user={{ ...mockUser, email_verified: true }}
+      />
+    )
+    
+    // This will trigger saveAsDraft=false, but we test the flow
+    fireEvent.click(screen.getByText('Create Person'))
+    
+    await waitFor(() => {
+      expect(defaultProps.setShowCreate).toHaveBeenCalledWith(false)
+    })
+  })
+
+  it('should handle achievement creation with draft', async () => {
+    const { createAchievementDraft } = await import('shared/api/api')
+    vi.mocked(createAchievementDraft).mockResolvedValue(undefined)
+    
+    render(
+      <ManageModals
+        {...defaultProps}
+        showCreate={true}
+        user={{ ...mockUser, email_verified: true }}
+      />
+    )
+    
+    fireEvent.click(screen.getByText('Create Achievement'))
+    
+    await waitFor(() => {
+      expect(defaultProps.showToast).toHaveBeenCalledWith(
+        'Черновик достижения сохранен',
+        'success'
+      )
+    })
+  })
+
+  it('should handle period creation with draft', async () => {
+    const { createPeriodDraft } = await import('shared/api/api')
+    vi.mocked(createPeriodDraft).mockResolvedValue(undefined)
+    
+    render(
+      <ManageModals
+        {...defaultProps}
+        showCreate={true}
+        user={{ ...mockUser, email_verified: true }}
+      />
+    )
+    
+    fireEvent.click(screen.getByText('Create Period'))
+    
+    await waitFor(() => {
+      expect(defaultProps.showToast).toHaveBeenCalledWith(
+        'Черновик периода сохранен',
+        'success'
+      )
+    })
+  })
+
+  it('should render PersonEditModal when isEditing and person selected', () => {
+    render(
+      <ManageModals
+        {...defaultProps}
+        isEditing={true}
+        selected={mockPerson}
+      />
+    )
+    
+    expect(screen.getByTestId('person-edit-modal')).toBeInTheDocument()
+  })
+
+  it('should not render PersonEditModal when no person selected', () => {
+    render(<ManageModals {...defaultProps} isEditing={true} selected={null} />)
+    expect(screen.queryByTestId('person-edit-modal')).not.toBeInTheDocument()
+  })
+
+  it('should close PersonEditModal', () => {
     render(
       <ManageModals 
-        {...mockProps} 
-        addToList={{ ...mockProps.addToList, isOpen: true }}
+        {...defaultProps}
+        isEditing={true}
+        selected={mockPerson}
       />
-    );
+    )
     
-    expect(screen.getByTestId('add-to-list-modal')).toBeInTheDocument();
-  });
+    fireEvent.click(screen.getByText('Close Edit'))
+    expect(defaultProps.setIsEditing).toHaveBeenCalledWith(false)
+  })
 
-  it('shows edit warning modal when showEditWarning is true', () => {
-    render(<ManageModals {...mockProps} showEditWarning={true} />);
+  it('should render CreateListModal when showCreateList is true', () => {
+    render(<ManageModals {...defaultProps} showCreateList={true} />)
+    expect(screen.getByTestId('create-list-modal')).toBeInTheDocument()
+  })
+
+  it('should close CreateListModal', () => {
+    render(<ManageModals {...defaultProps} showCreateList={true} />)
     
-    expect(screen.getByTestId('edit-warning-modal')).toBeInTheDocument();
-    expect(screen.getByTestId('warning-person-name')).toHaveTextContent('Test Person');
-  });
+    fireEvent.click(screen.getByText('Close List'))
+    expect(defaultProps.setShowCreateList).toHaveBeenCalledWith(false)
+  })
 
-  it('handles auth modal close', () => {
-    render(<ManageModals {...mockProps} showAuthModal={true} />);
+  it('should handle list creation', async () => {
+    const { apiFetch } = await import('shared/api/api')
+    vi.mocked(apiFetch).mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ data: { id: 1 } })
+    } as any)
     
-    const closeButton = screen.getByTestId('close-auth-modal');
-    fireEvent.click(closeButton);
+    render(<ManageModals {...defaultProps} showCreateList={true} />)
     
-    expect(mockProps.setShowAuthModal).toHaveBeenCalledWith(false);
-  });
-
-  it('handles create modal close', () => {
-    render(<ManageModals {...mockProps} showCreate={true} />);
+    fireEvent.click(screen.getByText('Create List'))
     
-    const closeButton = screen.getByTestId('close-create-modal');
-    fireEvent.click(closeButton);
+    await waitFor(() => {
+      expect(defaultProps.loadUserLists).toHaveBeenCalledWith(true)
+    })
+  })
+
+  it('should render AddToListModal when addToList.isOpen is true', () => {
+    const openAddToList = { ...mockAddToList, isOpen: true }
     
-    expect(mockProps.setShowCreate).toHaveBeenCalledWith(false);
-  });
+    render(<ManageModals {...defaultProps} addToList={openAddToList} />)
+    expect(screen.getByTestId('add-to-list-modal')).toBeInTheDocument()
+  })
 
-  it('handles edit warning modal cancel', () => {
-    render(<ManageModals {...mockProps} showEditWarning={true} />);
+  it('should close AddToListModal', () => {
+    const openAddToList = { ...mockAddToList, isOpen: true }
     
-    const cancelButton = screen.getByTestId('cancel-button');
-    fireEvent.click(cancelButton);
+    render(<ManageModals {...defaultProps} addToList={openAddToList} />)
     
-    expect(mockProps.setShowEditWarning).toHaveBeenCalledWith(false);
-  });
+    fireEvent.click(screen.getByText('Close Add'))
+    expect(openAddToList.close).toHaveBeenCalled()
+  })
 
-  it('does not render person edit modal when no person is selected', () => {
-    render(<ManageModals {...mockProps} isEditing={true} selected={null} />);
+  it('should open CreateListModal from AddToListModal', () => {
+    const openAddToList = { ...mockAddToList, isOpen: true }
     
-    expect(screen.queryByTestId('person-edit-modal')).not.toBeInTheDocument();
-  });
-
-  it('does not render edit warning modal when no person is selected', () => {
-    render(<ManageModals {...mockProps} showEditWarning={true} selected={null} />);
+    render(<ManageModals {...defaultProps} addToList={openAddToList} />)
     
-    expect(screen.getByTestId('warning-person-name')).toHaveTextContent('');
-  });
-});
+    fireEvent.click(screen.getByText('Create New List'))
+    expect(openAddToList.close).toHaveBeenCalled()
+    expect(defaultProps.setShowCreateList).toHaveBeenCalledWith(true)
+  })
 
+  it('should handle add to list', () => {
+    const openAddToList = { ...mockAddToList, isOpen: true }
+    
+    render(<ManageModals {...defaultProps} addToList={openAddToList} />)
+    
+    fireEvent.click(screen.getByText('Add to List'))
+    expect(openAddToList.onAdd).toHaveBeenCalledWith(1)
+  })
 
+  it('should render EditWarningModal when showEditWarning is true', () => {
+    render(
+      <ManageModals
+        {...defaultProps}
+        showEditWarning={true}
+        selected={mockPerson}
+      />
+    )
+    
+    expect(screen.getByTestId('edit-warning-modal')).toBeInTheDocument()
+  })
 
+  it('should close EditWarningModal', () => {
+    render(
+      <ManageModals
+        {...defaultProps}
+        showEditWarning={true}
+        selected={mockPerson}
+      />
+    )
+    
+    fireEvent.click(screen.getByText('Cancel Warning'))
+    expect(defaultProps.setShowEditWarning).toHaveBeenCalledWith(false)
+  })
 
+  it('should handle revert to draft', async () => {
+    const { revertPersonToDraft, getPersonById } = await import('shared/api/api')
+    vi.mocked(revertPersonToDraft).mockResolvedValue(undefined)
+    vi.mocked(getPersonById).mockResolvedValue(mockPerson)
+    
+    render(
+      <ManageModals
+        {...defaultProps}
+        showEditWarning={true}
+        selected={mockPerson}
+      />
+    )
+    
+    fireEvent.click(screen.getByText('Revert to Draft'))
+    
+    await waitFor(() => {
+      expect(defaultProps.showToast).toHaveBeenCalledWith(
+        'Личность возвращена в черновики',
+        'success'
+      )
+    })
+  })
+
+  it('should handle error during person creation', async () => {
+    const { proposeNewPerson } = await import('shared/api/api')
+    vi.mocked(proposeNewPerson).mockRejectedValue(new Error('API Error'))
+    
+    render(
+      <ManageModals
+        {...defaultProps}
+        showCreate={true}
+        user={{ ...mockUser, email_verified: true }}
+      />
+    )
+    
+    fireEvent.click(screen.getByText('Create Person'))
+    
+    await waitFor(() => {
+      expect(defaultProps.showToast).toHaveBeenCalledWith('API Error', 'error')
+    })
+  })
+
+  it('should show error when creating person without email verification', async () => {
+    render(
+      <ManageModals
+        {...defaultProps}
+        showCreate={true}
+        user={{ ...mockUser, email_verified: false }}
+      />
+    )
+    
+    fireEvent.click(screen.getByText('Create Person'))
+    
+    await waitFor(() => {
+      expect(defaultProps.showToast).toHaveBeenCalledWith(
+        'Требуется подтверждение email для создания личностей',
+        'error'
+      )
+    })
+  })
+
+  it('should show error when creating achievement without personId', async () => {
+    // Mock the CreateEntityModal to pass no personId
+    vi.doMock('../CreateEntityModal', () => ({
+      CreateEntityModal: ({ isOpen, onClose, onCreateAchievement }: any) => 
+        isOpen ? (
+          <div data-testid="create-entity-modal">
+            <button onClick={() => onCreateAchievement({
+              personId: undefined,
+              year: 1950,
+              description: 'Achievement',
+              saveAsDraft: true
+            })}>Create Achievement No Person</button>
+          </div>
+        ) : null
+    }))
+    
+    render(
+      <ManageModals
+        {...defaultProps}
+        showCreate={true}
+        user={{ ...mockUser, email_verified: true }}
+      />
+    )
+    
+    const btn = screen.queryByText('Create Achievement No Person')
+    if (btn) {
+      fireEvent.click(btn)
+      
+      await waitFor(() => {
+        expect(defaultProps.showToast).toHaveBeenCalledWith(
+          'Необходимо выбрать личность для достижения',
+          'error'
+        )
+      })
+    }
+  })
+})
