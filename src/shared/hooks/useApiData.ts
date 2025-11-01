@@ -181,24 +181,12 @@ export function useApiData<T>(config: ApiDataConfig<T>): [ApiDataState<T>, ApiDa
         setState(prev => ({ ...prev, isLoading: false }))
         return
       }
+      
       const data = await response.json().catch((error) => {
         return { data: [] }
       })
       const rawItems = data?.data || []
       const transformedItems = transformData ? transformData(rawItems) : rawItems
-      
-      if (controller.signal.aborted) {
-        loadingRef.current = false
-        setState(prev => ({ ...prev, isLoading: false }))
-        return
-      }
-
-
-      if (controller.signal.aborted) { 
-        loadingRef.current = false
-        setState(prev => ({ ...prev, isLoading: false }))
-        return
-      }
 
       // Дедупликация
       let finalItems = transformedItems

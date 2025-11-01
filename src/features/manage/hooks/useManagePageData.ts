@@ -32,27 +32,32 @@ export function useManagePageData(activeTab: Tab, menuSelection: MenuSelection, 
   const [searchPeriods, setSearchPeriods] = useState('');
   const [periodType, setPeriodType] = useState<'life' | 'ruler' | ''>('');
 
-  // Состояния для фильтров статусов
-  const [statusFilters, setStatusFilters] = useState<Record<string, boolean>>({
+  // Состояния для фильтров статусов (унифицированные)
+  const defaultStatusFilters = {
     draft: false,
     pending: false,
     approved: false,
     rejected: false
+  };
+
+  const [tabStatusFilters, setTabStatusFilters] = useState<Record<Tab, Record<string, boolean>>>({
+    persons: { ...defaultStatusFilters },
+    achievements: { ...defaultStatusFilters },
+    periods: { ...defaultStatusFilters }
   });
 
-  const [achStatusFilters, setAchStatusFilters] = useState<Record<string, boolean>>({
-    draft: false,
-    pending: false,
-    approved: false,
-    rejected: false
-  });
+  // Геттеры для обратной совместимости
+  const statusFilters = tabStatusFilters.persons;
+  const achStatusFilters = tabStatusFilters.achievements;
+  const periodsStatusFilters = tabStatusFilters.periods;
 
-  const [periodsStatusFilters, setPeriodsStatusFilters] = useState<Record<string, boolean>>({
-    draft: false,
-    pending: false,
-    approved: false,
-    rejected: false
-  });
+  // Сеттеры для обратной совместимости
+  const setStatusFilters = (filters: Record<string, boolean>) =>
+    setTabStatusFilters(prev => ({ ...prev, persons: filters }));
+  const setAchStatusFilters = (filters: Record<string, boolean>) =>
+    setTabStatusFilters(prev => ({ ...prev, achievements: filters }));
+  const setPeriodsStatusFilters = (filters: Record<string, boolean>) =>
+    setTabStatusFilters(prev => ({ ...prev, periods: filters }));
 
 
 
