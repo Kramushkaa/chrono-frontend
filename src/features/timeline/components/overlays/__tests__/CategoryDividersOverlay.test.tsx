@@ -98,6 +98,23 @@ describe('CategoryDividersOverlay', () => {
     const firstDivider = document.querySelector('.category-divider')
     expect(firstDivider).toHaveAttribute('role', 'separator')
   })
+
+  it('should position labels with scrollLeft offset', () => {
+    const scrollLeft = 150
+    render(<CategoryDividersOverlay {...defaultProps} scrollLeft={scrollLeft} />)
+    
+    const label = document.querySelector('#category-label-Правители') as HTMLElement
+    expect(label).toBeInTheDocument()
+    expect(label.style.left).toBe(`${scrollLeft + 20}px`)
+  })
+
+  it('should default to scrollLeft of 0 when not provided', () => {
+    render(<CategoryDividersOverlay {...defaultProps} />)
+    
+    const label = document.querySelector('#category-label-Правители') as HTMLElement
+    expect(label).toBeInTheDocument()
+    expect(label.style.left).toBe('20px')
+  })
 })
 
 

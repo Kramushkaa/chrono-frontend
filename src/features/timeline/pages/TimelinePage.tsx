@@ -23,6 +23,7 @@ import '../styles/timeline.css'
 const Timeline = React.lazy(() => import('features/timeline/components/Timeline').then(m => ({ default: m.Timeline })))
 const Tooltips = React.lazy(() => import('features/timeline/components/Tooltips').then(m => ({ default: m.Tooltips })))
 const PersonPanel = React.lazy(() => import('features/persons/components/PersonPanel').then(m => ({ default: m.PersonPanel })))
+const ScrollToEdgeButtons = React.lazy(() => import('features/timeline/components/ScrollToEdgeButtons').then(m => ({ default: m.ScrollToEdgeButtons })))
 
 export default function TimelinePage() {
   const navigate = useNavigate()
@@ -369,6 +370,9 @@ export default function TimelinePage() {
           getPersonGroup={(person) => getPersonGroup(person, groupingType)}
           getCategoryColor={getGroupColor}
         />
+
+        {/* Кнопки прокрутки к началу и концу таймлайна */}
+        <ScrollToEdgeButtons timelineRef={timelineRef} />
       </React.Suspense>
     </div>
   )

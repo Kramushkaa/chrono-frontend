@@ -116,6 +116,7 @@ export const Timeline: React.FC<TimelineProps> = ({
   const isMobile = useMobile()
   // --- Basic row virtualization state ---
   const [scrollTop, setScrollTop] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
   const [viewportHeight, setViewportHeight] = useState(0)
 
   // Throttled setters via requestAnimationFrame to reduce re-renders on frequent events
@@ -136,6 +137,7 @@ export const Timeline: React.FC<TimelineProps> = ({
 
   const scrollRafRef = useRef<number | null>(null)
   const lastScrollTopRef = useRef(0)
+  const lastScrollLeftRef = useRef(0)
 
   // Compute per-row heights and prefix offsets once per data change
   const ROW_HEIGHT = 60
@@ -159,13 +161,16 @@ export const Timeline: React.FC<TimelineProps> = ({
     const measure = () => {
       setViewportHeight(el.clientHeight)
       const st = el.scrollTop
+      const sl = el.scrollLeft
       if (scrollRafRef.current == null) {
         scrollRafRef.current = requestAnimationFrame(() => {
           scrollRafRef.current = null
           setScrollTop(lastScrollTopRef.current)
+          setScrollLeft(lastScrollLeftRef.current)
         })
       }
       lastScrollTopRef.current = st
+      lastScrollLeftRef.current = sl
     }
     measure()
     const onScroll = () => measure()
@@ -424,6 +429,7 @@ export const Timeline: React.FC<TimelineProps> = ({
           getGroupColor={getGroupColor}
           adjustedTimelineWidth={getAdjustedTimelineWidth()}
           totalHeight={totalHeight}
+          scrollLeft={scrollLeft}
         />
 
                  {/* Полоски жизни */}

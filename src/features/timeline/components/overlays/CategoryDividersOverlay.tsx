@@ -10,13 +10,15 @@ interface CategoryDividersOverlayProps {
   getGroupColor: (category: string) => string
   adjustedTimelineWidth: number
   totalHeight: number
+  scrollLeft?: number
 }
 
 export const CategoryDividersOverlay: React.FC<CategoryDividersOverlayProps> = React.memo(function CategoryDividersOverlay({
   dividers,
   getGroupColor,
   adjustedTimelineWidth,
-  totalHeight
+  totalHeight,
+  scrollLeft = 0
 }) {
   return (
     <div
@@ -58,7 +60,7 @@ export const CategoryDividersOverlay: React.FC<CategoryDividersOverlayProps> = R
             aria-label={`Группа: ${divider.category}`}
             style={{
               position: 'absolute',
-              left: '20px',
+              left: `${scrollLeft + 20}px`,
               top: '50%',
               transform: 'translateY(-50%)',
               background: getGroupColor(divider.category),
@@ -68,7 +70,8 @@ export const CategoryDividersOverlay: React.FC<CategoryDividersOverlayProps> = R
               fontSize: '0.7rem',
               fontWeight: 'bold',
               whiteSpace: 'nowrap',
-              zIndex: 9
+              zIndex: 9,
+              transition: 'left 0.1s ease-out'
             }}
           >
             {divider.category}
