@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useSharedQuiz } from '../hooks/useSharedQuiz';
 import { useAuthUser } from 'shared/context/AuthContext';
+import { useToast } from 'shared/context/ToastContext';
 import { QuizAuthModal } from './QuizAuthModal';
 import { getQuizAttemptDetail } from 'shared/api/quiz';
+import { classifyError, logError } from 'shared/utils/errorHandling';
 import type { QuizSetupConfig, QuizQuestion } from '../types';
 
 interface ShareFromHistoryButtonProps {
@@ -20,6 +22,7 @@ export const ShareFromHistoryButton: React.FC<ShareFromHistoryButtonProps> = ({
 }) => {
   const { createSharedQuiz, loading } = useSharedQuiz();
   const { user, isAuthenticated } = useAuthUser();
+  const { showToast } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [newShareCode, setNewShareCode] = useState<string | null>(null);
@@ -49,7 +52,7 @@ export const ShareFromHistoryButton: React.FC<ShareFromHistoryButtonProps> = ({
 
   const handleCreateShare = async () => {
     if (!title.trim()) {
-      alert('Пожалуйста, введите название квиза');
+      showToast('Пожалуйста, введите название квиза', 'error');
       return;
     }
 
@@ -60,7 +63,7 @@ export const ShareFromHistoryButton: React.FC<ShareFromHistoryButtonProps> = ({
       const attemptDetail = await getQuizAttemptDetail(attemptId);
       
       if (!attemptDetail.data.detailedAnswers || attemptDetail.data.detailedAnswers.length === 0) {
-        alert('Не удалось загрузить вопросы квиза');
+        showToast('Не удалось загрузить вопросы квиза', 'error');
         return;
       }
 
@@ -108,13 +111,21 @@ export const ShareFromHistoryButton: React.FC<ShareFromHistoryButtonProps> = ({
         setNewShareCode(result.shareCode);
         setShareUrl(fullUrl);
       } else {
-        alert('Не удалось создать квиз. Проверьте, что вы авторизованы.');
+        showToast('Не удалось создать квиз. Проверьте, что вы авторизованы.', 'error');
       }
     } catch (error) {
-      if (import.meta.env.MODE !== 'production') {
-        console.error('Error creating shared quiz:', error);
+      logError(error, 'ShareFromHistoryButton.handleCreateShare');
+      
+      const classified = classifyError(error);
+      
+      if (classified.type === 'auth') {
+        // Close the share modal and show auth modal
+        setShowModal(false);
+        setShowAuthModal(true);
+        showToast(classified.userMessage, 'info');
+      } else {
+        showToast(`Ошибка при создании квиза: ${classified.userMessage}`, 'error');
       }
-      alert('Ошибка при создании квиза: ' + (error instanceof Error ? error.message : 'Неизвестная ошибка'));
     } finally {
       setLoadingQuestions(false);
     }
@@ -123,7 +134,7 @@ export const ShareFromHistoryButton: React.FC<ShareFromHistoryButtonProps> = ({
   const handleCopyLink = () => {
     if (shareUrl) {
       navigator.clipboard.writeText(shareUrl);
-      alert('Ссылка скопирована в буфер обмена!');
+      showToast('Ссылка скопирована в буфер обмена!', 'success');
     }
   };
 

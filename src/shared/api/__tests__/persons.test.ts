@@ -7,6 +7,7 @@ import {
   submitPersonDraft,
   createPersonDraft,
   getMyPersonsCount,
+  clearPersonsCountCache,
 } from '../persons'
 
 // Mock core API functions
@@ -385,6 +386,10 @@ describe('persons API', () => {
   })
 
   describe('getMyPersonsCount', () => {
+    beforeEach(() => {
+      clearPersonsCountCache()
+    })
+
     it('should return count', async () => {
       mockApiData.mockResolvedValue({ count: 25 } as any)
 
@@ -394,7 +399,7 @@ describe('persons API', () => {
       expect(mockApiData).toHaveBeenCalledWith('/api/persons/mine?count=true')
     })
 
-    it.skip('should return 0 for invalid count', async () => {
+    it('should return 0 for invalid count', async () => {
       mockApiData.mockResolvedValue({ count: 'invalid' } as any)
 
       const result = await getMyPersonsCount()
@@ -402,7 +407,7 @@ describe('persons API', () => {
       expect(result).toBe(0)
     })
 
-    it.skip('should return 0 for missing count', async () => {
+    it('should return 0 for missing count', async () => {
       mockApiData.mockResolvedValue({} as any)
 
       const result = await getMyPersonsCount()

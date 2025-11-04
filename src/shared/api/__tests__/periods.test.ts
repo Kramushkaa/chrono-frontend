@@ -1,6 +1,7 @@
 import {
   saveLifePeriods,
   getMyPeriodsCount,
+  clearPeriodsCountCache,
   getPeriodDrafts,
   updatePeriod,
   submitPeriodDraft,
@@ -59,6 +60,10 @@ describe('periods API', () => {
   })
 
   describe('getMyPeriodsCount', () => {
+    beforeEach(() => {
+      clearPeriodsCountCache()
+    })
+
     it('should return count from response', async () => {
       mockApiData.mockResolvedValue({ count: 15 } as any)
 
@@ -68,7 +73,7 @@ describe('periods API', () => {
       expect(mockApiData).toHaveBeenCalledWith('/api/periods/mine?count=true')
     })
 
-    it.skip('should return 0 for invalid count', async () => {
+    it('should return 0 for invalid count', async () => {
       mockApiData.mockResolvedValue({ count: 'invalid' } as any)
 
       const result = await getMyPeriodsCount()
@@ -76,7 +81,7 @@ describe('periods API', () => {
       expect(result).toBe(0)
     })
 
-    it.skip('should return 0 for missing count', async () => {
+    it('should return 0 for missing count', async () => {
       mockApiData.mockResolvedValue({} as any)
 
       const result = await getMyPeriodsCount()
@@ -84,7 +89,7 @@ describe('periods API', () => {
       expect(result).toBe(0)
     })
 
-    it.skip('should return 0 for null count', async () => {
+    it('should return 0 for null count', async () => {
       mockApiData.mockResolvedValue({ count: null } as any)
 
       const result = await getMyPeriodsCount()

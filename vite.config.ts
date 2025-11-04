@@ -11,9 +11,14 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      // Alias with @ prefix
       '@app': path.resolve(__dirname, './src/app'),
       '@features': path.resolve(__dirname, './src/features'),
       '@shared': path.resolve(__dirname, './src/shared'),
+      // Alias without @ prefix for imports like 'shared/api/api'
+      'shared': path.resolve(__dirname, './src/shared'),
+      'features': path.resolve(__dirname, './src/features'),
+      'app': path.resolve(__dirname, './src/app'),
     }
   },
   server: {

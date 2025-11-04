@@ -34,7 +34,8 @@ export async function createAndCopyShareLink(listId: number, showToast?: (m: str
       await navigator.clipboard.writeText(url)
       showToast?.('Ссылка скопирована', 'success')
     } else {
-      alert(url)
+      // Fallback for browsers without clipboard API
+      showToast?.(`Ссылка: ${url}`, 'info')
     }
     return true
   } catch {

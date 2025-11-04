@@ -2,6 +2,7 @@ import {
   addAchievement,
   getMyAchievements,
   getMyAchievementsCount,
+  clearAchievementsCountCache,
   getPendingAchievements,
   reviewAchievement,
   addGenericAchievement,
@@ -148,6 +149,10 @@ describe('achievements API', () => {
   })
 
   describe('getMyAchievementsCount', () => {
+    beforeEach(() => {
+      clearAchievementsCountCache()
+    })
+
     it('should return count from response', async () => {
       mockApiData.mockResolvedValue({ count: 42 } as any)
 
@@ -157,7 +162,7 @@ describe('achievements API', () => {
       expect(mockApiData).toHaveBeenCalledWith('/api/achievements/mine?count=true')
     })
 
-    it.skip('should return 0 for invalid count', async () => {
+    it('should return 0 for invalid count', async () => {
       mockApiData.mockResolvedValue({ count: 'invalid' } as any)
 
       const result = await getMyAchievementsCount()
@@ -165,7 +170,7 @@ describe('achievements API', () => {
       expect(result).toBe(0)
     })
 
-    it.skip('should return 0 for missing count', async () => {
+    it('should return 0 for missing count', async () => {
       mockApiData.mockResolvedValue({} as any)
 
       const result = await getMyAchievementsCount()

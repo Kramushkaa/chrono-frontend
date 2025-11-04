@@ -77,13 +77,12 @@ describe('ToastContext', () => {
       expect(result.current.toasts[1].type).toBe('error')
     })
 
-    // Skipped due to complex async timer behavior that's difficult to mock reliably
+    // Skipped due to complex timer behavior conflicting with global afterEach timer cleanup
     it.skip('should remove toast by id', () => {
       const { result } = renderHook(() => useToast(), { wrapper })
 
-      // Mock window.setTimeout to prevent automatic removal 
-      const originalSetTimeout = window.setTimeout
-      window.setTimeout = vi.fn()
+      // Use fake timers to prevent automatic toast removal
+      vi.useFakeTimers()
 
       try {
         act(() => {
@@ -105,8 +104,8 @@ describe('ToastContext', () => {
         expect(result.current.toasts[0].message).toBe('Second message')
         expect(result.current.toasts[0].id).not.toBe(firstToastId)
       } finally {
-        // Restore original setTimeout
-        window.setTimeout = originalSetTimeout
+        // Restore real timers
+        vi.useRealTimers()
       }
     })
 

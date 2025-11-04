@@ -307,6 +307,11 @@ const COUNT_CACHE_VERSION = '1.0.0' // Increment to invalidate cache
 let PERSONS_COUNT_CACHE: { count: number; ts: number; version: string } | null = null
 const PERSONS_COUNT_TTL = 180000 // 3 minutes
 
+// Export for testing
+export function clearPersonsCountCache() {
+  PERSONS_COUNT_CACHE = null
+}
+
 export async function getMyPersonsCount(): Promise<number> {
   const now = Date.now()
   

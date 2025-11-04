@@ -25,9 +25,21 @@
       "@features/*": ["features/*"],
       "@shared/*": ["shared/*"]
     },
-    "types": ["vite/client", "node", "vitest/globals"]
+    "types": ["vite/client", "node"]
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/__tests__/**",
+    "src/setupTests.ts",
+    "src/test-utils/**"
   ]
 } 

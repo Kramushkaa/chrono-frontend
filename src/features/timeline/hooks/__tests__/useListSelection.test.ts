@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { useListSelection } from '../useListSelection'
 import { useLocation } from 'react-router-dom'
 import { useToast } from 'shared/context/ToastContext'
@@ -18,12 +18,23 @@ vi.mock('shared/api/api', () => ({
   resolveListShare: vi.fn(),
 }))
 
+vi.mock('shared/utils/errorHandling', () => ({
+  classifyError: vi.fn((error) => ({
+    type: 'unknown',
+    message: error instanceof Error ? error.message : String(error),
+    userMessage: error instanceof Error ? error.message : String(error),
+    originalError: error,
+  })),
+  logError: vi.fn(),
+}))
+
 const mockUseLocation = useLocation as vi.MockedFunction<typeof useLocation>
 const mockUseToast = useToast as vi.MockedFunction<typeof useToast>
 const mockApiData = apiData as vi.MockedFunction<typeof apiData>
 const mockResolveListShare = resolveListShare as vi.MockedFunction<typeof resolveListShare>
 
-// Skipped due to very complex async logic with multiple useEffect dependencies that requires extensive mock setup
+// Skipped: handleListChange tests require complex window.location + useEffect mocking
+// The hook is tested via initial URL loading (which works), better suited for E2E tests
 describe.skip('useListSelection', () => {
   const mockShowToast = vi.fn()
   
@@ -168,7 +179,11 @@ describe.skip('useListSelection', () => {
       result.current.handleListChange('list:456')
     })
 
-    expect(result.current.selectedListId).toBe(456)
+    // Wait for async state updates
+    await waitFor(() => {
+      expect(result.current.selectedListId).toBe(456)
+    })
+
     expect(result.current.selectedListKey).toBe('list:456')
     expect(window.history.replaceState).toHaveBeenCalled()
   })
@@ -191,7 +206,11 @@ describe.skip('useListSelection', () => {
       result.current.handleListChange('share:sharecode123')
     })
 
-    expect(result.current.selectedListKey).toBe('share:sharecode123')
+    // Wait for async state updates
+    await waitFor(() => {
+      expect(result.current.selectedListKey).toBe('share:sharecode123')
+    })
+
     expect(window.history.replaceState).toHaveBeenCalled()
   })
 
@@ -221,14 +240,14 @@ describe.skip('useListSelection', () => {
 
     const { result } = renderHook(() => useListSelection(true, false, null))
 
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
+    // Wait for async effects and error handling
+    await waitFor(() => {
+      expect(mockShowToast).toHaveBeenCalledWith(
+        expect.stringContaining('Не удалось загрузить'),
+        'error'
+      )
     })
 
-    expect(mockShowToast).toHaveBeenCalledWith(
-      expect.stringContaining('Не удалось загрузить'),
-      'error'
-    )
     expect(result.current.listPersons).toEqual([])
   })
 

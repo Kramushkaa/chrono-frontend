@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useToast } from 'shared/context/ToastContext'
 import { apiData, resolveListShare } from 'shared/api/api'
+import { classifyError, logError } from 'shared/utils/errorHandling'
 
 type SharedListMeta = { code: string; title: string; listId?: number } | null
 
@@ -53,7 +54,9 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
               const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
               setListPersons(arr)
             } catch (e: any) {
-              showToast(e?.message || 'Не удалось загрузить содержимое списка', 'error')
+              logError(e, 'useListSelection.loadListItems')
+              const classified = classifyError(e)
+              showToast(classified.userMessage || 'Не удалось загрузить содержимое списка', 'error')
               setListPersons([])
             }
             return
@@ -69,7 +72,9 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
           setSelectedListKey(`share:${shareParam}`)
           return
         } catch (e: any) {
-          showToast(e?.message || 'Не удалось загрузить общий список', 'error')
+          logError(e, 'useListSelection.loadSharedList')
+          const classified = classifyError(e)
+          showToast(classified.userMessage || 'Не удалось загрузить общий список', 'error')
           setSelectedListId(null)
           setListPersons([])
           // keep previous meta if any
@@ -87,7 +92,9 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
           setSelectedListId(null)
           setListPersons(arr)
         } catch (e: any) {
-          showToast(e?.message || 'Не удалось загрузить выбранных личностей', 'error')
+          logError(e, 'useListSelection.loadPersonsByIds')
+          const classified = classifyError(e)
+          showToast(classified.userMessage || 'Не удалось загрузить выбранных личностей', 'error')
           setSelectedListId(null)
           setListPersons([])
         }
@@ -100,7 +107,9 @@ export function useListSelection(isTimeline: boolean, isAuthenticated: boolean, 
           const arr = await apiData<any[]>(`/api/persons/lookup/by-ids?ids=${ids.join(',')}`)
           setListPersons(arr)
         } catch (e: any) {
-          showToast(e?.message || 'Не удалось загрузить содержимое списка', 'error')
+          logError(e, 'useListSelection.loadListByListId')
+          const classified = classifyError(e)
+          showToast(classified.userMessage || 'Не удалось загрузить содержимое списка', 'error')
           setListPersons([])
         }
         // keep pinned shared meta if previously known

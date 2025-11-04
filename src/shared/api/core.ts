@@ -86,13 +86,35 @@ async function refreshTokenIfNeeded(): Promise<void> {
   isRefreshing = true
   try {
     const state = authStorage.load()
-    if (!state.refreshToken) throw new Error('No refresh token')
+    if (!state.refreshToken) {
+      // No refresh token available - clear auth and notify
+      try {
+        authStorage.clear()
+      } catch {}
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        try {
+          window.dispatchEvent(new CustomEvent('auth:unauthorized', { detail: { reason: 'no_refresh_token' } }))
+        } catch {}
+      }
+      return
+    }
     const res = await apiRequest(`${API_BASE_URL}/api/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: state.refreshToken }),
     })
-    if (!res.ok) throw new Error('Refresh failed')
+    if (!res.ok) {
+      // Refresh failed - clear auth and notify
+      try {
+        authStorage.clear()
+      } catch {}
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        try {
+          window.dispatchEvent(new CustomEvent('auth:unauthorized', { detail: { reason: 'refresh_failed' } }))
+        } catch {}
+      }
+      return
+    }
     const data = await res.json()
     const newState = {
       user: data?.data?.user || state.user,

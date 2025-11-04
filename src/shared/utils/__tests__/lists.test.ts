@@ -179,8 +179,7 @@ describe('lists utils', () => {
       expect(result).toBe(true)
     })
 
-    it('should handle clipboard API fallback with alert when clipboard not available', async () => {
-      const mockAlert = vi.spyOn(window, 'alert').mockImplementation(() => {})
+    it('should handle clipboard API fallback with toast when clipboard not available', async () => {
       const mockShowToast = vi.fn()
       
       // Mock navigator without clipboard
@@ -209,9 +208,7 @@ describe('lists utils', () => {
       const result = await createAndCopyShareLink(2, mockShowToast)
 
       expect(result).toBe(true)
-      expect(mockAlert).toHaveBeenCalledWith('http://localhost/lists?share=test-code-456')
-      
-      mockAlert.mockRestore()
+      expect(mockShowToast).toHaveBeenCalledWith('Ссылка: http://localhost/lists?share=test-code-456', 'info')
     })
   })
 

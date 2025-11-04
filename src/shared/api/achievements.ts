@@ -40,6 +40,11 @@ const COUNT_CACHE_VERSION = '1.0.0' // Increment to invalidate cache
 let ACHIEVEMENTS_COUNT_CACHE: { count: number; ts: number; version: string } | null = null
 const ACHIEVEMENTS_COUNT_TTL = 180000 // 3 minutes
 
+// Export for testing
+export function clearAchievementsCountCache() {
+  ACHIEVEMENTS_COUNT_CACHE = null
+}
+
 export async function getMyAchievementsCount(): Promise<number> {
   const now = Date.now()
   

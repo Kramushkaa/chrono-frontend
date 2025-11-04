@@ -29,6 +29,11 @@ const COUNT_CACHE_VERSION = '1.0.0' // Increment to invalidate cache
 let PERIODS_COUNT_CACHE: { count: number; ts: number; version: string } | null = null
 const PERIODS_COUNT_TTL = 180000 // 3 minutes
 
+// Export for testing
+export function clearPeriodsCountCache() {
+  PERIODS_COUNT_CACHE = null
+}
+
 export async function getMyPeriodsCount(): Promise<number> {
   const now = Date.now()
   

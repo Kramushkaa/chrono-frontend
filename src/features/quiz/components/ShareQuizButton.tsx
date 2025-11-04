@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useSharedQuiz } from '../hooks/useSharedQuiz';
 import { useAuthUser } from 'shared/context/AuthContext';
+import { useToast } from 'shared/context/ToastContext';
 import { QuizAuthModal } from './QuizAuthModal';
+import { classifyError, logError } from 'shared/utils/errorHandling';
 import type { QuizQuestion, QuizSetupConfig } from '../types';
 
 interface ShareQuizButtonProps {
@@ -24,6 +26,7 @@ export const ShareQuizButton: React.FC<ShareQuizButtonProps> = ({
 }) => {
   const { createSharedQuiz, loading } = useSharedQuiz();
   const { user, isAuthenticated } = useAuthUser();
+  const { showToast } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [shareCode, setShareCode] = useState<string | null>(null);
@@ -32,7 +35,7 @@ export const ShareQuizButton: React.FC<ShareQuizButtonProps> = ({
 
   const handleCreateShare = async () => {
     if (!title.trim()) {
-      alert('Пожалуйста, введите название квиза');
+      showToast('Пожалуйста, введите название квиза', 'error');
       return;
     }
 
@@ -54,17 +57,28 @@ export const ShareQuizButton: React.FC<ShareQuizButtonProps> = ({
           onShareCreated(result.shareCode, fullUrl);
         }
       } else {
-        alert('Не удалось создать квиз. Проверьте, что вы авторизованы.');
+        showToast('Не удалось создать квиз. Проверьте, что вы авторизованы.', 'error');
       }
     } catch (error) {
-      alert('Ошибка при создании квиза: ' + (error instanceof Error ? error.message : 'Неизвестная ошибка'));
+      logError(error, 'ShareQuizButton.handleCreateShare');
+      
+      const classified = classifyError(error);
+      
+      if (classified.type === 'auth') {
+        // Close the share modal and show auth modal
+        setShowModal(false);
+        setShowAuthModal(true);
+        showToast(classified.userMessage, 'info');
+      } else {
+        showToast(`Ошибка при создании квиза: ${classified.userMessage}`, 'error');
+      }
     }
   };
 
   const handleCopyLink = () => {
     if (shareUrl) {
       navigator.clipboard.writeText(shareUrl);
-      alert('Ссылка скопирована в буфер обмена!');
+      showToast('Ссылка скопирована в буфер обмена!', 'success');
     }
   };
 

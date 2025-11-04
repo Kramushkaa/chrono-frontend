@@ -33,6 +33,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     stateRef.current = state
   }, [state])
 
+  // Listen for unauthorized events and clear auth state
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      setState(defaultState)
+    }
+    window.addEventListener('auth:unauthorized', handleUnauthorized as EventListener)
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized as EventListener)
+    }
+  }, [])
+
   // Actions are stable and memoized - don't cause re-renders
   const actions = useMemo<AuthActionsContextValue>(
     () => ({
@@ -48,8 +59,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       },
       refresh: async () => {
-        const newState = await authApi.refresh(stateRef.current)
-        setState(newState)
+        try {
+          const newState = await authApi.refresh(stateRef.current)
+          setState(newState)
+        } catch (error) {
+          // If refresh fails, clear auth state
+          setState(defaultState)
+          throw error
+        }
       },
       updateUser: (user: AuthUser) => {
         setState((prev) => ({ ...prev, user }))

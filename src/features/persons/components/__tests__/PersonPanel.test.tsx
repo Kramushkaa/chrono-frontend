@@ -285,10 +285,10 @@ describe('PersonPanel', () => {
     expect(screen.getByText('Achievement 1')).toBeInTheDocument()
     expect(screen.getByText('Achievement 2')).toBeInTheDocument()
     
-    // Hook provides wiki links, check if any links are rendered
-    const links = screen.queryAllByRole('link')
-    // Should have wiki links from hook (mocked to return 2 links)
-    expect(links.length).toBeGreaterThan(0)
+    // Hook provides wiki links (mocked to return 2 links)
+    // Check for wiki link indicators (↗ symbols)
+    const wikiLinks = screen.getAllByText('↗')
+    expect(wikiLinks.length).toBe(2)
   })
 
   it('should handle achievements without years', () => {

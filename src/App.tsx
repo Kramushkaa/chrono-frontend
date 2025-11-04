@@ -8,6 +8,7 @@ import './App.css'
 import { ToastProvider } from 'shared/context/ToastContext'
 import { Toasts } from 'shared/ui/Toasts'
 import { LoadingStates } from 'shared/ui/LoadingStates'
+import { useUnauthorizedToast } from 'shared/hooks/useUnauthorizedToast'
 
 // Lazy-loaded chunks
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
@@ -23,33 +24,41 @@ const QuizAttemptDetailPage = React.lazy(() => import('features/quiz/pages/QuizA
 const QuizSessionDetailPage = React.lazy(() => import('features/quiz/pages/QuizSessionDetailPage').then(m => ({ default: m.QuizSessionDetailPage })))
 const TimelinePage = React.lazy(() => import('features/timeline/pages/TimelinePage').then(m => ({ default: m.default })))
 
+function AppContent() {
+  useUnauthorizedToast()
+  
+  return (
+    <React.Suspense fallback={<LoadingStates size="large" message="Загрузка приложения..." />}>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<Navigate to="/timeline" replace />} />
+          <Route path="/menu" element={<MenuPage />} />
+          <Route path="/timeline" element={<TimelinePage />} />
+          <Route path="/quiz" element={<QuizPage />} />
+          <Route path="/quiz/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/quiz/history" element={<QuizHistoryPage />} />
+          <Route path="/quiz/history/attempt/:attemptId" element={<QuizAttemptDetailPage />} />
+          <Route path="/quiz/history/:sessionToken" element={<QuizSessionDetailPage />} />
+          <Route path="/quiz/:shareCode" element={<SharedQuizPage />} />
+          <Route path="/lists" element={<ManagePage />} />
+          <Route path="/manage" element={<Navigate to="/lists" replace />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </ErrorBoundary>
+      <BackendInfo />
+      <Toasts />
+    </React.Suspense>
+  )
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
         <ToastProvider>
-          <React.Suspense fallback={<LoadingStates size="large" message="Загрузка приложения..." />}>
-            <ErrorBoundary>
-              <Routes>
-                <Route path="/" element={<Navigate to="/timeline" replace />} />
-                <Route path="/menu" element={<MenuPage />} />
-                <Route path="/timeline" element={<TimelinePage />} />
-                <Route path="/quiz" element={<QuizPage />} />
-                <Route path="/quiz/leaderboard" element={<LeaderboardPage />} />
-                <Route path="/quiz/history" element={<QuizHistoryPage />} />
-                <Route path="/quiz/history/attempt/:attemptId" element={<QuizAttemptDetailPage />} />
-                <Route path="/quiz/history/:sessionToken" element={<QuizSessionDetailPage />} />
-                <Route path="/quiz/:shareCode" element={<SharedQuizPage />} />
-                <Route path="/lists" element={<ManagePage />} />
-                <Route path="/manage" element={<Navigate to="/lists" replace />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-            </ErrorBoundary>
-            <BackendInfo />
-            <Toasts />
-          </React.Suspense>
+          <AppContent />
         </ToastProvider>
       </AuthProvider>
     </ErrorBoundary>

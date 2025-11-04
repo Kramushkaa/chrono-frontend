@@ -110,6 +110,96 @@ describe('CreateListModal', () => {
     const newInput = screen.getByPlaceholderText('Название списка') as HTMLInputElement;
     expect(newInput.value).toBe('');
   });
+
+  it('should show error message when onCreate fails', async () => {
+    const mockOnCreate = vi.fn().mockRejectedValue(new Error('Server error'));
+    const props = { ...mockProps, onCreate: mockOnCreate };
+    
+    render(<CreateListModal {...props} />);
+    
+    const input = screen.getByPlaceholderText('Название списка');
+    fireEvent.change(input, { target: { value: 'My List' } });
+    
+    const createButton = screen.getByText('Создать');
+    fireEvent.click(createButton);
+    
+    // Wait for error to appear
+    await screen.findByText('Server error');
+    expect(screen.getByText('Server error')).toBeInTheDocument();
+    
+    // Modal should still be open
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('should call onError callback when onCreate fails', async () => {
+    const mockOnError = vi.fn();
+    const mockOnCreate = vi.fn().mockRejectedValue(new Error('Network error'));
+    const props = { ...mockProps, onCreate: mockOnCreate, onError: mockOnError };
+    
+    render(<CreateListModal {...props} />);
+    
+    const input = screen.getByPlaceholderText('Название списка');
+    fireEvent.change(input, { target: { value: 'My List' } });
+    
+    const createButton = screen.getByText('Создать');
+    fireEvent.click(createButton);
+    
+    // Wait for error handling
+    await screen.findByText('Network error');
+    
+    expect(mockOnError).toHaveBeenCalledWith('Network error');
+  });
+
+  it('should show validation error when trying to create with empty title', async () => {
+    render(<CreateListModal {...mockProps} />);
+    
+    const input = screen.getByPlaceholderText('Название списка');
+    fireEvent.change(input, { target: { value: '   ' } });
+    
+    // Try to click create button (it should be disabled)
+    const createButton = screen.getByText('Создать');
+    expect(createButton).toBeDisabled();
+  });
+
+  it('should clear error when user starts typing', async () => {
+    const mockOnCreate = vi.fn().mockRejectedValue(new Error('Server error'));
+    const props = { ...mockProps, onCreate: mockOnCreate };
+    
+    render(<CreateListModal {...props} />);
+    
+    const input = screen.getByPlaceholderText('Название списка');
+    fireEvent.change(input, { target: { value: 'My List' } });
+    
+    const createButton = screen.getByText('Создать');
+    fireEvent.click(createButton);
+    
+    // Wait for error to appear
+    await screen.findByText('Server error');
+    expect(screen.getByText('Server error')).toBeInTheDocument();
+    
+    // Start typing again
+    fireEvent.change(input, { target: { value: 'My New List' } });
+    
+    // Error should be cleared
+    expect(screen.queryByText('Server error')).not.toBeInTheDocument();
+  });
+
+  it('should show loading state while creating', async () => {
+    const mockOnCreate = vi.fn(() => new Promise(resolve => setTimeout(resolve, 100)));
+    const props = { ...mockProps, onCreate: mockOnCreate };
+    
+    render(<CreateListModal {...props} />);
+    
+    const input = screen.getByPlaceholderText('Название списка');
+    fireEvent.change(input, { target: { value: 'My List' } });
+    
+    const createButton = screen.getByText('Создать');
+    fireEvent.click(createButton);
+    
+    // Should show loading state
+    expect(screen.getByText('Создание...')).toBeInTheDocument();
+    expect(createButton).toBeDisabled();
+  });
 });
 
 
