@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 export type SelectOption = { label: string; value: string }
 
@@ -32,15 +33,45 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const [activeIndex, setActiveIndex] = useState<number>(-1)
   const listRef = useRef<HTMLDivElement>(null)
   const listboxIdRef = useRef<string>('ss-' + Math.random().toString(36).slice(2))
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 })
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       if (!containerRef.current) return
-      if (!containerRef.current.contains(e.target as Node)) setOpen(false)
+      if (!listRef.current?.contains(e.target as Node) && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
     }
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
   }, [])
+
+  // Update dropdown position when opening
+  useEffect(() => {
+    if (!open) return
+    
+    const updatePosition = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect()
+        setDropdownPosition({
+          top: rect.bottom,
+          left: rect.left,
+          width: rect.width
+        })
+      }
+    }
+    
+    updatePosition()
+    
+    // Update position on scroll or resize
+    window.addEventListener('scroll', updatePosition, true)
+    window.addEventListener('resize', updatePosition)
+    
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true)
+      window.removeEventListener('resize', updatePosition)
+    }
+  }, [open])
 
   const textKey = useCallback((s: string) => s.normalize('NFKD').toLocaleLowerCase(locale || undefined), [locale])
   const filtered = useMemo(() => {
@@ -70,43 +101,25 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     setActiveIndex(idxOfSelected >= 0 ? idxOfSelected : 0)
   }, [open, filtered, value])
 
-  return (
-    <div ref={containerRef} style={{ position: 'relative' }}>
-      <button
-        type="button"
-        onClick={() => !disabled && setOpen(o => !o)}
-        disabled={disabled}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={open ? listboxIdRef.current : undefined}
-        style={{ width: '100%', padding: 6, textAlign: 'left' }}
-        onKeyDown={(e) => {
-          if (disabled) return
-          if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            setOpen(true)
-            // Active index will be set by effect
-          }
-          if (e.key === 'Escape') {
-            setOpen(false)
-          }
-        }}
-      >
-        {selectedOption ? selectedOption.label : (placeholder || 'Выбрать...')}
-      </button>
-      {canClear && (
-        <button
-          type="button"
-          aria-label="Очистить выбор"
-          title="Очистить"
-          onClick={(e) => { e.stopPropagation(); onChange(''); setQuery(''); setOpen(false) }}
-          style={{ position: 'absolute', right: 6, top: 6, background: 'transparent', color: '#f4e4c1', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1 }}
-        >
-          ×
-        </button>
-      )}
-      {open && (
-        <div ref={listRef} id={listboxIdRef.current} role="listbox" aria-label="Варианты" style={{ position: 'absolute', zIndex: 1000, top: '100%', left: 0, right: 0, background: 'rgba(44,24,16,0.98)', border: '1px solid rgba(139,69,19,0.3)', borderRadius: 6, marginTop: 4, maxHeight: 240, overflowY: 'auto' }}>
+  const renderDropdown = () => (
+    <div 
+      ref={listRef} 
+      id={listboxIdRef.current} 
+      role="listbox" 
+      aria-label="Варианты" 
+      style={{ 
+        position: 'fixed', 
+        zIndex: 10000, 
+        top: dropdownPosition.top + 4, 
+        left: dropdownPosition.left, 
+        width: dropdownPosition.width, 
+        background: 'rgba(44,24,16,0.98)', 
+        border: '1px solid rgba(139,69,19,0.3)', 
+        borderRadius: 6, 
+        maxHeight: 240, 
+        overflowY: 'auto' 
+      }}
+    >
           <div style={{ padding: 6 }}>
             <input
               value={query}
@@ -190,8 +203,45 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
           {!isLoading && filtered.length === 0 && (
             <div style={{ padding: 6, opacity: 0.8 }}>Ничего не найдено</div>
           )}
-        </div>
+    </div>
+  )
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative' }}>
+      <button
+        type="button"
+        onClick={() => !disabled && setOpen(o => !o)}
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={open ? listboxIdRef.current : undefined}
+        style={{ width: '100%', padding: 6, textAlign: 'left' }}
+        onKeyDown={(e) => {
+          if (disabled) return
+          if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            setOpen(true)
+            // Active index will be set by effect
+          }
+          if (e.key === 'Escape') {
+            setOpen(false)
+          }
+        }}
+      >
+        {selectedOption ? selectedOption.label : (placeholder || 'Выбрать...')}
+      </button>
+      {canClear && (
+        <button
+          type="button"
+          aria-label="Очистить выбор"
+          title="Очистить"
+          onClick={(e) => { e.stopPropagation(); onChange(''); setQuery(''); setOpen(false) }}
+          style={{ position: 'absolute', right: 6, top: 6, background: 'transparent', color: '#f4e4c1', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1 }}
+        >
+          ×
+        </button>
       )}
+      {open && createPortal(renderDropdown(), document.body)}
     </div>
   )
 }

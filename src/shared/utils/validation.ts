@@ -1,57 +1,114 @@
 export type LifePeriodDraft = { countryId: string; start: number | ''; end: number | '' }
 
+export interface LifePeriodValidationResult {
+  ok: boolean
+  message?: string
+  periodErrors?: string[]
+}
+
 export function validateLifePeriodsClient(
   periods: LifePeriodDraft[],
   birthYear?: number,
   deathYear?: number,
   isRequired: boolean = false
-): { ok: boolean; message?: string } {
+): LifePeriodValidationResult {
   if (!periods || periods.length === 0) {
     if (isRequired) {
-      return { ok: false, message: 'Необходимо указать хотя бы один период жизни' };
+      return { ok: false, message: 'Необходимо указать хотя бы один период жизни', periodErrors: [] };
     }
-    return { ok: true };
+    return { ok: true, periodErrors: [] };
   }
-  for (const lp of periods) {
-    if (!lp.countryId || lp.start === '' || lp.end === '') {
-      return { ok: false, message: 'Заполните страну и годы начала/конца для каждого периода' };
+
+  const periodErrors: string[] = new Array(periods.length).fill('')
+  let hasErrors = false
+
+  // Валидация каждого периода
+  for (let i = 0; i < periods.length; i++) {
+    const lp = periods[i]
+    
+    if (!lp.countryId) {
+      periodErrors[i] = 'Не указана страна'
+      hasErrors = true
+      continue
     }
-    const s = Number(lp.start), e = Number(lp.end);
+    
+    if (lp.start === '' || lp.end === '') {
+      periodErrors[i] = 'Заполните годы начала и конца периода'
+      hasErrors = true
+      continue
+    }
+    
+    const s = Number(lp.start), e = Number(lp.end)
+    
     if (!Number.isInteger(s) || !Number.isInteger(e)) {
-      return { ok: false, message: 'Годы периода должны быть целыми числами' };
+      periodErrors[i] = 'Годы должны быть целыми числами'
+      hasErrors = true
+      continue
     }
+    
     if (s > e) {
-      return { ok: false, message: 'Год начала периода не может быть больше года окончания' };
+      periodErrors[i] = 'Год начала не может быть больше года окончания'
+      hasErrors = true
+      continue
     }
+    
     if (birthYear != null && s < birthYear) {
-      return { ok: false, message: `Год начала периода не может быть меньше года рождения (${birthYear})` };
+      periodErrors[i] = `Начало периода раньше года рождения (${birthYear})`
+      hasErrors = true
+      continue
     }
+    
     if (deathYear != null && e > deathYear) {
-      return { ok: false, message: `Год окончания периода не может быть больше года смерти (${deathYear})` };
+      periodErrors[i] = `Конец периода позже года смерти (${deathYear})`
+      hasErrors = true
+      continue
     }
   }
+
+  if (hasErrors) {
+    return { ok: false, message: 'Исправьте ошибки в периодах', periodErrors }
+  }
+
+  // Проверка покрытия и разрывов между периодами
   const sorted = periods
-    .map(lp => ({ countryId: lp.countryId, start: Number(lp.start), end: Number(lp.end) }))
-    .sort((a, b) => a.start - b.start);
+    .map((lp, idx) => ({ 
+      countryId: lp.countryId, 
+      start: Number(lp.start), 
+      end: Number(lp.end),
+      originalIndex: idx 
+    }))
+    .sort((a, b) => a.start - b.start)
+
   if (birthYear != null && sorted[0].start > birthYear) {
-    return { ok: false, message: 'Периоды должны покрывать все годы жизни: первый период начинается позже года рождения' };
+    periodErrors[sorted[0].originalIndex] = 'Первый период начинается позже года рождения'
+    hasErrors = true
   }
+
   if (deathYear != null && sorted[sorted.length - 1].end < deathYear) {
-    return { ok: false, message: 'Периоды должны покрывать все годы жизни: последний период заканчивается раньше года смерти' };
+    periodErrors[sorted[sorted.length - 1].originalIndex] = 'Последний период заканчивается раньше года смерти'
+    hasErrors = true
   }
+
   for (let i = 1; i < sorted.length; i++) {
-    const prev = sorted[i - 1];
-    const curr = sorted[i];
+    const prev = sorted[i - 1]
+    const curr = sorted[i]
+    
     if (curr.start > prev.end + 1) {
-      return { ok: false, message: 'Между периодами не должно быть разрывов' };
-    }
-    // Разрешаем общую границу (curr.start === prev.end), но запрещаем пересечение
-    if (curr.start < prev.end) {
-      return { ok: false, message: 'Периоды не должны пересекаться' };
+      periodErrors[curr.originalIndex] = 'Разрыв с предыдущим периодом'
+      hasErrors = true
+    } else if (curr.start < prev.end) {
+      periodErrors[curr.originalIndex] = 'Пересекается с предыдущим периодом'
+      hasErrors = true
     }
   }
-  return { ok: true };
+
+  if (hasErrors) {
+    return { ok: false, message: 'Исправьте ошибки в периодах', periodErrors }
+  }
+
+  return { ok: true, periodErrors: [] }
 }
+
 
 
 

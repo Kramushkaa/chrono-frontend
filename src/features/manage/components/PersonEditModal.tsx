@@ -62,6 +62,7 @@ export function PersonEditModal(props: Props) {
   const [saving, setSaving] = useState(false)
   const [yearErrors, setYearErrors] = useState<{ birth?: string; death?: string }>({})
   const [periodsError, setPeriodsError] = useState<string | null>(null)
+  const [periodErrors, setPeriodErrors] = useState<string[]>([])
   const modalRef = useRef<HTMLDivElement | null>(null)
   const lastFocusedBeforeModalRef = useRef<HTMLElement | null>(null)
 
@@ -99,9 +100,11 @@ export function PersonEditModal(props: Props) {
       const v = validateLifePeriodsClient(lifePeriods, payload.birthYear, payload.deathYear)
       if (!v.ok) { 
         setPeriodsError(v.message || 'Проверьте периоды')
+        setPeriodErrors(v.periodErrors || [])
         return null
       }
       setPeriodsError(null)
+      setPeriodErrors([])
     }
 
     return { payload, lifePeriods: lifePeriods.map(lp => ({ country_id: Number(lp.countryId), start_year: Number(lp.start), end_year: Number(lp.end) })) }
@@ -158,6 +161,7 @@ export function PersonEditModal(props: Props) {
             lifePeriods={lifePeriods}
             setLifePeriods={setLifePeriods}
             countrySelectOptions={countrySelectOptions}
+            periodErrors={periodErrors}
           />
           {(yearErrors.birth || yearErrors.death) && (
             <div style={{ color: '#ffaaaa', fontSize: 12 }}>

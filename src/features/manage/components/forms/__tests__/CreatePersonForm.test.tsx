@@ -31,7 +31,7 @@ vi.mock('shared/ui/DraftModerationButtons', () => ({
 
 // Mock validation utility
 vi.mock('shared/utils/validation', () => ({
-  validateLifePeriodsClient: vi.fn(() => ({ isValid: true, error: null })),
+  validateLifePeriodsClient: vi.fn(() => ({ ok: true, periodErrors: [] })),
 }))
 
 const mockCategories = ['Правители', 'Ученые', 'Художники']
@@ -77,10 +77,17 @@ describe('CreatePersonForm', () => {
     expect(searchableSelects.length).toBeGreaterThan(0)
   })
 
-  it('should render LifePeriodsEditor', () => {
+  it('should not render LifePeriodsEditor initially', () => {
     render(<CreatePersonForm {...defaultProps} />)
     
-    expect(screen.getByTestId('life-periods-editor')).toBeInTheDocument()
+    // LifePeriodsEditor should not be rendered initially since there are no periods
+    expect(screen.queryByTestId('life-periods-editor')).not.toBeInTheDocument()
+  })
+  
+  it('should render add country button', () => {
+    render(<CreatePersonForm {...defaultProps} />)
+    
+    expect(screen.getByText('+ Добавить страну проживания')).toBeInTheDocument()
   })
 
   it('should render DraftModerationButtons', () => {

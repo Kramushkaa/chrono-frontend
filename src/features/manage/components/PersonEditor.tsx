@@ -15,9 +15,10 @@ type Props = {
   lifePeriods: LifePeriodDraft[]
   setLifePeriods: (v: LifePeriodDraft[]) => void
   countrySelectOptions: SelectOption[]
+  periodErrors?: string[]
 }
 
-export function PersonEditor({ person, editBirthYear, setEditBirthYear, editDeathYear, setEditDeathYear, editPersonCategory, setEditPersonCategory, categorySelectOptions, lifePeriods, setLifePeriods, countrySelectOptions }: Props) {
+export function PersonEditor({ person, editBirthYear, setEditBirthYear, editDeathYear, setEditDeathYear, editPersonCategory, setEditPersonCategory, categorySelectOptions, lifePeriods, setLifePeriods, countrySelectOptions, periodErrors = [] }: Props) {
   return (
     <>
       <input name="name" placeholder="Имя" defaultValue={person.name} required />
@@ -65,6 +66,7 @@ export function PersonEditor({ person, editBirthYear, setEditBirthYear, editDeat
             minYear={editBirthYear}
             maxYear={editDeathYear}
             disableDeleteWhenSingle
+            periodErrors={periodErrors}
           />
         )}
       </div>

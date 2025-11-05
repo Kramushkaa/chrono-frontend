@@ -26,11 +26,18 @@ interface CreatePersonFormProps {
 }
 
 export function CreatePersonForm({ categories, countryOptions, onSubmit }: CreatePersonFormProps) {
-  const [lifePeriods, setLifePeriods] = useState<LifePeriod[]>([{ countryId: '', start: '', end: '' }])
+  const [lifePeriods, setLifePeriods] = useState<LifePeriod[]>([])
   const [birthYear, setBirthYear] = useState<number | ''>('')
   const [deathYear, setDeathYear] = useState<number | ''>('')
   const [category, setCategory] = useState<string>('')
   const [periodsError, setPeriodsError] = useState<string | null>(null)
+  const [periodErrors, setPeriodErrors] = useState<string[]>([])
+  
+  // Ошибки валидации полей
+  const [nameError, setNameError] = useState<string>('')
+  const [birthYearError, setBirthYearError] = useState<string>('')
+  const [deathYearError, setDeathYearError] = useState<string>('')
+  const [categoryError, setCategoryError] = useState<string>('')
 
   const countrySelectOptions = useMemo(
     () => countryOptions.map((c) => ({ value: String(c.id), label: c.name })),
@@ -77,7 +84,56 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
   }
 
   const validateAndSubmit = async (saveAsDraft: boolean) => {
+    // Очищаем предыдущие ошибки
+    setNameError('')
+    setBirthYearError('')
+    setDeathYearError('')
+    setCategoryError('')
+    setPeriodsError(null)
+    setPeriodErrors([])
+
     const data = extractFormData()
+    let hasErrors = false
+
+    // Валидация имени
+    if (!data || !data.name) {
+      setNameError('Имя обязательно для заполнения')
+      hasErrors = true
+    }
+
+    // Валидация года рождения
+    if (birthYear === '') {
+      setBirthYearError('Год рождения обязателен')
+      hasErrors = true
+    } else if (!Number.isInteger(Number(birthYear))) {
+      setBirthYearError('Введите целое число')
+      hasErrors = true
+    }
+
+    // Валидация года смерти
+    if (deathYear === '') {
+      setDeathYearError('Год смерти обязателен')
+      hasErrors = true
+    } else if (!Number.isInteger(Number(deathYear))) {
+      setDeathYearError('Введите целое число')
+      hasErrors = true
+    }
+
+    // Валидация годов (рождения < смерти)
+    if (typeof birthYear === 'number' && typeof deathYear === 'number' && birthYear > deathYear) {
+      setBirthYearError('Год рождения не может быть больше года смерти')
+      setDeathYearError('Год смерти не может быть меньше года рождения')
+      hasErrors = true
+    }
+
+    // Валидация категории
+    if (!category) {
+      setCategoryError('Род деятельности обязателен')
+      hasErrors = true
+    }
+
+    if (hasErrors) return
+
     if (!data) return
 
     // Для черновиков валидация периодов не обязательна, но если есть - должны быть корректными
@@ -86,10 +142,12 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
       const periodsValidation = validateLifePeriodsClient(lifePeriods, data.birthYear, data.deathYear, requirePeriods)
       if (!periodsValidation.ok) {
         setPeriodsError(periodsValidation.message || 'Проверьте периоды жизни')
+        setPeriodErrors(periodsValidation.periodErrors || [])
         return
       }
     }
     setPeriodsError(null)
+    setPeriodErrors([])
 
     const payload = {
       id: '', // генерируется снаружи по slug
@@ -124,11 +182,20 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
             padding: '12px',
             fontSize: '16px',
             borderRadius: '8px',
-            border: '1px solid #ccc',
+            border: nameError ? '1px solid #d32f2f' : '1px solid #ccc',
             width: '100%',
             boxSizing: 'border-box',
           }}
         />
+        {nameError && (
+          <div 
+            role="alert" 
+            aria-live="polite"
+            style={{ fontSize: 12, color: '#d32f2f', marginTop: 4 }}
+          >
+            {nameError}
+          </div>
+        )}
       </div>
       <div
         style={{
@@ -154,11 +221,20 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
               padding: '12px',
               fontSize: '16px',
               borderRadius: '8px',
-              border: '1px solid #ccc',
+              border: birthYearError ? '1px solid #d32f2f' : '1px solid #ccc',
               width: '100%',
               boxSizing: 'border-box',
             }}
           />
+          {birthYearError && (
+            <div 
+              role="alert" 
+              aria-live="polite"
+              style={{ fontSize: 12, color: '#d32f2f', marginTop: 4 }}
+            >
+              {birthYearError}
+            </div>
+          )}
         </div>
         <div>
           <label htmlFor="person-death-year" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
@@ -177,16 +253,27 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
               padding: '12px',
               fontSize: '16px',
               borderRadius: '8px',
-              border: '1px solid #ccc',
+              border: deathYearError ? '1px solid #d32f2f' : '1px solid #ccc',
               width: '100%',
               boxSizing: 'border-box',
             }}
           />
+          {deathYearError && (
+            <div 
+              role="alert" 
+              aria-live="polite"
+              style={{ fontSize: 12, color: '#d32f2f', marginTop: 4 }}
+            >
+              {deathYearError}
+            </div>
+          )}
         </div>
       </div>
 
       <div>
-        <label style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>Род деятельности</label>
+        <label style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+          Род деятельности <span aria-label="обязательное поле">*</span>
+        </label>
         <SearchableSelect
           placeholder="Выбрать род деятельности"
           value={category}
@@ -194,6 +281,15 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
           onChange={(val) => setCategory(val)}
           locale="ru"
         />
+        {categoryError && (
+          <div 
+            role="alert" 
+            aria-live="polite"
+            style={{ fontSize: 12, color: '#d32f2f', marginTop: 4 }}
+          >
+            {categoryError}
+          </div>
+        )}
       </div>
 
       <div>
@@ -218,6 +314,7 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
               minYear={typeof birthYear === 'number' ? birthYear : undefined}
               maxYear={typeof deathYear === 'number' ? deathYear : undefined}
               disableDeleteWhenSingle
+              periodErrors={periodErrors}
             />
           </div>
         )}

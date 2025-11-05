@@ -17,10 +17,13 @@ vi.mock('shared/ui/SearchableSelect', () => ({
 }))
 
 vi.mock('features/persons/components/LifePeriodsEditor', () => ({
-  LifePeriodsEditor: ({ periods, onChange, options, minYear, maxYear }: any) => (
+  LifePeriodsEditor: ({ periods, onChange, options, minYear, maxYear, periodErrors }: any) => (
     <div data-testid="life-periods-editor">
       <div>Periods: {periods.length}</div>
       <div>Min: {minYear}, Max: {maxYear}</div>
+      {periodErrors && periodErrors.length > 0 && (
+        <div>Errors: {periodErrors.filter((e: string) => e).length}</div>
+      )}
       <button onClick={() => onChange([])}>Clear Periods</button>
     </div>
   ),

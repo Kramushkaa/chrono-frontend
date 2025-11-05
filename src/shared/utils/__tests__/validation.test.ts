@@ -5,12 +5,14 @@ describe('validateLifePeriodsClient', () => {
     it('should return ok if periods are empty and not required', () => {
       const result = validateLifePeriodsClient([], undefined, undefined, false)
       expect(result.ok).toBe(true)
+      expect(result.periodErrors).toEqual([])
     })
 
     it('should fail if periods are empty and required', () => {
       const result = validateLifePeriodsClient([], undefined, undefined, true)
       expect(result.ok).toBe(false)
       expect(result.message).toBe('Необходимо указать хотя бы один период жизни')
+      expect(result.periodErrors).toEqual([])
     })
   })
 
@@ -19,21 +21,24 @@ describe('validateLifePeriodsClient', () => {
       const periods: LifePeriodDraft[] = [{ countryId: '', start: 1900, end: 1950 }]
       const result = validateLifePeriodsClient(periods)
       expect(result.ok).toBe(false)
-      expect(result.message).toContain('Заполните страну')
+      expect(result.periodErrors).toHaveLength(1)
+      expect(result.periodErrors?.[0]).toBe('Не указана страна')
     })
 
     it('should fail if start year is empty', () => {
       const periods: LifePeriodDraft[] = [{ countryId: '1', start: '', end: 1950 }]
       const result = validateLifePeriodsClient(periods)
       expect(result.ok).toBe(false)
-      expect(result.message).toContain('Заполните страну и годы')
+      expect(result.periodErrors).toHaveLength(1)
+      expect(result.periodErrors?.[0]).toContain('Заполните годы')
     })
 
     it('should fail if end year is empty', () => {
       const periods: LifePeriodDraft[] = [{ countryId: '1', start: 1900, end: '' }]
       const result = validateLifePeriodsClient(periods)
       expect(result.ok).toBe(false)
-      expect(result.message).toContain('Заполните страну и годы')
+      expect(result.periodErrors).toHaveLength(1)
+      expect(result.periodErrors?.[0]).toContain('Заполните годы')
     })
   })
 
@@ -42,13 +47,14 @@ describe('validateLifePeriodsClient', () => {
       const periods: LifePeriodDraft[] = [{ countryId: '1', start: 1950, end: 1900 }]
       const result = validateLifePeriodsClient(periods)
       expect(result.ok).toBe(false)
-      expect(result.message).toContain('Год начала периода не может быть больше года окончания')
+      expect(result.periodErrors?.[0]).toContain('Год начала не может быть больше года окончания')
     })
 
     it('should pass if start and end years are equal', () => {
       const periods: LifePeriodDraft[] = [{ countryId: '1', start: 1900, end: 1900 }]
       const result = validateLifePeriodsClient(periods, 1900, 1900)
       expect(result.ok).toBe(true)
+      expect(result.periodErrors).toEqual([''])
     })
   })
 
@@ -57,14 +63,14 @@ describe('validateLifePeriodsClient', () => {
       const periods: LifePeriodDraft[] = [{ countryId: '1', start: 1890, end: 1920 }]
       const result = validateLifePeriodsClient(periods, 1900)
       expect(result.ok).toBe(false)
-      expect(result.message).toContain('не может быть меньше года рождения')
+      expect(result.periodErrors?.[0]).toContain('раньше года рождения')
     })
 
     it('should fail if period ends after death year', () => {
       const periods: LifePeriodDraft[] = [{ countryId: '1', start: 1900, end: 1980 }]
       const result = validateLifePeriodsClient(periods, undefined, 1950)
       expect(result.ok).toBe(false)
-      expect(result.message).toContain('не может быть больше года смерти')
+      expect(result.periodErrors?.[0]).toContain('позже года смерти')
     })
   })
 
@@ -73,14 +79,14 @@ describe('validateLifePeriodsClient', () => {
       const periods: LifePeriodDraft[] = [{ countryId: '1', start: 1910, end: 1950 }]
       const result = validateLifePeriodsClient(periods, 1900, 1950)
       expect(result.ok).toBe(false)
-      expect(result.message).toContain('первый период начинается позже года рождения')
+      expect(result.periodErrors?.[0]).toContain('Первый период начинается позже года рождения')
     })
 
     it('should fail if last period ends before death year', () => {
       const periods: LifePeriodDraft[] = [{ countryId: '1', start: 1900, end: 1940 }]
       const result = validateLifePeriodsClient(periods, 1900, 1950)
       expect(result.ok).toBe(false)
-      expect(result.message).toContain('последний период заканчивается раньше года смерти')
+      expect(result.periodErrors?.[0]).toContain('Последний период заканчивается раньше года смерти')
     })
 
     it('should pass if periods cover entire life span', () => {
@@ -90,6 +96,7 @@ describe('validateLifePeriodsClient', () => {
       ]
       const result = validateLifePeriodsClient(periods, 1900, 1950)
       expect(result.ok).toBe(true)
+      expect(result.periodErrors).toEqual(['', ''])
     })
   })
 
@@ -101,7 +108,7 @@ describe('validateLifePeriodsClient', () => {
       ]
       const result = validateLifePeriodsClient(periods)
       expect(result.ok).toBe(false)
-      expect(result.message).toContain('Между периодами не должно быть разрывов')
+      expect(result.periodErrors?.[1]).toContain('Разрыв с предыдущим периодом')
     })
 
     it('should fail if periods overlap', () => {
@@ -111,7 +118,7 @@ describe('validateLifePeriodsClient', () => {
       ]
       const result = validateLifePeriodsClient(periods)
       expect(result.ok).toBe(false)
-      expect(result.message).toContain('Периоды не должны пересекаться')
+      expect(result.periodErrors?.[1]).toContain('Пересекается с предыдущим периодом')
     })
 
     it('should pass if periods share a boundary', () => {
@@ -121,6 +128,7 @@ describe('validateLifePeriodsClient', () => {
       ]
       const result = validateLifePeriodsClient(periods)
       expect(result.ok).toBe(true)
+      expect(result.periodErrors).toEqual(['', ''])
     })
   })
 
@@ -132,6 +140,7 @@ describe('validateLifePeriodsClient', () => {
       ]
       const result = validateLifePeriodsClient(periods)
       expect(result.ok).toBe(true)
+      expect(result.periodErrors).toEqual(['', ''])
     })
   })
 
@@ -144,6 +153,7 @@ describe('validateLifePeriodsClient', () => {
       ]
       const result = validateLifePeriodsClient(periods, 1900, 1960)
       expect(result.ok).toBe(true)
+      expect(result.periodErrors).toEqual(['', '', ''])
     })
 
     it('should handle periods without birth/death years', () => {
@@ -152,6 +162,7 @@ describe('validateLifePeriodsClient', () => {
       ]
       const result = validateLifePeriodsClient(periods)
       expect(result.ok).toBe(true)
+      expect(result.periodErrors).toEqual([''])
     })
   })
 })
