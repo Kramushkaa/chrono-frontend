@@ -1,9 +1,9 @@
-import React from 'react';
+﻿import React from 'react';
 import { ManageSection } from 'shared/ui/ManageSection';
 import { ItemsList } from 'shared/ui/ItemsList';
 import { SearchAndFilters } from 'features/manage/components/SearchAndFilters';
 import { adaptToItemCard } from 'features/manage/utils/itemAdapters';
-import type { Person, Achievement, Period, FiltersState, SetFilters, MixedListItem } from 'shared/types';
+import type { Person, Achievement, Period, FiltersState, SetFilters, MixedListItem, UserList } from 'shared/types';
 import type { MenuSelection } from '../hooks/useManageState';
 import type { AchievementTile } from 'shared/hooks/useAchievements';
 import type { PeriodTile } from 'shared/hooks/usePeriods';
@@ -23,7 +23,7 @@ interface PeriodItem {
   status?: string
 }
 
-// Union type для всех возможных item типов (используем базовые типы + расширения + упрощенные версии)
+// Union type РґР»СЏ РІСЃРµС… РІРѕР·РјРѕР¶РЅС‹С… item С‚РёРїРѕРІ (РёСЃРїРѕР»СЊР·СѓРµРј Р±Р°Р·РѕРІС‹Рµ С‚РёРїС‹ + СЂР°СЃС€РёСЂРµРЅРёСЏ + СѓРїСЂРѕС‰РµРЅРЅС‹Рµ РІРµСЂСЃРёРё)
 type PeriodExtended = Period & { id?: number; name?: string; description?: string; person_id?: string; status?: string }
 type ManagedItem = Person | Achievement | AchievementTile | PeriodExtended | PeriodTile | PeriodItem;
 
@@ -44,6 +44,9 @@ interface UnifiedManageSectionProps {
   setSelectedListId: (id: number | null) => void;
   loadUserLists: (force?: boolean) => Promise<void>;
   showToast: (m: string, t?: 'success' | 'error' | 'info') => void;
+  currentUserId?: number;
+  onListUpdated?: (list: UserList) => void;
+  onOpenListPublication?: () => void;
 
   // Core data and functionality
   data: {
@@ -102,6 +105,9 @@ export function UnifiedManageSection({
   setSelectedListId,
   loadUserLists,
   showToast,
+  currentUserId,
+  onListUpdated,
+  onOpenListPublication,
   data,
   itemType,
   searchQuery,
@@ -122,14 +128,18 @@ export function UnifiedManageSection({
   setShowCreate,
   createType,
   setCreateType,
-  labelAll = 'Все',
-  emptyMessage = 'Элементы не найдены',
-  loadingMessage = 'Загрузка...'
+  labelAll = 'Р’СЃРµ',
+  emptyMessage = 'Р­Р»РµРјРµРЅС‚С‹ РЅРµ РЅР°Р№РґРµРЅС‹',
+  loadingMessage = 'Р—Р°РіСЂСѓР·РєР°...'
 }: UnifiedManageSectionProps) {
   const modeIsMine = menuSelection === 'mine';
   const modeIsList = menuSelection.startsWith('list:');
   
-  // Логи для отладки убраны
+  const selectedList = modeIsList
+    ? personLists.find((lst) => lst.id === selectedListId)
+    : undefined;
+
+  // Р›РѕРіРё РґР»СЏ РѕС‚Р»Р°РґРєРё СѓР±СЂР°РЅС‹
 
 
   return (
@@ -156,6 +166,25 @@ export function UnifiedManageSection({
       onAddElement={() => setShowCreate?.(true)}
     >
       <>
+        {modeIsList && selectedList && !selectedList.readonly && (
+          <div style={{ marginBottom: 16 }}>
+            <button
+              onClick={() => onOpenListPublication?.()}
+              style={{
+                padding: '10px 16px',
+                borderRadius: 8,
+                border: '1px solid rgba(139,69,19,0.5)',
+                background: 'rgba(139,69,19,0.2)',
+                color: '#f7f2eb',
+                fontWeight: 600,
+                cursor: 'pointer',
+                width: '100%',
+              }}
+            >
+              📋 Редактировать / Опубликовать список
+            </button>
+          </div>
+        )}
         <SearchAndFilters
           itemType={itemType}
           searchQuery={searchQuery}
@@ -203,7 +232,7 @@ export function UnifiedManageSection({
             showToast={showToast}
             isListMode={modeIsList}
             emptyMessage={!modeIsList && modeIsMine && !data.isLoading && data.items.length === 0 
-              ? "Здесь будут отображаться созданные или отредактированные вами элементы"
+              ? "Р—РґРµСЃСЊ Р±СѓРґСѓС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ СЃРѕР·РґР°РЅРЅС‹Рµ РёР»Рё РѕС‚СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРЅС‹Рµ РІР°РјРё СЌР»РµРјРµРЅС‚С‹"
               : emptyMessage
             }
             loadingMessage={loadingMessage}
@@ -213,6 +242,7 @@ export function UnifiedManageSection({
     </ManageSection>
   );
 }
+
 
 
 

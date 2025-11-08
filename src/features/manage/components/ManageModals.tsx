@@ -6,6 +6,7 @@ import { PersonEditModal, type LifePeriod, type LifePeriodPayload, type PersonEd
 import { CreateListModal } from './CreateListModal'
 import { AddToListModal } from './AddToListModal'
 import { EditWarningModal } from 'shared/ui/EditWarningModal'
+import { ListPublicationModal } from './ListPublicationModal'
 import { CountryOption } from 'shared/api/api'
 import {
   apiFetch,
@@ -58,6 +59,8 @@ interface ManageModalsProps {
   setShowEditWarning: (show: boolean) => void
   isReverting: boolean
   setIsReverting: (reverting: boolean) => void
+  showListPublication: boolean
+  setShowListPublication: (show: boolean) => void
 
   // Data
   categories: string[]
@@ -79,6 +82,8 @@ interface ManageModalsProps {
   user: AuthUser | null
   isModerator: boolean
   addToList: AddToListActions
+  selectedListId: number | null
+  currentUserId?: number | null
 
   // Functions
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void
@@ -87,6 +92,7 @@ interface ManageModalsProps {
   resetPeriods: () => void
   loadUserLists: (force?: boolean) => void
   navigate: (path: string) => void
+  onListUpdated?: (list: any) => void
 }
 
 export function ManageModals({
@@ -103,6 +109,8 @@ export function ManageModals({
   setShowEditWarning,
   isReverting,
   setIsReverting,
+  showListPublication,
+  setShowListPublication,
   categories,
   countryOptions,
   categorySelectOptions,
@@ -122,12 +130,15 @@ export function ManageModals({
   user,
   isModerator,
   addToList,
+  selectedListId,
+  currentUserId,
   showToast,
   resetPersons,
   resetAchievements,
   resetPeriods,
   loadUserLists,
   navigate,
+  onListUpdated,
 }: ManageModalsProps) {
   return (
     <div className="manage-page__modals">
@@ -388,6 +399,16 @@ export function ManageModals({
         }}
         onCancel={() => setShowEditWarning(false)}
         isReverting={isReverting}
+      />
+
+      <ListPublicationModal
+        isOpen={showListPublication}
+        onClose={() => setShowListPublication(false)}
+        list={personLists.find((list) => list.id === selectedListId) || null}
+        isOwner={typeof currentUserId === 'number' && personLists.find((list) => list.id === selectedListId)?.owner_user_id === currentUserId}
+        onUpdated={onListUpdated}
+        onReload={loadUserLists}
+        showToast={showToast}
       />
     </div>
   )

@@ -1,7 +1,7 @@
 import React from 'react'
 import { UnifiedManageSection } from './UnifiedManageSection'
 import type { MenuSelection } from '../hooks/useManageState'
-import type { Achievement, FiltersState, SetFilters, MixedListItem } from 'shared/types'
+import type { Achievement, FiltersState, SetFilters, MixedListItem, UserList } from 'shared/types'
 import type { AchievementTile } from 'shared/hooks/useAchievements'
 
 // Shared types
@@ -16,12 +16,7 @@ interface SharedList {
   periods_count?: number
 }
 
-interface PersonList {
-  id: number
-  title: string
-  items_count?: number
-  readonly?: boolean
-}
+type PersonList = UserList & { readonly?: boolean }
 
 interface AddToListActions {
   isOpen: boolean
@@ -72,6 +67,9 @@ interface AchievementsTabProps {
   listItemIdByDomainIdRef: React.MutableRefObject<Map<string, number>>
   handleDeleteListItem: (listItemId: number) => void
   addToList: AddToListActions
+  currentUserId?: number | null
+  onListUpdated?: (list: UserList) => void
+  onOpenListPublication?: () => void
 }
 
 export function AchievementsTab({
@@ -105,6 +103,9 @@ export function AchievementsTab({
   listItemIdByDomainIdRef,
   handleDeleteListItem,
   addToList,
+  currentUserId,
+  onListUpdated,
+  onOpenListPublication,
 }: AchievementsTabProps) {
   return (
     <div className="manage-page__achievements-section" id="manage-achievements-section">
@@ -120,8 +121,22 @@ export function AchievementsTab({
             ? [
                 {
                   id: sharedList.id,
+                  owner_user_id: sharedList.owner_user_id ? Number(sharedList.owner_user_id) : 0,
                   title: `🔒 ${sharedList.title}`,
-                  items_count: sharedList.achievements_count ?? 0,
+                  created_at: '',
+                  updated_at: '',
+                  moderation_status: 'published',
+                  public_description: '',
+                  moderation_requested_at: null,
+                  published_at: null,
+                  moderated_by: null,
+                  moderated_at: null,
+                  moderation_comment: null,
+                  public_slug: null,
+                  items_count: sharedList.items_count ?? sharedList.achievements_count ?? 0,
+                  persons_count: sharedList.persons_count ?? 0,
+                  achievements_count: sharedList.achievements_count ?? sharedList.items_count ?? 0,
+                  periods_count: sharedList.periods_count ?? 0,
                   readonly: true,
                 },
               ]
@@ -139,6 +154,9 @@ export function AchievementsTab({
         setSelectedListId={setSelectedListId}
         loadUserLists={loadUserLists}
         showToast={showToast}
+        currentUserId={currentUserId ?? undefined}
+        onListUpdated={onListUpdated}
+        onOpenListPublication={onOpenListPublication}
         data={
           (menuSelection as string).startsWith('list:')
             ? {

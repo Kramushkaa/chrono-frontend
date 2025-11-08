@@ -1,7 +1,7 @@
 import React from 'react'
 import { UnifiedManageSection } from './UnifiedManageSection'
 import type { MenuSelection } from '../hooks/useManageState'
-import type { FiltersState, SetFilters, MixedListItem, Period } from 'shared/types'
+import type { FiltersState, SetFilters, MixedListItem, Period, UserList } from 'shared/types'
 import type { PeriodTile } from 'shared/hooks/usePeriods'
 
 // PeriodItem from useManagePageData
@@ -29,12 +29,7 @@ interface SharedList {
   periods_count?: number
 }
 
-interface PersonList {
-  id: number
-  title: string
-  items_count?: number
-  readonly?: boolean
-}
+type PersonList = UserList & { readonly?: boolean }
 
 interface AddToListActions {
   isOpen: boolean
@@ -95,6 +90,9 @@ interface PeriodsTabProps {
   listItemIdByDomainIdRef: React.MutableRefObject<Map<string, number>>
   handleDeleteListItem: (listItemId: number) => void
   addToList: AddToListActions
+  currentUserId?: number | null
+  onListUpdated?: (list: UserList) => void
+  onOpenListPublication?: () => void
 }
 
 export function PeriodsTab({
@@ -128,6 +126,9 @@ export function PeriodsTab({
   listItemIdByDomainIdRef,
   handleDeleteListItem,
   addToList,
+  currentUserId,
+  onListUpdated,
+  onOpenListPublication,
 }: PeriodsTabProps) {
   return (
     <div className="manage-page__periods-section" id="manage-periods-section">
@@ -143,8 +144,22 @@ export function PeriodsTab({
             ? [
                 {
                   id: sharedList.id,
+                  owner_user_id: sharedList.owner_user_id ? Number(sharedList.owner_user_id) : 0,
                   title: `🔒 ${sharedList.title}`,
-                  items_count: sharedList.periods_count ?? 0,
+                  created_at: '',
+                  updated_at: '',
+                  moderation_status: 'published',
+                  public_description: '',
+                  moderation_requested_at: null,
+                  published_at: null,
+                  moderated_by: null,
+                  moderated_at: null,
+                  moderation_comment: null,
+                  public_slug: null,
+                  items_count: sharedList.items_count ?? sharedList.periods_count ?? 0,
+                  persons_count: sharedList.persons_count ?? 0,
+                  achievements_count: sharedList.achievements_count ?? 0,
+                  periods_count: sharedList.periods_count ?? sharedList.items_count ?? 0,
                   readonly: true,
                 },
               ]
@@ -162,6 +177,9 @@ export function PeriodsTab({
         setSelectedListId={setSelectedListId}
         loadUserLists={loadUserLists}
         showToast={showToast}
+        currentUserId={currentUserId ?? undefined}
+        onListUpdated={onListUpdated}
+        onOpenListPublication={onOpenListPublication}
         data={
           (menuSelection as string).startsWith('list:')
             ? {

@@ -21,6 +21,8 @@ import { apiFetch, apiData } from 'shared/api/api'
 import '../styles/manage-page.css'
 import { ContactFooter } from 'shared/ui/ContactFooter'
 import { SEO } from 'shared/ui/SEO'
+import type { UserList } from 'shared/types'
+import { ListModerationModal } from '../components/ListModerationModal'
 
 export default function ManagePage() {
   const navigate = useNavigate()
@@ -50,7 +52,7 @@ export default function ManagePage() {
   const dataManager = useManagePageData(state.activeTab, state.menuSelection, isAuthenticated, filters)
 
   // Lists management
-  const { personLists, sharedList, loadUserLists } = useLists({
+  const { personLists, setPersonLists, sharedList, loadUserLists } = useLists({
     isAuthenticated,
     userId: user?.id ? String(user.id) : null,
     apiData,
@@ -63,6 +65,17 @@ export default function ManagePage() {
     apiFetch,
     apiData,
   })
+
+  const currentUserId = user?.id ?? null
+
+  const handleListMetaUpdate = useCallback(
+    (updatedList: UserList) => {
+      setPersonLists((prev) => prev.map((lst) => (lst.id === updatedList.id ? { ...lst, ...updatedList } : lst)))
+    },
+    [setPersonLists]
+  )
+
+  const [showListsModeration, setShowListsModeration] = React.useState(false)
 
   // Business logic (useEffects and computed values)
   const { countrySelectOptions, categorySelectOptions } = useManageBusinessLogic({
@@ -176,6 +189,23 @@ export default function ManagePage() {
           }}
         >
           <div className="manage-page__content">
+            {isModerator && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                <button
+                  onClick={() => setShowListsModeration(true)}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: 8,
+                    border: '1px solid rgba(139,69,19,0.5)',
+                    background: 'rgba(139,69,19,0.2)',
+                    color: '#2c1810',
+                    fontWeight: 600,
+                  }}
+                >
+                  Модерация списков
+                </button>
+              </div>
+            )}
             <AdaptiveTabs
               activeTab={state.activeTab}
               setActiveTab={state.setActiveTab}
@@ -249,6 +279,9 @@ export default function ManagePage() {
                 user={user}
                 setIsEditing={modals.setIsEditing}
                 setShowEditWarning={modals.setShowEditWarning}
+                currentUserId={currentUserId}
+                onListUpdated={handleListMetaUpdate}
+                onOpenListPublication={() => modals.setShowListPublication(true)}
               />
             )}
 
@@ -284,6 +317,9 @@ export default function ManagePage() {
                 listItemIdByDomainIdRef={state.listItemIdByDomainIdRef}
                 handleDeleteListItem={handleDeleteListItem}
                 addToList={addToList}
+                currentUserId={currentUserId}
+                onListUpdated={handleListMetaUpdate}
+                onOpenListPublication={() => modals.setShowListPublication(true)}
               />
             )}
 
@@ -319,6 +355,9 @@ export default function ManagePage() {
                 listItemIdByDomainIdRef={state.listItemIdByDomainIdRef}
                 handleDeleteListItem={handleDeleteListItem}
                 addToList={addToList}
+                currentUserId={currentUserId}
+                onListUpdated={handleListMetaUpdate}
+                onOpenListPublication={() => modals.setShowListPublication(true)}
               />
             )}
 
@@ -336,6 +375,8 @@ export default function ManagePage() {
               setShowEditWarning={modals.setShowEditWarning}
               isReverting={modals.isReverting}
               setIsReverting={modals.setIsReverting}
+              showListPublication={modals.showListPublication}
+              setShowListPublication={modals.setShowListPublication}
               categories={state.categories}
               countryOptions={state.countryOptions}
               categorySelectOptions={categorySelectOptions}
@@ -355,12 +396,15 @@ export default function ManagePage() {
               user={user}
               isModerator={isModerator}
               addToList={addToList}
+              selectedListId={state.selectedListId}
+              currentUserId={currentUserId}
               showToast={showToast}
               resetPersons={dataManager.resetPersons}
               resetAchievements={dataManager.resetAchievements}
               resetPeriods={dataManager.resetPeriods}
               loadUserLists={(force?: boolean) => loadUserLists.current?.(force)}
               navigate={navigate}
+              onListUpdated={handleListMetaUpdate}
             />
           </div>
         </ManageUIProvider>
@@ -368,6 +412,11 @@ export default function ManagePage() {
 
       <div style={{ height: 56 }} />
       <ContactFooter fixed />
+      <ListModerationModal
+        isOpen={showListsModeration}
+        onClose={() => setShowListsModeration(false)}
+        showToast={showToast}
+      />
     </div>
   )
 }

@@ -1,5 +1,5 @@
-import React from 'react'
-import { Person, FiltersState, SetFilters, MixedListItem } from 'shared/types'
+import React, { useCallback } from 'react'
+import { Person, FiltersState, SetFilters, MixedListItem, UserList } from 'shared/types'
 import { getGroupColor, getPersonGroup } from 'features/persons/utils/groupingUtils'
 import { PersonCard } from 'features/persons/components/PersonCard'
 import { UnifiedManageSection } from './UnifiedManageSection'
@@ -19,12 +19,7 @@ interface SharedList {
 }
 
 // Person list type
-interface PersonList {
-  id: number
-  title: string
-  items_count?: number
-  readonly?: boolean
-}
+type PersonList = UserList & { readonly?: boolean }
 
 // AddToList actions interface
 interface AddToListActions {
@@ -83,6 +78,9 @@ interface PersonsTabProps {
   user: AuthUser | null
   setIsEditing: (editing: boolean) => void
   setShowEditWarning: (show: boolean) => void
+  currentUserId?: number | null
+  onListUpdated?: (list: UserList) => void
+  onOpenListPublication?: () => void
 }
 
 export function PersonsTab({
@@ -130,7 +128,33 @@ export function PersonsTab({
   user,
   setIsEditing,
   setShowEditWarning,
+  currentUserId,
+  onListUpdated,
+  onOpenListPublication,
 }: PersonsTabProps) {
+  const convertSharedList = useCallback(
+    (shared: SharedList): PersonList => ({
+      id: shared.id,
+      owner_user_id: shared.owner_user_id ? Number(shared.owner_user_id) : 0,
+      title: `🔒 ${shared.title}`,
+      created_at: '',
+      updated_at: '',
+      moderation_status: 'published',
+      public_description: '',
+      moderation_requested_at: null,
+      published_at: null,
+      moderated_by: null,
+      moderated_at: null,
+      moderation_comment: null,
+      public_slug: null,
+      items_count: shared.items_count ?? shared.persons_count ?? 0,
+      persons_count: shared.persons_count ?? shared.items_count ?? 0,
+      achievements_count: shared.achievements_count ?? 0,
+      periods_count: shared.periods_count ?? 0,
+      readonly: true,
+    }),
+    []
+  )
   return (
     <div className="manage-page__persons-layout" id="manage-persons-layout">
       <div className="manage-page__persons-section" id="manage-persons-section">
@@ -144,12 +168,7 @@ export function PersonsTab({
           personLists={[
             ...(sharedList
               ? [
-                  {
-                    id: sharedList.id,
-                    title: `🔒 ${sharedList.title}`,
-                    items_count: sharedList.persons_count ?? sharedList.items_count,
-                    readonly: true,
-                  },
+                  convertSharedList(sharedList),
                 ]
               : []),
             ...(isAuthenticated ? personLists : []),
@@ -165,6 +184,9 @@ export function PersonsTab({
           setSelectedListId={setSelectedListId}
           loadUserLists={loadUserLists}
           showToast={showToast}
+          currentUserId={currentUserId ?? undefined}
+          onListUpdated={onListUpdated}
+          onOpenListPublication={onOpenListPublication}
           data={
             (menuSelection as string).startsWith('list:')
               ? {
