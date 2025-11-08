@@ -8,6 +8,7 @@ export function useManageModals() {
   const [showEditWarning, setShowEditWarning] = useState(false)
   const [isReverting, setIsReverting] = useState(false)
   const [showCreateList, setShowCreateList] = useState(false)
+  const [showListPublication, setShowListPublication] = useState(false)
 
   return {
     isEditing,
@@ -24,6 +25,8 @@ export function useManageModals() {
     setIsReverting,
     showCreateList,
     setShowCreateList,
+    showListPublication,
+    setShowListPublication,
   }
 }
 
