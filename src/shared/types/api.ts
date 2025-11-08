@@ -9,6 +9,42 @@ import type { Person, Period, Achievement, EntityStatus, PeriodType } from './in
 export type { AuthUser } from '../../features/auth/services/auth'
 
 // List types
+export type ListModerationStatus = 'draft' | 'pending' | 'published' | 'rejected'
+
+export interface PublicListItemPerson {
+  list_item_id: number
+  type: 'person'
+  person_id: string
+  name: string
+  birth_year: number | null
+  death_year: number | null
+  category: string | null
+}
+
+export interface PublicListItemAchievement {
+  list_item_id: number
+  type: 'achievement'
+  achievement_id: number
+  person_id: string | null
+  year: number | null
+  description: string
+}
+
+export interface PublicListItemPeriod {
+  list_item_id: number
+  type: 'period'
+  period_id: number
+  person_id: string | null
+  start_year: number | null
+  end_year: number | null
+  period_type: string | null
+}
+
+export type PublicListItem =
+  | PublicListItemPerson
+  | PublicListItemAchievement
+  | PublicListItemPeriod
+
 export interface ListItem {
   id: number
   list_id: number
@@ -19,20 +55,52 @@ export interface ListItem {
   added_at: string
 }
 
-export interface PersonList {
+export interface UserList {
   id: number
-  user_id: number
+  owner_user_id: number
   title: string
-  is_public: boolean
-  share_code?: string | null
-  code?: string
   created_at: string
   updated_at: string
+  moderation_status: ListModerationStatus
+  public_description: string
+  moderation_requested_at?: string | null
+  published_at?: string | null
+  moderated_by?: number | null
+  moderated_at?: string | null
+  moderation_comment?: string | null
+  public_slug?: string | null
   persons_count?: number
   achievements_count?: number
   periods_count?: number
   items_count?: number
   readonly?: boolean
+}
+
+export type PersonList = UserList
+
+export interface PublicListSummary {
+  id: number
+  title: string
+  public_description: string
+  public_slug: string | null
+  published_at: string | null
+  owner_user_id: number
+  owner_display_name: string | null
+  items_count: number
+  persons_count: number
+  achievements_count: number
+  periods_count: number
+}
+
+export interface ModerationListSummary extends PublicListSummary {
+  moderation_status: ListModerationStatus
+  moderation_requested_at: string | null
+  moderation_comment: string | null
+  moderated_at: string | null
+}
+
+export interface PublicListDetail extends PublicListSummary {
+  items: PublicListItem[]
 }
 
 export interface SharedListMeta {

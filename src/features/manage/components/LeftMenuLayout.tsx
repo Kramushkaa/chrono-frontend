@@ -1,7 +1,8 @@
 import React from 'react'
 import { LeftMenu, LeftMenuSelection } from './LeftMenu'
+import type { UserList } from 'shared/types'
 
-type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean }
+type ListItem = UserList & { readonly?: boolean }
 
 type Props = {
 	// Layout

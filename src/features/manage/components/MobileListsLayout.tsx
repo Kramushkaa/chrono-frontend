@@ -4,17 +4,11 @@ import { LeftMenuSelection } from './LeftMenu'
 import { MobileListsHeader } from './MobileListsHeader'
 // import { ListItemsView } from 'shared/ui/ListItemsView'
 
-import { Person, MixedListItem } from 'shared/types'
+import { Person, MixedListItem, UserList } from 'shared/types'
 import { PersonPanel } from 'features/persons/components/PersonPanel'
 import type { MenuSelection } from '../hooks/useManageState'
 
-// Shared types
-interface PersonList {
-  id: number
-  title: string
-  items_count?: number
-  readonly?: boolean
-}
+type PersonList = UserList & { readonly?: boolean }
 
 interface SharedList {
   id: number
@@ -226,10 +220,10 @@ export function MobileListsLayout(props: Props) {
       <MobileListsHeader
         selectedKey={menuSelection}
         onSelect={(sel: LeftMenuSelection) => {
-          if (sel.type === 'list') { 
-            setMenuSelection(`list:${sel.listId!}`)
-            setSelectedListId(sel.listId!)
-          } else { 
+          if (sel.type === 'list') {
+            setMenuSelection(`list:${sel.listId}`)
+            setSelectedListId(sel.listId)
+          } else {
             setMenuSelection(sel.type)
             setSelectedListId(null)
           }

@@ -103,6 +103,27 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onOpenTimeline }) => {
               <p className="main-menu-item-description">Создавайте и управляйте своими списками личностей, достижений и периодов</p>
             </div>
           </div>
+          <div
+            className="main-menu-item"
+            onClick={() => window.location.assign('/lists/public')}
+            role="button"
+            aria-label="Публичные подборки — Списки, прошедшие модерацию"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                window.location.assign('/lists/public')
+              }
+            }}
+          >
+            <div className="main-menu-item-icon" aria-hidden="true">🌍</div>
+            <div className="main-menu-item-content">
+              <h3 className="main-menu-item-title">Публичные подборки</h3>
+              <p className="main-menu-item-description">
+                Исследуйте модераторскую выборку списков от сообщества
+              </p>
+            </div>
+          </div>
         </nav>
 
         {/* Футер */}

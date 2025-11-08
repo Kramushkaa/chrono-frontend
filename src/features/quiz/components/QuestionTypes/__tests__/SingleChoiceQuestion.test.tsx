@@ -34,6 +34,7 @@ describe('SingleChoiceQuestion', () => {
   const defaultProps = {
     data: mockQuestionData,
     onAnswer: vi.fn(),
+    questionType: 'birthYear' as const,
   }
 
   beforeEach(() => {
@@ -236,6 +237,54 @@ describe('SingleChoiceQuestion', () => {
     
     expect(screen.getByText('Тест Персона')).toBeInTheDocument()
     expect(screen.queryByText(/Описание персоны/)).not.toBeInTheDocument()
+  })
+
+  it('should hide description for profession question until feedback', () => {
+    render(
+      <SingleChoiceQuestion
+        {...defaultProps}
+        questionType="profession"
+      />
+    )
+
+    expect(screen.queryByText(/Описание персоны/)).not.toBeInTheDocument()
+  })
+
+  it('should show description for profession question when feedback is shown', () => {
+    render(
+      <SingleChoiceQuestion
+        {...defaultProps}
+        questionType="profession"
+        showFeedback={true}
+        userAnswer={mockUserAnswer}
+      />
+    )
+
+    expect(screen.getByText(/Описание персоны 1860 года/)).toBeInTheDocument()
+  })
+
+  it('should hide description for country question until feedback', () => {
+    render(
+      <SingleChoiceQuestion
+        {...defaultProps}
+        questionType="country"
+      />
+    )
+
+    expect(screen.queryByText(/Описание персоны/)).not.toBeInTheDocument()
+  })
+
+  it('should show description for country question when feedback is shown', () => {
+    render(
+      <SingleChoiceQuestion
+        {...defaultProps}
+        questionType="country"
+        showFeedback={true}
+        userAnswer={mockUserAnswer}
+      />
+    )
+
+    expect(screen.getByText(/Описание персоны 1860 года/)).toBeInTheDocument()
   })
 })
 

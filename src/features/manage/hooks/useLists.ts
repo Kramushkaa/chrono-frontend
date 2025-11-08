@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { UserList } from 'shared/types'
 
 // Extend window for cache
 declare global {
@@ -7,7 +8,7 @@ declare global {
   }
 }
 
-type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean }
+type ListItem = (UserList & { readonly?: boolean })
 
 type SharedList = {
   id: number;
@@ -62,8 +63,12 @@ export function useLists({ isAuthenticated, userId, apiData }: Params) {
     }
     listsInFlightRef.current = true
     try {
-      const items = await apiData<Array<{ id: number; title: string; items_count?: number }>>(`/api/lists`)
-      const normalized: ListItem[] = Array.isArray(items) ? items : []
+      const items = await apiData<Array<UserList>>(`/api/lists`)
+      const normalized: ListItem[] = Array.isArray(items)
+        ? items.map((item) => ({
+            ...item,
+          }))
+        : []
       setPersonLists(normalized)
       if (key) listsCacheRef.current.set(key, { items: normalized, ts: Date.now() })
       lastListsFetchTsRef.current = Date.now()

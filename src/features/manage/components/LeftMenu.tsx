@@ -1,7 +1,12 @@
 import React from 'react'
+import type { UserList, ListModerationStatus } from 'shared/types'
 
-export type UserListItem = { id: number; title: string; items_count?: number }
-export type LeftMenuSelection = { type: 'all' | 'pending' | 'mine' | 'list'; listId?: number }
+export type UserListItem = (UserList & { readonly?: boolean })
+export type LeftMenuSelection =
+  | { type: 'all' }
+  | { type: 'pending' }
+  | { type: 'mine' }
+  | { type: 'list'; listId: number }
 
 type Props = {
   selectedKey: string
@@ -18,6 +23,20 @@ type Props = {
   readonlyListId?: number
   onCopySharedList?: (id: number) => void
   id?: string
+}
+
+const statusLabels: Record<ListModerationStatus, string> = {
+  draft: 'Черновик',
+  pending: 'На модерации',
+  published: 'Опубликован',
+  rejected: 'Отклонён',
+}
+
+const statusColors: Record<ListModerationStatus, string> = {
+  draft: 'rgba(139,69,19,0.35)',
+  pending: 'rgba(255,165,0,0.6)',
+  published: 'rgba(46,160,67,0.6)',
+  rejected: 'rgba(220,53,69,0.6)',
 }
 
 export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, mineCount, userLists, onAddList, labelAll = 'Все', onDeleteList, onShareList, onShowOnTimeline, readonlyListId, onCopySharedList, id }: Props) {
@@ -48,6 +67,24 @@ export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, min
              onKeyDown={(e) => { if (e.key === 'Enter') onSelect({ type: 'mine' }) }}>Мои {typeof mineCount === 'number' ? `(${mineCount})` : ''}</div>
         {userLists.map((l) => {
           const active = selectedKey === `list:${l.id}`
+          const statusBadge = !l.readonly ? (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '2px 6px',
+                borderRadius: 12,
+                fontSize: 10,
+                backgroundColor: statusColors[l.moderation_status],
+                color: '#fff',
+                marginLeft: 6,
+                letterSpacing: 0.3,
+                textTransform: 'uppercase',
+              }}
+            >
+              {statusLabels[l.moderation_status]}
+            </span>
+          ) : null
           return (
             <div key={l.id} 
                  role="button" 
@@ -56,7 +93,9 @@ export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, min
                  onClick={() => onSelect({ type: 'list', listId: l.id })}
                  onKeyDown={(e) => { if (e.key === 'Enter') onSelect({ type: 'list', listId: l.id }) }}>
               <div style={{ flex: 1 }}>
-                {l.title}<span style={{ opacity: 0.7, marginLeft: 6, fontSize: 12 }}>({l.items_count || 0})</span>
+                <span>{l.title}</span>
+                <span style={{ opacity: 0.7, marginLeft: 6, fontSize: 12 }}>({l.items_count || 0})</span>
+                {statusBadge}
               </div>
               <div style={actionsStyle} aria-label="Действия со списком">
                 {readonlyListId === l.id ? (

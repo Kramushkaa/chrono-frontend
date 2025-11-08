@@ -1,7 +1,7 @@
 import React from 'react'
 import { AdaptiveListsLayout } from 'features/manage/components/AdaptiveListsLayout'
 import type { MenuSelection } from 'features/manage/hooks/useManageState'
-import type { MixedListItem } from 'shared/types'
+import type { MixedListItem, UserList } from 'shared/types'
 
 interface ManageSectionProps {
   // Core layout and navigation
@@ -16,7 +16,7 @@ interface ManageSectionProps {
   mineCount?: number | null
   
   // Lists management
-  personLists: Array<{ id: number; title: string; items_count?: number; readonly?: boolean }>
+  personLists: Array<UserList & { readonly?: boolean }>
   sharedList?: { id: number; title: string; owner_user_id?: string; code?: string; items_count?: number; persons_count?: number; achievements_count?: number; periods_count?: number } | null
   selectedListId: number | null
   setSelectedListId: (id: number | null) => void

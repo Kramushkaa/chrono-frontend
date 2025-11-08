@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { LeftMenuSelection } from './LeftMenu'
+import type { UserList, ListModerationStatus } from 'shared/types'
 
 type Props = {
   selectedKey: string
@@ -7,7 +8,7 @@ type Props = {
   isModerator: boolean
   pendingCount?: number | null
   mineCount?: number | null
-  userLists: Array<{ id: number; title: string; items_count?: number }>
+  userLists: Array<UserList & { readonly?: boolean }>
   onAddList: () => void
   labelAll?: string
 }
@@ -36,6 +37,13 @@ export function MobileListSelector({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const statusLabel: Record<ListModerationStatus, string> = {
+    draft: 'Черновик',
+    pending: 'На модерации',
+    published: 'Опубликован',
+    rejected: 'Отклонён',
+  }
+
   const getSelectedLabel = () => {
     if (selectedKey === 'all') return labelAll
     if (selectedKey === 'pending') return `Ожидают (${pendingCount || 0})`
@@ -43,7 +51,10 @@ export function MobileListSelector({
     if (selectedKey.startsWith('list:')) {
       const listId = Number(selectedKey.split(':')[1])
       const list = userLists.find(l => l.id === listId)
-      return list ? `${list.title} (${list.items_count || 0})` : 'Список'
+      if (list) {
+        return `${list.title} (${list.items_count || 0})${list.readonly ? '' : ` — ${statusLabel[list.moderation_status]}`}`
+      }
+      return 'Список'
     }
     return 'Выберите'
   }
@@ -104,7 +115,12 @@ export function MobileListSelector({
                 onClick={() => handleSelect({ type: 'list', listId: list.id })}
                 className={`lists-mobile-selector__option ${selectedKey === `list:${list.id}` ? 'lists-mobile-selector__option--active' : ''}`}
               >
-                {list.title} ({list.items_count || 0})
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <span>{list.title} ({list.items_count || 0})</span>
+                  {!list.readonly && (
+                    <span style={{ fontSize: 11, opacity: 0.7 }}>{statusLabel[list.moderation_status]}</span>
+                  )}
+                </div>
               </button>
             ))}
 

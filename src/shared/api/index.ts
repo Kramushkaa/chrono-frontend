@@ -61,7 +61,15 @@ export {
 export type { LifePeriodInput } from './periods'
 
 // Lists
-export { createListShareCode, resolveListShare } from './lists'
+export {
+  createListShareCode,
+  resolveListShare,
+  requestListPublication,
+  reviewListPublication,
+  getListModerationQueue,
+  getPublicLists,
+  getPublicListDetail,
+} from './lists'
 
 // Quiz
 export {

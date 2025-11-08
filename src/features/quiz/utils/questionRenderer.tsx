@@ -50,6 +50,7 @@ export const renderQuestionByType = ({
           onNext={onNext}
           isLastQuestion={isLastQuestion}
           onPersonInfoClick={onPersonInfoClick}
+          questionType={question.type}
         />
       );
 

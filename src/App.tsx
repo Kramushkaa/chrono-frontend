@@ -23,6 +23,8 @@ const QuizHistoryPage = React.lazy(() => import('features/quiz/pages/QuizHistory
 const QuizAttemptDetailPage = React.lazy(() => import('features/quiz/pages/QuizAttemptDetailPage').then(m => ({ default: m.QuizAttemptDetailPage })))
 const QuizSessionDetailPage = React.lazy(() => import('features/quiz/pages/QuizSessionDetailPage').then(m => ({ default: m.QuizSessionDetailPage })))
 const TimelinePage = React.lazy(() => import('features/timeline/pages/TimelinePage').then(m => ({ default: m.default })))
+const PublicListsPage = React.lazy(() => import('./pages/PublicListsPage'))
+const PublicListDetailPage = React.lazy(() => import('./pages/PublicListDetailPage'))
 
 function AppContent() {
   useUnauthorizedToast()
@@ -40,6 +42,8 @@ function AppContent() {
           <Route path="/quiz/history/attempt/:attemptId" element={<QuizAttemptDetailPage />} />
           <Route path="/quiz/history/:sessionToken" element={<QuizSessionDetailPage />} />
           <Route path="/quiz/:shareCode" element={<SharedQuizPage />} />
+          <Route path="/lists/public" element={<PublicListsPage />} />
+          <Route path="/lists/public/:slug" element={<PublicListDetailPage />} />
           <Route path="/lists" element={<ManagePage />} />
           <Route path="/manage" element={<Navigate to="/lists" replace />} />
           <Route path="/profile" element={<ProfilePage />} />

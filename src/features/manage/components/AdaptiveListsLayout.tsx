@@ -3,15 +3,9 @@ import { useMobileLayout } from 'shared/hooks/useMobileLayout'
 import { MobileListsLayout } from './MobileListsLayout'
 import { DesktopListsLayout } from './DesktopListsLayout'
 import type { MenuSelection } from '../hooks/useManageState'
-import type { MixedListItem } from 'shared/types'
+import type { MixedListItem, UserList } from 'shared/types'
 
-// Shared types
-interface PersonList {
-  id: number
-  title: string
-  items_count?: number
-  readonly?: boolean
-}
+type PersonList = UserList & { readonly?: boolean }
 
 interface SharedList {
   id: number

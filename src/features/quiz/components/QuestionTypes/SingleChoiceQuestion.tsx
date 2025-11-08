@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SingleChoiceQuestionData, QuizAnswer, QuizPerson } from '../../types';
+import { SingleChoiceQuestionData, QuizAnswer, QuizPerson, QuizQuestion } from '../../types';
 import { hideYearsInText } from '../../utils/textUtils';
 
 interface SingleChoiceQuestionProps {
@@ -10,6 +10,7 @@ interface SingleChoiceQuestionProps {
   onNext?: () => void;
   isLastQuestion?: boolean;
   onPersonInfoClick?: (person: QuizPerson) => void;
+  questionType?: QuizQuestion['type'];
 }
 
 export const SingleChoiceQuestion: React.FC<SingleChoiceQuestionProps> = ({ 
@@ -19,7 +20,8 @@ export const SingleChoiceQuestion: React.FC<SingleChoiceQuestionProps> = ({
   userAnswer = null, 
   onNext,
   isLastQuestion = false,
-  onPersonInfoClick
+  onPersonInfoClick,
+  questionType
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
 
@@ -52,6 +54,17 @@ export const SingleChoiceQuestion: React.FC<SingleChoiceQuestionProps> = ({
     return className;
   };
 
+  const shouldShowDescription =
+    Boolean(data.person.description) &&
+    (questionType === 'profession' || questionType === 'country' ? showFeedback : true);
+
+  const descriptionText =
+    showFeedback || questionType === 'profession' || questionType === 'country'
+      ? data.person.description
+      : data.person.description
+      ? hideYearsInText(data.person.description)
+      : null;
+
   return (
     <div className="quiz-question single-choice-question">
       <div className="quiz-question-content">
@@ -79,13 +92,8 @@ export const SingleChoiceQuestion: React.FC<SingleChoiceQuestionProps> = ({
                 </button>
               )}
             </div>
-            {data.person.description && (
-              <p>
-                {showFeedback 
-                  ? data.person.description 
-                  : hideYearsInText(data.person.description)
-                }
-              </p>
+            {shouldShowDescription && descriptionText && (
+              <p>{descriptionText}</p>
             )}
           </div>
         </div>

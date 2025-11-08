@@ -1,5 +1,6 @@
 import React from 'react'
 import { LeftMenuSelection } from './LeftMenu'
+import type { UserList, ListModerationStatus } from 'shared/types'
 import { MobileListSelector } from './MobileListSelector'
 
 type Props = {
@@ -8,7 +9,7 @@ type Props = {
   isModerator: boolean
   pendingCount?: number | null
   mineCount?: number | null
-  userLists: Array<{ id: number; title: string; items_count?: number }>
+  userLists: Array<UserList & { readonly?: boolean }>
   onAddList: () => void
   labelAll?: string
   selectedListId?: number | null
@@ -44,6 +45,13 @@ export function MobileListsHeader({
 }: Props) {
   const isListSelected = selectedKey.startsWith('list:')
   const currentList = isListSelected ? userLists.find(l => l.id === selectedListId) : null
+
+  const statusLabel: Record<ListModerationStatus, string> = {
+    draft: 'Черновик',
+    pending: 'На модерации',
+    published: 'Опубликован',
+    rejected: 'Отклонён',
+  }
 
   return (
     <div className="lists-mobile-header">
@@ -142,6 +150,11 @@ export function MobileListsHeader({
           <div className="lists-mobile-list-info__count">
             Элементов: {currentList.items_count || 0}
           </div>
+          {!currentList.readonly && (
+            <div className="lists-mobile-list-info__status" style={{ fontSize: 12, opacity: 0.8 }}>
+              Статус: {statusLabel[currentList.moderation_status]}
+            </div>
+          )}
         </div>
       )}
     </div>
