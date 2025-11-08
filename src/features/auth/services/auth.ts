@@ -1,4 +1,5 @@
 import { apiFetch } from 'shared/api/core';
+import { logger } from 'shared/utils/logger';
 
 export interface AuthUser {
   id: number;
@@ -26,9 +27,10 @@ export const authStorage = {
       const version = localStorage.getItem('auth_version');
       if (version !== AUTH_STORAGE_VERSION) {
         // Clear old auth data if version mismatch
-        if (import.meta.env.MODE !== 'production') {
-          console.log('Auth storage version mismatch, clearing old tokens');
-        }
+        logger.debug('Auth storage version mismatch, clearing old tokens', {
+          oldVersion: version,
+          newVersion: AUTH_STORAGE_VERSION,
+        });
         this.clear();
         localStorage.setItem('auth_version', AUTH_STORAGE_VERSION);
         return { user: null, accessToken: null, refreshToken: null };

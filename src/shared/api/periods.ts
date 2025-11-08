@@ -2,6 +2,7 @@ import { apiFetch, apiData, apiJson } from './core'
 import type { LifePeriodItemDTO } from '../dto'
 import { validateDto } from '../dto'
 import { createCountCache } from './cacheUtils'
+import { logger } from '../utils/logger'
 
 // Save life periods for person
 export type LifePeriodInput = Pick<LifePeriodItemDTO, 'country_id' | 'start_year' | 'end_year'>
@@ -12,9 +13,8 @@ export async function saveLifePeriods(personId: string, periods: LifePeriodInput
       periods: periods.map((p) => ({ country_id: p.country_id, start_year: p.start_year, end_year: p.end_year })),
     }
     const v = validateDto('LifePeriods', pack)
-    if (!v.ok && import.meta.env.MODE !== 'production') {
-      // eslint-disable-next-line no-console
-      console.warn('DTO validation failed (LifePeriods):', v.errors)
+    if (!v.ok) {
+      logger.warn('DTO validation failed (LifePeriods)', { errors: v.errors, pack })
     }
   }
   const data = await apiJson(`/api/persons/${encodeURIComponent(personId)}/life-periods`, {

@@ -1,6 +1,7 @@
 import { apiFetch, apiData } from './core'
 import { validateDto } from '../dto'
 import { createCountCache } from './cacheUtils'
+import { logger } from '../utils/logger'
 
 // Add achievement to person
 export async function addAchievement(
@@ -9,9 +10,8 @@ export async function addAchievement(
 ) {
   if (import.meta.env.MODE !== 'production') {
     const v = validateDto('AchievementPerson', payload)
-    if (!v.ok && import.meta.env.MODE !== 'production') {
-      // eslint-disable-next-line no-console
-      console.warn('DTO validation failed (AchievementPerson):', v.errors)
+    if (!v.ok) {
+      logger.warn('DTO validation failed (AchievementPerson)', { errors: v.errors, payload })
     }
   }
   const res = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/achievements`, {
@@ -111,9 +111,8 @@ export async function addGenericAchievement(payload: {
 }) {
   if (import.meta.env.MODE !== 'production') {
     const v = validateDto('AchievementGeneric', payload)
-    if (!v.ok && import.meta.env.MODE !== 'production') {
-      // eslint-disable-next-line no-console
-      console.warn('DTO validation failed (AchievementGeneric):', v.errors)
+    if (!v.ok) {
+      logger.warn('DTO validation failed (AchievementGeneric)', { errors: v.errors, payload })
     }
   }
   const res = await apiFetch(`/api/achievements`, {

@@ -2,6 +2,7 @@ import { apiData, apiFetch, maybePercentDecode } from './core'
 import type { UpsertPersonDTO } from '../dto'
 import { validateDto } from '../dto'
 import type { Person } from '../types'
+import { logger } from '../utils/logger'
 
 // API response types
 interface PersonApiResponse {
@@ -186,9 +187,8 @@ type UpsertPersonPayload = UpsertPersonDTO
 export async function adminUpsertPerson(payload: UpsertPersonPayload) {
   if (import.meta.env.MODE !== 'production') {
     const v = validateDto('UpsertPerson', payload)
-    if (!v.ok && import.meta.env.MODE !== 'production') {
-      // eslint-disable-next-line no-console
-      console.warn('DTO validation failed (UpsertPerson):', v.errors)
+    if (!v.ok) {
+      logger.warn('DTO validation failed (UpsertPerson)', { errors: v.errors, payload })
     }
   }
   const res = await apiFetch(`/api/admin/persons`, {

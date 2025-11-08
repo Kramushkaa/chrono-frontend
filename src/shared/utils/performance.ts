@@ -3,6 +3,8 @@
  * Helps identify slow renders and performance bottlenecks
  */
 
+import { logger } from './logger'
+
 const SLOW_RENDER_THRESHOLD = 16 // milliseconds (60fps = 16.67ms per frame)
 
 interface PerformanceMark {
@@ -29,9 +31,11 @@ export function logPerformanceMark(mark: PerformanceMark) {
     }
 
     // Log slow renders
-    if (mark.duration > SLOW_RENDER_THRESHOLD && import.meta.env.MODE !== 'production') {
-      console.warn(
-        `[Performance] Slow ${mark.phase} detected in ${mark.component}: ${mark.duration.toFixed(2)}ms`
+    if (mark.duration > SLOW_RENDER_THRESHOLD) {
+      logger.performanceWarning(
+        `Slow ${mark.phase} detected in ${mark.component}`,
+        mark.duration,
+        { component: mark.component, phase: mark.phase }
       )
     }
   }
@@ -86,7 +90,7 @@ export function measureExecution<T>(name: string, fn: () => T): T {
 
     if (duration > 5) {
       // Log if > 5ms
-      console.log(`[Performance] ${name} took ${duration.toFixed(2)}ms`)
+      logger.debug(`${name} took ${duration.toFixed(2)}ms`, { operation: name, duration })
     }
 
     return result
@@ -106,7 +110,7 @@ export async function measureExecutionAsync<T>(name: string, fn: () => Promise<T
 
     if (duration > 100) {
       // Log if > 100ms
-      console.log(`[Performance] ${name} took ${duration.toFixed(2)}ms`)
+      logger.performanceWarning(name, duration, { operation: name })
     }
 
     return result
@@ -122,19 +126,23 @@ export function printPerformanceReport() {
   if (import.meta.env.MODE !== 'production') {
     const stats = getPerformanceStats()
     if (!stats) {
-      console.log('[Performance] No performance data collected yet')
+      logger.info('No performance data collected yet', { action: 'performance_report' })
       return
     }
 
-    console.group('📊 Performance Report')
-    console.log(`Total renders tracked: ${stats.totalMarks}`)
-    console.log(`Average duration: ${stats.averageDuration}ms`)
-    console.log(`Min duration: ${stats.minDuration}ms`)
-    console.log(`Max duration: ${stats.maxDuration}ms`)
-    console.log(`Slow renders (>${SLOW_RENDER_THRESHOLD}ms): ${stats.slowRenders} (${stats.slowRenderPercentage}%)`)
+    logger.info('Performance Report', {
+      action: 'performance_report',
+      totalMarks: stats.totalMarks,
+      averageDuration: stats.averageDuration,
+      minDuration: stats.minDuration,
+      maxDuration: stats.maxDuration,
+      slowRenders: stats.slowRenders,
+      slowRenderPercentage: stats.slowRenderPercentage,
+    })
 
-    if (performanceMarks.length > 0) {
-      console.group('Recent renders')
+    if (performanceMarks.length > 0 && import.meta.env.DEV) {
+      // In dev mode, still use console for grouping visualization
+      console.group('📊 Performance Report - Recent Renders')
       const recent = performanceMarks.slice(-10).reverse()
       recent.forEach((mark) => {
         const emoji = mark.duration > SLOW_RENDER_THRESHOLD ? '🐌' : '✅'
@@ -142,8 +150,6 @@ export function printPerformanceReport() {
       })
       console.groupEnd()
     }
-
-    console.groupEnd()
   }
 }
 
