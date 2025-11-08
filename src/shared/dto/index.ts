@@ -1,6 +1,6 @@
 // Manually duplicated DTO types/descriptors (keep in sync with backend)
 
-export const DTO_VERSION = '2025-10-13-1'
+export const DTO_VERSION = '2025-11-08-1'
 
 export type UpsertPersonDTO = {
   id: string
@@ -65,6 +65,12 @@ export const dtoDescriptors = {
   },
   AchievementPerson: {
     year: 'int', description: 'string', wikipedia_url: 'url|null?', image_url: 'url|null?', saveAsDraft: 'boolean?'
+  },
+  ListPublicationRequest: {
+    description: 'string?'
+  },
+  ListModerationAction: {
+    action: "enum('approve'|'reject')", comment: 'string?', slug: 'string?'
   }
 } as const
 
@@ -114,6 +120,16 @@ function checkBySpec(spec: string, value: unknown): boolean {
     return base === 'url' ? isUrlOrNull(value) && value != null : isUrlOrNull(value)
   }
 
+  if (base.startsWith("enum(") && base.endsWith(")")) {
+    if (typeof value !== 'string') return false
+    const options = base
+      .slice(5, -1)
+      .split('|')
+      .map(opt => opt.trim().replace(/^'|'$/g, ''))
+      .filter(Boolean)
+    return options.includes(value)
+  }
+
   // nested descriptor
   if (base in dtoDescriptors) {
     return validateDto(base as DescriptorName, value).ok
@@ -140,4 +156,15 @@ export function validateDto(name: DescriptorName, obj: unknown): { ok: boolean; 
 
 
 
+
+
+export type ListPublicationRequestDTO = {
+  description?: string
+}
+
+export type ListModerationActionDTO = {
+  action: 'approve' | 'reject'
+  comment?: string
+  slug?: string
+}
 
