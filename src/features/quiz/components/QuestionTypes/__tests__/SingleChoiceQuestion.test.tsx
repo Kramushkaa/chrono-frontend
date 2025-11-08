@@ -10,8 +10,8 @@ vi.mock('../../../utils/textUtils', () => ({
 
 const mockPerson: QuizPerson = {
   id: '1',
-  name: 'Тест Персона',
-  description: 'Описание персоны 1860 года',
+  name: 'Тест Личность',
+  description: 'Описание личности 1860 года',
   imageUrl: 'https://example.com/image.jpg',
 }
 
@@ -44,14 +44,14 @@ describe('SingleChoiceQuestion', () => {
   it('should render without crashing', () => {
     render(<SingleChoiceQuestion {...defaultProps} />)
     
-    expect(screen.getByText('Тест Персона')).toBeInTheDocument()
+    expect(screen.getByText('Тест Личность')).toBeInTheDocument()
     expect(screen.getByText('В каком году родился?')).toBeInTheDocument()
   })
 
   it('should render person image when provided', () => {
     render(<SingleChoiceQuestion {...defaultProps} />)
     
-    const image = screen.getByAltText('Тест Персона')
+    const image = screen.getByAltText('Тест Личность')
     expect(image).toBeInTheDocument()
     expect(image).toHaveAttribute('src', 'https://example.com/image.jpg')
   })
@@ -193,7 +193,7 @@ describe('SingleChoiceQuestion', () => {
     render(<SingleChoiceQuestion {...defaultProps} />)
     
     // The description should have years hidden
-    expect(screen.getByText(/Описание персоны XXXX года/)).toBeInTheDocument()
+    expect(screen.getByText(/Описание личности XXXX года/)).toBeInTheDocument()
   })
 
   it('should show full description when showing feedback', () => {
@@ -206,7 +206,7 @@ describe('SingleChoiceQuestion', () => {
     )
     
     // The description should show with years when showing feedback
-    expect(screen.getByText(/Описание персоны 1860 года/)).toBeInTheDocument()
+    expect(screen.getByText(/Описание личности 1860 года/)).toBeInTheDocument()
   })
 
   it('should handle person without image', () => {
@@ -220,8 +220,8 @@ describe('SingleChoiceQuestion', () => {
     
     render(<SingleChoiceQuestion {...defaultProps} data={dataWithoutImage} />)
     
-    expect(screen.queryByAltText('Тест Персона')).not.toBeInTheDocument()
-    expect(screen.getByText('Тест Персона')).toBeInTheDocument()
+    expect(screen.queryByAltText('Тест Личность')).not.toBeInTheDocument()
+    expect(screen.getByText('Тест Личность')).toBeInTheDocument()
   })
 
   it('should handle person without description', () => {
@@ -235,8 +235,8 @@ describe('SingleChoiceQuestion', () => {
     
     render(<SingleChoiceQuestion {...defaultProps} data={dataWithoutDescription} />)
     
-    expect(screen.getByText('Тест Персона')).toBeInTheDocument()
-    expect(screen.queryByText(/Описание персоны/)).not.toBeInTheDocument()
+    expect(screen.getByText('Тест Личность')).toBeInTheDocument()
+    expect(screen.queryByText(/Описание личности/)).not.toBeInTheDocument()
   })
 
   it('should hide description for profession question until feedback', () => {
@@ -247,7 +247,7 @@ describe('SingleChoiceQuestion', () => {
       />
     )
 
-    expect(screen.queryByText(/Описание персоны/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Описание личности/)).not.toBeInTheDocument()
   })
 
   it('should show description for profession question when feedback is shown', () => {
@@ -260,7 +260,7 @@ describe('SingleChoiceQuestion', () => {
       />
     )
 
-    expect(screen.getByText(/Описание персоны 1860 года/)).toBeInTheDocument()
+    expect(screen.getByText(/Описание личности 1860 года/)).toBeInTheDocument()
   })
 
   it('should hide description for country question until feedback', () => {
@@ -271,7 +271,7 @@ describe('SingleChoiceQuestion', () => {
       />
     )
 
-    expect(screen.queryByText(/Описание персоны/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Описание личности/)).not.toBeInTheDocument()
   })
 
   it('should show description for country question when feedback is shown', () => {
@@ -284,7 +284,7 @@ describe('SingleChoiceQuestion', () => {
       />
     )
 
-    expect(screen.getByText(/Описание персоны 1860 года/)).toBeInTheDocument()
+    expect(screen.getByText(/Описание личности 1860 года/)).toBeInTheDocument()
   })
 })
 

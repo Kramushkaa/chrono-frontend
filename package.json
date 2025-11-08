@@ -1,7 +1,7 @@
 {
   "name": "chrononinja-frontend",
   "version": "1.0.0",
-  "description": "Frontend for Chrono Ninja historical timeline",
+  "description": "Frontend for Хронониндзя (Chrononinja) historical timeline",
   "private": true,
   "dependencies": {
     "compression": "^1.7.4",

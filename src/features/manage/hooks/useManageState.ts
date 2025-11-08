@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Person } from 'shared/types'
-import { CountryOption } from 'shared/api/api'
+import type { CountryOption } from 'shared/api/meta'
 
 export type Tab = 'persons' | 'achievements' | 'periods'
 export type MenuSelection = 'all' | 'pending' | 'mine' | `list:${number}`

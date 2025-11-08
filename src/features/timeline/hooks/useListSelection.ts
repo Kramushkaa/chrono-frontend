@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useToast } from 'shared/context/ToastContext'
-import { apiData, resolveListShare } from 'shared/api/api'
+import { apiData } from 'shared/api/core'
+import { resolveListShare } from 'shared/api/lists'
 import { classifyError, logError } from 'shared/utils/errorHandling'
 
 type SharedListMeta = { code: string; title: string; listId?: number } | null

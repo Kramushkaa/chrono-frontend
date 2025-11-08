@@ -18,7 +18,7 @@ const mockSetActiveAchievementMarker = vi.fn()
 
 const mockPerson: Person = {
   id: '1',
-  name: 'Тест Персона',
+  name: 'Тест Личность',
   birthYear: 1850,
   deathYear: 1920,
   category: 'Правители',
@@ -64,7 +64,7 @@ describe('PersonLifeBar', () => {
     render(<PersonLifeBar {...defaultProps} />)
     
     const lifeBar = document.querySelector('#life-bar-1')
-    expect(lifeBar).toHaveTextContent('Тест Персона')
+    expect(lifeBar).toHaveTextContent('Тест Личность')
   })
 
   it('should have correct accessibility attributes', () => {
@@ -73,7 +73,7 @@ describe('PersonLifeBar', () => {
     const lifeBar = document.querySelector('#life-bar-1')
     expect(lifeBar).toHaveAttribute('role', 'button')
     expect(lifeBar).toHaveAttribute('tabIndex', '0')
-    expect(lifeBar).toHaveAttribute('aria-label', 'Тест Персона, 1850 - 1920, Правители')
+    expect(lifeBar).toHaveAttribute('aria-label', 'Тест Личность, 1850 - 1920, Правители')
   })
 
   it('should call position and width calculation functions', () => {
@@ -139,7 +139,7 @@ describe('PersonLifeBar', () => {
   })
 
   it('should handle keyboard events', () => {
-    // На desktop keyboard события должны показывать tooltip, а не выбирать персону
+    // На desktop keyboard события должны показывать tooltip, а не выбирать личность
     render(<PersonLifeBar {...defaultProps} isMobile={false} />)
     
     const lifeBar = document.querySelector('#life-bar-1')

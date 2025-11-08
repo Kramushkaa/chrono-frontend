@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { getDtoVersion } from 'shared/api/api'
+import { getDtoVersion } from 'shared/api/meta'
 
 export function useDtoVersionWarning(expectedVersion: string) {
   useEffect(() => {

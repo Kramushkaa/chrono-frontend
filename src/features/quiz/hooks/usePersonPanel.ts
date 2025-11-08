@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { getPersonById } from 'shared/api/api';
+import { getPersonById } from 'shared/api/persons';
 import type { Person } from 'shared/types';
 import type { QuizPerson } from '../types';
 

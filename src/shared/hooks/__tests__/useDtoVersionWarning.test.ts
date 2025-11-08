@@ -1,8 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { useDtoVersionWarning } from '../useDtoVersionWarning'
-import * as api from 'shared/api/api'
+import * as api from 'shared/api/meta'
 
-vi.mock('shared/api/api', () => ({
+vi.mock('shared/api/meta', () => ({
   getDtoVersion: vi.fn(),
 }))
 

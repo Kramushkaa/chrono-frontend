@@ -7,7 +7,7 @@ const mockGetAdjustedPosition = vi.fn((year: number) => year * 10)
 
 const mockPerson: Person = {
   id: '1',
-  name: 'Тест Персона',
+  name: 'Тест Личность',
   birthYear: 1850,
   deathYear: 1920,
   reignStart: 1880,

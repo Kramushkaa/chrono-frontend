@@ -4,7 +4,8 @@ import { AchievementsMatchQuestion } from '../components/QuestionTypes/Achieveme
 import { BirthOrderQuestion } from '../components/QuestionTypes/BirthOrderQuestion';
 import { ContemporariesQuestion } from '../components/QuestionTypes/ContemporariesQuestion';
 import { GuessPersonQuestion } from '../components/QuestionTypes/GuessPersonQuestion';
-import type { QuizQuestion, QuizPerson } from '../types';
+import type { QuizQuestion, QuizPerson, QuizAnswer } from '../types';
+import type { QuizQuestionWithoutAnswer } from 'shared/dto/quiz-types';
 import type {
   SingleChoiceQuestionData,
   AchievementsMatchQuestionData,
@@ -14,10 +15,10 @@ import type {
 } from '../types';
 
 interface RenderQuestionProps {
-  question: QuizQuestion | { type: string; data: any };
+  question: QuizQuestion | QuizQuestionWithoutAnswer;
   onAnswer: (answer: any) => void;
   showFeedback?: boolean;
-  userAnswer?: any;
+  userAnswer?: QuizAnswer | null;
   onNext?: () => void;
   isLastQuestion?: boolean;
   onPersonInfoClick?: (person: QuizPerson) => void;
@@ -107,7 +108,7 @@ export const renderQuestionByType = ({
       );
 
     default:
-      return <div>Неподдерживаемый тип вопроса: {question.type}</div>;
+      return <div>Неподдерживаемый тип вопроса</div>;
   }
 };
 

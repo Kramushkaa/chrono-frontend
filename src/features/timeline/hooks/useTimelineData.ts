@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Person } from 'shared/types'
 import { useEntityQuery } from 'shared/hooks/useEntityQuery'
-import { getCategories, getCountries } from 'shared/api/api'
+import { getCategories, getCountries } from 'shared/api/meta'
 
 interface Filters {
   categories: string[]

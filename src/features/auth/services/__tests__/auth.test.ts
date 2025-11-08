@@ -10,11 +10,11 @@ const localStorageMock = {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock apiFetch
-vi.mock('shared/api/api', () => ({
+vi.mock('shared/api/core', () => ({
   apiFetch: vi.fn(),
 }));
 
-import { apiFetch } from 'shared/api/api';
+import { apiFetch } from 'shared/api/core';
 const mockApiFetch = apiFetch as vi.MockedFunction<typeof apiFetch>;
 
 describe('Auth Service', () => {

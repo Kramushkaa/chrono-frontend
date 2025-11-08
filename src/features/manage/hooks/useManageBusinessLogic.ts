@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { Person, MixedListItem } from 'shared/types'
 import { AuthUser } from 'features/auth/services/auth'
-import { getCategories, getCountries, getCountryOptions, getPersonById, getMyPersonsCount, getMyAchievementsCount, getMyPeriodsCount, CountryOption, apiData } from 'shared/api/api'
+import { getCategories, getCountries, getCountryOptions, type CountryOption } from 'shared/api/meta'
+import { getPersonById, getMyPersonsCount } from 'shared/api/persons'
+import { getMyAchievementsCount } from 'shared/api/achievements'
+import { getMyPeriodsCount } from 'shared/api/periods'
+import { apiData } from 'shared/api/core'
 import type { LifePeriod } from './useManageState'
 
 // Shared list type (from useLists)

@@ -1,7 +1,7 @@
 import React from 'react'
 import { UnifiedManageSection } from './UnifiedManageSection'
 import type { MenuSelection } from '../hooks/useManageState'
-import type { Achievement, FiltersState, SetFilters, MixedListItem, UserList } from 'shared/types'
+import type { Achievement, FiltersState, SetFilters, MixedListItem, UserList, ListModerationStatus } from 'shared/types'
 import type { AchievementTile } from 'shared/hooks/useAchievements'
 
 // Shared types
@@ -125,7 +125,7 @@ export function AchievementsTab({
                   title: `🔒 ${sharedList.title}`,
                   created_at: '',
                   updated_at: '',
-                  moderation_status: 'published',
+                  moderation_status: 'published' as ListModerationStatus,
                   public_description: '',
                   moderation_requested_at: null,
                   published_at: null,
@@ -138,7 +138,7 @@ export function AchievementsTab({
                   achievements_count: sharedList.achievements_count ?? sharedList.items_count ?? 0,
                   periods_count: sharedList.periods_count ?? 0,
                   readonly: true,
-                },
+                } as UserList & { readonly: true },
               ]
             : []),
           ...(isAuthenticated ? personLists : []),

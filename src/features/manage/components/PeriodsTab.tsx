@@ -1,7 +1,7 @@
 import React from 'react'
 import { UnifiedManageSection } from './UnifiedManageSection'
 import type { MenuSelection } from '../hooks/useManageState'
-import type { FiltersState, SetFilters, MixedListItem, Period, UserList } from 'shared/types'
+import type { FiltersState, SetFilters, MixedListItem, Period, UserList, ListModerationStatus } from 'shared/types'
 import type { PeriodTile } from 'shared/hooks/usePeriods'
 
 // PeriodItem from useManagePageData
@@ -148,7 +148,7 @@ export function PeriodsTab({
                   title: `🔒 ${sharedList.title}`,
                   created_at: '',
                   updated_at: '',
-                  moderation_status: 'published',
+                  moderation_status: 'published' as ListModerationStatus,
                   public_description: '',
                   moderation_requested_at: null,
                   published_at: null,
@@ -161,7 +161,7 @@ export function PeriodsTab({
                   achievements_count: sharedList.achievements_count ?? 0,
                   periods_count: sharedList.periods_count ?? sharedList.items_count ?? 0,
                   readonly: true,
-                },
+                } as UserList & { readonly: true },
               ]
             : []),
           ...(isAuthenticated ? personLists : []),

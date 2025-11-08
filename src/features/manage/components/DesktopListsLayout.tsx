@@ -1,5 +1,5 @@
 import React from 'react'
-import { apiFetch, apiData } from 'shared/api/api'
+import { apiFetch, apiData } from 'shared/api/core'
 import { LeftMenuSelection } from './LeftMenu'
 import { LeftMenuLayout } from './LeftMenuLayout'
 import type { MenuSelection } from '../hooks/useManageState'

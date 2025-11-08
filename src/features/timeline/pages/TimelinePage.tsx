@@ -13,7 +13,7 @@ import { useCategoryDividers } from 'features/timeline/hooks/useCategoryDividers
 import { getGroupColor, getGroupColorDark, getGroupColorMuted, getPersonGroup, sortGroupedData } from 'features/persons/utils/groupingUtils'
 import { useListSelection } from 'features/timeline/hooks/useListSelection'
 import { useLists } from 'features/manage/hooks/useLists'
-import { apiData } from 'shared/api/api'
+import { apiData } from 'shared/api/core'
 import { TimelineHeader } from 'shared/layout/headers/TimelineHeader'
 import { SEO } from 'shared/ui/SEO'
 import { TimelineRowSkeleton } from 'shared/ui/skeletons'

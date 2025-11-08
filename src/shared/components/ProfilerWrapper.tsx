@@ -17,20 +17,13 @@ interface ProfilerWrapperProps {
  * </ProfilerWrapper>
  */
 export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrapperProps) {
-  const onRender: ProfilerOnRenderCallback = (
-    profilerId,
-    phase,
-    actualDuration,
-    baseDuration,
-    startTime,
-    commitTime,
-    interactions
-  ) => {
+  const onRender = ((...args: Parameters<ProfilerOnRenderCallback>) => {
+    const [profilerId, phase, actualDuration, baseDuration, startTime, commitTime] = args
     if (import.meta.env.MODE !== 'production' && enabled) {
       // Log performance mark
       logPerformanceMark({
         component: profilerId,
-        phase: phase as 'mount' | 'update' | 'nested-update',
+        phase: (phase as any) as 'mount' | 'update' | 'nested-update',
         duration: actualDuration,
         timestamp: commitTime,
       })
@@ -44,13 +37,9 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
         )
       }
 
-      // Log interactions if present (interactions может быть undefined в некоторых средах)
-      if (interactions && interactions.size > 0 && import.meta.env.MODE !== 'production') {
-        // eslint-disable-next-line no-console
-        console.log(`[Profiler] ${profilerId} rendered with ${interactions.size} interaction(s)`)
-      }
+      // Interactions not available in current React types
     }
-  }
+  }) as ProfilerOnRenderCallback
 
   // In production, just render children without profiling
   if (import.meta.env.MODE === 'production' || !enabled) {

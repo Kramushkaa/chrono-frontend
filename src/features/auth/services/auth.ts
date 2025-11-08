@@ -1,4 +1,4 @@
-import { apiFetch } from 'shared/api/api';
+import { apiFetch } from 'shared/api/core';
 
 export interface AuthUser {
   id: number;

@@ -17,7 +17,7 @@ const mockHoverTimerRef = { current: null }
 
 const mockPerson: Person = {
   id: '1',
-  name: 'Тест Персона',
+  name: 'Тест Личность',
   birthYear: 1850,
   deathYear: 1920,
   category: 'Правители',

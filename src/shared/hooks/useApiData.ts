@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
-import { apiFetch } from 'shared/api/api'
+import { apiFetch } from 'shared/api/core'
 
 // Конфигурация кэширования
 const CACHE_TTL_MS = 300000 // 5 минут

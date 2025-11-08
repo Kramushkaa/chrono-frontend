@@ -8,7 +8,6 @@ import type { MenuSelection } from '../hooks/useManageState';
 import type { AchievementTile } from 'shared/hooks/useAchievements';
 import type { PeriodTile } from 'shared/hooks/usePeriods';
 
-type ListItem = { id: number; title: string; items_count?: number; readonly?: boolean };
 
 // Period item type from useManagePageData
 interface PeriodItem {
@@ -35,7 +34,7 @@ interface UnifiedManageSectionProps {
   isModerator: boolean;
   pendingCount: number | null;
   mineCount: number | null;
-  personLists: ListItem[];
+  personLists: Array<UserList & { readonly?: boolean }>;
   isAuthenticated: boolean;
   setShowAuthModal: (b: boolean) => void;
   setShowCreateList: (b: boolean) => void;

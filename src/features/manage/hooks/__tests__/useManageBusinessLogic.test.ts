@@ -1,27 +1,39 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { useManageBusinessLogic } from '../useManageBusinessLogic'
-import * as api from 'shared/api/api'
+import * as meta from 'shared/api/meta'
+import * as persons from 'shared/api/persons'
+import * as achievements from 'shared/api/achievements'
+import * as periods from 'shared/api/periods'
+import * as core from 'shared/api/core'
 
 // Mock API
-vi.mock('shared/api/api', () => ({
+vi.mock('shared/api/meta', () => ({
   getCategories: vi.fn(),
   getCountries: vi.fn(),
   getCountryOptions: vi.fn(),
+}))
+vi.mock('shared/api/persons', () => ({
   getPersonById: vi.fn(),
   getMyPersonsCount: vi.fn(),
+}))
+vi.mock('shared/api/achievements', () => ({
   getMyAchievementsCount: vi.fn(),
+}))
+vi.mock('shared/api/periods', () => ({
   getMyPeriodsCount: vi.fn(),
+}))
+vi.mock('shared/api/core', () => ({
   apiData: vi.fn(),
 }))
 
-const mockGetCategories = api.getCategories as vi.MockedFunction<typeof api.getCategories>
-const mockGetCountries = api.getCountries as vi.MockedFunction<typeof api.getCountries>
-const mockGetCountryOptions = api.getCountryOptions as vi.MockedFunction<typeof api.getCountryOptions>
-const mockGetPersonById = api.getPersonById as vi.MockedFunction<typeof api.getPersonById>
-const mockGetMyPersonsCount = api.getMyPersonsCount as vi.MockedFunction<typeof api.getMyPersonsCount>
-const mockGetMyAchievementsCount = api.getMyAchievementsCount as vi.MockedFunction<typeof api.getMyAchievementsCount>
-const mockGetMyPeriodsCount = api.getMyPeriodsCount as vi.MockedFunction<typeof api.getMyPeriodsCount>
-const mockApiData = api.apiData as vi.MockedFunction<typeof api.apiData>
+const mockGetCategories = meta.getCategories as vi.MockedFunction<typeof meta.getCategories>
+const mockGetCountries = meta.getCountries as vi.MockedFunction<typeof meta.getCountries>
+const mockGetCountryOptions = meta.getCountryOptions as vi.MockedFunction<typeof meta.getCountryOptions>
+const mockGetPersonById = persons.getPersonById as vi.MockedFunction<typeof persons.getPersonById>
+const mockGetMyPersonsCount = persons.getMyPersonsCount as vi.MockedFunction<typeof persons.getMyPersonsCount>
+const mockGetMyAchievementsCount = achievements.getMyAchievementsCount as vi.MockedFunction<typeof achievements.getMyAchievementsCount>
+const mockGetMyPeriodsCount = periods.getMyPeriodsCount as vi.MockedFunction<typeof periods.getMyPeriodsCount>
+const mockApiData = core.apiData as vi.MockedFunction<typeof core.apiData>
 
 describe('useManageBusinessLogic', () => {
   const createMockParams = (overrides = {}) => ({

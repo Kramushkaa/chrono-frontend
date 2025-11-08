@@ -7,13 +7,13 @@ import type { QuizQuestion, QuizPerson } from '../types';
 export const renderMatchingTable = (
   questionId: string,
   question: QuizQuestion | undefined,
-  userAnswer: any,
+  userAnswer: string[] | string | string[][],
   onPersonInfoClick?: (person: QuizPerson) => void
 ) => {
   if (!question || question.type !== 'achievementsMatch') return null;
 
-  const data = question.data as any;
-  const userAnswerArray = userAnswer as string[];
+  const data = question.data as { persons: Array<{ id: string; name: string }> };
+  const userAnswerArray = (Array.isArray(userAnswer) ? userAnswer : []) as string[];
   const correctAnswerArray = question.correctAnswer as string[];
   
   return (
@@ -27,7 +27,7 @@ export const renderMatchingTable = (
           </tr>
         </thead>
         <tbody>
-          {data.persons.map((person: any, index: number) => {
+          {data.persons.map((person, index: number) => {
             const userAns = userAnswerArray[index] || '—';
             const correctAns = correctAnswerArray[index] || '—';
             const isCorrect = userAns === correctAns;
@@ -64,17 +64,17 @@ export const renderMatchingTable = (
 export const renderBirthOrderList = (
   questionId: string,
   question: QuizQuestion | undefined,
-  userAnswer: any,
+  userAnswer: string[] | string | string[][],
   onPersonInfoClick?: (person: QuizPerson) => void
 ) => {
   if (!question || question.type !== 'birthOrder') return null;
 
-  const data = question.data as any;
-  const userOrder = userAnswer as string[];
+  const data = question.data as { persons: Array<{ id: string; name: string; birthYear?: number }> };
+  const userOrder = (Array.isArray(userAnswer) ? userAnswer : []) as string[];
   const correctOrder = question.correctAnswer as string[];
   
   const getPersonById = (personId: string) => {
-    return data.persons.find((p: any) => p.id === personId);
+    return data.persons.find((p) => p.id === personId);
   };
 
   const renderPersonItem = (personId: string) => {
@@ -134,17 +134,17 @@ export const renderBirthOrderList = (
 export const renderContemporariesGroups = (
   questionId: string,
   question: QuizQuestion | undefined,
-  userAnswer: any,
+  userAnswer: string[][] | string[] | string,
   onPersonInfoClick?: (person: QuizPerson) => void
 ) => {
   if (!question || question.type !== 'contemporaries') return null;
 
-  const data = question.data as any;
-  const userGroups = userAnswer as string[][];
+  const data = question.data as { persons: Array<{ id: string; name: string; birthYear?: number; deathYear?: number }> };
+  const userGroups = (Array.isArray(userAnswer) ? (userAnswer as string[][]) : []) as string[][];
   const correctGroups = question.correctAnswer as string[][];
   
   const getPersonById = (personId: string) => {
-    return data.persons.find((p: any) => p.id === personId);
+    return data.persons.find((p) => p.id === personId);
   };
 
   const renderPersonItem = (personId: string) => {
@@ -206,17 +206,17 @@ export const renderContemporariesGroups = (
 export const renderGuessPersonDetails = (
   questionId: string,
   question: QuizQuestion | undefined,
-  userAnswer: any,
+  userAnswer: string | string[] | string[][],
   onPersonInfoClick?: (person: QuizPerson) => void
 ) => {
   if (!question || question.type !== 'guessPerson') return null;
 
-  const data = question.data as any;
+  const data = question.data as { persons: Array<{ id: string; name: string }>; years?: string; country?: string; category?: string; description?: string };
   const correctPersonId = question.correctAnswer as string;
-  const userPersonId = userAnswer as string;
+  const userPersonId = (typeof userAnswer === 'string' ? userAnswer : '') as string;
   
-  const correctPerson = data.persons?.find((p: any) => p.id === correctPersonId);
-  const userPerson = data.persons?.find((p: any) => p.id === userPersonId);
+  const correctPerson = data.persons?.find((p) => p.id === correctPersonId);
+  const userPerson = data.persons?.find((p) => p.id === userPersonId);
   
   return (
     <div className="quiz-guess-person-details">
@@ -278,17 +278,17 @@ export const renderGuessPersonDetails = (
 /**
  * Format answer value as string
  */
-export const formatAnswer = (answer: any): string => {
+export const formatAnswer = (answer: string | string[] | string[][]): string => {
   if (Array.isArray(answer)) {
     if (answer.length === 0) return 'Не дан ответ';
     
     if (Array.isArray(answer[0])) {
-      return answer.map((group: string[], idx: number) => 
+      return (answer as string[][]).map((group: string[], idx: number) => 
         `Группа ${idx + 1}: ${group.join(', ')}`
       ).join(' | ');
     }
     
-    return answer.join(', ');
+    return (answer as string[]).join(', ');
   }
   return String(answer || 'Не дан ответ');
 };

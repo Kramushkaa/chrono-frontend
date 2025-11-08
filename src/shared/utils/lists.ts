@@ -1,4 +1,5 @@
-import { apiFetch, createListShareCode } from 'shared/api/api'
+import { apiFetch } from 'shared/api/core'
+import { createListShareCode } from 'shared/api/lists'
 
 export async function deleteListItem(selectedListId: number, listItemId: number): Promise<boolean> {
 	try {

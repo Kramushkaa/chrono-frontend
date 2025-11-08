@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from 'shared/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, updateProfile, changePassword } from 'features/auth/services/auth';
-import { apiFetch } from 'shared/api/api';
+import { apiFetch } from 'shared/api/core';
 import { useToast } from 'shared/context/ToastContext';
 import styles from './Profile.module.css';
 

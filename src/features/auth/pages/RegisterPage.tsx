@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { Breadcrumbs } from 'shared/ui/Breadcrumbs';
 import { useFilters } from '../../../shared/hooks/useFilters';
-import { getCategories, getCountries } from 'shared/api/api';
+import { getCategories, getCountries } from 'shared/api/meta';
 import { getGroupColor } from 'features/persons/utils/groupingUtils';
 import { SEO } from 'shared/ui/SEO';
 

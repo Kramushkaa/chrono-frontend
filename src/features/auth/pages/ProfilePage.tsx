@@ -1,14 +1,14 @@
 import React, { useEffect, useEffect as ReactEffect, useState, useRef } from 'react';
 import { useAuth } from 'shared/context/AuthContext';
 import { Profile } from '../components/Profile';
-import { apiFetch } from 'shared/api/api';
+import { apiFetch } from 'shared/api/core';
 import { useToast } from 'shared/context/ToastContext';
 import { LoginForm } from 'features/auth/components/LoginForm';
 import { RegisterForm } from 'features/auth/components/RegisterForm';
 import { useFilters } from '../../../shared/hooks/useFilters';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { Breadcrumbs } from 'shared/ui/Breadcrumbs';
-import { getCategories, getCountries } from 'shared/api/api';
+import { getCategories, getCountries } from 'shared/api/meta';
 import { getGroupColor } from 'features/persons/utils/groupingUtils';
 import { SEO } from 'shared/ui/SEO';
 

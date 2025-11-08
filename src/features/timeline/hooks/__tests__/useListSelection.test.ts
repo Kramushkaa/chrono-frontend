@@ -2,7 +2,8 @@ import { renderHook, act, waitFor } from '@testing-library/react'
 import { useListSelection } from '../useListSelection'
 import { useLocation } from 'react-router-dom'
 import { useToast } from 'shared/context/ToastContext'
-import { apiData, resolveListShare } from 'shared/api/api'
+import { apiData } from 'shared/api/core'
+import { resolveListShare } from 'shared/api/lists'
 
 // Mock dependencies
 vi.mock('react-router-dom', () => ({
@@ -13,8 +14,10 @@ vi.mock('shared/context/ToastContext', () => ({
   useToast: vi.fn(),
 }))
 
-vi.mock('shared/api/api', () => ({
+vi.mock('shared/api/core', () => ({
   apiData: vi.fn(),
+}))
+vi.mock('shared/api/lists', () => ({
   resolveListShare: vi.fn(),
 }))
 

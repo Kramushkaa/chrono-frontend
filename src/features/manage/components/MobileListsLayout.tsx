@@ -1,5 +1,5 @@
 import React from 'react'
-import { apiFetch, apiData } from 'shared/api/api'
+import { apiFetch, apiData } from 'shared/api/core'
 import { LeftMenuSelection } from './LeftMenu'
 import { MobileListsHeader } from './MobileListsHeader'
 // import { ListItemsView } from 'shared/ui/ListItemsView'
