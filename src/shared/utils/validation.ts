@@ -106,8 +106,12 @@ export function validateLifePeriodsClient(
     return { ok: false, message: 'Исправьте ошибки в периодах', periodErrors }
   }
 
-  return { ok: true, periodErrors: [] }
+  return { ok: true, periodErrors }
 }
+
+
+
+
 
 
 
