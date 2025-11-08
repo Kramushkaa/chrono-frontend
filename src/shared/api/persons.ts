@@ -280,7 +280,7 @@ export async function createPersonDraft(data: {
   description: string
   imageUrl: string | null
   wikiLink: string | null
-  lifePeriods: Array<{ countryId: string; start: number | ''; end: number | '' }>
+  lifePeriods: Array<{ countryId: number; start: number; end: number }>
 }) {
   const res = await apiFetch(`/api/persons/propose`, {
     method: 'POST',

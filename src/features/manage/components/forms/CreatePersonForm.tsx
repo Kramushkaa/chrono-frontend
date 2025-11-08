@@ -3,6 +3,7 @@ import { SearchableSelect } from 'shared/ui/SearchableSelect'
 import { LifePeriodsEditor } from 'features/persons/components/LifePeriodsEditor'
 import { validateLifePeriodsClient } from 'shared/utils/validation'
 import { DraftModerationButtons } from 'shared/ui/DraftModerationButtons'
+import 'shared/styles/FormControls.css'
 
 type CountryOption = { id: number; name: string }
 
@@ -162,15 +163,11 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
   return (
     <form
       aria-labelledby="create-person-title"
-      style={{
-        display: 'grid',
-        gap: 'clamp(8px, 2vw, 12px)',
-        maxWidth: '100%',
-      }}
+      className="formGrid"
     >
       <div>
-        <label htmlFor="person-name" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
-          Имя <span aria-label="обязательное поле">*</span>
+        <label htmlFor="person-name" className="formLabel">
+          Имя <span aria-label="обязательное поле" className="formRequired">*</span>
         </label>
         <input
           id="person-name"
@@ -178,13 +175,9 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
           placeholder="Имя"
           required
           aria-required="true"
+          className="formInput"
           style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: nameError ? '1px solid #d32f2f' : '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
+            border: nameError ? '1px solid #d32f2f' : undefined,
           }}
         />
         {nameError && (
@@ -197,16 +190,10 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
           </div>
         )}
       </div>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 'clamp(8px, 2vw, 12px)',
-        }}
-      >
+      <div className="formRow">
         <div>
-          <label htmlFor="person-birth-year" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
-            Год рождения <span aria-label="обязательное поле">*</span>
+          <label htmlFor="person-birth-year" className="formLabel">
+            Год рождения <span aria-label="обязательное поле" className="formRequired">*</span>
           </label>
           <input
             id="person-birth-year"
@@ -217,13 +204,9 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
             aria-required="true"
             value={birthYear}
             onChange={(e) => setBirthYear(e.target.value === '' ? '' : Number(e.target.value))}
+            className="formInput"
             style={{
-              padding: '12px',
-              fontSize: '16px',
-              borderRadius: '8px',
-              border: birthYearError ? '1px solid #d32f2f' : '1px solid #ccc',
-              width: '100%',
-              boxSizing: 'border-box',
+              border: birthYearError ? '1px solid #d32f2f' : undefined,
             }}
           />
           {birthYearError && (
@@ -237,8 +220,8 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
           )}
         </div>
         <div>
-          <label htmlFor="person-death-year" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
-            Год смерти <span aria-label="обязательное поле">*</span>
+          <label htmlFor="person-death-year" className="formLabel">
+            Год смерти <span aria-label="обязательное поле" className="formRequired">*</span>
           </label>
           <input
             id="person-death-year"
@@ -249,13 +232,9 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
             aria-required="true"
             value={deathYear}
             onChange={(e) => setDeathYear(e.target.value === '' ? '' : Number(e.target.value))}
+            className="formInput"
             style={{
-              padding: '12px',
-              fontSize: '16px',
-              borderRadius: '8px',
-              border: deathYearError ? '1px solid #d32f2f' : '1px solid #ccc',
-              width: '100%',
-              boxSizing: 'border-box',
+              border: deathYearError ? '1px solid #d32f2f' : undefined,
             }}
           />
           {deathYearError && (
@@ -271,8 +250,8 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
       </div>
 
       <div>
-        <label style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
-          Род деятельности <span aria-label="обязательное поле">*</span>
+        <label className="formLabel">
+          Род деятельности <span aria-label="обязательное поле" className="formRequired">*</span>
         </label>
         <SearchableSelect
           placeholder="Выбрать род деятельности"
@@ -330,7 +309,7 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
       </div>
 
       <div>
-        <label htmlFor="person-image-url" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+        <label htmlFor="person-image-url" className="formLabel">
           URL изображения (необязательно)
         </label>
         <input
@@ -339,14 +318,7 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
           type="url"
           placeholder="https://example.com/image.jpg"
           aria-describedby="image-url-hint"
-          style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
+          className="formInput"
         />
         <span id="image-url-hint" style={{ fontSize: 11, opacity: 0.7, display: 'block', marginTop: 2 }}>
           Ссылка на изображение личности
@@ -354,7 +326,7 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
       </div>
 
       <div>
-        <label htmlFor="person-wiki-link" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+        <label htmlFor="person-wiki-link" className="formLabel">
           Ссылка на Википедию (необязательно)
         </label>
         <input
@@ -363,14 +335,7 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
           type="url"
           placeholder="https://ru.wikipedia.org/wiki/..."
           aria-describedby="wiki-link-hint"
-          style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
+          className="formInput"
         />
         <span id="wiki-link-hint" style={{ fontSize: 11, opacity: 0.7, display: 'block', marginTop: 2 }}>
           Ссылка на статью в Википедии
@@ -378,7 +343,7 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
       </div>
 
       <div>
-        <label htmlFor="person-description" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+        <label htmlFor="person-description" className="formLabel">
           Описание
         </label>
         <textarea
@@ -387,16 +352,7 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
           placeholder="Краткое описание личности и её вклада"
           rows={6}
           aria-describedby="description-hint"
-          style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
-            resize: 'vertical',
-            minHeight: '120px',
-          }}
+          className="formTextarea"
         />
         <span id="description-hint" style={{ fontSize: 11, opacity: 0.7, display: 'block', marginTop: 2 }}>
           Опишите основные достижения и вклад личности

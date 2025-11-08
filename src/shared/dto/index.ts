@@ -1,7 +1,10 @@
 // Manually duplicated DTO types/descriptors (keep in sync with backend)
-
-export const DTO_VERSION = '2025-11-08-1'
-
+export const DTO_VERSION = '2025-11-08-2'
+export type PersonLifePeriodInputDTO = {
+  countryId: number
+  start: number
+  end: number
+}
 export type UpsertPersonDTO = {
   id: string
   name: string
@@ -12,8 +15,8 @@ export type UpsertPersonDTO = {
   imageUrl?: string | null
   wikiLink?: string | null
   saveAsDraft?: boolean
+  lifePeriods?: PersonLifePeriodInputDTO[]
 }
-
 export type LifePeriodItemDTO = {
   country_id: number
   start_year: number
@@ -21,7 +24,6 @@ export type LifePeriodItemDTO = {
   period_type?: string
 }
 export type LifePeriodsDTO = { periods: LifePeriodItemDTO[] }
-
 export type PersonEditPayloadDTO = Partial<{
   name: string
   birthYear: number
@@ -31,7 +33,6 @@ export type PersonEditPayloadDTO = Partial<{
   imageUrl: string | null
   wikiLink: string | null
 }>
-
 export type AchievementGenericDTO = {
   year: number
   description: string
@@ -39,7 +40,6 @@ export type AchievementGenericDTO = {
   image_url?: string | null
   country_id?: number | null
 }
-
 export type AchievementPersonDTO = {
   year: number
   description: string
@@ -47,11 +47,13 @@ export type AchievementPersonDTO = {
   image_url?: string | null
   saveAsDraft?: boolean
 }
-
 // Lightweight descriptor to detect drift via runtime check (optional)
 export const dtoDescriptors = {
   UpsertPerson: {
-    id: 'string', name: 'string', birthYear: 'int', deathYear: 'int', category: 'string', description: 'string', imageUrl: 'url|null?', wikiLink: 'url|null?', saveAsDraft: 'boolean?'
+    id: 'string', name: 'string', birthYear: 'int', deathYear: 'int', category: 'string', description: 'string', imageUrl: 'url|null?', wikiLink: 'url|null?', saveAsDraft: 'boolean?', lifePeriods: 'PersonLifePeriodInput[]?'
+  },
+  PersonLifePeriodInput: {
+    countryId: 'int+', start: 'int', end: 'int'
   },
   LifePeriodItem: {
     country_id: 'int+', start_year: 'int', end_year: 'int', period_type: 'string?'
@@ -73,25 +75,19 @@ export const dtoDescriptors = {
     action: "enum('approve'|'reject')", comment: 'string?', slug: 'string?'
   }
 } as const
-
-
 // --- Lightweight runtime validation (dev only) ---
 type DescriptorName = keyof typeof dtoDescriptors
-
 function isInt(n: unknown): boolean {
   return typeof n === 'number' && Number.isInteger(n)
 }
-
 function isString(x: unknown): boolean {
   return typeof x === 'string'
 }
-
 function isUrlOrNull(x: unknown): boolean {
   if (x == null) return true
   if (typeof x !== 'string') return false
   try { new URL(x); return true } catch { return false }
 }
-
 function checkPrimitive(type: string, value: unknown): boolean {
   switch (type) {
     case 'int': return isInt(value)
@@ -101,25 +97,23 @@ function checkPrimitive(type: string, value: unknown): boolean {
     default: return true
   }
 }
-
 function checkBySpec(spec: string, value: unknown): boolean {
-  // spec examples: 'int', 'string?', 'url|null?', 'int+', 'LifePeriodItem[]'
-  if (spec.endsWith('[]')) {
-    const itemSpec = spec.slice(0, -2)
-    if (!Array.isArray(value)) return false
-    return value.every(v => checkBySpec(itemSpec, v))
-  }
+  // spec examples: 'int', 'string?', 'url|null?', 'int+', 'LifePeriodItem[]', 'PersonLifePeriodInput[]?'
   const optional = spec.endsWith('?')
   const required = spec.endsWith('+')
   let base = spec
   if (optional || required) base = spec.slice(0, -1)
-  if (optional && (value === undefined)) return true
+  if (optional && value === undefined) return true
   if (required && (value === undefined || value === null)) return false
-
+  if (base.endsWith('[]')) {
+    if (value === undefined) return !required
+    if (!Array.isArray(value)) return false
+    const itemSpec = base.slice(0, -2)
+    return value.every(v => checkBySpec(itemSpec, v))
+  }
   if ((base === 'url|null') || (base === 'url')) {
     return base === 'url' ? isUrlOrNull(value) && value != null : isUrlOrNull(value)
   }
-
   if (base.startsWith("enum(") && base.endsWith(")")) {
     if (typeof value !== 'string') return false
     const options = base
@@ -129,15 +123,12 @@ function checkBySpec(spec: string, value: unknown): boolean {
       .filter(Boolean)
     return options.includes(value)
   }
-
   // nested descriptor
   if (base in dtoDescriptors) {
     return validateDto(base as DescriptorName, value).ok
   }
-
   return checkPrimitive(base, value)
 }
-
 export function validateDto(name: DescriptorName, obj: unknown): { ok: boolean; errors: string[] } {
   const desc = dtoDescriptors[name] as Record<string, string>
   if (!desc || typeof obj !== 'object' || obj === null) {
@@ -152,19 +143,11 @@ export function validateDto(name: DescriptorName, obj: unknown): { ok: boolean; 
   }
   return { ok: errors.length === 0, errors }
 }
-
-
-
-
-
-
 export type ListPublicationRequestDTO = {
   description?: string
 }
-
 export type ListModerationActionDTO = {
   action: 'approve' | 'reject'
   comment?: string
   slug?: string
 }
-

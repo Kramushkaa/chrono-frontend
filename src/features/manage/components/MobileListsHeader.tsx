@@ -1,4 +1,3 @@
-import React from 'react'
 import { LeftMenuSelection } from './LeftMenu'
 import type { UserList, ListModerationStatus } from 'shared/types'
 import { MobileListSelector } from './MobileListSelector'

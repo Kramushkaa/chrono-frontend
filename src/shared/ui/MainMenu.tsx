@@ -1,4 +1,3 @@
-import React from 'react'
 import '../styles/MainMenu.css'
 import { UserMenu } from 'shared/ui/UserMenu'
 import { BrandTitle } from 'shared/ui/BrandTitle'

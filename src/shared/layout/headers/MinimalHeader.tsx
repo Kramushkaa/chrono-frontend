@@ -1,4 +1,3 @@
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BrandTitle } from 'shared/ui/BrandTitle'
 import { UserMenu } from 'shared/ui/UserMenu'

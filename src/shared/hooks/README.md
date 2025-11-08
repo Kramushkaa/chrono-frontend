@@ -1,6 +1,6 @@
 # Shared Hooks Documentation
 
-Коллекция переиспользуемых React hooks для Chronoline приложения.
+Коллекция переиспользуемых React hooks для Chrononinja приложения.
 
 ## Data Fetching Hooks
 

@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { SearchableSelect, SelectOption } from 'shared/ui/SearchableSelect'
+import { DraftModerationButtons } from 'shared/ui/DraftModerationButtons'
+import 'shared/styles/FormControls.css'
 
 type CountryOption = { id: number; name: string }
 
@@ -75,11 +77,7 @@ export function CreateAchievementForm({
     <form
       onSubmit={handleFormSubmit}
       aria-labelledby="create-achievement-title"
-      style={{
-        display: 'grid',
-        gap: 'clamp(8px, 2vw, 12px)',
-        maxWidth: '100%',
-      }}
+      className="formGrid"
     >
       <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <input
@@ -153,8 +151,8 @@ export function CreateAchievementForm({
       </div>
 
       <div>
-        <label htmlFor="achievement-year" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
-          Год <span aria-label="обязательное поле">*</span>
+        <label htmlFor="achievement-year" className="formLabel">
+          Год <span aria-label="обязательное поле" className="formRequired">*</span>
         </label>
         <input
           id="achievement-year"
@@ -163,20 +161,13 @@ export function CreateAchievementForm({
           placeholder="Год"
           required
           aria-required="true"
-          style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
+          className="formInput"
         />
       </div>
 
       <div>
-        <label htmlFor="achievement-description" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
-          Описание <span aria-label="обязательное поле">*</span>
+        <label htmlFor="achievement-description" className="formLabel">
+          Описание <span aria-label="обязательное поле" className="formRequired">*</span>
         </label>
         <textarea
           id="achievement-description"
@@ -185,21 +176,12 @@ export function CreateAchievementForm({
           rows={4}
           required
           aria-required="true"
-          style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
-            resize: 'vertical',
-            minHeight: '100px',
-          }}
+          className="formTextarea"
         />
       </div>
 
       <div>
-        <label htmlFor="achievement-wiki" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+        <label htmlFor="achievement-wiki" className="formLabel">
           Ссылка на Википедию (необязательно)
         </label>
         <input
@@ -207,19 +189,12 @@ export function CreateAchievementForm({
           name="wikipedia_url"
           type="url"
           placeholder="https://ru.wikipedia.org/wiki/..."
-          style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
+          className="formInput"
         />
       </div>
 
       <div>
-        <label htmlFor="achievement-image" style={{ display: 'block', marginBottom: 4, fontSize: 12, opacity: 0.9 }}>
+        <label htmlFor="achievement-image" className="formLabel">
           URL изображения (необязательно)
         </label>
         <input
@@ -227,63 +202,16 @@ export function CreateAchievementForm({
           name="image_url"
           type="url"
           placeholder="https://example.com/image.jpg"
-          style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
+          className="formInput"
         />
       </div>
 
-      <div
-        className="modal-button-group"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 'clamp(8px, 2vw, 12px)',
-        }}
-      >
-        <button
-          type="button"
-          className="modal-button"
-          onClick={() => handleSubmit(true)}
-          style={{
-            padding: 'clamp(12px, 3vw, 16px)',
-            background: '#6c757d',
-            border: '1px solid #6c757d',
-            borderRadius: '8px',
-            color: 'white',
-            cursor: 'pointer',
-            fontSize: 'clamp(14px, 3.5vw, 16px)',
-            fontWeight: '500',
-          }}
-        >
-          Сохранить как черновик
-        </button>
-        <button
-          type="submit"
-          className="modal-button"
-          style={{
-            padding: 'clamp(12px, 3vw, 16px)',
-            background: '#4CAF50',
-            border: '1px solid #4CAF50',
-            borderRadius: '8px',
-            color: 'white',
-            cursor: 'pointer',
-            fontSize: 'clamp(14px, 3.5vw, 16px)',
-            fontWeight: '500',
-          }}
-        >
-          Отправить на модерацию
-        </button>
-      </div>
-
-      <div style={{ fontSize: 12, opacity: 0.8, textAlign: 'center' }}>
-        Черновик можно будет редактировать и отправить на модерацию позже
-      </div>
+      <DraftModerationButtons
+        mode="create"
+        onSaveDraft={() => handleSubmit(true)}
+        onSubmitModeration={() => handleSubmit(false)}
+        showDescription={true}
+      />
     </form>
   )
 }

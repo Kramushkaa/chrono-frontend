@@ -1,10 +1,9 @@
-import React from 'react'
 
 type ContactFooterProps = {
   fixed?: boolean
 }
 
-export const ContactFooter: React.FC<ContactFooterProps> = ({ fixed = false }) => {
+export const ContactFooter = ({ fixed = false }: ContactFooterProps) => {
   return (
     <footer 
       role="contentinfo"

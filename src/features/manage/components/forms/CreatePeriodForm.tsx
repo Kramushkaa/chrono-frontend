@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { SearchableSelect, SelectOption } from 'shared/ui/SearchableSelect'
+import { DraftModerationButtons } from 'shared/ui/DraftModerationButtons'
+import 'shared/styles/FormControls.css'
 
 type CountryOption = { id: number; name: string }
 
@@ -89,11 +91,7 @@ export function CreatePeriodForm({
     <form
       onSubmit={handleFormSubmit}
       aria-labelledby="create-period-form-title"
-      style={{
-        display: 'grid',
-        gap: 'clamp(8px, 2vw, 12px)',
-        maxWidth: '100%',
-      }}
+      className="formGrid"
     >
       <h2
         id="create-period-form-title"
@@ -125,17 +123,8 @@ export function CreatePeriodForm({
       )}
 
       <div>
-        <label
-          htmlFor="period-name"
-          style={{
-            display: 'block',
-            marginBottom: 'clamp(4px, 1vw, 8px)',
-            fontSize: 'clamp(12px, 3vw, 14px)',
-            opacity: 0.9,
-            fontWeight: '500',
-          }}
-        >
-          Название периода <span aria-label="обязательное поле" style={{ color: '#e74c3c' }}>*</span>
+        <label htmlFor="period-name" className="formLabel">
+          Название периода <span aria-label="обязательное поле" className="formRequired">*</span>
         </label>
         <input
           id="period-name"
@@ -145,14 +134,7 @@ export function CreatePeriodForm({
           aria-required="true"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
+          className="formInput"
         />
       </div>
 
@@ -173,23 +155,9 @@ export function CreatePeriodForm({
         >
           Даты периода <span aria-label="обязательные поля" style={{ color: '#e74c3c' }}>*</span>
         </legend>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 'clamp(8px, 2vw, 12px)',
-          }}
-        >
+        <div className="formRow">
           <div>
-            <label
-              htmlFor="period-start-year"
-              style={{
-                display: 'block',
-                marginBottom: '4px',
-                fontSize: 'clamp(11px, 2.5vw, 13px)',
-                opacity: 0.8,
-              }}
-            >
+            <label htmlFor="period-start-year" className="formLabel">
               Год начала
             </label>
             <input
@@ -201,26 +169,11 @@ export function CreatePeriodForm({
               aria-required="true"
               value={startYear}
               onChange={(e) => setStartYear(e.target.value === '' ? '' : Number(e.target.value))}
-              style={{
-                padding: '12px',
-                fontSize: '16px',
-                borderRadius: '8px',
-                border: '1px solid #ccc',
-                width: '100%',
-                boxSizing: 'border-box',
-              }}
+              className="formInput"
             />
           </div>
           <div>
-            <label
-              htmlFor="period-end-year"
-              style={{
-                display: 'block',
-                marginBottom: '4px',
-                fontSize: 'clamp(11px, 2.5vw, 13px)',
-                opacity: 0.8,
-              }}
-            >
+            <label htmlFor="period-end-year" className="formLabel">
               Год окончания
             </label>
             <input
@@ -232,31 +185,15 @@ export function CreatePeriodForm({
               aria-required="true"
               value={endYear}
               onChange={(e) => setEndYear(e.target.value === '' ? '' : Number(e.target.value))}
-              style={{
-                padding: '12px',
-                fontSize: '16px',
-                borderRadius: '8px',
-                border: '1px solid #ccc',
-                width: '100%',
-                boxSizing: 'border-box',
-              }}
+              className="formInput"
             />
           </div>
         </div>
       </fieldset>
 
       <div>
-        <label
-          htmlFor="period-person"
-          style={{
-            display: 'block',
-            marginBottom: 'clamp(4px, 1vw, 8px)',
-            fontSize: 'clamp(12px, 3vw, 14px)',
-            opacity: 0.9,
-            fontWeight: '500',
-          }}
-        >
-          Личность <span aria-label="обязательное поле" style={{ color: '#e74c3c' }}>*</span>
+        <label htmlFor="period-person" className="formLabel">
+          Личность <span aria-label="обязательное поле" className="formRequired">*</span>
         </label>
         <SearchableSelect
           placeholder="Выбрать личность"
@@ -271,16 +208,7 @@ export function CreatePeriodForm({
       </div>
 
       <div>
-        <label
-          htmlFor="period-type"
-          style={{
-            display: 'block',
-            marginBottom: 'clamp(4px, 1vw, 8px)',
-            fontSize: 'clamp(12px, 3vw, 14px)',
-            opacity: 0.9,
-            fontWeight: '500',
-          }}
-        >
+        <label htmlFor="period-type" className="formLabel">
           Тип периода
         </label>
         <select
@@ -288,14 +216,7 @@ export function CreatePeriodForm({
           value={type}
           onChange={(e) => setType(e.target.value as 'reign' | 'life')}
           aria-label="Выберите тип периода"
-          style={{
-            width: '100%',
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            boxSizing: 'border-box',
-          }}
+          className="formInput"
         >
           <option value="reign">Правление</option>
           <option value="life">Жизнь</option>
@@ -303,16 +224,7 @@ export function CreatePeriodForm({
       </div>
 
       <div>
-        <label
-          htmlFor="period-country"
-          style={{
-            display: 'block',
-            marginBottom: 'clamp(4px, 1vw, 8px)',
-            fontSize: 'clamp(12px, 3vw, 14px)',
-            opacity: 0.9,
-            fontWeight: '500',
-          }}
-        >
+        <label htmlFor="period-country" className="formLabel">
           Страна (необязательно)
         </label>
         <SearchableSelect
@@ -326,17 +238,8 @@ export function CreatePeriodForm({
       </div>
 
       <div>
-        <label
-          htmlFor="period-description"
-          style={{
-            display: 'block',
-            marginBottom: 'clamp(4px, 1vw, 8px)',
-            fontSize: 'clamp(12px, 3vw, 14px)',
-            opacity: 0.9,
-            fontWeight: '500',
-          }}
-        >
-          Описание периода <span aria-label="обязательное поле" style={{ color: '#e74c3c' }}>*</span>
+        <label htmlFor="period-description" className="formLabel">
+          Описание периода <span aria-label="обязательное поле" className="formRequired">*</span>
         </label>
         <textarea
           id="period-description"
@@ -347,71 +250,16 @@ export function CreatePeriodForm({
           aria-required="true"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          style={{
-            padding: '12px',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            width: '100%',
-            boxSizing: 'border-box',
-            resize: 'vertical',
-            minHeight: '100px',
-          }}
+          className="formTextarea"
         />
       </div>
 
-      <div
-        className="modal-button-group"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 'clamp(8px, 2vw, 12px)',
-        }}
-      >
-        <button
-          type="button"
-          className="modal-button"
-          onClick={() => validateAndSubmit(true)}
-          aria-label="Сохранить период как черновик"
-          style={{
-            padding: 'clamp(12px, 3vw, 16px)',
-            background: '#6c757d',
-            border: '1px solid #6c757d',
-            borderRadius: '8px',
-            color: 'white',
-            cursor: 'pointer',
-            fontSize: 'clamp(14px, 3.5vw, 16px)',
-            fontWeight: '500',
-          }}
-        >
-          Сохранить как черновик
-        </button>
-        <button
-          type="submit"
-          className="modal-button"
-          aria-label="Отправить период на модерацию"
-          style={{
-            padding: 'clamp(12px, 3vw, 16px)',
-            background: '#4CAF50',
-            border: '1px solid #4CAF50',
-            borderRadius: '8px',
-            color: 'white',
-            cursor: 'pointer',
-            fontSize: 'clamp(14px, 3.5vw, 16px)',
-            fontWeight: '500',
-          }}
-        >
-          Отправить на модерацию
-        </button>
-      </div>
-
-      <div 
-        style={{ fontSize: 12, opacity: 0.8, textAlign: 'center' }}
-        role="note"
-        aria-label="Информация о черновиках"
-      >
-        Черновик можно будет редактировать и отправить на модерацию позже
-      </div>
+      <DraftModerationButtons
+        mode="create"
+        onSaveDraft={() => validateAndSubmit(true)}
+        onSubmitModeration={() => validateAndSubmit(false)}
+        showDescription={true}
+      />
     </form>
   )
 }

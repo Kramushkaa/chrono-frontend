@@ -17,15 +17,14 @@ interface ProfilerWrapperProps {
  * </ProfilerWrapper>
  */
 export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrapperProps) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onRender = (
-    profilerId: any,
-    phase: any,
-    actualDuration: any,
-    baseDuration: any,
-    startTime: any,
-    commitTime: any,
-    interactions: any
+  const onRender: ProfilerOnRenderCallback = (
+    profilerId,
+    phase,
+    actualDuration,
+    baseDuration,
+    startTime,
+    commitTime,
+    interactions
   ) => {
     if (import.meta.env.MODE !== 'production' && enabled) {
       // Log performance mark
@@ -59,7 +58,7 @@ export function ProfilerWrapper({ id, children, enabled = true }: ProfilerWrappe
   }
 
   return (
-    <Profiler id={id} onRender={onRender as ProfilerOnRenderCallback}>
+    <Profiler id={id} onRender={onRender}>
       {children}
     </Profiler>
   )
