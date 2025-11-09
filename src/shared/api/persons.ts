@@ -1,6 +1,6 @@
 import { apiData, apiFetch, maybePercentDecode } from './core'
 import type { UpsertPersonDTO } from '../dto'
-import { validateDto } from '../dto'
+// import { validateDto } from '../dto' // Removed: not available in frontend (requires zod)
 import type { Person } from '../types'
 import { logger } from '../utils/logger'
 
@@ -185,12 +185,13 @@ export async function getPersonById(id: string): Promise<Person | null> {
 type UpsertPersonPayload = UpsertPersonDTO
 
 export async function adminUpsertPerson(payload: UpsertPersonPayload) {
-  if (import.meta.env.MODE !== 'production') {
-    const v = validateDto('UpsertPerson', payload)
-    if (!v.ok) {
-      logger.warn('DTO validation failed (UpsertPerson)', { errors: v.errors, payload })
-    }
-  }
+  // Client-side validation removed (backend validates)
+  // if (import.meta.env.MODE !== 'production') {
+  //   const v = validateDto('UpsertPerson', payload)
+  //   if (!v.ok) {
+  //     logger.warn('DTO validation failed (UpsertPerson)', { errors: v.errors, payload })
+  //   }
+  // }
   const res = await apiFetch(`/api/admin/persons`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

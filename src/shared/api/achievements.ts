@@ -1,5 +1,5 @@
 import { apiFetch, apiData } from './core'
-import { validateDto } from '../dto'
+// import { validateDto } from '../dto' // Removed: not available in frontend (requires zod)
 import { createCountCache } from './cacheUtils'
 import { logger } from '../utils/logger'
 
@@ -8,12 +8,13 @@ export async function addAchievement(
   personId: string,
   payload: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null }
 ) {
-  if (import.meta.env.MODE !== 'production') {
-    const v = validateDto('AchievementPerson', payload)
-    if (!v.ok) {
-      logger.warn('DTO validation failed (AchievementPerson)', { errors: v.errors, payload })
-    }
-  }
+  // Client-side validation removed (backend validates)
+  // if (import.meta.env.MODE !== 'production') {
+  //   const v = validateDto('AchievementPerson', payload)
+  //   if (!v.ok) {
+  //     logger.warn('DTO validation failed (AchievementPerson)', { errors: v.errors, payload })
+  //   }
+  // }
   const res = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/achievements`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -109,12 +110,13 @@ export async function addGenericAchievement(payload: {
   image_url?: string | null
   country_id?: number | null
 }) {
-  if (import.meta.env.MODE !== 'production') {
-    const v = validateDto('AchievementGeneric', payload)
-    if (!v.ok) {
-      logger.warn('DTO validation failed (AchievementGeneric)', { errors: v.errors, payload })
-    }
-  }
+  // Client-side validation removed (backend validates)
+  // if (import.meta.env.MODE !== 'production') {
+  //   const v = validateDto('AchievementGeneric', payload)
+  //   if (!v.ok) {
+  //     logger.warn('DTO validation failed (AchievementGeneric)', { errors: v.errors, payload })
+  //   }
+  // }
   const res = await apiFetch(`/api/achievements`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

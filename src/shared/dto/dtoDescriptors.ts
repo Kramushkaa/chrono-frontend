@@ -1,10 +1,10 @@
 // AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
 // This file is automatically copied from backend/shared-dto
 // Source: C:\Users\Selecty\Documents\PetProjects\chronoline-backend-only\shared-dto\dist\dtoDescriptors.d.ts
-// Generated: 2025-11-08T22:44:13.021Z
+// Generated: 2025-11-09T08:51:59.370Z
 
-export declare const DTO_VERSION = "2025-11-08-2";
-export declare const dtoDescriptors: {
+export const DTO_VERSION = "2025-11-08-2";
+export type dtoDescriptors = {
     readonly UpsertPerson: {
         readonly id: "string";
         readonly name: "string";

@@ -1,7 +1,7 @@
 // AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
 // This file is automatically copied from backend/shared-dto
 // Source: C:\Users\Selecty\Documents\PetProjects\chronoline-backend-only\shared-dto\dist\quiz-types.d.ts
-// Generated: 2025-11-08T22:44:13.019Z
+// Generated: 2025-11-09T08:51:59.369Z
 
 export type QuizQuestionType = 'birthYear' | 'deathYear' | 'profession' | 'country' | 'achievementsMatch' | 'birthOrder' | 'contemporaries' | 'guessPerson';
 export interface QuizQuestion {

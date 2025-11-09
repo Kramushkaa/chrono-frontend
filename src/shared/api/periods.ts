@@ -1,6 +1,6 @@
 import { apiFetch, apiData, apiJson } from './core'
 import type { LifePeriodItemDTO } from '../dto'
-import { validateDto } from '../dto'
+// import { validateDto } from '../dto' // Removed: not available in frontend (requires zod)
 import { createCountCache } from './cacheUtils'
 import { logger } from '../utils/logger'
 
@@ -8,15 +8,16 @@ import { logger } from '../utils/logger'
 export type LifePeriodInput = Pick<LifePeriodItemDTO, 'country_id' | 'start_year' | 'end_year'>
 
 export async function saveLifePeriods(personId: string, periods: LifePeriodInput[]) {
-  if (import.meta.env.MODE !== 'production') {
-    const pack = {
-      periods: periods.map((p) => ({ country_id: p.country_id, start_year: p.start_year, end_year: p.end_year })),
-    }
-    const v = validateDto('LifePeriods', pack)
-    if (!v.ok) {
-      logger.warn('DTO validation failed (LifePeriods)', { errors: v.errors, pack })
-    }
-  }
+  // Client-side validation removed (backend validates)
+  // if (import.meta.env.MODE !== 'production') {
+  //   const pack = {
+  //     periods: periods.map((p) => ({ country_id: p.country_id, start_year: p.start_year, end_year: p.end_year })),
+  //   }
+  //   const v = validateDto('LifePeriods', pack)
+  //   if (!v.ok) {
+  //     logger.warn('DTO validation failed (LifePeriods)', { errors: v.errors, pack })
+  //   }
+  // }
   const data = await apiJson(`/api/persons/${encodeURIComponent(personId)}/life-periods`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

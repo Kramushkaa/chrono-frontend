@@ -16,7 +16,7 @@ import type {
   QuizHistoryResponse,
   QuizAttemptDetailResponse,
   QuizSessionDetailResponse,
-} from '../dto/quiz-types';
+} from 'shared/dto/quiz-types';
 
 // ============================================================================
 // Regular Quiz API
@@ -238,6 +238,7 @@ export async function getQuizSessionDetail(
 
   return response.json();
 }
+
 
 
 

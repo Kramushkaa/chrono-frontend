@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getQuizAttemptDetail } from 'shared/api/quiz';
-import type { QuizAttemptDetailResponse } from 'shared/dto/quiz-types';
+import type { QuizAttemptDetailResponse, QuizAttemptDetailAnswer } from 'shared/dto/quiz-types';
 import { AppHeader } from 'shared/layout/AppHeader';
 import { getMinimalHeaderProps } from '../utils/headerProps';
 import { ContactFooter } from 'shared/ui/ContactFooter';
@@ -141,7 +141,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
           <div className="quiz-results-answers">
             <h3>Детали ответов:</h3>
             <div className="quiz-answers-list">
-              {data.detailedAnswers.map((answer, index) => {
+              {data.detailedAnswers.map((answer: QuizAttemptDetailAnswer, index: number) => {
                 const isExpanded = expandedAnswers.has(answer.questionId);
                 const questionWithData = {
                   id: answer.questionId,
@@ -249,7 +249,7 @@ export const QuizAttemptDetailPage: React.FC = () => {
             <ShareFromHistoryButton
               attemptId={data.attempt.attemptId}
               isShared={data.attempt.isShared}
-              shareCode={data.attempt.shareCode}
+              shareCode={data.attempt.shareCode || undefined}
               quizTitle={data.attempt.quizTitle}
             />
             <button onClick={handleBackToHistory} className="quiz-button">
