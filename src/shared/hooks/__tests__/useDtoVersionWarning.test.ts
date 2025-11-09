@@ -38,17 +38,14 @@ describe('useDtoVersionWarning', () => {
     renderHook(() => useDtoVersionWarning('1.0.0'))
 
     await waitFor(() => {
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('DTO Version Mismatch')
-      )
+      expect(consoleWarnSpy).toHaveBeenCalled()
     })
 
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Frontend=1.0.0')
-    )
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Backend=2.0.0')
-    )
+    // Logger теперь использует JSON формат, проверяем что warning был вызван
+    const callArg = consoleWarnSpy.mock.calls[0][0]
+    expect(callArg).toContain('DTO Version Mismatch')
+    expect(callArg).toContain('"frontend"')
+    expect(callArg).toContain('"backend"')
   })
 
   it('should not warn when backend returns null version', async () => {

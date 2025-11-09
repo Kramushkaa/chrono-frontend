@@ -4,11 +4,12 @@ import {
   createAndCopyShareLink,
   openListOnTimeline,
 } from '../lists'
-import * as api from '../../api/api'
-const { apiFetch } = api as any // Correctly import apiFetch
+import * as coreApi from '../../api/core'
+import * as api from '../../api/lists'
 
-// Mock API
-vi.mock('../../api/api')
+// Mock API modules
+vi.mock('../../api/core')
+vi.mock('../../api/lists')
 
 // Store original clipboard
 const originalClipboard = navigator.clipboard
@@ -27,16 +28,16 @@ describe('lists utils', () => {
 
   describe('deleteListItem', () => {
     it('should return true on successful delete', async () => {
-      ;(apiFetch as vi.Mock).mockResolvedValue({ ok: true })
+      vi.mocked(coreApi.apiFetch).mockResolvedValue({ ok: true } as Response)
 
       const result = await deleteListItem(1, 10)
 
       expect(result).toBe(true)
-      expect(apiFetch).toHaveBeenCalledWith('/api/lists/1/items/10', { method: 'DELETE' })
+      expect(coreApi.apiFetch).toHaveBeenCalledWith('/api/lists/1/items/10', { method: 'DELETE' })
     })
 
     it('should return false on failed delete', async () => {
-      ;(apiFetch as vi.Mock).mockResolvedValue({ ok: false })
+      vi.mocked(coreApi.apiFetch).mockResolvedValue({ ok: false } as Response)
 
       const result = await deleteListItem(1, 10)
 
@@ -44,7 +45,7 @@ describe('lists utils', () => {
     })
 
     it('should return false on error', async () => {
-      ;(apiFetch as vi.Mock).mockRejectedValue(new Error('Network error'))
+      vi.mocked(coreApi.apiFetch).mockRejectedValue(new Error('Network error'))
 
       const result = await deleteListItem(1, 10)
 
@@ -79,7 +80,7 @@ describe('lists utils', () => {
 
     it('should return null when API request fails', async () => {
       mockLocationSearch('?share=test-code')
-      ;(apiFetch as vi.Mock).mockResolvedValue({ ok: false })
+      vi.mocked(coreApi.apiFetch).mockResolvedValue({ ok: false } as Response)
       
       const result = await copySharedListFromUrl('fallback title')
       
@@ -95,12 +96,12 @@ describe('lists utils', () => {
           data: { id: 123, title: 'Copied List' }
         })
       }
-      ;(apiFetch as vi.Mock).mockResolvedValue(mockResponse)
+      vi.mocked(coreApi.apiFetch).mockResolvedValue(mockResponse as any)
       
       const result = await copySharedListFromUrl('fallback title')
       
       expect(result).toEqual({ id: 123, title: 'Copied List' })
-      expect(apiFetch).toHaveBeenCalledWith('/api/lists/copy-from-share', {
+      expect(coreApi.apiFetch).toHaveBeenCalledWith('/api/lists/copy-from-share', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: 'test-code', title: 'fallback title' })
@@ -114,7 +115,7 @@ describe('lists utils', () => {
         ok: true,
         json: vi.fn().mockResolvedValue({ data: { id: 'invalid', title: null } })
       }
-      ;(apiFetch as vi.Mock).mockResolvedValue(mockResponse)
+      vi.mocked(coreApi.apiFetch).mockResolvedValue(mockResponse as any)
       
       const result = await copySharedListFromUrl('fallback title')
       
@@ -125,7 +126,7 @@ describe('lists utils', () => {
   describe('createAndCopyShareLink', () => {
     it('should return false when no code generated', async () => {
       const mockShowToast = vi.fn()
-      ;(api.createListShareCode as vi.Mock).mockResolvedValue(null)
+      vi.mocked(api.createListShareCode).mockResolvedValue(null)
 
       const result = await createAndCopyShareLink(1, mockShowToast)
 
@@ -135,7 +136,7 @@ describe('lists utils', () => {
 
     it('should return false on error', async () => {
       const mockShowToast = vi.fn()
-      ;(api.createListShareCode as vi.Mock).mockRejectedValue(new Error('Error'))
+      vi.mocked(api.createListShareCode).mockRejectedValue(new Error('Error'))
 
       const result = await createAndCopyShareLink(1, mockShowToast)
 
@@ -154,7 +155,7 @@ describe('lists utils', () => {
         configurable: true,
       })
       
-      ;(api.createListShareCode as vi.Mock).mockResolvedValue('test-code-123')
+      vi.mocked(api.createListShareCode).mockResolvedValue('test-code-123')
 
       const result = await createAndCopyShareLink(1, mockShowToast)
 
@@ -172,7 +173,7 @@ describe('lists utils', () => {
         configurable: true,
       })
       
-      ;(api.createListShareCode as vi.Mock).mockResolvedValue('test-code')
+      vi.mocked(api.createListShareCode).mockResolvedValue('test-code')
 
       const result = await createAndCopyShareLink(1)
 
@@ -203,7 +204,7 @@ describe('lists utils', () => {
         hash: ''
       }
       
-      ;(api.createListShareCode as vi.Mock).mockResolvedValue('test-code-456')
+      vi.mocked(api.createListShareCode).mockResolvedValue('test-code-456')
 
       const result = await createAndCopyShareLink(2, mockShowToast)
 
@@ -231,7 +232,7 @@ describe('lists utils', () => {
       }
       
       const mockShowToast = vi.fn()
-      ;(api.createListShareCode as vi.Mock).mockResolvedValue(null)
+      vi.mocked(api.createListShareCode).mockResolvedValue(null)
 
       await openListOnTimeline(5, null, mockShowToast)
 
@@ -253,7 +254,7 @@ describe('lists utils', () => {
       }
       
       const mockShowToast = vi.fn()
-      ;(api.createListShareCode as vi.Mock).mockRejectedValue(new Error('Error'))
+      vi.mocked(api.createListShareCode).mockRejectedValue(new Error('Error'))
 
       await openListOnTimeline(5, null, mockShowToast)
 

@@ -1,21 +1,25 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { usePersonPanel } from '../usePersonPanel'
-import * as api from '../../../../shared/api/api'
+import * as personsApi from '../../../../shared/api/persons'
 
-vi.mock('../../../../shared/api/api', () => ({
+vi.mock('../../../../shared/api/persons', () => ({
   getPersonById: vi.fn(),
 }))
 
-const mockGetPersonById = api.getPersonById as vi.MockedFunction<typeof api.getPersonById>
+const mockGetPersonById = personsApi.getPersonById as vi.MockedFunction<typeof personsApi.getPersonById>
 
 describe('usePersonPanel', () => {
+  const originalMode = import.meta.env.MODE
+  
   beforeEach(() => {
+    ;(import.meta.env as any).MODE = 'development'
     vi.clearAllMocks()
     vi.spyOn(console, 'error').mockImplementation()
   })
 
   afterEach(() => {
-    (console.error as vi.Mock).mockRestore()
+    ;(import.meta.env as any).MODE = originalMode
+    ;(console.error as vi.Mock).mockRestore()
   })
 
   it('should initialize with null selectedPerson', () => {

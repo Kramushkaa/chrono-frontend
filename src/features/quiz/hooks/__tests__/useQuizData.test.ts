@@ -1,8 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { useQuizData } from '../useQuizData'
-import * as api from '../../../../shared/api/api'
+import * as metaApi from '../../../../shared/api/meta'
 
-vi.mock('../../../../shared/api/api', () => ({
+vi.mock('../../../../shared/api/meta', () => ({
   getCategories: vi.fn(),
   getCountries: vi.fn(),
 }))
@@ -14,8 +14,8 @@ vi.mock('../../../../shared/hooks/useEntityQuery', () => ({
 import { useEntityQuery } from '../../../../shared/hooks/useEntityQuery'
 
 const mockUseEntityQuery = useEntityQuery as vi.MockedFunction<typeof useEntityQuery>
-const mockGetCategories = api.getCategories as vi.MockedFunction<typeof api.getCategories>
-const mockGetCountries = api.getCountries as vi.MockedFunction<typeof api.getCountries>
+const mockGetCategories = metaApi.getCategories as vi.MockedFunction<typeof metaApi.getCategories>
+const mockGetCountries = metaApi.getCountries as vi.MockedFunction<typeof metaApi.getCountries>
 
 describe('useQuizData', () => {
   beforeEach(() => {
