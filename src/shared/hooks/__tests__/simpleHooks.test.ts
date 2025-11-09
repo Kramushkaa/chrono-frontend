@@ -5,9 +5,13 @@ import { useUnauthorizedToast } from '../useUnauthorizedToast'
 import { usePerformanceMonitor } from '../usePerformanceMonitor'
 import * as api from '../../api/api'
 import * as ToastContext from '../../context/ToastContext'
+import * as meta from '../../api/meta'
 
 // Mock API
 vi.mock('../../api/api')
+
+// Mock meta API (for getDtoVersion)
+vi.mock('../../api/meta')
 
 // Mock ToastContext
 vi.mock('../../context/ToastContext', () => ({
@@ -72,19 +76,19 @@ describe('Simple Hooks', () => {
 
   describe('useDtoVersionWarning', () => {
     it('should not warn when versions match', async () => {
-      ;(api.getDtoVersion as vi.Mock).mockResolvedValue('1.0.0')
+      ;(meta.getDtoVersion as vi.Mock).mockResolvedValue('1.0.0')
 
       renderHook(() => useDtoVersionWarning('1.0.0'))
 
       await waitFor(() => {
-        expect(api.getDtoVersion).toHaveBeenCalled()
+        expect(meta.getDtoVersion).toHaveBeenCalled()
       })
 
       expect(console.warn).not.toHaveBeenCalled()
     })
 
     it('should warn when versions mismatch', async () => {
-      ;(api.getDtoVersion as vi.Mock).mockResolvedValue('2.0.0')
+      ;(meta.getDtoVersion as vi.Mock).mockResolvedValue('2.0.0')
 
       renderHook(() => useDtoVersionWarning('1.0.0'))
 
@@ -96,12 +100,12 @@ describe('Simple Hooks', () => {
     })
 
     it('should handle API error gracefully', async () => {
-      ;(api.getDtoVersion as vi.Mock).mockRejectedValue(new Error('Network error'))
+      ;(meta.getDtoVersion as vi.Mock).mockRejectedValue(new Error('Network error'))
 
       renderHook(() => useDtoVersionWarning('1.0.0'))
 
       await waitFor(() => {
-        expect(api.getDtoVersion).toHaveBeenCalled()
+        expect(meta.getDtoVersion).toHaveBeenCalled()
       })
 
       // Should not throw or warn
@@ -109,19 +113,19 @@ describe('Simple Hooks', () => {
     })
 
     it('should not warn when version is null', async () => {
-      ;(api.getDtoVersion as vi.Mock).mockResolvedValue(null)
+      ;(meta.getDtoVersion as vi.Mock).mockResolvedValue(null)
 
       renderHook(() => useDtoVersionWarning('1.0.0'))
 
       await waitFor(() => {
-        expect(api.getDtoVersion).toHaveBeenCalled()
+        expect(meta.getDtoVersion).toHaveBeenCalled()
       })
 
       expect(console.warn).not.toHaveBeenCalled()
     })
 
     it('should cancel request on unmount', async () => {
-      ;(api.getDtoVersion as vi.Mock).mockImplementation(
+      ;(meta.getDtoVersion as vi.Mock).mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve('2.0.0'), 100))
       )
 

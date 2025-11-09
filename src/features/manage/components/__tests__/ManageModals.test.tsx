@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { ManageModals } from '../ManageModals'
 import { Person } from 'shared/types'
+import { apiFetch } from 'shared/api/core'
 
 // Mock all dependencies
 vi.mock('../AuthRequiredModal', () => ({
@@ -86,8 +87,11 @@ vi.mock('shared/ui/EditWarningModal', () => ({
     ) : null
 }))
 
-vi.mock('shared/api/api', () => ({
+vi.mock('shared/api/core', () => ({
   apiFetch: vi.fn(),
+}))
+
+vi.mock('shared/api/api', () => ({
   getPersonById: vi.fn(),
   proposePersonEdit: vi.fn(),
   updatePerson: vi.fn(),
@@ -105,6 +109,16 @@ vi.mock('shared/utils/slug', () => ({
 }))
 
 describe('ManageModals', () => {
+  // Setup default apiFetch mock to return successful responses
+  beforeEach(() => {
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: vi.fn().mockResolvedValue({ data: { id: 'test-id' } }),
+    } as any
+    vi.mocked(apiFetch).mockResolvedValue(mockResponse)
+  })
+
   const mockPerson: Person = {
     id: 'person-1',
     name: 'Test Person',
@@ -212,8 +226,6 @@ describe('ManageModals', () => {
   })
 
   it('should handle person creation without email verification', async () => {
-    const { proposeNewPerson } = await import('shared/api/api')
-    
     render(<ManageModals {...defaultProps} showCreate={true} user={mockUser} />)
     
     fireEvent.click(screen.getByText('Create Person'))
@@ -227,9 +239,6 @@ describe('ManageModals', () => {
   })
 
   it('should handle person draft creation', async () => {
-    const { createPersonDraft } = await import('shared/api/api')
-    vi.mocked(createPersonDraft).mockResolvedValue(undefined)
-    
     render(
       <ManageModals
         {...defaultProps}
@@ -247,9 +256,6 @@ describe('ManageModals', () => {
   })
 
   it('should handle achievement creation with draft', async () => {
-    const { createAchievementDraft } = await import('shared/api/api')
-    vi.mocked(createAchievementDraft).mockResolvedValue(undefined)
-    
     render(
       <ManageModals
         {...defaultProps}
@@ -269,9 +275,6 @@ describe('ManageModals', () => {
   })
 
   it('should handle period creation with draft', async () => {
-    const { createPeriodDraft } = await import('shared/api/api')
-    vi.mocked(createPeriodDraft).mockResolvedValue(undefined)
-    
     render(
       <ManageModals
         {...defaultProps}
@@ -333,12 +336,6 @@ describe('ManageModals', () => {
   })
 
   it('should handle list creation', async () => {
-    const { apiFetch } = await import('shared/api/api')
-    vi.mocked(apiFetch).mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({ data: { id: 1 } })
-    } as any)
-    
     render(<ManageModals {...defaultProps} showCreateList={true} />)
     
     fireEvent.click(screen.getByText('Create List'))
@@ -409,10 +406,6 @@ describe('ManageModals', () => {
   })
 
   it('should handle revert to draft', async () => {
-    const { revertPersonToDraft, getPersonById } = await import('shared/api/api')
-    vi.mocked(revertPersonToDraft).mockResolvedValue(undefined)
-    vi.mocked(getPersonById).mockResolvedValue(mockPerson)
-    
     render(
       <ManageModals
         {...defaultProps}
@@ -432,8 +425,8 @@ describe('ManageModals', () => {
   })
 
   it('should handle error during person creation', async () => {
-    const { proposeNewPerson } = await import('shared/api/api')
-    vi.mocked(proposeNewPerson).mockRejectedValue(new Error('API Error'))
+    // Mock API error
+    vi.mocked(apiFetch).mockRejectedValue(new Error('API Error'))
     
     render(
       <ManageModals

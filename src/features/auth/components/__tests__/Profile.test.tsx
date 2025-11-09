@@ -30,12 +30,12 @@ vi.mock('features/auth/services/auth', () => ({
   changePassword: vi.fn(),
 }));
 
-vi.mock('shared/api/api', () => ({
+vi.mock('shared/api/core', () => ({
   apiFetch: vi.fn(),
 }));
 
 import { getProfile, updateProfile, changePassword } from 'features/auth/services/auth';
-import { apiFetch } from 'shared/api/api';
+import { apiFetch } from 'shared/api/core';
 
 const mockGetProfile = getProfile as vi.MockedFunction<typeof getProfile>;
 const mockUpdateProfile = updateProfile as vi.MockedFunction<typeof updateProfile>;

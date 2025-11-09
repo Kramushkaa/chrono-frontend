@@ -108,7 +108,7 @@ export const renderQuestionByType = ({
       );
 
     default:
-      return <div>Неподдерживаемый тип вопроса</div>;
+      return <div>Неподдерживаемый тип вопроса: {question.type}</div>;
   }
 };
 
