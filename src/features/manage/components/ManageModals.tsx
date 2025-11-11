@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Person, type UserList } from 'shared/types'
 
@@ -20,8 +20,8 @@ import type { CountryOption } from 'shared/api/meta'
 
 import { apiFetch } from 'shared/api/core'
 import { getPersonById, proposePersonEdit, updatePerson, submitPersonDraft, revertPersonToDraft, createPersonDraft, adminUpsertPerson, proposeNewPerson } from 'shared/api/persons'
-import { createAchievementDraft } from 'shared/api/achievements'
-import { createPeriodDraft } from 'shared/api/periods'
+import { createAchievementDraft, createAchievement } from 'shared/api/achievements'
+import { createPeriodDraft, createPeriod } from 'shared/api/periods'
 
 import { slugifyIdFromName } from 'shared/utils/slug'
 
@@ -250,6 +250,169 @@ export function ManageModals({
 
 }: ManageModalsProps) {
 
+  const [personOptions, setPersonOptions] = useState<Array<{ value: string; label: string }>>([])
+
+  const [personsSelectLoading, setPersonsSelectLoading] = useState(false)
+
+  const [lastPersonQuery, setLastPersonQuery] = useState('')
+
+
+
+  const ensurePersonOption = useCallback((person?: Person | null) => {
+
+    if (!person || !person.id) return
+
+    setPersonOptions((prev) => {
+
+      if (prev.some((opt) => opt.value === person.id)) {
+
+        return prev
+
+      }
+
+      return [{ value: person.id, label: person.name }, ...prev]
+
+    })
+
+  }, [])
+
+
+
+  useEffect(() => {
+
+    ensurePersonOption(selected)
+
+  }, [selected, ensurePersonOption])
+
+
+
+  useEffect(() => {
+
+    if (typeof window !== 'undefined') {
+
+      const preset = (window as any).__E2E_PERSON_OPTIONS__
+
+      if (Array.isArray(preset) && preset.length > 0) {
+
+        setPersonOptions(preset)
+
+      }
+
+    }
+
+  }, [])
+
+
+
+  const handleSearchPersons = useCallback(
+
+    async (rawQuery: string) => {
+
+      const query = rawQuery.trim()
+
+      if (query === lastPersonQuery && personOptions.length > 0) {
+
+        return
+
+      }
+
+      setLastPersonQuery(query)
+
+
+
+      try {
+
+        setPersonsSelectLoading(true)
+
+        const params = new URLSearchParams({ limit: '10' })
+
+        if (query) {
+
+          params.set('q', query)
+
+        }
+
+        const response = await apiFetch(`/api/persons?${params.toString()}`)
+
+        const json = await response.json().catch(() => null)
+
+        // Более надежная обработка ответа API
+        let items: Array<{ id: string; name: string }> = []
+        
+        if (json?.success && Array.isArray(json?.data)) {
+          // API вернул успешный ответ с данными
+          items = json.data
+        } else if (Array.isArray(json?.data)) {
+          // Альтернативный формат ответа
+          items = json.data
+        } else if (Array.isArray(json)) {
+          // Прямой массив
+          items = json
+        }
+
+        
+        // Фильтруем и маппим опции
+        const options = items
+          .filter(item => item && item.id && item.name)
+          .map((item) => ({ value: item.id, label: item.name }))
+        
+        setPersonOptions(options)
+        
+        // Если нет опций и это не поиск, показываем предупреждение
+        if (options.length === 0 && !query) {
+          console.warn('Не найдено личностей для выбора в модалке')
+        }
+
+      } catch (error) {
+
+        console.error('Не удалось загрузить список личностей для модалки', error)
+
+      } finally {
+
+        setPersonsSelectLoading(false)
+
+      }
+
+    },
+
+    [lastPersonQuery, personOptions.length]
+
+  )
+
+
+
+  useEffect(() => {
+
+    if (showCreate && (createType === 'achievement' || createType === 'period')) {
+
+      handleSearchPersons(lastPersonQuery || '')
+
+    }
+
+    if (!showCreate) {
+
+      setLastPersonQuery('')
+
+    }
+
+  }, [showCreate, createType, handleSearchPersons, lastPersonQuery])
+
+  // Предзагрузка личностей при первом открытии модалки создания
+  useEffect(() => {
+    if (showCreate && (createType === 'achievement' || createType === 'period')) {
+      // Если опции пустые, загружаем их без поискового запроса
+      if (personOptions.length === 0) {
+        handleSearchPersons('')
+      }
+    }
+  }, [showCreate, createType])
+
+
+
+  const memoizedPersonOptions = useMemo(() => personOptions, [personOptions])
+
+
+
   return (
 
     <div className="manage-page__modals">
@@ -406,7 +569,18 @@ export function ManageModals({
 
             } else {
 
-              showToast('Создание достижений пока не реализовано', 'info')
+              if (!payload.personId) {
+                showToast('Необходимо выбрать личность для достижения', 'error')
+                return
+              }
+
+              await createAchievement(payload.personId, payload)
+            
+            if (payload.saveAsDraft) {
+              showToast('Черновик достижения сохранен', 'success')
+            } else {
+              showToast('Достижение отправлено на модерацию', 'success')
+            }
 
             }
 
@@ -468,7 +642,24 @@ export function ManageModals({
 
             } else {
 
-              showToast('Создание периодов пока не реализовано', 'info')
+              if (!payload.personId) {
+                showToast('Необходимо выбрать личность для периода', 'error')
+                return
+              }
+
+              await createPeriod(payload.personId, {
+                start_year: payload.startYear,
+                end_year: payload.endYear,
+                period_type: payload.type,
+                country_id: payload.countryId,
+                comment: payload.description,
+              })
+              
+              if (payload.saveAsDraft) {
+                showToast('Черновик периода сохранен', 'success')
+              } else {
+                showToast('Период отправлен на модерацию', 'success')
+              }
 
             }
 
@@ -488,11 +679,11 @@ export function ManageModals({
 
         }}
 
-        personOptions={[]}
+        personOptions={memoizedPersonOptions}
 
-        personsSelectLoading={false}
+        personsSelectLoading={personsSelectLoading}
 
-        onSearchPersons={async (q: string) => {}}
+        onSearchPersons={handleSearchPersons}
 
       />
 

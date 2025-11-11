@@ -144,11 +144,29 @@ export async function finishSharedQuiz(
 // Leaderboard API
 // ============================================================================
 
+export interface GetGlobalLeaderboardParams {
+  limit?: number;
+  offset?: number;
+}
+
 /**
  * Get global leaderboard
  */
-export async function getGlobalLeaderboard(): Promise<GlobalLeaderboardResponse> {
-  const response = await apiFetch('/api/quiz/leaderboard');
+export async function getGlobalLeaderboard(
+  params: GetGlobalLeaderboardParams = {}
+): Promise<GlobalLeaderboardResponse> {
+  const searchParams = new URLSearchParams();
+  if (typeof params.limit === 'number') {
+    searchParams.set('limit', String(params.limit));
+  }
+  if (typeof params.offset === 'number') {
+    searchParams.set('offset', String(params.offset));
+  }
+
+  const query = searchParams.toString();
+  const response = await apiFetch(
+    query ? `/api/quiz/leaderboard?${query}` : '/api/quiz/leaderboard'
+  );
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));

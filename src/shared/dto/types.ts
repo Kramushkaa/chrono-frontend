@@ -1,7 +1,7 @@
 // AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
 // This file is automatically copied from backend/shared-dto
 // Source: C:\Users\Selecty\Documents\PetProjects\chronoline-backend-only\shared-dto\dist\types.d.ts
-// Generated: 2025-11-09T08:51:59.367Z
+// Generated: 2025-11-10T06:19:41.322Z
 
 export type UpsertPersonDTO = any;
 export type PersonLifePeriodInputDTO = any;

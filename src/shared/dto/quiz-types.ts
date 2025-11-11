@@ -1,7 +1,7 @@
 // AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
 // This file is automatically copied from backend/shared-dto
 // Source: C:\Users\Selecty\Documents\PetProjects\chronoline-backend-only\shared-dto\dist\quiz-types.d.ts
-// Generated: 2025-11-09T08:51:59.369Z
+// Generated: 2025-11-10T06:19:41.358Z
 
 export type QuizQuestionType = 'birthYear' | 'deathYear' | 'profession' | 'country' | 'achievementsMatch' | 'birthOrder' | 'contemporaries' | 'guessPerson';
 export interface QuizQuestion {
@@ -184,6 +184,11 @@ export interface GlobalLeaderboardEntry {
     averageScore: number;
     bestScore: number;
 }
+export interface LeaderboardPageInfo {
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+}
 export interface GlobalLeaderboardResponse {
     success: boolean;
     data: {
@@ -192,6 +197,7 @@ export interface GlobalLeaderboardResponse {
             isCurrentUser: true;
         };
         totalPlayers: number;
+        page: LeaderboardPageInfo;
     };
 }
 export interface UserStatsResponse {

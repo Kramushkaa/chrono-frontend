@@ -76,6 +76,7 @@ interface UnifiedManageSectionProps {
   onSelect: (item: ManagedItem) => void;
   onPersonSelect?: (person: Person) => void;
   onAddItem?: (id: string) => void;
+  onEditItem?: (item: ManagedItem) => void;
 
   // Create new item
   setShowCreate?: (show: boolean) => void;
@@ -124,6 +125,7 @@ export function UnifiedManageSection({
   onSelect,
   onPersonSelect,
   onAddItem,
+  onEditItem,
   setShowCreate,
   createType,
   setCreateType,
@@ -162,7 +164,12 @@ export function UnifiedManageSection({
       listLoading={listLoading}
       onDeleteListItem={onDeleteListItem}
       showToast={showToast}
-      onAddElement={() => setShowCreate?.(true)}
+      onAddElement={() => {
+        if (setCreateType) {
+          setCreateType(itemType);
+        }
+        setShowCreate?.(true);
+      }}
     >
       <>
         {modeIsList && selectedList && !selectedList.readonly && (
@@ -225,6 +232,7 @@ export function UnifiedManageSection({
                 }
               }
             } : undefined}
+            onEditItem={onEditItem}
             isAuthenticated={isAuthenticated}
             emailVerified={true}
             showAuthModal={() => setShowAuthModal(true)}

@@ -77,10 +77,10 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const filtered = useMemo(() => {
     const q = textKey(query.trim())
     if (!q) return options
-    return options.filter(o => textKey(o.label).includes(q))
+    return options.filter(o => o && o.label && textKey(o.label).includes(q))
   }, [options, query, textKey])
 
-  const selectedOption = useMemo(() => options.find(o => o.value === value), [options, value])
+  const selectedOption = useMemo(() => options.find(o => o && o.value === value) || null, [options, value])
 
   const canClear = allowClear && !disabled && !!value
 
@@ -97,7 +97,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   useEffect(() => {
     if (!open) return
     if (filtered.length === 0) { setActiveIndex(-1); return }
-    const idxOfSelected = filtered.findIndex(o => o.value === value)
+    const idxOfSelected = filtered.findIndex(o => o && o.value === value)
     setActiveIndex(idxOfSelected >= 0 ? idxOfSelected : 0)
   }, [open, filtered, value])
 
@@ -184,16 +184,16 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
           {isLoading && <div style={{ padding: 6, opacity: 0.8 }}>Загрузка...</div>}
           {filtered.map((o, idx) => {
             const isActive = idx === activeIndex
-            const isSelected = o.value === value
+            const isSelected = o && o.value === value
             return (
               <div
-                key={o.value}
+                key={o && o.value}
                 id={`ss-option-${idx}`}
                 data-index={idx}
                 role="option"
                 aria-selected={isSelected}
                 onMouseEnter={() => setActiveIndex(idx)}
-                onClick={() => { onChange(o.value, o); setOpen(false) }}
+                onClick={() => { if (o && o.value) onChange(o.value, o); setOpen(false) }}
                 style={{ padding: 6, cursor: 'pointer', background: isActive ? 'rgba(139,69,19,0.25)' : (isSelected ? 'rgba(139,69,19,0.15)' : 'transparent') }}
               >
                 {o.label}

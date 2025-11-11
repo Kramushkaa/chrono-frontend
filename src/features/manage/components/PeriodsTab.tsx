@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { UnifiedManageSection } from './UnifiedManageSection'
 import type { MenuSelection } from '../hooks/useManageState'
 import type { FiltersState, SetFilters, MixedListItem, Period, UserList, ListModerationStatus } from 'shared/types'
@@ -130,6 +130,15 @@ export function PeriodsTab({
   onListUpdated,
   onOpenListPublication,
 }: PeriodsTabProps) {
+  // TODO: Implement period editing modal
+  // const [editingPeriod, setEditingPeriod] = useState<PeriodEntity | null>(null)
+  // const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+
+  // const handleEditPeriod = (period: PeriodEntity) => {
+  //   setEditingPeriod(period)
+  //   setIsEditModalOpen(true)
+  // }
+
   return (
     <div className="manage-page__periods-section" id="manage-periods-section">
       <UnifiedManageSection
@@ -211,6 +220,7 @@ export function PeriodsTab({
           // Period selection not implemented yet
         }}
         onAddItem={(id) => addToList.openForPeriod(Number(id))}
+        onEditItem={undefined}
         labelAll="Все периоды"
         itemType="period"
         emptyMessage="Периоды не найдены"

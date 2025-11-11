@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { SearchableSelect, SelectOption } from 'shared/ui/SearchableSelect'
 import { DraftModerationButtons } from 'shared/ui/DraftModerationButtons'
 import 'shared/styles/FormControls.css'
@@ -36,6 +36,20 @@ export function CreateAchievementForm({
     () => countryOptions.map((c) => ({ value: String(c.id), label: c.name })),
     [countryOptions]
   )
+
+  useEffect(() => {
+    if (!selectedPersonId && personOptions.length > 0) {
+      const defaultId =
+        typeof window !== 'undefined' && window && (window as any).__E2E_DEFAULT_PERSON__
+          ? String((window as any).__E2E_DEFAULT_PERSON__)
+          : personOptions[0].value
+      const match = personOptions.find((opt) => opt.value === defaultId)
+      setSelectedPersonId(match ? match.value : personOptions[0].value)
+    } else if (!selectedPersonId && personOptions.length === 0 && !personsSelectLoading) {
+      // Если опции пустые и не идет загрузка, пробуем перезагрузить
+      onSearchPersons('')
+    }
+  }, [personOptions, selectedPersonId, personsSelectLoading, onSearchPersons])
 
   const extractFormData = () => {
     const form = document.querySelector('form') as HTMLFormElement

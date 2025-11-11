@@ -21,6 +21,7 @@ interface ItemsListProps {
   onRemoveFromList?: (id: number | string) => void
   onSelect?: (id: number | string) => void
   onPersonSelect?: (person: any) => void
+  onEditItem?: (item: any) => void
   isAuthenticated?: boolean
   emailVerified?: boolean
   showAuthModal?: () => void
@@ -41,6 +42,7 @@ export const ItemsList = React.memo(function ItemsList({
   onRemoveFromList,
   onSelect,
   onPersonSelect,
+  onEditItem,
   isAuthenticated = true,
   emailVerified = true,
   showAuthModal,
@@ -130,6 +132,8 @@ export const ItemsList = React.memo(function ItemsList({
               onAddToList={onAddToList ? () => handleAddToList(item.id) : undefined}
               onRemoveFromList={onRemoveFromList ? () => handleRemoveFromList(item.id) : undefined}
               onSelect={onSelect ? () => handleSelect(item.id) : undefined}
+              onEdit={onEditItem ? () => onEditItem(item) : undefined}
+              showEditButton={!!onEditItem}
               isAuthenticated={isAuthenticated}
               emailVerified={emailVerified}
               showAuthModal={showAuthModal}

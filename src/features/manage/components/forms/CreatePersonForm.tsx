@@ -45,6 +45,7 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
     [countryOptions]
   )
   const categorySelectOptions = useMemo(() => categories.map((c) => ({ value: c, label: c })), [categories])
+  const hasCategoryOptions = categorySelectOptions.length > 0
 
   const handleAddCountry = () => {
     const used = new Set(lifePeriods.map((lp) => lp.countryId))
@@ -128,7 +129,7 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
     }
 
     // Валидация категории
-    if (!category) {
+    if (!category || category.trim() === '') {
       setCategoryError('Род деятельности обязателен')
       hasErrors = true
     }
@@ -253,13 +254,30 @@ export function CreatePersonForm({ categories, countryOptions, onSubmit }: Creat
         <label className="formLabel">
           Род деятельности <span aria-label="обязательное поле" className="formRequired">*</span>
         </label>
-        <SearchableSelect
-          placeholder="Выбрать род деятельности"
-          value={category}
-          options={categorySelectOptions}
-          onChange={(val) => setCategory(val)}
-          locale="ru"
-        />
+        {hasCategoryOptions ? (
+          <SearchableSelect
+            placeholder="Выбрать род деятельности"
+            value={category}
+            options={categorySelectOptions}
+            onChange={(val) => setCategory(val)}
+            locale="ru"
+            aria-label="Выберите род деятельности"
+          />
+        ) : (
+          <input
+            type="text"
+            name="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            placeholder="Например, Учёный"
+            className="formInput"
+            required
+            aria-required="true"
+            style={{
+              border: categoryError ? '1px solid #d32f2f' : undefined,
+            }}
+          />
+        )}
         {categoryError && (
           <div 
             role="alert" 

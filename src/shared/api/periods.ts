@@ -123,6 +123,21 @@ export async function createPeriodDraft(
   return responseData
 }
 
+// Create period (supports both drafts and publication)
+export async function createPeriod(
+  personId: string,
+  data: { start_year: number; end_year: number; period_type: string; country_id?: number | null; comment?: string | null; saveAsDraft?: boolean }
+) {
+  const res = await apiFetch(`/api/persons/${personId}/periods`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  const responseData = await res.json().catch(() => null)
+  if (!res.ok) throw new Error(responseData?.message || 'Не удалось создать период')
+  return responseData
+}
+
 
 
 

@@ -232,6 +232,7 @@ describe('quiz API', () => {
             topPlayers: [{ userId: 1, username: 'user1', totalRating: 1000 }],
             userEntry: null,
             totalPlayers: 100,
+            page: { limit: 30, offset: 0, hasMore: false },
           },
         }),
       } as any
@@ -242,6 +243,26 @@ describe('quiz API', () => {
 
       expect(mockApiFetch).toHaveBeenCalledWith('/api/quiz/leaderboard')
       expect(result.data.totalPlayers).toBe(100)
+    })
+
+    it('should include query parameters when provided', async () => {
+      const mockResponse = {
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          data: {
+            topPlayers: [],
+            totalPlayers: 42,
+            page: { limit: 30, offset: 30, hasMore: true },
+          },
+        }),
+      } as any
+
+      mockApiFetch.mockResolvedValue(mockResponse)
+
+      const result = await getGlobalLeaderboard({ limit: 30, offset: 30 })
+
+      expect(mockApiFetch).toHaveBeenCalledWith('/api/quiz/leaderboard?limit=30&offset=30')
+      expect(result.data.page.offset).toBe(30)
     })
 
     it('should throw error on failure', async () => {

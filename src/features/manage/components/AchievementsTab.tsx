@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { UnifiedManageSection } from './UnifiedManageSection'
 import type { MenuSelection } from '../hooks/useManageState'
 import type { Achievement, FiltersState, SetFilters, MixedListItem, UserList, ListModerationStatus } from 'shared/types'
@@ -107,6 +107,15 @@ export function AchievementsTab({
   onListUpdated,
   onOpenListPublication,
 }: AchievementsTabProps) {
+  // TODO: Implement achievement editing modal
+  // const [editingAchievement, setEditingAchievement] = useState<Achievement | AchievementTile | null>(null)
+  // const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+
+  // const handleEditAchievement = (achievement: Achievement | AchievementTile) => {
+  //   setEditingAchievement(achievement)
+  //   setIsEditModalOpen(true)
+  // }
+
   return (
     <div className="manage-page__achievements-section" id="manage-achievements-section">
       <UnifiedManageSection
@@ -188,6 +197,7 @@ export function AchievementsTab({
           // Achievement selection not implemented yet
         }}
         onAddItem={(id) => addToList.openForAchievement(Number(id))}
+        onEditItem={undefined}
         labelAll="Все достижения"
         itemType="achievement"
         emptyMessage="Достижения не найдены"

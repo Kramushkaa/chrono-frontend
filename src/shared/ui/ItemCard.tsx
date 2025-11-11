@@ -14,6 +14,7 @@ interface ItemCardProps {
   onRemoveFromList?: () => void
   onSelect?: () => void
   onPersonSelect?: (person: any) => void
+  onEdit?: () => void
   isAuthenticated?: boolean
   emailVerified?: boolean
   showAuthModal?: () => void
@@ -21,6 +22,7 @@ interface ItemCardProps {
   addButtonTitle?: string
   addButtonDisabled?: boolean
   isListMode?: boolean
+  showEditButton?: boolean
   style?: React.CSSProperties
 }
 
@@ -38,6 +40,7 @@ export const ItemCard = React.memo(function ItemCard({
   onRemoveFromList,
   onSelect,
   onPersonSelect,
+  onEdit,
   isAuthenticated = true,
   emailVerified = true,
   showAuthModal,
@@ -45,6 +48,7 @@ export const ItemCard = React.memo(function ItemCard({
   addButtonTitle = "Добавить в список",
   addButtonDisabled = false,
   isListMode = false,
+  showEditButton = false,
   style
 }: ItemCardProps) {
   
@@ -116,26 +120,57 @@ export const ItemCard = React.memo(function ItemCard({
         <div style={{ fontSize: 14 }}>{description}</div>
       )}
       
-      {(onAddToList || onRemoveFromList) && (
-        <div style={{ position: 'absolute', top: 8, right: 8 }}>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              if (isListMode && onRemoveFromList) {
-                handleRemoveFromList()
-              } else if (onAddToList) {
-                handleAddToList()
-              }
-            }}
-            disabled={addButtonDisabled}
-            title={isListMode ? "Удалить из списка" : addButtonTitle}
-            style={{
-              opacity: addButtonDisabled ? 0.5 : 1,
-              cursor: addButtonDisabled ? 'not-allowed' : 'pointer'
-            }}
-          >
-            {isListMode ? '✕' : '＋'}
-          </button>
+      {(onAddToList || onRemoveFromList || onEdit) && (
+        <div style={{ 
+          position: 'absolute', 
+          top: 8, 
+          right: 8, 
+          display: 'flex', 
+          gap: '4px',
+          alignItems: 'center'
+        }}>
+          {onEdit && showEditButton && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onEdit()
+              }}
+              title="Редактировать"
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '16px',
+                cursor: 'pointer',
+                padding: '4px',
+                borderRadius: '4px',
+                color: '#f4e4c1',
+                transition: 'all 0.2s ease'
+              }}
+              aria-label="Редактировать элемент"
+            >
+              ✏️
+            </button>
+          )}
+          {(onAddToList || onRemoveFromList) && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                if (isListMode && onRemoveFromList) {
+                  handleRemoveFromList()
+                } else if (onAddToList) {
+                  handleAddToList()
+                }
+              }}
+              disabled={addButtonDisabled}
+              title={isListMode ? "Удалить из списка" : addButtonTitle}
+              style={{
+                opacity: addButtonDisabled ? 0.5 : 1,
+                cursor: addButtonDisabled ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {isListMode ? '✕' : '＋'}
+            </button>
+          )}
         </div>
       )}
     </div>

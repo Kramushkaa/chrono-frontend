@@ -177,6 +177,21 @@ export async function createAchievementDraft(
   return responseData
 }
 
+// Create achievement (supports both drafts and publication)
+export async function createAchievement(
+  personId: string,
+  data: { year: number; description: string; wikipedia_url?: string | null; image_url?: string | null; saveAsDraft?: boolean }
+) {
+  const res = await apiFetch(`/api/persons/${personId}/achievements`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  const responseData = await res.json().catch(() => null)
+  if (!res.ok) throw new Error(responseData?.message || 'Не удалось создать достижение')
+  return responseData
+}
+
 
 
 

@@ -83,6 +83,7 @@ export {
   getUserStats,
   getSharedQuizLeaderboard,
 } from './quiz'
+export type { GetGlobalLeaderboardParams } from './quiz'
 
 
 
