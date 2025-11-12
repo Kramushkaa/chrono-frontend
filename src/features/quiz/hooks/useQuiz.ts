@@ -150,15 +150,28 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
       }
     };
 
+    const simpleMode =
+      typeof window !== 'undefined' &&
+      typeof (window as any).__E2E_SIMPLE_QUESTIONS__ !== 'undefined' &&
+      Boolean((window as any).__E2E_SIMPLE_QUESTIONS__);
+    const simpleQuestionTypes = ['birthYear', 'deathYear', 'profession', 'country'];
+
     // Получаем предпочитаемые типы от пользователя
-    const preferredTypes = setup.questionTypes.length > 0 ? setup.questionTypes : ['birthYear', 'deathYear', 'profession', 'country', 'achievementsMatch', 'birthOrder', 'contemporaries', 'guessPerson'];
+    const preferredTypesRaw = setup.questionTypes.length > 0
+      ? setup.questionTypes
+      : ['birthYear', 'deathYear', 'profession', 'country', 'achievementsMatch', 'birthOrder', 'contemporaries', 'guessPerson'];
+
+    const preferredTypes = simpleMode
+      ? preferredTypesRaw.filter((type) => simpleQuestionTypes.includes(type))
+      : preferredTypesRaw;
     
     // Фильтруем доступные типы
     const availablePreferredTypes = preferredTypes.filter(checkQuestionAvailability);
 
     
     // Если нет доступных предпочитаемых типов, используем базовые
-    const fallbackTypes = ['birthYear', 'deathYear', 'profession', 'country'].filter(checkQuestionAvailability);
+    const fallbackPool = simpleMode ? simpleQuestionTypes : ['birthYear', 'deathYear', 'profession', 'country'];
+    const fallbackTypes = fallbackPool.filter(checkQuestionAvailability);
     const finalAvailableTypes = availablePreferredTypes.length > 0 ? availablePreferredTypes : fallbackTypes;
 
     if (finalAvailableTypes.length === 0) return [];
