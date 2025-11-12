@@ -67,11 +67,21 @@ export function ListModerationModal({ isOpen, onClose, showToast }: Props) {
 
   useEffect(() => {
     if (!isOpen) {
-      setLists([])
-      setForms({})
+      if (lists.length > 0) {
+        setLists([])
+      }
+      if (Object.keys(forms).length > 0) {
+        setForms({})
+      }
+    }
+  }, [isOpen, lists.length, forms])
+
+  useEffect(() => {
+    if (!isOpen || lists.length === 0) {
       return
     }
     setForms((prev) => {
+      let changed = false
       const next: Record<number, FormState> = { ...prev }
       lists.forEach((list) => {
         if (!next[list.id]) {
@@ -79,9 +89,10 @@ export function ListModerationModal({ isOpen, onClose, showToast }: Props) {
             slug: slugifyIdFromName(list.title) || `list-${list.id}`,
             comment: '',
           }
+          changed = true
         }
       })
-      return next
+      return changed ? next : prev
     })
   }, [lists, isOpen])
 
@@ -339,6 +350,8 @@ export function ListModerationModal({ isOpen, onClose, showToast }: Props) {
     </div>
   )
 }
+
+
 
 
 

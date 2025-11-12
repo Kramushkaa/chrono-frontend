@@ -95,10 +95,6 @@ export default function ManagePage() {
     setEditBirthYear: state.setEditBirthYear,
     editDeathYear: state.editDeathYear,
     setEditDeathYear: state.setEditDeathYear,
-    newLifePeriods: state.newLifePeriods,
-    setNewLifePeriods: state.setNewLifePeriods,
-    showCreate: modals.showCreate,
-    createType: modals.createType,
     activeTab: state.activeTab,
     menuSelection: state.menuSelection,
     selectedListId: state.selectedListId,
@@ -381,6 +377,8 @@ export default function ManagePage() {
               countryOptions={state.countryOptions}
               categorySelectOptions={categorySelectOptions}
               countrySelectOptions={countrySelectOptions}
+              newLifePeriods={state.newLifePeriods}
+              setNewLifePeriods={state.setNewLifePeriods}
               selected={state.selected}
               setSelected={state.setSelected}
               lifePeriods={state.lifePeriods}
