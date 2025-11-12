@@ -7,11 +7,13 @@ import 'shared/styles/FormControls.css'
 
 type CountryOption = { id: number; name: string }
 
-type LifePeriod = { countryId: string; start: number | ''; end: number | '' }
+export type PersonLifePeriodFormValue = { countryId: string; start: number | ''; end: number | '' }
 
 interface CreatePersonFormProps {
   categories: string[]
   countryOptions: CountryOption[]
+  lifePeriods: PersonLifePeriodFormValue[]
+  setLifePeriods: React.Dispatch<React.SetStateAction<PersonLifePeriodFormValue[]>>
   onSubmit: (payload: {
     id: string
     name: string
@@ -21,13 +23,18 @@ interface CreatePersonFormProps {
     description: string
     imageUrl: string | null
     wikiLink: string | null
-    lifePeriods: LifePeriod[]
+    lifePeriods: PersonLifePeriodFormValue[]
     saveAsDraft?: boolean
   }) => Promise<void>
 }
 
-export function CreatePersonForm({ categories, countryOptions, onSubmit }: CreatePersonFormProps) {
-  const [lifePeriods, setLifePeriods] = useState<LifePeriod[]>([])
+export function CreatePersonForm({
+  categories,
+  countryOptions,
+  lifePeriods,
+  setLifePeriods,
+  onSubmit,
+}: CreatePersonFormProps) {
   const [birthYear, setBirthYear] = useState<number | ''>('')
   const [deathYear, setDeathYear] = useState<number | ''>('')
   const [category, setCategory] = useState<string>('')

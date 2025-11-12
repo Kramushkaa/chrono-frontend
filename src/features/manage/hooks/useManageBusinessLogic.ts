@@ -38,10 +38,6 @@ interface ManageBusinessLogicParams {
   setEditBirthYear: (year: number) => void
   editDeathYear: number
   setEditDeathYear: (year: number) => void
-  newLifePeriods: LifePeriod[]
-  setNewLifePeriods: (periods: LifePeriod[]) => void
-  showCreate: boolean
-  createType: 'person' | 'achievement' | 'period'
   activeTab: 'persons' | 'achievements' | 'periods'
   menuSelection: 'all' | 'pending' | 'mine' | `list:${number}`
   selectedListId: number | null
@@ -104,10 +100,6 @@ export function useManageBusinessLogic(params: ManageBusinessLogicParams) {
     setEditBirthYear,
     editDeathYear,
     setEditDeathYear,
-    newLifePeriods,
-    setNewLifePeriods,
-    showCreate,
-    createType,
     activeTab,
     menuSelection,
     selectedListId,
@@ -323,13 +315,6 @@ export function useManageBusinessLogic(params: ManageBusinessLogicParams) {
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editBirthYear, editDeathYear])
-
-  // Подготовка данных для создания новой личности
-  useEffect(() => {
-    if (showCreate && createType === 'person' && newLifePeriods.length === 0) {
-      setNewLifePeriods([{ countryId: '', start: '', end: '' }])
-    }
-  }, [showCreate, createType, newLifePeriods.length, setNewLifePeriods])
 
   // Обработка выбора списка
   useEffect(() => {

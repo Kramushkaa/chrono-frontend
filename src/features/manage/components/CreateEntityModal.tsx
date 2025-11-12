@@ -1,7 +1,7 @@
 import React from 'react'
 import { SelectOption } from 'shared/ui/SearchableSelect'
 import { Modal } from 'shared/ui/Modal'
-import { CreatePersonForm } from './forms/CreatePersonForm'
+import { CreatePersonForm, PersonLifePeriodFormValue } from './forms/CreatePersonForm'
 import { CreateAchievementForm } from './forms/CreateAchievementForm'
 import { CreatePeriodForm } from './forms/CreatePeriodForm'
 
@@ -15,6 +15,8 @@ type Props = {
   // Person form
   categories: string[]
   countryOptions: CountryOption[]
+  lifePeriods: PersonLifePeriodFormValue[]
+  onLifePeriodsChange: React.Dispatch<React.SetStateAction<PersonLifePeriodFormValue[]>>
   onCreatePerson: (payload: {
     id: string
     name: string
@@ -62,6 +64,8 @@ export function CreateEntityModal(props: Props) {
     type,
     categories,
     countryOptions,
+    lifePeriods,
+    onLifePeriodsChange,
     onCreatePerson,
     personOptions,
     personsSelectLoading,
@@ -92,6 +96,8 @@ export function CreateEntityModal(props: Props) {
           <CreatePersonForm
             categories={categories}
             countryOptions={countryOptions}
+          lifePeriods={lifePeriods}
+          setLifePeriods={onLifePeriodsChange}
             onSubmit={onCreatePerson}
           />
         )

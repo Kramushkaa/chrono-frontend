@@ -45,6 +45,8 @@ describe('CreatePersonForm', () => {
   const defaultProps = {
     categories: mockCategories,
     countryOptions: mockCountryOptions,
+  lifePeriods: [],
+  setLifePeriods: vi.fn(),
     onSubmit: vi.fn(),
   }
 

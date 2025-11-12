@@ -5,6 +5,7 @@ import { Person, type UserList } from 'shared/types'
 import { AuthRequiredModal } from './AuthRequiredModal'
 
 import { CreateEntityModal } from './CreateEntityModal'
+import type { PersonLifePeriodFormValue } from './forms/CreatePersonForm'
 
 import { PersonEditModal, type LifePeriod, type LifePeriodPayload, type PersonEditPayload } from './PersonEditModal'
 
@@ -104,6 +105,10 @@ interface ManageModalsProps {
 
   countrySelectOptions: Array<{ value: string; label: string }>
 
+  newLifePeriods: PersonLifePeriodFormValue[]
+
+  setNewLifePeriods: React.Dispatch<React.SetStateAction<PersonLifePeriodFormValue[]>>
+
   selected: Person | null
 
   setSelected: (person: Person | null) => void
@@ -200,6 +205,10 @@ export function ManageModals({
 
   countrySelectOptions,
 
+  newLifePeriods,
+
+  setNewLifePeriods,
+
   selected,
 
   setSelected,
@@ -249,6 +258,9 @@ export function ManageModals({
   onListUpdated,
 
 }: ManageModalsProps) {
+  const resetNewLifePeriods = useCallback(() => {
+    setNewLifePeriods([])
+  }, [setNewLifePeriods])
 
   const [personOptions, setPersonOptions] = useState<Array<{ value: string; label: string }>>([])
 
@@ -437,13 +449,22 @@ export function ManageModals({
 
         isOpen={showCreate}
 
-        onClose={() => setShowCreate(false)}
+        onClose={() => {
+          setShowCreate(false)
+          if (createType === 'person') {
+            resetNewLifePeriods()
+          }
+        }}
 
         type={createType}
 
         categories={categories}
 
         countryOptions={countryOptions}
+
+        lifePeriods={newLifePeriods}
+
+        onLifePeriodsChange={setNewLifePeriods}
 
         onCreatePerson={async (payload) => {
 
@@ -465,15 +486,52 @@ export function ManageModals({
 
 
 
-            const lifePeriods = (payload.lifePeriods || []).map((lp) => ({
-
-              countryId: Number(lp.countryId),
-
-              start: typeof lp.start === 'number' ? lp.start : Number(lp.start),
-
-              end: typeof lp.end === 'number' ? lp.end : Number(lp.end),
-
-            }))
+            // Фильтруем и преобразуем только валидные периоды
+            const rawPeriods = payload.lifePeriods || []
+            const lifePeriods = rawPeriods
+              .filter((lp) => {
+                // Пропускаем только полностью заполненные периоды
+                if (!lp.countryId || lp.countryId === '') {
+                  if (import.meta.env.MODE === 'development') {
+                    console.debug('[ManageModals] Период отброшен: пустой countryId', lp)
+                  }
+                  return false
+                }
+                if (lp.start === '' || lp.end === '') {
+                  if (import.meta.env.MODE === 'development') {
+                    console.debug('[ManageModals] Период отброшен: пустые годы', lp)
+                  }
+                  return false
+                }
+                const startNum = typeof lp.start === 'number' ? lp.start : Number(lp.start)
+                const endNum = typeof lp.end === 'number' ? lp.end : Number(lp.end)
+                if (!Number.isInteger(startNum) || !Number.isInteger(endNum)) {
+                  if (import.meta.env.MODE === 'development') {
+                    console.debug('[ManageModals] Период отброшен: невалидные числа', { lp, startNum, endNum })
+                  }
+                  return false
+                }
+                if (startNum > endNum) {
+                  if (import.meta.env.MODE === 'development') {
+                    console.debug('[ManageModals] Период отброшен: start > end', lp)
+                  }
+                  return false
+                }
+                return true
+              })
+              .map((lp) => ({
+                countryId: Number(lp.countryId),
+                start: typeof lp.start === 'number' ? lp.start : Number(lp.start),
+                end: typeof lp.end === 'number' ? lp.end : Number(lp.end),
+              }))
+            
+            if (import.meta.env.MODE === 'development') {
+              console.debug('[ManageModals] Периоды жизни:', {
+                raw: rawPeriods,
+                filtered: lifePeriods,
+                count: lifePeriods.length
+              })
+            }
 
 
 
@@ -528,6 +586,8 @@ export function ManageModals({
             setShowCreate(false)
 
             resetPersons()
+
+            resetNewLifePeriods()
 
           } catch (e) {
 

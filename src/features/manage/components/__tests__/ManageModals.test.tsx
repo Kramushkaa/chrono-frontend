@@ -10,10 +10,19 @@ vi.mock('../AuthRequiredModal', () => ({
 }))
 
 vi.mock('../CreateEntityModal', () => ({
-  CreateEntityModal: ({ isOpen, onClose, onCreatePerson, onCreateAchievement, onCreatePeriod }: any) => 
+  CreateEntityModal: ({
+    isOpen,
+    onClose,
+    onCreatePerson,
+    onCreateAchievement,
+    onCreatePeriod,
+    lifePeriods,
+    onLifePeriodsChange,
+  }: any) =>
     isOpen ? (
       <div data-testid="create-entity-modal">
         <button onClick={onClose}>Close Create</button>
+        <button onClick={() => onLifePeriodsChange([{ countryId: '1', start: 1900, end: 1950 }])}>Set Life Period</button>
         <button onClick={() => onCreatePerson({
           name: 'Test Person',
           birthYear: 1900,
@@ -23,7 +32,7 @@ vi.mock('../CreateEntityModal', () => ({
           imageUrl: '',
           wikiLink: '',
           saveAsDraft: false,
-          lifePeriods: []
+          lifePeriods
         })}>Create Person</button>
         <button onClick={() => onCreateAchievement({
           personId: 'person-1',
@@ -169,6 +178,8 @@ describe('ManageModals', () => {
     countryOptions: [],
     categorySelectOptions: [{ value: 'Science', label: 'Наука' }],
     countrySelectOptions: [{ value: 'usa', label: 'США' }],
+  newLifePeriods: [],
+  setNewLifePeriods: vi.fn(),
     selected: null,
     setSelected: vi.fn(),
     lifePeriods: [],
@@ -223,11 +234,13 @@ describe('ManageModals', () => {
     
     fireEvent.click(screen.getByText('Close Create'))
     expect(defaultProps.setShowCreate).toHaveBeenCalledWith(false)
+    expect(defaultProps.setNewLifePeriods).toHaveBeenCalledWith([])
   })
 
   it('should handle person creation without email verification', async () => {
     render(<ManageModals {...defaultProps} showCreate={true} user={mockUser} />)
     
+    fireEvent.click(screen.getByText('Set Life Period'))
     fireEvent.click(screen.getByText('Create Person'))
     
     await waitFor(() => {
@@ -235,7 +248,11 @@ describe('ManageModals', () => {
         'Предложение на создание личности отправлено',
         'success'
       )
+      expect(defaultProps.setNewLifePeriods).toHaveBeenCalledWith([])
     })
+
+    const fetchCall = vi.mocked(apiFetch).mock.calls.find(([url]) => url === '/api/persons/propose')
+    expect(fetchCall?.[1]?.body).toContain('"lifePeriods":[{"countryId":1,"start":1900,"end":1950}]')
   })
 
   it('should handle person draft creation', async () => {
@@ -252,6 +269,7 @@ describe('ManageModals', () => {
     
     await waitFor(() => {
       expect(defaultProps.setShowCreate).toHaveBeenCalledWith(false)
+      expect(defaultProps.setNewLifePeriods).toHaveBeenCalledWith([])
     })
   })
 
