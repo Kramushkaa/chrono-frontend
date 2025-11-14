@@ -406,6 +406,3 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     ratingPoints,
   };
 };
-
-
-

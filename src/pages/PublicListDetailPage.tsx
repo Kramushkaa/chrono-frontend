@@ -208,8 +208,3 @@ export default function PublicListDetailPage() {
     </div>
   )
 }
-
-
-
-
-
