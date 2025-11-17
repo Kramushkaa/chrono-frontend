@@ -32,7 +32,7 @@ export default function RegisterPage() {
   }, []);
 
   return (
-    <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Регистрация">
+    <div className="app" id="chrononinja-app">
       <SEO
         title="Регистрация — Хронониндзя"
         description="Зарегистрируйтесь для создания списков и участия в играх."

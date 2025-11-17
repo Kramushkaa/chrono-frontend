@@ -201,7 +201,7 @@ export default function TimelinePage() {
   const categoryDividers = useCategoryDividers(rowPlacement, groupingType)
 
   return (
-    <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Интерактивная временная линия исторических личностей">
+    <div className="app" id="chrononinja-app">
       <SEO
         title="Хронониндзя — Временная линия исторических личностей"
         description="Исследуйте биографии и достижения исторических личностей на интерактивной линии времени. Фильтры по странам и категориям."
@@ -244,7 +244,6 @@ export default function TimelinePage() {
             ref={timelineRef}
             className={`timeline-container ${isDragging ? 'dragging' : ''}`}
             id="timeline-viewport"
-            role="region"
             aria-label="Область просмотра временной линии"
           >
             {isLoading && persons.length === 0 && (
@@ -350,7 +349,7 @@ export default function TimelinePage() {
           </main>
         </div>
 
-        <aside className="tooltips-container" id="tooltips-aside" aria-label="Информационные подсказки">
+        <div className="tooltips-container" id="tooltips-aside" aria-label="Информационные подсказки">
           <Tooltips
             hoveredPerson={hoveredPerson}
             showTooltip={showTooltip}
@@ -361,7 +360,7 @@ export default function TimelinePage() {
             getPersonGroup={(person) => getPersonGroup(person, groupingType)}
             getCategoryColor={getGroupColor}
           />
-        </aside>
+        </div>
 
         <PersonPanel
           selectedPerson={selectedPerson}

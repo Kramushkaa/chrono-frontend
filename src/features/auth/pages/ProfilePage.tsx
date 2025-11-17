@@ -73,7 +73,7 @@ export default function ProfilePage() {
   }, []);
 
   return (
-    <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Личный кабинет">
+    <div className="app" id="chrononinja-app">
       <SEO
         title="Профиль пользователя — Хронониндзя"
         description="Управляйте своим профилем и настройками в Хронониндзя."

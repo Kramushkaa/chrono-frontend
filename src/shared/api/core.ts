@@ -206,7 +206,7 @@ export function isWrappedResponse<T>(payload: unknown): payload is ApiResponse<T
   )
 }
 
-async function parseResponseJson<T = unknown>(res: Response): Promise<T> {
+export async function parseResponseJson<T = unknown>(res: Response): Promise<T> {
   let body: unknown = null
   try {
     body = await (res.clone ? res.clone().json() : res.json())

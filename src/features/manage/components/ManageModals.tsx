@@ -25,6 +25,7 @@ import { createAchievementDraft, createAchievement } from 'shared/api/achievemen
 import { createPeriodDraft, createPeriod } from 'shared/api/periods'
 
 import { slugifyIdFromName } from 'shared/utils/slug'
+import { featureFlags } from 'shared/config/features'
 
 import type { AuthUser } from 'features/auth/services/auth'
 
@@ -258,8 +259,28 @@ export function ManageModals({
   onListUpdated,
 
 }: ManageModalsProps) {
+  const publicListsEnabled = featureFlags.publicLists
+  const [localLifePeriods, setLocalLifePeriods] = useState<PersonLifePeriodFormValue[]>(newLifePeriods)
+
+  useEffect(() => {
+    setLocalLifePeriods(newLifePeriods)
+  }, [newLifePeriods])
+
+  const handleLifePeriodsChange = useCallback(
+    (next: React.SetStateAction<PersonLifePeriodFormValue[]>) => {
+      if (typeof next === 'function') {
+        setLocalLifePeriods(prev => (next as (prev: PersonLifePeriodFormValue[]) => PersonLifePeriodFormValue[])(prev))
+      } else {
+        setLocalLifePeriods(next)
+      }
+      setNewLifePeriods(next)
+    },
+    [setNewLifePeriods]
+  )
+
   const resetNewLifePeriods = useCallback(() => {
     setNewLifePeriods([])
+    setLocalLifePeriods([])
   }, [setNewLifePeriods])
 
   const [personOptions, setPersonOptions] = useState<Array<{ value: string; label: string }>>([])
@@ -462,9 +483,9 @@ export function ManageModals({
 
         countryOptions={countryOptions}
 
-        lifePeriods={newLifePeriods}
+        lifePeriods={localLifePeriods}
 
-        onLifePeriodsChange={setNewLifePeriods}
+        onLifePeriodsChange={handleLifePeriodsChange}
 
         onCreatePerson={async (payload) => {
 
@@ -1032,26 +1053,20 @@ export function ManageModals({
         isReverting={isReverting}
 
       />
-
-
-
-      <ListPublicationModal
-
-        isOpen={showListPublication}
-
-        onClose={() => setShowListPublication(false)}
-
-        list={personLists.find((list) => list.id === selectedListId) || null}
-
-        isOwner={typeof currentUserId === 'number' && personLists.find((list) => list.id === selectedListId)?.owner_user_id === currentUserId}
-
-        onUpdated={onListUpdated}
-
-        onReload={(force?: boolean) => Promise.resolve(loadUserLists(force))}
-
-        showToast={showToast}
-
-      />
+      {publicListsEnabled && (
+        <ListPublicationModal
+          isOpen={showListPublication}
+          onClose={() => setShowListPublication(false)}
+          list={personLists.find((list) => list.id === selectedListId) || null}
+          isOwner={
+            typeof currentUserId === 'number' &&
+            personLists.find((list) => list.id === selectedListId)?.owner_user_id === currentUserId
+          }
+          onUpdated={onListUpdated}
+          onReload={(force?: boolean) => Promise.resolve(loadUserLists(force))}
+          showToast={showToast}
+        />
+      )}
 
     </div>
 

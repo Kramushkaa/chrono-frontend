@@ -23,12 +23,30 @@ import { ContactFooter } from 'shared/ui/ContactFooter'
 import { SEO } from 'shared/ui/SEO'
 import type { UserList } from 'shared/types'
 import { ListModerationModal } from '../components/ListModerationModal'
+import { featureFlags } from 'shared/config/features'
+import {
+  ManageStateProvider,
+  useManageCounts,
+  useManageSidebar,
+  useListSelection,
+  usePersonEditorState,
+} from '../context/ManageStateContext'
 
 export default function ManagePage() {
+  const manageState = useManageState()
+  return (
+    <ManageStateProvider value={manageState}>
+      <ManagePageContent />
+    </ManageStateProvider>
+  )
+}
+
+function ManagePageContent() {
   const navigate = useNavigate()
   const { user, isAuthenticated } = useAuth()
   const { showToast } = useToast()
   const isModerator = !!user && (user.role === 'admin' || user.role === 'moderator')
+  const publicListsEnabled = featureFlags.publicLists
 
   const {
     filters,
@@ -42,14 +60,16 @@ export default function ManagePage() {
     resetAllFilters,
   } = useFilters()
 
-  // State management
-  const state = useManageState()
+  const sidebar = useManageSidebar()
+  const selection = useListSelection()
+  const personEditor = usePersonEditorState()
+  const counts = useManageCounts()
 
   // Modals management
   const modals = useManageModals()
 
   // Data fetching
-  const dataManager = useManagePageData(state.activeTab, state.menuSelection, isAuthenticated, filters)
+  const dataManager = useManagePageData(selection.activeTab, selection.menuSelection, isAuthenticated, filters)
 
   // Lists management
   const { personLists, setPersonLists, sharedList, loadUserLists } = useLists({
@@ -61,7 +81,7 @@ export default function ManagePage() {
   const addToList = useAddToList({
     showToast,
     reloadLists: (force?: boolean) => loadUserLists.current?.(force),
-    getSelectedPerson: () => (state.selected ? { id: state.selected.id } : null),
+    getSelectedPerson: () => (personEditor.selected ? { id: personEditor.selected.id } : null),
     apiFetch,
     apiData,
   })
@@ -79,37 +99,6 @@ export default function ManagePage() {
 
   // Business logic (useEffects and computed values)
   const { countrySelectOptions, categorySelectOptions } = useManageBusinessLogic({
-    selected: state.selected,
-    setSelected: state.setSelected,
-    categories: state.categories,
-    setCategories: state.setCategories,
-    countries: state.countries,
-    setCountries: state.setCountries,
-    countryOptions: state.countryOptions,
-    setCountryOptions: state.setCountryOptions,
-    lifePeriods: state.lifePeriods,
-    setLifePeriods: state.setLifePeriods,
-    editPersonCategory: state.editPersonCategory,
-    setEditPersonCategory: state.setEditPersonCategory,
-    editBirthYear: state.editBirthYear,
-    setEditBirthYear: state.setEditBirthYear,
-    editDeathYear: state.editDeathYear,
-    setEditDeathYear: state.setEditDeathYear,
-    activeTab: state.activeTab,
-    menuSelection: state.menuSelection,
-    selectedListId: state.selectedListId,
-    setSelectedListId: state.setSelectedListId,
-    mineCounts: state.mineCounts,
-    setMineCounts: state.setMineCounts,
-    countsLoadKeyRef: state.countsLoadKeyRef,
-    countsLastTsRef: state.countsLastTsRef,
-    fetchedDetailsIdsRef: state.fetchedDetailsIdsRef,
-    lastSelectedRef: state.lastSelectedRef,
-    listItems: state.listItems,
-    setListItems: state.setListItems,
-    listItemIdByDomainIdRef: state.listItemIdByDomainIdRef,
-    listLoading: state.listLoading,
-    setListLoading: state.setListLoading,
     isAuthenticated,
     user,
     resetPersons: dataManager.resetPersons,
@@ -120,11 +109,11 @@ export default function ManagePage() {
 
   // Handler for deleting list item
   const handleDeleteListItem = useCallback(async (listItemId: number) => {
-    if (!state.selectedListId) return
+    if (!selection.selectedListId) return
     try {
-      const ok = await apiFetch(`/api/lists/${state.selectedListId}/items/${listItemId}`, { method: 'DELETE' })
+      const ok = await apiFetch(`/api/lists/${selection.selectedListId}/items/${listItemId}`, { method: 'DELETE' })
       if (ok.ok) {
-        state.setListItems((prev) => prev.filter((x) => x.listItemId !== listItemId))
+        selection.setListItems(prev => prev.filter(x => x.listItemId !== listItemId))
         await loadUserLists.current?.(true)
         showToast('Удалено из списка', 'success')
       } else {
@@ -133,7 +122,7 @@ export default function ManagePage() {
     } catch (e) {
       showToast('Ошибка при удалении', 'error')
     }
-  }, [state.selectedListId, state.setListItems, loadUserLists, showToast])
+  }, [selection.selectedListId, selection.setListItems, loadUserLists, showToast])
 
   return (
     <div
@@ -150,15 +139,15 @@ export default function ManagePage() {
       />
       <React.Suspense fallback={<div />}>
         <ManageHeader
-          isScrolled={state.isScrolled}
-          showControls={state.showControls}
-          setShowControls={state.setShowControls}
+          isScrolled={sidebar.isScrolled}
+          showControls={sidebar.showControls}
+          setShowControls={sidebar.setShowControls}
           filters={filters}
           setFilters={setFilters}
           groupingType={groupingType}
           setGroupingType={setGroupingType}
-          allCategories={state.categories}
-          allCountries={state.countries}
+          allCategories={personEditor.categories}
+          allCountries={personEditor.countries}
           yearInputs={yearInputs}
           setYearInputs={setYearInputs}
           applyYearFilter={applyYearFilter}
@@ -180,12 +169,12 @@ export default function ManagePage() {
             openAddAchievement: (id: number) => addToList.openForAchievement(id),
             openAddPeriod: (id: number) => addToList.openForPeriod(id),
             openAddForSelectedPerson: () => {
-              if (state.selected) addToList.openForPerson(state.selected)
+              if (personEditor.selected) addToList.openForPerson(personEditor.selected)
             },
           }}
         >
           <div className="manage-page__content">
-            {isModerator && (
+            {isModerator && publicListsEnabled && (
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                 <button
                   onClick={() => setShowListsModeration(true)}
@@ -203,10 +192,10 @@ export default function ManagePage() {
               </div>
             )}
             <AdaptiveTabs
-              activeTab={state.activeTab}
-              setActiveTab={state.setActiveTab}
-              sidebarCollapsed={state.sidebarCollapsed}
-              setSidebarCollapsed={state.setSidebarCollapsed}
+              activeTab={selection.activeTab}
+              setActiveTab={selection.setActiveTab}
+              sidebarCollapsed={sidebar.sidebarCollapsed}
+              setSidebarCollapsed={sidebar.setSidebarCollapsed}
               isAuthenticated={isAuthenticated}
               userEmailVerified={user?.email_verified}
               onAddClick={() => {
@@ -218,24 +207,24 @@ export default function ManagePage() {
                   modals.setShowAuthModal(true)
                   return
                 }
-                if (state.activeTab === 'persons') {
+                if (selection.activeTab === 'persons') {
                   modals.setCreateType('person')
-                } else if (state.activeTab === 'achievements') {
+                } else if (selection.activeTab === 'achievements') {
                   modals.setCreateType('achievement')
-                } else if (state.activeTab === 'periods') {
+                } else if (selection.activeTab === 'periods') {
                   modals.setCreateType('period')
                 }
                 modals.setShowCreate(true)
               }}
             />
 
-            {state.activeTab === 'persons' && (
+            {selection.activeTab === 'persons' && (
               <PersonsTab
-                sidebarCollapsed={state.sidebarCollapsed}
-                menuSelection={state.menuSelection}
-                setMenuSelection={state.setMenuSelection}
+                sidebarCollapsed={sidebar.sidebarCollapsed}
+                menuSelection={selection.menuSelection}
+                setMenuSelection={selection.setMenuSelection}
                 isModerator={isModerator}
-                mineCounts={state.mineCounts}
+                mineCounts={counts.mineCounts}
                 sharedList={sharedList}
                 personLists={personLists}
                 isAuthenticated={isAuthenticated}
@@ -244,12 +233,12 @@ export default function ManagePage() {
                 setShowCreate={modals.setShowCreate}
                 createType={modals.createType}
                 setCreateType={modals.setCreateType}
-                selectedListId={state.selectedListId}
-                setSelectedListId={state.setSelectedListId}
+                selectedListId={selection.selectedListId}
+                setSelectedListId={selection.setSelectedListId}
                 loadUserLists={async (force?: boolean) => { await loadUserLists.current?.(force) }}
                 showToast={showToast}
-                listItems={state.listItems}
-                listLoading={state.listLoading}
+                listItems={selection.listItems}
+                listLoading={selection.listLoading}
                 personsAlt={dataManager.personsAlt}
                 personsAltLoading={dataManager.personsAltLoading}
                 personsAltInitialLoading={dataManager.personsAltInitialLoading}
@@ -261,33 +250,35 @@ export default function ManagePage() {
                 loadMorePersonsAll={dataManager.loadMorePersonsAll}
                 searchPersons={dataManager.searchPersons}
                 setSearchPersons={dataManager.setSearchPersons}
-                categories={state.categories}
-                countries={state.countries}
+                categories={personEditor.categories}
+                countries={personEditor.countries}
                 filters={filters}
                 setFilters={setFilters}
                 statusFilters={dataManager.statusFilters}
                 setStatusFilters={dataManager.setStatusFilters}
-                listItemIdByDomainIdRef={state.listItemIdByDomainIdRef}
+                listItemIdByDomainIdRef={selection.listItemIdByDomainIdRef}
                 handleDeleteListItem={handleDeleteListItem}
-                selected={state.selected}
-                setSelected={state.setSelected}
+                selected={personEditor.selected}
+                setSelected={personEditor.setSelected}
                 addToList={addToList}
                 user={user}
                 setIsEditing={modals.setIsEditing}
                 setShowEditWarning={modals.setShowEditWarning}
                 currentUserId={currentUserId}
                 onListUpdated={handleListMetaUpdate}
-                onOpenListPublication={() => modals.setShowListPublication(true)}
+                onOpenListPublication={
+                  publicListsEnabled ? () => modals.setShowListPublication(true) : undefined
+                }
               />
             )}
 
-            {state.activeTab === 'achievements' && (
+            {selection.activeTab === 'achievements' && (
               <AchievementsTab
-                sidebarCollapsed={state.sidebarCollapsed}
-                menuSelection={state.menuSelection}
-                setMenuSelection={state.setMenuSelection}
+                sidebarCollapsed={sidebar.sidebarCollapsed}
+                menuSelection={selection.menuSelection}
+                setMenuSelection={selection.setMenuSelection}
                 isModerator={isModerator}
-                mineCounts={state.mineCounts}
+                mineCounts={counts.mineCounts}
                 sharedList={sharedList}
                 personLists={personLists}
                 isAuthenticated={isAuthenticated}
@@ -296,12 +287,12 @@ export default function ManagePage() {
                 setShowCreate={modals.setShowCreate}
                 createType={modals.createType}
                 setCreateType={modals.setCreateType}
-                selectedListId={state.selectedListId}
-                setSelectedListId={state.setSelectedListId}
+                selectedListId={selection.selectedListId}
+                setSelectedListId={selection.setSelectedListId}
                 loadUserLists={async (force?: boolean) => { await loadUserLists.current?.(force) }}
                 showToast={showToast}
-                listItems={state.listItems}
-                listLoading={state.listLoading}
+                listItems={selection.listItems}
+                listLoading={selection.listLoading}
                 achievementsData={dataManager.achievementsData}
                 achievementsMineData={dataManager.achievementsMineData}
                 searchAch={dataManager.searchAch}
@@ -310,22 +301,24 @@ export default function ManagePage() {
                 setFilters={setFilters}
                 achStatusFilters={dataManager.achStatusFilters}
                 setAchStatusFilters={dataManager.setAchStatusFilters}
-                listItemIdByDomainIdRef={state.listItemIdByDomainIdRef}
+                listItemIdByDomainIdRef={selection.listItemIdByDomainIdRef}
                 handleDeleteListItem={handleDeleteListItem}
                 addToList={addToList}
                 currentUserId={currentUserId}
                 onListUpdated={handleListMetaUpdate}
-                onOpenListPublication={() => modals.setShowListPublication(true)}
+                onOpenListPublication={
+                  publicListsEnabled ? () => modals.setShowListPublication(true) : undefined
+                }
               />
             )}
 
-            {state.activeTab === 'periods' && (
+            {selection.activeTab === 'periods' && (
               <PeriodsTab
-                sidebarCollapsed={state.sidebarCollapsed}
-                menuSelection={state.menuSelection}
-                setMenuSelection={state.setMenuSelection}
+                sidebarCollapsed={sidebar.sidebarCollapsed}
+                menuSelection={selection.menuSelection}
+                setMenuSelection={selection.setMenuSelection}
                 isModerator={isModerator}
-                mineCounts={state.mineCounts}
+                mineCounts={counts.mineCounts}
                 sharedList={sharedList}
                 personLists={personLists}
                 isAuthenticated={isAuthenticated}
@@ -334,12 +327,12 @@ export default function ManagePage() {
                 setShowCreate={modals.setShowCreate}
                 createType={modals.createType}
                 setCreateType={modals.setCreateType}
-                selectedListId={state.selectedListId}
-                setSelectedListId={state.setSelectedListId}
+                selectedListId={selection.selectedListId}
+                setSelectedListId={selection.setSelectedListId}
                 loadUserLists={async (force?: boolean) => { await loadUserLists.current?.(force) }}
                 showToast={showToast}
-                listItems={state.listItems}
-                listLoading={state.listLoading}
+                listItems={selection.listItems}
+                listLoading={selection.listLoading}
                 periodsData={dataManager.periodsData}
                 periodsMineData={dataManager.periodsMineData}
                 searchPeriods={dataManager.searchPeriods}
@@ -348,12 +341,14 @@ export default function ManagePage() {
                 setFilters={setFilters}
                 periodsStatusFilters={dataManager.periodsStatusFilters}
                 setPeriodsStatusFilters={dataManager.setPeriodsStatusFilters}
-                listItemIdByDomainIdRef={state.listItemIdByDomainIdRef}
+                listItemIdByDomainIdRef={selection.listItemIdByDomainIdRef}
                 handleDeleteListItem={handleDeleteListItem}
                 addToList={addToList}
                 currentUserId={currentUserId}
                 onListUpdated={handleListMetaUpdate}
-                onOpenListPublication={() => modals.setShowListPublication(true)}
+                onOpenListPublication={
+                  publicListsEnabled ? () => modals.setShowListPublication(true) : undefined
+                }
               />
             )}
 
@@ -371,30 +366,34 @@ export default function ManagePage() {
               setShowEditWarning={modals.setShowEditWarning}
               isReverting={modals.isReverting}
               setIsReverting={modals.setIsReverting}
-              showListPublication={modals.showListPublication}
-              setShowListPublication={modals.setShowListPublication}
-              categories={state.categories}
-              countryOptions={state.countryOptions}
+              showListPublication={publicListsEnabled ? modals.showListPublication : false}
+              setShowListPublication={
+                publicListsEnabled
+                  ? modals.setShowListPublication
+                  : (_show: boolean) => undefined
+              }
+              categories={personEditor.categories}
+              countryOptions={personEditor.countryOptions}
               categorySelectOptions={categorySelectOptions}
               countrySelectOptions={countrySelectOptions}
-              newLifePeriods={state.newLifePeriods}
-              setNewLifePeriods={state.setNewLifePeriods}
-              selected={state.selected}
-              setSelected={state.setSelected}
-              lifePeriods={state.lifePeriods}
-              setLifePeriods={state.setLifePeriods}
-              editBirthYear={state.editBirthYear}
-              setEditBirthYear={state.setEditBirthYear}
-              editDeathYear={state.editDeathYear}
-              setEditDeathYear={state.setEditDeathYear}
-              editPersonCategory={state.editPersonCategory}
-              setEditPersonCategory={state.setEditPersonCategory}
+              newLifePeriods={personEditor.newLifePeriods}
+              setNewLifePeriods={personEditor.setNewLifePeriods}
+              selected={personEditor.selected}
+              setSelected={personEditor.setSelected}
+              lifePeriods={personEditor.lifePeriods}
+              setLifePeriods={personEditor.setLifePeriods}
+              editBirthYear={personEditor.editBirthYear}
+              setEditBirthYear={personEditor.setEditBirthYear}
+              editDeathYear={personEditor.editDeathYear}
+              setEditDeathYear={personEditor.setEditDeathYear}
+              editPersonCategory={personEditor.editPersonCategory}
+              setEditPersonCategory={personEditor.setEditPersonCategory}
               personLists={personLists}
               isAuthenticated={isAuthenticated}
               user={user}
               isModerator={isModerator}
               addToList={addToList}
-              selectedListId={state.selectedListId}
+              selectedListId={selection.selectedListId}
               currentUserId={currentUserId}
               showToast={showToast}
               resetPersons={dataManager.resetPersons}
@@ -410,11 +409,13 @@ export default function ManagePage() {
 
       <div style={{ height: 56 }} />
       <ContactFooter fixed />
-      <ListModerationModal
-        isOpen={showListsModeration}
-        onClose={() => setShowListsModeration(false)}
-        showToast={showToast}
-      />
+      {publicListsEnabled && (
+        <ListModerationModal
+          isOpen={showListsModeration}
+          onClose={() => setShowListsModeration(false)}
+          showToast={showToast}
+        />
+      )}
     </div>
   )
 }

@@ -98,6 +98,7 @@ vi.mock('shared/ui/EditWarningModal', () => ({
 
 vi.mock('shared/api/core', () => ({
   apiFetch: vi.fn(),
+  apiData: vi.fn(),
 }))
 
 vi.mock('shared/api/api', () => ({

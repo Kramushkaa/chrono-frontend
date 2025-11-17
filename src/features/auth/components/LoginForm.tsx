@@ -28,13 +28,14 @@ export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 8, maxWidth: 320 }}>
-      <h3>Вход</h3>
+      <h2>Вход</h2>
       <input
         type="text"
         placeholder="Логин или Email"
         value={loginOrEmail}
         onChange={(e) => setLoginOrEmail(e.target.value)}
         required
+        data-testid="login-input"
       />
       <input
         type="password"
@@ -42,9 +43,10 @@ export function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
+        data-testid="password-input"
       />
       {error && <div style={{ color: 'red', fontSize: 12 }}>{error}</div>}
-      <button type="submit" disabled={loading}>{loading ? 'Входим...' : 'Войти'}</button>
+      <button type="submit" disabled={loading} data-testid="login-button">{loading ? 'Входим...' : 'Войти'}</button>
     </form>
   );
 }

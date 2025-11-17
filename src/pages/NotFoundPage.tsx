@@ -6,7 +6,7 @@ import { SEO } from 'shared/ui/SEO';
 
 export default function NotFoundPage() {
   return (
-    <div className="app" id="chrononinja-app" role="main" aria-label="Страница не найдена">
+    <div className="app" id="chrononinja-app">
       <SEO
         title="Страница не найдена — Хронониндзя"
         description="К сожалению, запрашиваемая страница не существует."

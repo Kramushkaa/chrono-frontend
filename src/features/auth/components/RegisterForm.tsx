@@ -60,14 +60,14 @@ export function RegisterForm({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 8, maxWidth: 320 }}>
-      <h3>Регистрация</h3>
+      <h2>Регистрация</h2>
       <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       <input type="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} required />
       <input type="text" placeholder="Логин" value={loginName} onChange={(e) => setLoginName(e.target.value)} />
       <input type="text" placeholder="Имя пользователя" value={userName} onChange={(e) => setUserName(e.target.value)} />
       {error && <pre style={{ whiteSpace: 'pre-wrap', color: 'red', fontSize: 12 }}>{error}</pre>}
       <button type="submit" disabled={loading}>{loading ? 'Регистрируем...' : 'Зарегистрироваться'}</button>
-      <div style={{ fontSize: 12, color: '#666' }}>
+      <div style={{ fontSize: 12, color: '#999' }}>
         Пароль: минимум 8 символов, хотя бы одна заглавная, строчная буква и цифра. Логин — латиница/цифры/"-"/"_".
       </div>
     </form>

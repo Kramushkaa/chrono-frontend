@@ -1,4 +1,4 @@
-.backend-info {
+ .backend-info {
   position: fixed;
   bottom: 20px;
   left: 20px;
@@ -137,12 +137,13 @@
     right: 10px;
     max-width: none;
   }
-  
+
   .backend-header {
     padding: 10px 12px;
   }
-  
+
   .backend-details {
     padding: 15px;
   }
-} 
+}
+

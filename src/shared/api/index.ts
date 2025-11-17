@@ -15,6 +15,7 @@ export {
   applyBackendOverride,
   maybePercentDecode,
 } from './core'
+export { createApiClient } from './client'
 
 // Meta (categories, countries, etc.)
 export { getCategories, getCountries, getCountryOptions, getDtoVersion } from './meta'

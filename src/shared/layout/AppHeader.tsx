@@ -100,8 +100,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
     <header 
       className={`app-header ${isScrolled ? 'scrolled' : ''}`}
       id="app-header"
-      role="banner"
-              aria-label="Заголовок приложения Хронониндзя"
+      aria-label="Заголовок приложения Хронониндзя"
       style={{
         padding: isScrolled ? '0.5rem 1rem' : '0.75rem 1rem',
         transition: 'all 0.3s ease'

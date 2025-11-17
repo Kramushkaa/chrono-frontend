@@ -145,7 +145,7 @@ setFilters: (filters: FiltersState | ((prev: FiltersState) => FiltersState)) => 
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Полная архитектура приложения
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Гайд для разработчиков
-- **[BACKEND_SWITCHING.md](./BACKEND_SWITCHING.md)** - Переключение между backend серверами
+- **[BACKEND_SWITCHING.md](./src/features/backend-switch/BACKEND_SWITCHING.md)** - Переключение между backend серверами
 - **[PERFORMANCE_SEO_IMPROVEMENTS.md](./PERFORMANCE_SEO_IMPROVEMENTS.md)** - Оптимизации Performance и SEO (October 15, 2025)
 
 ---

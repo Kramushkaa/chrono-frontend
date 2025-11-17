@@ -32,6 +32,7 @@
 | `VITE_API_URL` | Кастомный URL API (переопределяет логику выбора) | не установлено | `http://localhost:3001` |
 | `VITE_FORCE_API_URL` | Принудительный URL API (высший приоритет) | не установлено | `http://test-backend:3001` |
 | `VITE_SHOW_BACKEND_INFO` | Показывать виджет с информацией о backend | не установлено | `true` или `false` |
+| `VITE_FEATURE_PUBLIC_LISTS` | Включить публичные списки и их маршруты | `false` | `true` или `false` |
 
 ### Шаблон .env.local для локальной разработки
 
@@ -51,6 +52,9 @@ VITE_REMOTE_BACKEND_URL=https://chrono-back-kramushka.amvera.io
 
 # Показывать виджет BackendInfo (опционально, по умолчанию показывается в dev)
 # VITE_SHOW_BACKEND_INFO=true
+
+# Включить публичные списки (фичеветка, по умолчанию скрыты)
+VITE_FEATURE_PUBLIC_LISTS=false
 
 # Принудительно установить API URL (переопределяет всю логику)
 # VITE_FORCE_API_URL=http://custom-backend:3001
@@ -74,6 +78,7 @@ VITE_REMOTE_BACKEND_URL=https://chrono-back-kramushka.amvera.io
 |------------|----------|----------------|-----------------|
 | `PORT` | Порт для production Express сервера (server.js) | Runtime | `3000`, `8080` |
 | `VITE_API_URL` | Переопределить URL API для production | Build-время | `https://api.yourapp.com` |
+| `VITE_FEATURE_PUBLIC_LISTS` | Включить публичные списки в production | Build-время | `true` или `false` |
 
 ### ⚠️ Важно для Production
 
@@ -257,7 +262,7 @@ npm run serve
 ## 📚 Полезные ссылки
 
 - [Vite Environment Variables](https://vitejs.dev/guide/env-and-mode.html)
-- [Документация по переключению backend](./BACKEND_SWITCHING.md)
+- [Документация по переключению backend](./src/features/backend-switch/BACKEND_SWITCHING.md)
 - [Примеры env файлов](./env.example)
 
 ---

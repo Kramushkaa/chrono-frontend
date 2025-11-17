@@ -65,3 +65,59 @@ export function createCountCache(
   }
 }
 
+export interface HttpCacheEntry<T> {
+  value: T
+  expiresAt: number
+  etag?: string
+  version?: string
+  ttlMs?: number
+}
+
+export interface HttpCacheStore {
+  get<T>(key: string): HttpCacheEntry<T> | null
+  peek<T>(key: string): HttpCacheEntry<T> | null
+  set<T>(key: string, value: T, options: { ttlMs: number; etag?: string; version?: string }): void
+  invalidate(key?: string): void
+}
+
+export function createHttpCacheStore(): HttpCacheStore {
+  const store = new Map<string, HttpCacheEntry<unknown>>()
+
+  const cleanup = (key: string, entry: HttpCacheEntry<unknown>) => {
+    if (Date.now() > entry.expiresAt) {
+      store.delete(key)
+      return true
+    }
+    return false
+  }
+
+  return {
+    get<T>(key: string): HttpCacheEntry<T> | null {
+      const entry = store.get(key)
+      if (!entry) return null
+      if (cleanup(key, entry)) return null
+      return entry as HttpCacheEntry<T>
+    },
+    peek<T>(key: string): HttpCacheEntry<T> | null {
+      const entry = store.get(key)
+      return (entry as HttpCacheEntry<T>) ?? null
+    },
+    set<T>(key: string, value: T, options: { ttlMs: number; etag?: string; version?: string }) {
+      store.set(key, {
+        value,
+        expiresAt: Date.now() + options.ttlMs,
+        etag: options.etag,
+        version: options.version,
+        ttlMs: options.ttlMs,
+      })
+    },
+    invalidate(key?: string) {
+      if (typeof key === 'string') {
+        store.delete(key)
+      } else {
+        store.clear()
+      }
+    },
+  }
+}
+

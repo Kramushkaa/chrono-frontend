@@ -172,7 +172,7 @@ export function UnifiedManageSection({
       }}
     >
       <>
-        {modeIsList && selectedList && !selectedList.readonly && (
+        {modeIsList && selectedList && !selectedList.readonly && onOpenListPublication && (
           <div style={{ marginBottom: 16 }}>
             <button
               onClick={() => onOpenListPublication?.()}

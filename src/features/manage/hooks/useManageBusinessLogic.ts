@@ -7,6 +7,7 @@ import { getMyAchievementsCount } from 'shared/api/achievements'
 import { getMyPeriodsCount } from 'shared/api/periods'
 import { apiData } from 'shared/api/core'
 import type { LifePeriod } from './useManageState'
+import { useManageCounts, useListSelection, usePersonEditorState } from '../context/ManageStateContext'
 
 // Shared list type (from useLists)
 type SharedList = {
@@ -21,40 +22,6 @@ type SharedList = {
 }
 
 interface ManageBusinessLogicParams {
-  // State
-  selected: Person | null
-  setSelected: (person: Person | null | ((prev: Person | null) => Person | null)) => void
-  categories: string[]
-  setCategories: (categories: string[]) => void
-  countries: string[]
-  setCountries: (countries: string[]) => void
-  countryOptions: CountryOption[]
-  setCountryOptions: (options: CountryOption[]) => void
-  lifePeriods: LifePeriod[]
-  setLifePeriods: (periods: LifePeriod[] | ((prev: LifePeriod[]) => LifePeriod[])) => void
-  editPersonCategory: string
-  setEditPersonCategory: (category: string) => void
-  editBirthYear: number
-  setEditBirthYear: (year: number) => void
-  editDeathYear: number
-  setEditDeathYear: (year: number) => void
-  activeTab: 'persons' | 'achievements' | 'periods'
-  menuSelection: 'all' | 'pending' | 'mine' | `list:${number}`
-  selectedListId: number | null
-  setSelectedListId: (id: number | null) => void
-  mineCounts: { persons: number; achievements: number; periods: number }
-  setMineCounts: (counts: { persons: number; achievements: number; periods: number }) => void
-  countsLoadKeyRef: React.MutableRefObject<string | null>
-  countsLastTsRef: React.MutableRefObject<number>
-  fetchedDetailsIdsRef: React.MutableRefObject<Set<string>>
-  lastSelectedRef: React.MutableRefObject<Person | null>
-  listItems: MixedListItem[]
-  setListItems: (items: MixedListItem[]) => void
-  listItemIdByDomainIdRef: React.MutableRefObject<Map<string, number>>
-  listLoading: boolean
-  setListLoading: (loading: boolean) => void
-  
-  // Props
   isAuthenticated: boolean
   user: AuthUser | null
   resetPersons: () => void
@@ -87,41 +54,39 @@ export function useManageBusinessLogic(params: ManageBusinessLogicParams) {
     setSelected,
     categories,
     setCategories,
-    // countries - unused
-    // setCountries - used in useEffect
+    countries,
     setCountries,
     countryOptions,
     setCountryOptions,
     lifePeriods,
     setLifePeriods,
-    // editPersonCategory - unused
+    editPersonCategory,
     setEditPersonCategory,
     editBirthYear,
     setEditBirthYear,
     editDeathYear,
     setEditDeathYear,
+    newLifePeriods,
+    setNewLifePeriods,
+    fetchedDetailsIdsRef,
+    lastSelectedRef,
+  } = usePersonEditorState()
+
+  const {
     activeTab,
     menuSelection,
     selectedListId,
     setSelectedListId,
-    mineCounts, // eslint-disable-line @typescript-eslint/no-unused-vars -- используется в интерфейсе для совместимости
-    setMineCounts,
-    countsLoadKeyRef,
-    countsLastTsRef,
-    fetchedDetailsIdsRef,
-    lastSelectedRef,
     listItems,
     setListItems,
     listItemIdByDomainIdRef,
     listLoading,
     setListLoading,
-    isAuthenticated,
-    user,
-    resetPersons,
-    resetAchievements,
-    resetPeriods,
-    sharedList,
-  } = params
+  } = useListSelection()
+
+  const { mineCounts, setMineCounts, countsLoadKeyRef, countsLastTsRef } = useManageCounts()
+
+  const { isAuthenticated, user, resetPersons, resetAchievements, resetPeriods, sharedList } = params
 
   // Загрузка метаданных - выполняем только один раз при монтировании
   useEffect(() => {

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getBackendInfo, testBackendConnection, getApiCandidates, applyBackendOverride } from 'shared/api/core';
 import { getDtoVersion } from 'shared/api/meta';
-import { DTO_VERSION as DTO_VERSION_FE } from '../dto';
+import { DTO_VERSION as DTO_VERSION_FE } from 'shared/dto/dtoDescriptors';
+import { featureFlags } from 'shared/config/features';
 import '../styles/BackendInfo.css';
 
 interface BackendInfoProps {
@@ -10,12 +11,9 @@ interface BackendInfoProps {
 
 export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
   const backendInfo = getBackendInfo();
-  const isDev = import.meta.env.MODE === 'development';
   const useLocal = import.meta.env.VITE_USE_LOCAL_BACKEND === 'true';
-  const showOverride = import.meta.env.VITE_SHOW_BACKEND_INFO === 'true';
   const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
-  // Показываем только в деве/локале/override
-  const shouldHide = !showOverride && !(isDev || useLocal || backendInfo.isLocal || isLocalHost);
+  const allowIndicator = featureFlags.backendInfo || useLocal || backendInfo.isLocal || isLocalHost;
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -26,7 +24,7 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
   // Тестируем подключение при загрузке
   useEffect(() => {
     const isSameOrigin = typeof window !== 'undefined' && backendInfo.baseUrl?.startsWith(window.location.origin);
-    if (!shouldHide && isSameOrigin) {
+    if (allowIndicator && isSameOrigin) {
       testConnection();
     }
     (async () => {
@@ -35,7 +33,7 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
       setDtoMismatch(Boolean(v && v !== DTO_VERSION_FE));
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [backendInfo.baseUrl, shouldHide]);
+  }, [backendInfo.baseUrl, allowIndicator]);
 
   const testConnection = async () => {
     setIsTesting(true);
@@ -52,7 +50,7 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
     }
   };
 
-  if (shouldHide) return null;
+  if (!allowIndicator) return null;
 
   const getStatusIcon = () => {
     if (isTesting) return '🔄';
@@ -71,15 +69,19 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
   };
 
   const getBackendColor = () => {
-    return backendInfo.isLocal ? '#4CAF50' : '#2196F3';
+    return backendInfo.isLocal ? '#2e7d32' : '#2196F3';
   };
 
   return (
     <div className={`backend-info ${className}`}>
-      <div className="backend-header" onClick={() => setShowDetails(!showDetails)} style={{
-        border: dtoMismatch ? '1px solid rgba(255,120,120,0.6)' : undefined,
-        boxShadow: dtoMismatch ? '0 0 0 2px rgba(255,80,80,0.15) inset' : undefined
-      }}>
+      <div
+        className="backend-header"
+        onClick={() => setShowDetails(!showDetails)}
+        style={{
+          border: dtoMismatch ? '1px solid rgba(255,120,120,0.6)' : undefined,
+          boxShadow: dtoMismatch ? '0 0 0 2px rgba(255,80,80,0.15) inset' : undefined,
+        }}
+      >
         <div className="backend-status">
           <span className="status-icon">{getStatusIcon()}</span>
           <span className="status-text">{getStatusText()}</span>
@@ -88,13 +90,16 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
           {getBackendType()} Backend
         </div>
         {dtoMismatch && (
-          <div title="Версии DTO отличаются" style={{ color: '#ff9090', fontSize: 12, fontWeight: 600, marginLeft: 8 }}>
+          <div
+            title="Версии DTO отличаются"
+            style={{ color: '#ff9090', fontSize: 12, fontWeight: 600, marginLeft: 8 }}
+          >
             DTO mismatch
           </div>
         )}
-        <button 
+        <button
           className="test-button"
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             testConnection();
           }}
@@ -122,7 +127,8 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
             <strong>Повторы:</strong> {backendInfo.config.retries}
           </div>
           <div className="detail-item">
-            <strong>DTO версии:</strong> FE={DTO_VERSION_FE}{dtoVersionBE ? `, BE=${dtoVersionBE}` : ''}
+            <strong>DTO версии:</strong> FE={DTO_VERSION_FE}
+            {dtoVersionBE ? `, BE=${dtoVersionBE}` : ''}
           </div>
           {dtoMismatch && (
             <div className="detail-item" style={{ color: '#ff9090' }}>
@@ -159,7 +165,7 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
               <input
                 type="text"
                 value={overrideUrl}
-                onChange={(e) => setOverrideUrl(e.target.value)}
+                onChange={e => setOverrideUrl(e.target.value)}
                 placeholder="Произвольный URL"
                 style={{ flex: 1, padding: '4px 8px' }}
               />
@@ -168,12 +174,16 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
               </button>
             </div>
           </div>
-          
+
           <div className="backend-tips">
             <h4>💡 Как переключиться:</h4>
             <ul>
-              <li>Создайте файл <code>.env.local</code> в корне проекта</li>
-              <li>Добавьте: <code>VITE_USE_LOCAL_BACKEND=true</code></li>
+              <li>
+                Создайте файл <code>.env.local</code> в корне проекта
+              </li>
+              <li>
+                Добавьте: <code>VITE_USE_LOCAL_BACKEND=true</code>
+              </li>
               <li>Перезапустите приложение</li>
               <li>Убедитесь, что локальный backend запущен на порту 3001</li>
             </ul>
@@ -182,6 +192,5 @@ export const BackendInfo: React.FC<BackendInfoProps> = ({ className = '' }) => {
       )}
     </div>
   );
-}; 
-
+};
 

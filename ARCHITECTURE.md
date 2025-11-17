@@ -202,6 +202,13 @@ try {
 - Типы: success, error, info
 - Используется вместо alert() для лучшего UX
 
+### 7. React Query для серверного состояния
+
+- Базовые данные (`useEntityQuery`) теперь обслуживаются `@tanstack/react-query` – есть единый `QueryClient` c `staleTime=60s` и отключённым refetch on focus.
+- Адаптер `useEntityQuery` сохраняет прежний API (endpoint/filters/transform), но под капотом использует query cache и инвалидацию (`refetch()` → `invalidateQueries`).
+- Добавлен `createApiClient` (`shared/api/client.ts`) для типизированных GET/POST/PUT вызовов с автоматическим распаковкой `{ data }`.
+- Backend switch UI вынесен в feature-модуль и включается через `featureFlags.backendInfo`, чтобы не тянуть диагностический виджет в прод-окружение.
+
 ## Паттерны и best practices
 
 ### Custom Hooks
@@ -325,7 +332,7 @@ const { user, login, logout } = useAuth()
 
 ## Дальнейшие улучшения
 
-- [ ] Внедрить React Query/SWR для server state
+- [x] Внедрить React Query для server state
 - [ ] Добавить service workers для offline support
 - [ ] Виртуализация списков для больших датасетов
 - [ ] Progressive Web App features

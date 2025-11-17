@@ -1,14 +1,15 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-// import { ProtectedRoute } from '@shared/ui/ProtectedRoute'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from 'shared/context/AuthContext'
-import { BackendInfo } from 'shared/ui/BackendInfo'
+import { BackendInfo } from 'features/backend-switch/components/BackendInfo'
 import { ErrorBoundary } from 'shared/components/ErrorBoundary'
 import './App.css'
 import { ToastProvider } from 'shared/context/ToastContext'
 import { Toasts } from 'shared/ui/Toasts'
 import { LoadingStates } from 'shared/ui/LoadingStates'
 import { useUnauthorizedToast } from 'shared/hooks/useUnauthorizedToast'
+import { featureFlags } from 'shared/config/features'
 
 // Lazy-loaded chunks
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
@@ -26,8 +27,20 @@ const TimelinePage = React.lazy(() => import('features/timeline/pages/TimelinePa
 const PublicListsPage = React.lazy(() => import('./pages/PublicListsPage'))
 const PublicListDetailPage = React.lazy(() => import('./pages/PublicListDetailPage'))
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+      retry: 2,
+    },
+  },
+})
+
 function AppContent() {
   useUnauthorizedToast()
+  const publicListsEnabled = featureFlags.publicLists
   
   return (
     <React.Suspense fallback={<LoadingStates size="large" message="Загрузка приложения..." />}>
@@ -42,8 +55,12 @@ function AppContent() {
           <Route path="/quiz/history/attempt/:attemptId" element={<QuizAttemptDetailPage />} />
           <Route path="/quiz/history/:sessionToken" element={<QuizSessionDetailPage />} />
           <Route path="/quiz/:shareCode" element={<SharedQuizPage />} />
-          <Route path="/lists/public" element={<PublicListsPage />} />
-          <Route path="/lists/public/:slug" element={<PublicListDetailPage />} />
+          {publicListsEnabled && (
+            <>
+              <Route path="/lists/public" element={<PublicListsPage />} />
+              <Route path="/lists/public/:slug" element={<PublicListDetailPage />} />
+            </>
+          )}
           <Route path="/lists" element={<ManagePage />} />
           <Route path="/manage" element={<Navigate to="/lists" replace />} />
           <Route path="/profile" element={<ProfilePage />} />
@@ -51,7 +68,7 @@ function AppContent() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </ErrorBoundary>
-      <BackendInfo />
+      {featureFlags.backendInfo && <BackendInfo />}
       <Toasts />
     </React.Suspense>
   )
@@ -60,13 +77,15 @@ function AppContent() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <ToastProvider>
-          <AppContent />
-        </ToastProvider>
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
-  );
+  )
 }
 
 

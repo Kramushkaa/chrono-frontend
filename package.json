@@ -4,6 +4,8 @@
   "description": "Frontend for Хронониндзя (Chrononinja) historical timeline",
   "private": true,
   "dependencies": {
+    "@chrononinja/dto": "file:../chronoline-backend-only/shared-dto",
+    "@tanstack/react-query": "^5.51.1",
     "compression": "^1.7.4",
     "express": "^4.18.2",
     "react": "^18.2.0",
@@ -28,7 +30,8 @@
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.6"
+    "vitest": "^4.0.6",
+    "zod": "^4.1.12"
   },
   "scripts": {
     "dev": "vite",
@@ -44,7 +47,8 @@
     "analyze": "source-map-explorer 'build/assets/js/*.js'",
     "build:analyze": "npm run build && npm run analyze",
     "lighthouse": "lighthouse http://localhost:3000 --view --output html --output-path ./lighthouse/latest.html",
-    "lighthouse:ci": "lighthouse http://localhost:3000 --output json --output-path ./lighthouse/latest.json --quiet --chrome-flags=\"--headless\""
+    "lighthouse:ci": "lighthouse http://localhost:3000 --output json --output-path ./lighthouse/latest.json --quiet --chrome-flags=\"--headless\"",
+    "postinstall": "node scripts/check-dto-version.js"
   },
   "eslintConfig": {
     "extends": [

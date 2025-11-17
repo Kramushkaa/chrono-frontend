@@ -1,4 +1,5 @@
 import { apiData, apiFetch, maybePercentDecode } from './core'
+import { createApiClient, buildQueryString } from './client'
 import type { UpsertPersonDTO } from '../dto'
 // import { validateDto } from '../dto' // Removed: not available in frontend (requires zod)
 import type { Person } from '../types'
@@ -56,30 +57,22 @@ interface ApiFilters {
   offset?: number
 }
 
-// Helper function to build query string from filters
-const buildQueryString = (filters: ApiFilters): string => {
-  const params = new URLSearchParams()
+const personsClient = createApiClient({ basePath: '/api/persons' })
 
-  if (filters.category) {
-    params.append('category', filters.category)
-  }
-  if (filters.country) {
-    params.append('country', filters.country)
-  }
-  if (filters.startYear !== undefined) {
-    params.append('startYear', filters.startYear.toString())
-  }
-  if (filters.endYear !== undefined) {
-    params.append('endYear', filters.endYear.toString())
-  }
-  if (filters.limit !== undefined) {
-    params.append('limit', filters.limit.toString())
-  }
-  if (filters.offset !== undefined) {
-    params.append('offset', filters.offset.toString())
+async function parseJsonResponse<T>(response: Response, defaultError: string): Promise<T> {
+  let payload: any = null
+  try {
+    payload = await response.json()
+  } catch {
+    payload = null
   }
 
-  return params.toString()
+  if (!response.ok) {
+    const message = payload?.message || payload?.error || defaultError
+    throw new Error(message)
+  }
+
+  return (payload?.data ?? payload ?? null) as T
 }
 
 // Get persons with optional filters
@@ -87,8 +80,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
   try {
     const withDefaultLimit: ApiFilters = { limit: 1000, ...filters }
     const queryString = buildQueryString(withDefaultLimit)
-    const url = `/api/persons${queryString ? `?${queryString}` : ''}`
-    const data = await apiData<PersonApiResponse[]>(url)
+    const data = await personsClient.get<PersonApiResponse[]>(queryString ? `?${queryString}` : '')
 
     let transformedData = data.map((person): Person => ({
       id: person.id,
@@ -137,7 +129,7 @@ export const getPersons = async (filters: ApiFilters = {}): Promise<Person[]> =>
 // Get person by ID
 export async function getPersonById(id: string): Promise<Person | null> {
   try {
-    const p = await apiData<PersonApiResponse>(`/api/persons/${encodeURIComponent(id)}`)
+    const p = await personsClient.get<PersonApiResponse>(`/${encodeURIComponent(id)}`)
     const mapped: Person = {
       id: p.id,
       name: maybePercentDecode(p.name || ''),
@@ -185,45 +177,32 @@ export async function getPersonById(id: string): Promise<Person | null> {
 type UpsertPersonPayload = UpsertPersonDTO
 
 export async function adminUpsertPerson(payload: UpsertPersonPayload) {
-  // Client-side validation removed (backend validates)
-  // if (import.meta.env.MODE !== 'production') {
-  //   const v = validateDto('UpsertPerson', payload)
-  //   if (!v.ok) {
-  //     logger.warn('DTO validation failed (UpsertPerson)', { errors: v.errors, payload })
-  //   }
-  // }
-  const res = await apiFetch(`/api/admin/persons`, {
+  const response = await apiFetch('/api/admin/persons', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   })
-  const data = await res.json().catch(() => null)
-  if (!res.ok) throw new Error(data?.message || 'Не удалось сохранить личность')
-  return data
+  return parseJsonResponse(response, 'Не удалось обновить данные личности')
 }
 
 // Propose edit to existing person
 export async function proposePersonEdit(personId: string, payload: Partial<UpsertPersonPayload>) {
-  const res = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/edits`, {
+  const response = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/edits`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ payload }),
   })
-  const data = await res.json().catch(() => null)
-  if (!res.ok) throw new Error(data?.message || 'Не удалось отправить правку')
-  return data
+  return parseJsonResponse(response, 'Не удалось отправить правки')
 }
 
 // Propose new person
 export async function proposeNewPerson(payload: UpsertPersonPayload) {
-  const res = await apiFetch(`/api/persons/propose`, {
+  const response = await apiFetch('/api/persons/propose', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   })
-  const data = await res.json().catch(() => null)
-  if (!res.ok) throw new Error(data?.message || 'Не удалось предложить личность')
-  return data
+  return parseJsonResponse(response, 'Ошибка при создании личности')
 }
 
 // Update person
@@ -240,14 +219,12 @@ export async function updatePerson(
     lifePeriods?: Array<{ countryId: string; start: number | ''; end: number | '' }>
   }
 ) {
-  const res = await apiFetch(`/api/persons/${personId}`, {
+  const response = await apiFetch(`/api/persons/${encodeURIComponent(personId)}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
-  const responseData = await res.json().catch(() => null)
-  if (!res.ok) throw new Error(responseData?.message || 'Не удалось обновить личность')
-  return responseData
+  return parseJsonResponse(response, 'Не удалось обновить личность')
 }
 
 // Person drafts
@@ -256,20 +233,15 @@ export async function getPersonDrafts(limit?: number, offset?: number) {
   if (limit) params.append('limit', limit.toString())
   if (offset) params.append('offset', offset.toString())
 
-  const res = await apiFetch(`/api/persons/drafts?${params.toString()}`)
-  const data = await res.json().catch(() => null)
-  if (!res.ok) throw new Error(data?.message || 'Не удалось получить черновики личностей')
-  return data
+  const response = await apiFetch(`/api/persons/drafts?${params.toString()}`)
+  return parseJsonResponse(response, 'Не удалось получить черновики')
 }
 
 export async function submitPersonDraft(personId: string) {
-  const res = await apiFetch(`/api/persons/${personId}/submit`, {
+  const response = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/submit`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
   })
-  const data = await res.json().catch(() => null)
-  if (!res.ok) throw new Error(data?.message || 'Не удалось отправить черновик на модерацию')
-  return data
+  return parseJsonResponse(response, 'Не удалось отправить на модерацию')
 }
 
 export async function createPersonDraft(data: {
@@ -283,24 +255,19 @@ export async function createPersonDraft(data: {
   wikiLink: string | null
   lifePeriods: Array<{ countryId: number; start: number; end: number }>
 }) {
-  const res = await apiFetch(`/api/persons/propose`, {
+  const response = await apiFetch('/api/persons/propose', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ...data, saveAsDraft: true }),
   })
-  const responseData = await res.json().catch(() => null)
-  if (!res.ok) throw new Error(responseData?.message || 'Не удалось создать черновик личности')
-  return responseData
+  return parseJsonResponse(response, 'Не удалось создать черновик')
 }
 
 export async function revertPersonToDraft(personId: string) {
-  const res = await apiFetch(`/api/persons/${personId}/revert-to-draft`, {
+  const response = await apiFetch(`/api/persons/${encodeURIComponent(personId)}/revert-to-draft`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
   })
-  const responseData = await res.json().catch(() => null)
-  if (!res.ok) throw new Error(responseData?.message || 'Не удалось вернуть личность в черновики')
-  return responseData
+  return parseJsonResponse(response, 'Не удалось вернуть в черновик')
 }
 
 // Count helpers with caching

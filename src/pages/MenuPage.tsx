@@ -8,7 +8,7 @@ export default function MenuPage() {
   const handleOpenTimeline = () => navigate('/timeline')
 
   return (
-    <div className="app" id="chrononinja-app" role="main" aria-label="Хронониндзя — Главное меню">
+    <div className="app" id="chrononinja-app">
       <MainMenu onOpenTimeline={handleOpenTimeline} />
     </div>
   )
