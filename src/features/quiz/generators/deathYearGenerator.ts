@@ -46,6 +46,3 @@ export const generateDeathYearQuestion = (persons: Person[]): QuizQuestion => {
   };
 };
 
-
-
-

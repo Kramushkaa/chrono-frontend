@@ -2,24 +2,32 @@ import { Person } from 'shared/types';
 import { QuizQuestion, CountryQuestionData } from '../types';
 import { generateSimpleFallback } from './fallbackGenerator';
 
-export const generateCountryQuestion = (persons: Person[]): QuizQuestion => {
+export const generateCountryQuestion = (
+  persons: Person[],
+  allCountries?: string[]
+): QuizQuestion => {
   const person = persons[Math.floor(Math.random() * persons.length)];
   const correctCountry = Array.isArray(person.country) ? person.country[0] : person.country;
   
-  // Получаем все доступные страны
-  const allCountriesSet = new Set<string>();
-  persons.forEach(p => {
-    if (Array.isArray(p.country)) {
-      p.country.forEach(country => allCountriesSet.add(country));
-    } else {
-      allCountriesSet.add(p.country);
-    }
-  });
-  const allCountriesArray = Array.from(allCountriesSet);
+  // Используем страны из API, если доступны, иначе извлекаем из persons
+  let allCountriesArray: string[];
+  if (allCountries && allCountries.length > 0) {
+    allCountriesArray = allCountries;
+  } else {
+    const allCountriesSet = new Set<string>();
+    persons.forEach(p => {
+      if (Array.isArray(p.country)) {
+        p.country.forEach(country => allCountriesSet.add(country));
+      } else {
+        allCountriesSet.add(p.country);
+      }
+    });
+    allCountriesArray = Array.from(allCountriesSet);
+  }
   
   if (allCountriesArray.length < 4) {
     // Если стран недостаточно, генерируем вопрос другого типа
-    return generateSimpleFallback(persons);
+    return generateSimpleFallback(persons, allCountries);
   }
   
   // Генерируем неправильные варианты
@@ -56,7 +64,4 @@ export const generateCountryQuestion = (persons: Person[]): QuizQuestion => {
     data
   };
 };
-
-
-
 

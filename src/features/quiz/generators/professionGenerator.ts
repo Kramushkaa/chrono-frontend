@@ -2,17 +2,21 @@ import { Person } from 'shared/types';
 import { QuizQuestion, ProfessionQuestionData } from '../types';
 import { generateSimpleFallback } from './fallbackGenerator';
 
-export const generateProfessionQuestion = (persons: Person[]): QuizQuestion => {
+export const generateProfessionQuestion = (
+  persons: Person[],
+  allCategories?: string[]
+): QuizQuestion => {
   const person = persons[Math.floor(Math.random() * persons.length)];
   const correctProfession = person.category;
   
-  // Получаем все доступные категории
-  const allCategoriesSet = new Set(persons.map(p => p.category));
-  const allCategoriesArray = Array.from(allCategoriesSet);
+  // Используем категории из API, если доступны, иначе извлекаем из persons
+  const allCategoriesArray = allCategories && allCategories.length > 0
+    ? allCategories
+    : Array.from(new Set(persons.map(p => p.category)));
   
   if (allCategoriesArray.length < 4) {
     // Если категорий недостаточно, генерируем вопрос другого типа
-    return generateSimpleFallback(persons);
+    return generateSimpleFallback(persons, undefined, allCategories);
   }
   
   // Генерируем неправильные варианты
@@ -49,7 +53,4 @@ export const generateProfessionQuestion = (persons: Person[]): QuizQuestion => {
     data
   };
 };
-
-
-
 

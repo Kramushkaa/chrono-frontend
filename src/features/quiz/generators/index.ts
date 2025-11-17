@@ -11,6 +11,3 @@ export { generateGuessPersonQuestion } from './guessPersonGenerator';
 
 export type { QuestionGenerator } from './types';
 
-
-
-

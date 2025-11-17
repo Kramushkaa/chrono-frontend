@@ -42,6 +42,3 @@ export const generateBirthYearQuestion = (persons: Person[]): QuizQuestion => {
   };
 };
 
-
-
-
