@@ -9,6 +9,7 @@ import { ToastProvider } from 'shared/context/ToastContext'
 import { Toasts } from 'shared/ui/Toasts'
 import { LoadingStates } from 'shared/ui/LoadingStates'
 import { useUnauthorizedToast } from 'shared/hooks/useUnauthorizedToast'
+import { useOffline } from 'shared/hooks/useOffline'
 import { featureFlags } from 'shared/config/features'
 
 // Lazy-loaded chunks
@@ -40,6 +41,7 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   useUnauthorizedToast()
+  useOffline() // Отслеживаем offline режим
   const publicListsEnabled = featureFlags.publicLists
   
   return (

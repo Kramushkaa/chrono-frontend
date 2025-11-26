@@ -138,6 +138,28 @@ export async function createPeriod(
   return responseData
 }
 
+// Propose edit to existing period
+export async function proposePeriodEdit(
+  periodId: number,
+  payload: {
+    startYear?: number
+    endYear?: number
+    periodType?: string
+    countryId?: number | null
+    comment?: string | null
+    personId?: string
+  }
+) {
+  const response = await apiFetch(`/api/periods/${periodId}/edits`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ payload }),
+  })
+  const data = await response.json().catch(() => null)
+  if (!response.ok) throw new Error(data?.message || 'Не удалось отправить правки')
+  return data
+}
+
 
 
 

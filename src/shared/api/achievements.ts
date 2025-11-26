@@ -192,6 +192,28 @@ export async function createAchievement(
   return responseData
 }
 
+// Propose edit to existing achievement
+export async function proposeAchievementEdit(
+  achievementId: number,
+  payload: {
+    year?: number
+    description?: string
+    wikipedia_url?: string | null
+    image_url?: string | null
+    personId?: string
+    countryId?: number | null
+  }
+) {
+  const response = await apiFetch(`/api/achievements/${achievementId}/edits`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ payload }),
+  })
+  const data = await response.json().catch(() => null)
+  if (!response.ok) throw new Error(data?.message || 'Не удалось отправить правки')
+  return data
+}
+
 
 
 

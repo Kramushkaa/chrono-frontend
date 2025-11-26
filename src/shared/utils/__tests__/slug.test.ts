@@ -1,28 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { slugifyIdFromName } from '../slug'
 
-describe('slug utils (FE)', () => {
-  it('transliterates Cyrillic and lowercases', () => {
-    expect(slugifyIdFromName('Лев Толстой')).toBe('lev-tolstoy')
-    expect(slugifyIdFromName('Александр Пушкин')).toBe('aleksandr-pushkin')
-  })
-
-  it('removes leading and trailing hyphens', () => {
-    expect(slugifyIdFromName('---Александр---Пушкин---')).toBe('aleksandr-pushkin')
-  })
-
-  it('enforces default max length 64', () => {
-    const long = 'a'.repeat(70)
-    expect(slugifyIdFromName(long)).toBe('a'.repeat(64))
-  })
-})
-import { slugifyIdFromName } from '../slug'
-
 describe('slugifyIdFromName', () => {
   it('should transliterate Russian characters', () => {
     expect(slugifyIdFromName('Пётр Первый')).toBe('petr-pervyy')
     expect(slugifyIdFromName('Екатерина Великая')).toBe('ekaterina-velikaya')
     expect(slugifyIdFromName('Александр Пушкин')).toBe('aleksandr-pushkin')
+    expect(slugifyIdFromName('Лев Толстой')).toBe('lev-tolstoy')
   })
 
   it('should handle Latin characters', () => {
@@ -67,6 +51,15 @@ describe('slugifyIdFromName', () => {
     expect(result.length).toBe(64)
   })
 
+  it('should enforce max length of 64 by default', () => {
+    const long = 'a'.repeat(70)
+    expect(slugifyIdFromName(long)).toBe('a'.repeat(64))
+  })
+
+  it('should remove leading and trailing hyphens', () => {
+    expect(slugifyIdFromName('---Александр---Пушкин---')).toBe('aleksandr-pushkin')
+  })
+
   it('should handle mixed Russian and Latin', () => {
     expect(slugifyIdFromName('Петр Peter')).toBe('petr-peter')
   })
@@ -80,9 +73,3 @@ describe('slugifyIdFromName', () => {
     expect(slugifyIdFromName('объект')).toBe('obekt')
   })
 })
-
-
-
-
-
-

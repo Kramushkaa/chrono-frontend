@@ -1,7 +1,7 @@
 // AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
 // This file is automatically copied from backend/shared-dto
 // Source: shared-dto/dist/quiz-types.d.ts
-// Generated: 2025-11-17T17:09:20.619Z
+// Generated: 2025-11-18T10:22:00.113Z
 
 export type QuizQuestionType = 'birthYear' | 'deathYear' | 'profession' | 'country' | 'achievementsMatch' | 'birthOrder' | 'contemporaries' | 'guessPerson';
 export interface QuizQuestion {

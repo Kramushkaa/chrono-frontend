@@ -89,8 +89,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Прочие запросы не кэшируем
-  event.respondWith(fetch(req, { cache: 'no-store' }));
+  // Прочие запросы не кэшируем, но защищаемся от ошибок сети
+  event.respondWith(
+    fetch(req, { cache: 'no-store' }).catch((error) => {
+      console.warn('[SW] Network fetch failed, falling back to cache:', error);
+      return caches.match(req).then((cached) => {
+        if (cached) {
+          return cached;
+        }
+        return new Response(null, {
+          status: 503,
+          statusText: 'Service Unavailable',
+        });
+      });
+    })
+  );
 });
 
 // Обработка push уведомлений (опционально)

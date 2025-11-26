@@ -37,16 +37,27 @@ export const API_BASE_URL = API_CONFIG.baseUrl
 /**
  * Low-level API request with retry logic and timeout
  * Retries failed requests with exponential backoff
+ * Checks for offline mode before making requests
  * 
  * @param url - Full URL to request
  * @param options - Fetch options
  * @returns Response object
- * @throws Error if all retries fail
+ * @throws Error if all retries fail or if offline
  */
 export const apiRequest = async (url: string, options: RequestInit = {}): Promise<Response> => {
+  // Проверяем offline режим перед запросом
+  if (typeof window !== 'undefined' && !window.navigator.onLine) {
+    throw new Error('Нет соединения с интернетом')
+  }
+
   let lastError: Error | null = null
 
   for (let attempt = 0; attempt <= API_CONFIG.retries; attempt++) {
+    // Повторно проверяем offline на каждой попытке
+    if (typeof window !== 'undefined' && !window.navigator.onLine) {
+      throw new Error('Нет соединения с интернетом')
+    }
+
     try {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout)
@@ -61,6 +72,18 @@ export const apiRequest = async (url: string, options: RequestInit = {}): Promis
     } catch (error) {
       lastError = error as Error
 
+      // Если это ошибка offline, не повторяем
+      if (error instanceof Error && error.message.includes('Нет соединения')) {
+        throw error
+      }
+
+      // Если abort (timeout или manual), пробуем повторить
+      if (error instanceof Error && error.name === 'AbortError' && attempt < API_CONFIG.retries) {
+        await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 1000))
+        continue
+      }
+
+      // Для других ошибок - пробуем повторить
       if (attempt < API_CONFIG.retries) {
         await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 1000))
       }

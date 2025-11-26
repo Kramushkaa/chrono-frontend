@@ -309,6 +309,8 @@ function ManagePageContent() {
                 onOpenListPublication={
                   publicListsEnabled ? () => modals.setShowListPublication(true) : undefined
                 }
+                setIsEditingAchievement={modals.setIsEditingAchievement}
+                setSelectedAchievement={modals.setSelectedAchievement}
               />
             )}
 
@@ -349,6 +351,8 @@ function ManagePageContent() {
                 onOpenListPublication={
                   publicListsEnabled ? () => modals.setShowListPublication(true) : undefined
                 }
+                setIsEditingPeriod={modals.setIsEditingPeriod}
+                setSelectedPeriod={modals.setSelectedPeriod}
               />
             )}
 
@@ -372,6 +376,14 @@ function ManagePageContent() {
                   ? modals.setShowListPublication
                   : (_show: boolean) => undefined
               }
+              isEditingPeriod={modals.isEditingPeriod}
+              setIsEditingPeriod={modals.setIsEditingPeriod}
+              isEditingAchievement={modals.isEditingAchievement}
+              setIsEditingAchievement={modals.setIsEditingAchievement}
+              selectedPeriod={modals.selectedPeriod}
+              setSelectedPeriod={modals.setSelectedPeriod}
+              selectedAchievement={modals.selectedAchievement}
+              setSelectedAchievement={modals.setSelectedAchievement}
               categories={personEditor.categories}
               countryOptions={personEditor.countryOptions}
               categorySelectOptions={categorySelectOptions}

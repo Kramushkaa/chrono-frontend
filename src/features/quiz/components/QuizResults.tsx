@@ -33,15 +33,36 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
 
     return result.answers.map((answer) => {
       const question = questions.find(q => q.id === answer.questionId);
+      if (!question) {
+        // Для UI компонента используем fallback, но логируем ошибку
+        console.error(
+          `Вопрос с ID ${answer.questionId} не найден в списке вопросов. Это может указывать на проблему с данными.`
+        );
+        return {
+          questionId: answer.questionId,
+          question: 'Вопрос не найден',
+          questionType: 'birthYear' as const, // Fallback только для отображения
+          userAnswer: answer.answer,
+          correctAnswer: '',
+          isCorrect: answer.isCorrect,
+          timeSpent: answer.timeSpent,
+          explanation: undefined,
+        };
+      }
+      if (!question.type) {
+        console.error(
+          `Тип вопроса отсутствует для вопроса с ID ${question.id}. Это критическая ошибка данных.`
+        );
+      }
       return {
         questionId: answer.questionId,
-        question: question?.question || 'Вопрос',
-        questionType: question?.type || 'birthYear',
+        question: question.question || 'Вопрос',
+        questionType: question.type || ('birthYear' as const), // Fallback только для отображения
         userAnswer: answer.answer,
-        correctAnswer: question?.correctAnswer || '',
+        correctAnswer: question.correctAnswer || '',
         isCorrect: answer.isCorrect,
         timeSpent: answer.timeSpent,
-        explanation: question?.explanation,
+        explanation: question.explanation,
       };
     });
   }, [result.answers, questions]);

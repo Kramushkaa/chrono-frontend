@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Person, type UserList } from 'shared/types'
+import { Person, type UserList, type Achievement } from 'shared/types'
 
 import { AuthRequiredModal } from './AuthRequiredModal'
 
@@ -8,6 +8,8 @@ import { CreateEntityModal } from './CreateEntityModal'
 import type { PersonLifePeriodFormValue } from './forms/CreatePersonForm'
 
 import { PersonEditModal, type LifePeriod, type LifePeriodPayload, type PersonEditPayload } from './PersonEditModal'
+import { PeriodEditModal, type PeriodEntity, type PeriodEditPayload } from './PeriodEditModal'
+import { AchievementEditModal, type AchievementEditPayload } from './AchievementEditModal'
 
 import { CreateListModal } from './CreateListModal'
 
@@ -21,8 +23,8 @@ import type { CountryOption } from 'shared/api/meta'
 
 import { apiFetch } from 'shared/api/core'
 import { getPersonById, proposePersonEdit, updatePerson, submitPersonDraft, revertPersonToDraft, createPersonDraft, adminUpsertPerson, proposeNewPerson } from 'shared/api/persons'
-import { createAchievementDraft, createAchievement } from 'shared/api/achievements'
-import { createPeriodDraft, createPeriod } from 'shared/api/periods'
+import { createAchievementDraft, createAchievement, updateAchievement, submitAchievementDraft, proposeAchievementEdit } from 'shared/api/achievements'
+import { createPeriodDraft, createPeriod, updatePeriod, submitPeriodDraft, proposePeriodEdit } from 'shared/api/periods'
 
 import { slugifyIdFromName } from 'shared/utils/slug'
 import { featureFlags } from 'shared/config/features'
@@ -93,6 +95,22 @@ interface ManageModalsProps {
   showListPublication: boolean
 
   setShowListPublication: (show: boolean) => void
+
+  isEditingPeriod: boolean
+
+  setIsEditingPeriod: (editing: boolean) => void
+
+  isEditingAchievement: boolean
+
+  setIsEditingAchievement: (editing: boolean) => void
+
+  selectedPeriod: PeriodEntity | null
+
+  setSelectedPeriod: (period: PeriodEntity | null) => void
+
+  selectedAchievement: Achievement | null
+
+  setSelectedAchievement: (achievement: Achievement | null) => void
 
 
 
@@ -198,6 +216,22 @@ export function ManageModals({
 
   setShowListPublication,
 
+  isEditingPeriod,
+
+  setIsEditingPeriod,
+
+  isEditingAchievement,
+
+  setIsEditingAchievement,
+
+  selectedPeriod,
+
+  setSelectedPeriod,
+
+  selectedAchievement,
+
+  setSelectedAchievement,
+
   categories,
 
   countryOptions,
@@ -284,6 +318,10 @@ export function ManageModals({
   }, [setNewLifePeriods])
 
   const [personOptions, setPersonOptions] = useState<Array<{ value: string; label: string }>>([])
+  const personOptionsRef = React.useRef(personOptions)
+  useEffect(() => {
+    personOptionsRef.current = personOptions
+  }, [personOptions])
 
   const [personsSelectLoading, setPersonsSelectLoading] = useState(false)
 
@@ -309,6 +347,29 @@ export function ManageModals({
 
   }, [])
 
+  const ensurePersonOptionById = useCallback(
+    async (personId?: string | null) => {
+      if (!personId) return
+      if (personOptionsRef.current.some((opt) => opt.value === personId)) {
+        return
+      }
+      try {
+        const person = await getPersonById(personId)
+        if (person?.id && person.name) {
+          setPersonOptions((prev) => {
+            if (prev.some((opt) => opt.value === person.id)) {
+              return prev
+            }
+            return [{ value: person.id, label: person.name }, ...prev]
+          })
+        }
+      } catch (error) {
+        console.warn('Не удалось загрузить данные личности для модалки', error)
+      }
+    },
+    []
+  )
+
 
 
   useEffect(() => {
@@ -316,6 +377,18 @@ export function ManageModals({
     ensurePersonOption(selected)
 
   }, [selected, ensurePersonOption])
+
+  useEffect(() => {
+    if (selectedAchievement?.person_id) {
+      ensurePersonOptionById(selectedAchievement.person_id)
+    }
+  }, [selectedAchievement?.person_id, ensurePersonOptionById])
+
+  useEffect(() => {
+    if (selectedPeriod?.person_id) {
+      ensurePersonOptionById(selectedPeriod.person_id)
+    }
+  }, [selectedPeriod?.person_id, ensurePersonOptionById])
 
 
 
@@ -1065,6 +1138,105 @@ export function ManageModals({
           onUpdated={onListUpdated}
           onReload={(force?: boolean) => Promise.resolve(loadUserLists(force))}
           showToast={showToast}
+        />
+      )}
+
+      {selectedPeriod && (
+        <PeriodEditModal
+          isOpen={isEditingPeriod}
+          onClose={() => {
+            setIsEditingPeriod(false)
+            setSelectedPeriod(null)
+          }}
+          period={selectedPeriod}
+          isModerator={isModerator}
+          countryOptions={countryOptions}
+          personOptions={memoizedPersonOptions}
+          personsSelectLoading={personsSelectLoading}
+          onSearchPersons={handleSearchPersons}
+          showToast={showToast}
+          onPeriodUpdated={(fresh) => {
+            setSelectedPeriod(fresh)
+            resetPeriods()
+          }}
+          onProposeEdit={async (id, payload) => {
+            // Используем новый API для предложения изменений
+            await proposePeriodEdit(id, {
+              startYear: payload.startYear,
+              endYear: payload.endYear,
+              periodType: payload.type === 'reign' ? 'ruler' : 'life',
+              countryId: payload.countryId,
+              comment: `${payload.name}\n\n${payload.description}`,
+              personId: payload.personId,
+            })
+            resetPeriods()
+          }}
+          onUpdateDraft={async (id, payload) => {
+            await updatePeriod(id, {
+              start_year: payload.startYear,
+              end_year: payload.endYear,
+              period_type: payload.type === 'reign' ? 'ruler' : 'life',
+              country_id: payload.countryId,
+              comment: `${payload.name}\n\n${payload.description}`,
+            })
+            resetPeriods()
+          }}
+          onSubmitDraft={async (id) => {
+            await submitPeriodDraft(id)
+            resetPeriods()
+          }}
+          onSuccess={() => {
+            resetPeriods()
+          }}
+        />
+      )}
+
+      {selectedAchievement && (
+        <AchievementEditModal
+          isOpen={isEditingAchievement}
+          onClose={() => {
+            setIsEditingAchievement(false)
+            setSelectedAchievement(null)
+          }}
+          achievement={selectedAchievement}
+          isModerator={isModerator}
+          countryOptions={countryOptions}
+          personOptions={memoizedPersonOptions}
+          personsSelectLoading={personsSelectLoading}
+          onSearchPersons={handleSearchPersons}
+          showToast={showToast}
+          onAchievementUpdated={(fresh) => {
+            setSelectedAchievement(fresh)
+            resetAchievements()
+          }}
+          onProposeEdit={async (id, payload) => {
+            // Используем новый API для предложения изменений
+            await proposeAchievementEdit(id, {
+              year: payload.year,
+              description: payload.description,
+              wikipedia_url: payload.wikipedia_url,
+              image_url: payload.image_url,
+              personId: payload.personId,
+              countryId: payload.countryId,
+            })
+            resetAchievements()
+          }}
+          onUpdateDraft={async (id, payload) => {
+            await updateAchievement(id, {
+              year: payload.year,
+              description: payload.description,
+              wikipedia_url: payload.wikipedia_url,
+              image_url: payload.image_url,
+            })
+            resetAchievements()
+          }}
+          onSubmitDraft={async (id) => {
+            await submitAchievementDraft(id)
+            resetAchievements()
+          }}
+          onSuccess={() => {
+            resetAchievements()
+          }}
         />
       )}
 

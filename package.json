@@ -23,8 +23,6 @@
     "@vitejs/plugin-react": "^5.1.0",
     "@vitest/coverage-v8": "^4.0.6",
     "@vitest/ui": "^4.0.6",
-    "happy-dom": "^20.0.10",
-    "identity-obj-proxy": "^3.0.0",
     "jsdom": "^27.1.0",
     "source-map-explorer": "^2.5.3",
     "typescript": "^5.9.3",
@@ -46,26 +44,7 @@
     "serve": "node server.js",
     "analyze": "source-map-explorer 'build/assets/js/*.js'",
     "build:analyze": "npm run build && npm run analyze",
-    "lighthouse": "lighthouse http://localhost:3000 --view --output html --output-path ./lighthouse/latest.html",
-    "lighthouse:ci": "lighthouse http://localhost:3000 --output json --output-path ./lighthouse/latest.json --quiet --chrome-flags=\"--headless\"",
     "postinstall": "node scripts/check-dto-version.js"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   },
   "overrides": {
     "nth-check": "^2.1.1",

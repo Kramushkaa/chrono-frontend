@@ -3,6 +3,7 @@ import { UnifiedManageSection } from './UnifiedManageSection'
 import type { MenuSelection } from '../hooks/useManageState'
 import type { FiltersState, SetFilters, MixedListItem, Period, UserList, ListModerationStatus } from 'shared/types'
 import type { PeriodTile } from 'shared/hooks/usePeriods'
+import type { PeriodEntity } from './PeriodEditModal'
 
 // PeriodItem from useManagePageData
 interface PeriodItem {
@@ -42,15 +43,7 @@ interface AddToListActions {
   onAdd: (listId: number) => Promise<void>
 }
 
-// Period entity type - расширенный Period с дополнительными полями
-interface PeriodEntity extends Period {
-  id?: number
-  name?: string
-  description?: string
-  person_id?: string
-  country_id?: number
-  status?: string
-}
+// Period entity type теперь импортируется из PeriodEditModal
 
 interface PeriodsDataState {
   items: PeriodEntity[] | PeriodTile[] | PeriodItem[]
@@ -93,6 +86,8 @@ interface PeriodsTabProps {
   currentUserId?: number | null
   onListUpdated?: (list: UserList) => void
   onOpenListPublication?: () => void
+  setIsEditingPeriod?: (editing: boolean) => void
+  setSelectedPeriod?: (period: PeriodEntity | null) => void
 }
 
 export function PeriodsTab({
@@ -129,15 +124,44 @@ export function PeriodsTab({
   currentUserId,
   onListUpdated,
   onOpenListPublication,
+  setIsEditingPeriod,
+  setSelectedPeriod,
 }: PeriodsTabProps) {
-  // TODO: Implement period editing modal
-  // const [editingPeriod, setEditingPeriod] = useState<PeriodEntity | null>(null)
-  // const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const normalizePeriod = (raw: PeriodEntity | any): PeriodEntity => {
+    const startYear = raw.startYear ?? raw.start_year ?? raw.start ?? null
+    const endYear = raw.endYear ?? raw.end_year ?? raw.end ?? null
+    const countryId = raw.country_id ?? raw.countryId ?? null
+    return {
+      id: raw.id,
+      name: raw.name ?? raw.title ?? '',
+      startYear: typeof startYear === 'number' ? startYear : Number(startYear) || 0,
+      endYear: typeof endYear === 'number' || endYear === null ? endYear : Number(endYear) || null,
+      type:
+        raw.type ??
+        raw.period_type ??
+        (raw.periodType === 'ruler' ? 'ruler' : 'life'),
+      description: raw.description ?? raw.comment ?? '',
+      comment: raw.comment ?? raw.description ?? '',
+      person_id:
+        raw.person_id ??
+        raw.personId ??
+        (raw.person?.id ?? null),
+      country_id: countryId ?? undefined,
+      countryId: countryId ?? undefined,
+      status: raw.status,
+    }
+  }
 
-  // const handleEditPeriod = (period: PeriodEntity) => {
-  //   setEditingPeriod(period)
-  //   setIsEditModalOpen(true)
-  // }
+  const handleEditPeriod = (payload: PeriodEntity | { period?: PeriodEntity }) => {
+    const source = (payload as any)?.period ?? payload
+    const period = normalizePeriod(source)
+    if (setSelectedPeriod) {
+      setSelectedPeriod(period)
+    }
+    if (setIsEditingPeriod) {
+      setIsEditingPeriod(true)
+    }
+  }
 
   return (
     <div className="manage-page__periods-section" id="manage-periods-section">
@@ -220,7 +244,7 @@ export function PeriodsTab({
           // Period selection not implemented yet
         }}
         onAddItem={(id) => addToList.openForPeriod(Number(id))}
-        onEditItem={undefined}
+        onEditItem={handleEditPeriod}
         labelAll="Все периоды"
         itemType="period"
         emptyMessage="Периоды не найдены"

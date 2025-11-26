@@ -106,15 +106,18 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
   const generateQuestions = useCallback(() => {
     if (filteredPersons.length === 0) return [];
 
-    const questionGenerators: { [key: string]: (persons: Person[]) => QuizQuestion } = {
-      'birthYear': generateBirthYearQuestion,
-      'deathYear': generateDeathYearQuestion,
-      'profession': generateProfessionQuestion,
-      'country': generateCountryQuestion,
-      'achievementsMatch': generateAchievementsMatchQuestion,
-      'birthOrder': generateBirthOrderQuestion,
-      'contemporaries': generateContemporariesQuestion,
-      'guessPerson': generateGuessPersonQuestion
+    const questionGenerators: {
+      [key: string]: (persons: Person[], allCountries?: string[], allCategories?: string[]) => QuizQuestion;
+    } = {
+      'birthYear': (persons) => generateBirthYearQuestion(persons),
+      'deathYear': (persons) => generateDeathYearQuestion(persons),
+      'profession': (persons, _allCountries, allCategories) =>
+        generateProfessionQuestion(persons, allCategories),
+      'country': (persons, allCountries) => generateCountryQuestion(persons, allCountries),
+      'achievementsMatch': (persons) => generateAchievementsMatchQuestion(persons),
+      'birthOrder': (persons) => generateBirthOrderQuestion(persons),
+      'contemporaries': (persons) => generateContemporariesQuestion(persons),
+      'guessPerson': (persons) => generateGuessPersonQuestion(persons),
     };
 
     // Проверяем, какие типы вопросов доступны с текущими данными
@@ -185,13 +188,13 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
       const questionType = finalAvailableTypes[randomIndex];
       const generator = questionGenerators[questionType];
       if (generator) {
-        const question = generator(filteredPersons);
+        const question = generator(filteredPersons, allCountries, allCategories);
         generatedQuestions.push(question);
       }
     }
 
     return generatedQuestions;
-  }, [filteredPersons, setup.questionTypes, setup.questionCount]);
+  }, [filteredPersons, setup.questionTypes, setup.questionCount, allCountries, allCategories]);
 
   // Начать игру
   const startQuiz = useCallback(() => {
@@ -312,13 +315,26 @@ export const useQuiz = (persons: Person[], allCategories: string[], allCountries
     const questionTypes = questions.map(q => q.type);
 
     // Prepare detailed answers with all information
-    const detailedAnswers = result.answers.map((answer, index) => ({
-      questionId: answer.questionId,
-      answer: answer.answer,
-      isCorrect: answer.isCorrect,
-      timeSpent: answer.timeSpent,
-      questionType: questions[index]?.type || 'birthYear',
-    }));
+    const detailedAnswers = result.answers.map((answer, index) => {
+      const question = questions[index];
+      if (!question) {
+        throw new Error(
+          `Вопрос с индексом ${index} не найден. Количество ответов (${result.answers.length}) не соответствует количеству вопросов (${questions.length}).`
+        );
+      }
+      if (!question.type) {
+        throw new Error(
+          `Тип вопроса отсутствует для вопроса с индексом ${index} (ID: ${question.id}). Это критическая ошибка данных.`
+        );
+      }
+      return {
+        questionId: answer.questionId,
+        answer: answer.answer,
+        isCorrect: answer.isCorrect,
+        timeSpent: answer.timeSpent,
+        questionType: question.type,
+      };
+    });
 
     try {
       const response = await saveQuizAttempt({

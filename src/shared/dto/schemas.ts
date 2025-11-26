@@ -1,7 +1,7 @@
 // AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
 // This file is automatically copied from backend/shared-dto
 // Source: shared-dto/dist/schemas.d.ts
-// Generated: 2025-11-17T17:09:20.615Z
+// Generated: 2025-11-18T10:22:00.110Z
 
 import { z } from 'zod';
 export declare const PersonLifePeriodInputSchema: z.ZodObject<{

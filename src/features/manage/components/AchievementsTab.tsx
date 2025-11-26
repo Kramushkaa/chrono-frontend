@@ -70,6 +70,8 @@ interface AchievementsTabProps {
   currentUserId?: number | null
   onListUpdated?: (list: UserList) => void
   onOpenListPublication?: () => void
+  setIsEditingAchievement?: (editing: boolean) => void
+  setSelectedAchievement?: (achievement: Achievement | null) => void
 }
 
 export function AchievementsTab({
@@ -106,15 +108,47 @@ export function AchievementsTab({
   currentUserId,
   onListUpdated,
   onOpenListPublication,
+  setIsEditingAchievement,
+  setSelectedAchievement,
 }: AchievementsTabProps) {
-  // TODO: Implement achievement editing modal
-  // const [editingAchievement, setEditingAchievement] = useState<Achievement | AchievementTile | null>(null)
-  // const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const normalizeAchievement = (raw: Achievement | AchievementTile): Achievement => {
+    const tile = raw as AchievementTile
+    return {
+      id: raw.id,
+      year: raw.year ?? tile.year ?? 0,
+      description: raw.description ?? tile.title ?? '',
+      wikipedia_url:
+        ('wikipedia_url' in raw ? raw.wikipedia_url : null) ??
+        (raw as any).wikipediaUrl ??
+        null,
+      image_url:
+        ('image_url' in raw ? raw.image_url : null) ??
+        (raw as any).imageUrl ??
+        null,
+      person_id:
+        raw.person_id ??
+        (raw as any).personId ??
+        tile.person_id ??
+        (tile as any).person?.id ??
+        null,
+      country_id:
+        (raw as any).country_id ??
+        (raw as any).countryId ??
+        null,
+      status: raw.status,
+    }
+  }
 
-  // const handleEditAchievement = (achievement: Achievement | AchievementTile) => {
-  //   setEditingAchievement(achievement)
-  //   setIsEditModalOpen(true)
-  // }
+  const handleEditAchievement = (payload: Achievement | AchievementTile | { achievement?: Achievement }) => {
+    const source = (payload as any)?.achievement ?? payload;
+    const achievementData = normalizeAchievement(source as Achievement | AchievementTile)
+    if (setSelectedAchievement) {
+      setSelectedAchievement(achievementData)
+    }
+    if (setIsEditingAchievement) {
+      setIsEditingAchievement(true)
+    }
+  }
 
   return (
     <div className="manage-page__achievements-section" id="manage-achievements-section">
@@ -197,7 +231,7 @@ export function AchievementsTab({
           // Achievement selection not implemented yet
         }}
         onAddItem={(id) => addToList.openForAchievement(Number(id))}
-        onEditItem={undefined}
+        onEditItem={handleEditAchievement}
         labelAll="Все достижения"
         itemType="achievement"
         emptyMessage="Достижения не найдены"

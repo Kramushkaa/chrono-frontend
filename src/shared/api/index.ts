@@ -48,6 +48,7 @@ export {
   updateAchievement,
   submitAchievementDraft,
   createAchievementDraft,
+  proposeAchievementEdit,
 } from './achievements'
 
 // Periods
@@ -58,6 +59,7 @@ export {
   updatePeriod,
   submitPeriodDraft,
   createPeriodDraft,
+  proposePeriodEdit,
 } from './periods'
 export type { LifePeriodInput } from './periods'
 
