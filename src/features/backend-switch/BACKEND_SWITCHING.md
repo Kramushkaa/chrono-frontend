@@ -5,7 +5,7 @@
 Frontend автоматически определяет, какой backend использовать, на основе переменных окружения:
 
 ### **По умолчанию (удаленный backend):**
-- URL: `https://chrono-back-kramushka.amvera.io`
+- URL: `https://chrono-back-kramushka.msk1.amvera.tech`
 - Используется в продакшене и по умолчанию в разработке
 
 ### **Локальный backend:**
@@ -72,7 +72,7 @@ npm start
 ```
 или
 ```
-🌐 Используется удаленный backend: https://chrono-back-kramushka.amvera.io
+🌐 Используется удаленный backend: https://chrono-back-kramushka.msk1.amvera.tech
 ```
 
 ### **3. Тест подключения**
@@ -88,7 +88,7 @@ npm start
 | `VITE_API_URL` | Кастомный URL backend | Удаленный URL |
 | `VITE_DEBUG_MODE` | Режим отладки | `true` |
 | `VITE_LOG_API_CALLS` | Логирование API вызовов | `true` |
-| `VITE_REMOTE_BACKEND_URL` | URL удаленного backend по умолчанию | `https://chrono-back-kramushka.amvera.io` |
+| `VITE_REMOTE_BACKEND_URL` | URL удаленного backend по умолчанию | `https://chrono-back-kramushka.msk1.amvera.tech` |
 
 ### **Примеры конфигураций**
 
@@ -99,7 +99,7 @@ VITE_USE_LOCAL_BACKEND=true
 
 #### **Кастомный backend (публичный):**
 ```env
-VITE_API_URL=https://chrono-back-kramushka.amvera.io
+VITE_API_URL=https://chrono-back-kramushka.msk1.amvera.tech
 VITE_USE_LOCAL_BACKEND=false
 ```
 

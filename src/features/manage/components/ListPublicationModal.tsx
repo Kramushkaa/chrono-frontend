@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { requestListPublication, updateList } from 'shared/api/lists'
+import { requestListPublication, updateList, unpublishList } from 'shared/api/lists'
 import type { UserList, ListModerationStatus } from 'shared/types'
 
 type Props = {
@@ -48,16 +48,21 @@ const modalCardStyle: React.CSSProperties = {
 }
 
 export function ListPublicationModal({ isOpen, onClose, list, isOwner, onUpdated, onReload, showToast }: Props) {
+  const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [saving, setSaving] = useState(false)
   const [savingDraft, setSavingDraft] = useState(false)
+  const [unpublishing, setUnpublishing] = useState(false)
 
   useEffect(() => {
     if (isOpen && list) {
+      setTitle(list.title || '')
       setDescription(list.public_description || '')
     }
   }, [isOpen, list])
 
+  const isPublished = list?.moderation_status === 'published'
+  const hasPendingChanges = isPublished && (list.pending_title !== null || list.pending_description !== null)
   const canSubmit = list && isOwner && !list.readonly && (list.moderation_status === 'draft' || list.moderation_status === 'pending' || list.moderation_status === 'rejected')
 
   const submitLabel = useMemo(() => {
@@ -76,22 +81,71 @@ export function ListPublicationModal({ isOpen, onClose, list, isOwner, onUpdated
 
   const handleSaveDraft = async () => {
     if (!isOwner || !list) return
-    const trimmed = description.trim()
-    if (trimmed === (list.public_description || '')) {
-      showToast('Нет изменений для сохранения', 'info')
+    const trimmedTitle = title.trim()
+    const trimmedDescription = description.trim()
+    
+    if (isPublished) {
+      // Для опубликованных списков сохраняем как pending изменения
+      const updates: { title?: string; public_description?: string } = {}
+      if (trimmedTitle !== list.title) updates.title = trimmedTitle
+      if (trimmedDescription !== (list.public_description || '')) updates.public_description = trimmedDescription
+      
+      if (Object.keys(updates).length === 0) {
+        showToast('Нет изменений для сохранения', 'info')
+        return
+      }
+      
+      setSavingDraft(true)
+      try {
+        const updated = await updateList(list.id, updates)
+        onUpdated?.(updated)
+        showToast('Изменения сохранены и отправлены на модерацию', 'success')
+        await onReload?.(true)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Не удалось сохранить изменения'
+        showToast(message, 'error')
+      } finally {
+        setSavingDraft(false)
+      }
+    } else {
+      // Для неопубликованных списков сохраняем сразу
+      const trimmed = description.trim()
+      if (trimmed === (list.public_description || '')) {
+        showToast('Нет изменений для сохранения', 'info')
+        return
+      }
+      setSavingDraft(true)
+      try {
+        const updated = await updateList(list.id, { public_description: trimmed })
+        onUpdated?.(updated)
+        showToast('Описание сохранено', 'success')
+        await onReload?.(true)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Не удалось сохранить описание'
+        showToast(message, 'error')
+      } finally {
+        setSavingDraft(false)
+      }
+    }
+  }
+
+  const handleUnpublish = async () => {
+    if (!isOwner || !list || !isPublished) return
+    if (!confirm('Вы уверены, что хотите отозвать публикацию этого списка? Он станет недоступен публично.')) {
       return
     }
-    setSavingDraft(true)
+    setUnpublishing(true)
     try {
-      const updated = await updateList(list.id, { public_description: trimmed })
+      const updated = await unpublishList(list.id)
       onUpdated?.(updated)
-      showToast('Описание сохранено', 'success')
+      showToast('Публикация отозвана', 'success')
       await onReload?.(true)
+      onClose()
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Не удалось сохранить описание'
+      const message = err instanceof Error ? err.message : 'Не удалось отозвать публикацию'
       showToast(message, 'error')
     } finally {
-      setSavingDraft(false)
+      setUnpublishing(false)
     }
   }
 
@@ -176,6 +230,11 @@ export function ListPublicationModal({ isOpen, onClose, list, isOwner, onUpdated
                   Отправлен: {new Date(list.moderation_requested_at).toLocaleString()}
                 </span>
               )}
+              {hasPendingChanges && (
+                <span style={{ fontSize: 12, opacity: 0.8, color: '#ffa500' }}>
+                  Изменения на модерации
+                </span>
+              )}
             </div>
             <div style={{ fontSize: 12, opacity: 0.8, textAlign: 'right' }}>
               <div>Всего: {list.items_count ?? 0}</div>
@@ -225,12 +284,61 @@ export function ListPublicationModal({ isOpen, onClose, list, isOwner, onUpdated
             </div>
           )}
 
+          {/* Pending Changes Warning */}
+          {hasPendingChanges && (
+            <div
+              style={{
+                background: 'rgba(255,165,0,0.15)',
+                border: '1px solid rgba(255,165,0,0.35)',
+                borderRadius: 8,
+                padding: 12,
+                fontSize: 13,
+              }}
+            >
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>Изменения ожидают модерации:</div>
+              {list.pending_title && (
+                <div style={{ marginBottom: 4 }}>
+                  <strong>Название:</strong> {list.pending_title}
+                </div>
+              )}
+              {list.pending_description && (
+                <div>
+                  <strong>Описание:</strong> {list.pending_description}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Title (only for published lists) */}
+          {isPublished && (
+            <label style={{ display: 'grid', gap: 6 }}>
+              <span style={{ fontSize: 13, opacity: 0.85 }}>Название списка</span>
+              <input
+                type="text"
+                value={title}
+                disabled={!isOwner || list.readonly}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={200}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: 8,
+                  border: '1px solid rgba(139,69,19,0.4)',
+                  background: 'rgba(255,255,255,0.06)',
+                  color: '#f7f2eb',
+                  fontSize: 14,
+                }}
+                placeholder="Название списка"
+              />
+              <span style={{ fontSize: 11, opacity: 0.6, textAlign: 'right' }}>{title.length}/200</span>
+            </label>
+          )}
+
           {/* Description */}
           <label style={{ display: 'grid', gap: 6 }}>
             <span style={{ fontSize: 13, opacity: 0.85 }}>Описание для публичной страницы</span>
             <textarea
               value={description}
-              disabled={!isOwner || list.moderation_status === 'published' || list.readonly}
+              disabled={!isOwner || list.readonly}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={2000}
               rows={6}
@@ -267,24 +375,44 @@ export function ListPublicationModal({ isOpen, onClose, list, isOwner, onUpdated
 
           {/* Actions */}
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
-            <button
-              onClick={onClose}
-              style={{
-                padding: '8px 16px',
-                borderRadius: 8,
-                border: '1px solid rgba(139,69,19,0.4)',
-                background: 'rgba(139,69,19,0.1)',
-                color: '#f7f2eb',
-                cursor: 'pointer',
-              }}
-            >
-              Закрыть
-            </button>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              {isOwner && isPublished && !list.readonly && (
+                <button
+                  onClick={handleUnpublish}
+                  disabled={unpublishing || saving || savingDraft}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: 8,
+                    border: '1px solid rgba(220,53,69,0.5)',
+                    background: 'rgba(220,53,69,0.15)',
+                    color: '#f7f2eb',
+                    fontWeight: 500,
+                    cursor: unpublishing || saving || savingDraft ? 'wait' : 'pointer',
+                    opacity: unpublishing || saving || savingDraft ? 0.7 : 1,
+                  }}
+                >
+                  {unpublishing ? 'Отзыв...' : 'Отозвать публикацию'}
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 8,
+                  border: '1px solid rgba(139,69,19,0.4)',
+                  background: 'rgba(139,69,19,0.1)',
+                  color: '#f7f2eb',
+                  cursor: 'pointer',
+                }}
+              >
+                Закрыть
+              </button>
+            </div>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-              {isOwner && list.moderation_status !== 'published' && !list.readonly && (
+              {isOwner && !list.readonly && (
                 <button
                   onClick={handleSaveDraft}
-                  disabled={savingDraft || saving}
+                  disabled={savingDraft || saving || unpublishing}
                   style={{
                     padding: '8px 16px',
                     borderRadius: 8,
@@ -292,17 +420,17 @@ export function ListPublicationModal({ isOpen, onClose, list, isOwner, onUpdated
                     background: 'rgba(139,69,19,0.2)',
                     color: '#f7f2eb',
                     fontWeight: 500,
-                    cursor: savingDraft || saving ? 'wait' : 'pointer',
-                    opacity: savingDraft || saving ? 0.7 : 1,
+                    cursor: savingDraft || saving || unpublishing ? 'wait' : 'pointer',
+                    opacity: savingDraft || saving || unpublishing ? 0.7 : 1,
                   }}
                 >
-                  {savingDraft ? 'Сохранение...' : 'Сохранить черновик'}
+                  {savingDraft ? 'Сохранение...' : isPublished ? 'Сохранить изменения' : 'Сохранить черновик'}
                 </button>
               )}
               {canSubmit ? (
                 <button
                   onClick={handleSubmit}
-                  disabled={saving || savingDraft}
+                  disabled={saving || savingDraft || unpublishing}
                   style={{
                     padding: '8px 16px',
                     borderRadius: 8,
@@ -310,8 +438,8 @@ export function ListPublicationModal({ isOpen, onClose, list, isOwner, onUpdated
                     background: '#c18453',
                     color: '#1b0f06',
                     fontWeight: 600,
-                    cursor: saving || savingDraft ? 'wait' : 'pointer',
-                    opacity: saving || savingDraft ? 0.7 : 1,
+                    cursor: saving || savingDraft || unpublishing ? 'wait' : 'pointer',
+                    opacity: saving || savingDraft || unpublishing ? 0.7 : 1,
                   }}
                 >
                   {saving ? 'Отправка...' : submitLabel}

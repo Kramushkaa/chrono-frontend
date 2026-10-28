@@ -69,6 +69,9 @@ export interface UserList {
   moderated_at?: string | null
   moderation_comment?: string | null
   public_slug?: string | null
+  pending_title?: string | null
+  pending_description?: string | null
+  pending_changes_requested_at?: string | null
   persons_count?: number
   achievements_count?: number
   periods_count?: number
@@ -97,6 +100,9 @@ export interface ModerationListSummary extends PublicListSummary {
   moderation_requested_at: string | null
   moderation_comment: string | null
   moderated_at: string | null
+  pending_title?: string | null
+  pending_description?: string | null
+  pending_changes_requested_at?: string | null
 }
 
 export interface PublicListDetail extends PublicListSummary {

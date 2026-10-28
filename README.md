@@ -6,7 +6,7 @@ Use env vars at build time:
 VITE_USE_LOCAL_BACKEND=false
 VITE_API_URL=
 VITE_LOCAL_BACKEND_URL=http://localhost:3001
-VITE_REMOTE_BACKEND_URL=https://chrono-back-kramushka.amvera.io
+VITE_REMOTE_BACKEND_URL=https://chrono-back-kramushka.msk1.amvera.tech
 VITE_DEBUG_MODE=true
 VITE_LOG_API_CALLS=true
 # Optional overrides

@@ -28,7 +28,7 @@
 |------------|----------|----------------------|---------|
 | `VITE_USE_LOCAL_BACKEND` | Переключение на локальный backend в dev-режиме | `false` | `true` или `false` |
 | `VITE_LOCAL_BACKEND_URL` | URL локального backend | `http://localhost:3001` | `http://localhost:3001` |
-| `VITE_REMOTE_BACKEND_URL` | URL удаленного backend по умолчанию | `https://chrono-back-kramushka.amvera.io` | `https://your-backend.com` |
+| `VITE_REMOTE_BACKEND_URL` | URL удаленного backend по умолчанию | `https://chrono-back-kramushka.msk1.amvera.tech` | `https://your-backend.com` |
 | `VITE_API_URL` | Кастомный URL API (переопределяет логику выбора) | не установлено | `http://localhost:3001` |
 | `VITE_FORCE_API_URL` | Принудительный URL API (высший приоритет) | не установлено | `http://test-backend:3001` |
 | `VITE_SHOW_BACKEND_INFO` | Показывать виджет с информацией о backend | не установлено | `true` или `false` |
@@ -48,7 +48,7 @@ VITE_USE_LOCAL_BACKEND=true
 VITE_LOCAL_BACKEND_URL=http://localhost:3001
 
 # URL удаленного backend (используется когда VITE_USE_LOCAL_BACKEND=false)
-VITE_REMOTE_BACKEND_URL=https://chrono-back-kramushka.amvera.io
+VITE_REMOTE_BACKEND_URL=https://chrono-back-kramushka.msk1.amvera.tech
 
 # Показывать виджет BackendInfo (опционально, по умолчанию показывается в dev)
 # VITE_SHOW_BACKEND_INFO=true
@@ -158,12 +158,12 @@ npm run dev
 ```env
 # .env.local
 VITE_USE_LOCAL_BACKEND=false
-VITE_REMOTE_BACKEND_URL=https://chrono-back-kramushka.amvera.io
+VITE_REMOTE_BACKEND_URL=https://chrono-back-kramushka.msk1.amvera.tech
 ```
 
 ```bash
 npm run dev
-# → API будет использовать https://chrono-back-kramushka.amvera.io
+# → API будет использовать https://chrono-back-kramushka.msk1.amvera.tech
 ```
 
 ---
@@ -186,7 +186,7 @@ npm run dev
 
 ```bash
 # На сервере, перед сборкой:
-export VITE_REMOTE_BACKEND_URL=https://chrono-back-kramushka.amvera.io
+export VITE_REMOTE_BACKEND_URL=https://chrono-back-kramushka.msk1.amvera.tech
 
 # Сборка:
 npm run build
@@ -195,7 +195,7 @@ npm run build
 export PORT=3000
 npm run serve
 # → Сервер запустится на порту 3000
-# → API будет использовать https://chrono-back-kramushka.amvera.io
+# → API будет использовать https://chrono-back-kramushka.msk1.amvera.tech
 ```
 
 ---
@@ -234,7 +234,7 @@ npm run serve
    ↓
 5. VITE_REMOTE_BACKEND_URL                ← Default удаленный backend
    ↓
-6. 'https://chrono-back-kramushka.amvera.io' ← Hardcoded fallback
+6. 'https://chrono-back-kramushka.msk1.amvera.tech' ← Hardcoded fallback
 ```
 
 ---

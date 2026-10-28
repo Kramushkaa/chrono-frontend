@@ -57,8 +57,13 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
       })
       const data = await res.json().catch(() => null)
       if (res.ok) {
-        if (data?.message === 'already_exists') showToast('Элемент уже есть в выбранном списке', 'info')
-        else showToast('Добавлено в список', 'success')
+        if (data?.message === 'already_exists') {
+          showToast('Элемент уже есть в выбранном списке', 'info')
+        } else if (data?.message === 'requires_moderation') {
+          showToast(data?.warning || 'Элемент добавлен, но требуется модерация', 'info')
+        } else {
+          showToast('Добавлено в список', 'success')
+        }
         // If person and include-linked checked, bulk add achievements and periods
         if (addingPersonId && includeLinked) {
           try {

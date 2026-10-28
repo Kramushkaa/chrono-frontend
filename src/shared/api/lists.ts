@@ -124,3 +124,7 @@ export async function getPublicLists(params: {
 export async function getPublicListDetail(slug: string): Promise<PublicListDetail> {
   return listsApi.get<PublicListDetail>(`/api/public/lists/${encodeURIComponent(slug)}`)
 }
+
+export async function unpublishList(listId: number): Promise<UserList> {
+  return listsApi.post<UserList, {}>(`/api/lists/${listId}/unpublish`, {})
+}

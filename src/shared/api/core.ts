@@ -13,7 +13,7 @@ const getApiConfig = () => {
 
   const LOCAL_BACKEND_URL = import.meta.env.VITE_LOCAL_BACKEND_URL || 'http://localhost:3001'
   const REMOTE_BACKEND_URL =
-    import.meta.env.VITE_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io'
+    import.meta.env.VITE_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.msk1.amvera.tech'
 
   let apiUrl: string
   if (forcedApiUrl) {
@@ -309,7 +309,7 @@ export const getBackendInfo = () => {
 export const getApiCandidates = () => {
   const LOCAL_BACKEND_URL = import.meta.env.VITE_LOCAL_BACKEND_URL || 'http://localhost:3001'
   const REMOTE_BACKEND_URL =
-    import.meta.env.VITE_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.amvera.io'
+    import.meta.env.VITE_REMOTE_BACKEND_URL || 'https://chrono-back-kramushka.msk1.amvera.tech'
   const current = API_BASE_URL
   return { local: LOCAL_BACKEND_URL, remote: REMOTE_BACKEND_URL, current }
 }

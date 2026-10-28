@@ -101,7 +101,10 @@ export function ListModerationModal({ isOpen, onClose, showToast }: Props) {
     action: 'approve' | 'reject'
   ) => {
     const form = forms[list.id] || { slug: '', comment: '' }
-    if (action === 'approve' && form.slug.trim().length === 0) {
+    const isPublishedWithPending = list.moderation_status === 'published' && 
+      (list.pending_title !== null || list.pending_description !== null)
+    
+    if (action === 'approve' && !isPublishedWithPending && form.slug.trim().length === 0) {
       showToast('Введите slug перед публикацией', 'error')
       return
     }
@@ -110,11 +113,17 @@ export function ListModerationModal({ isOpen, onClose, showToast }: Props) {
       await reviewListPublication(list.id, {
         action,
         comment: form.comment.trim() || undefined,
-        slug: action === 'approve' ? form.slug.trim() : undefined,
+        slug: action === 'approve' && !isPublishedWithPending ? form.slug.trim() : undefined,
       })
+      const isPublishedWithPendingCheck = list.moderation_status === 'published' && 
+        (list.pending_title !== null || list.pending_description !== null)
       showToast(
         action === 'approve'
-          ? `Список «${list.title}» опубликован`
+          ? isPublishedWithPendingCheck
+            ? `Изменения в списке «${list.title}» одобрены`
+            : `Список «${list.title}» опубликован`
+          : isPublishedWithPendingCheck
+          ? `Изменения в списке «${list.title}» отклонены`
           : `Список «${list.title}» отклонён`,
         'success'
       )
@@ -185,12 +194,22 @@ export function ListModerationModal({ isOpen, onClose, showToast }: Props) {
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 18 }}>{list.title}</div>
+                  {list.moderation_status === 'published' && list.pending_title && (
+                    <div style={{ fontSize: 14, opacity: 0.9, marginTop: 4, color: '#ffa500' }}>
+                      Новое название: {list.pending_title}
+                    </div>
+                  )}
                   <div style={{ fontSize: 12, opacity: 0.8 }}>
                     Автор: {list.owner_display_name || `#${list.owner_user_id}`}
                   </div>
                   {list.moderation_requested_at && (
                     <div style={{ fontSize: 12, opacity: 0.6 }}>
                       Получено: {new Date(list.moderation_requested_at).toLocaleString()}
+                    </div>
+                  )}
+                  {list.pending_changes_requested_at && (
+                    <div style={{ fontSize: 12, opacity: 0.6 }}>
+                      Изменения запрошены: {new Date(list.pending_changes_requested_at).toLocaleString()}
                     </div>
                   )}
                 </div>
@@ -202,41 +221,72 @@ export function ListModerationModal({ isOpen, onClose, showToast }: Props) {
                 </div>
               </div>
 
-              {list.public_description && (
-                <div
-                  style={{
-                    borderLeft: '3px solid rgba(139,69,19,0.6)',
-                    paddingLeft: 12,
-                    fontSize: 13,
-                    opacity: 0.85,
-                    whiteSpace: 'pre-wrap',
-                  }}
-                >
-                  {list.public_description}
+              {list.moderation_status === 'published' && (list.pending_title || list.pending_description) ? (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <div
+                    style={{
+                      borderLeft: '3px solid rgba(139,69,19,0.6)',
+                      paddingLeft: 12,
+                      fontSize: 13,
+                      opacity: 0.85,
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, marginBottom: 4 }}>Текущее описание:</div>
+                    {list.public_description || '(нет описания)'}
+                  </div>
+                  <div
+                    style={{
+                      borderLeft: '3px solid rgba(255,165,0,0.6)',
+                      paddingLeft: 12,
+                      fontSize: 13,
+                      opacity: 0.9,
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, marginBottom: 4, color: '#ffa500' }}>Новое описание:</div>
+                    {list.pending_description || '(нет описания)'}
+                  </div>
                 </div>
+              ) : (
+                list.public_description && (
+                  <div
+                    style={{
+                      borderLeft: '3px solid rgba(139,69,19,0.6)',
+                      paddingLeft: 12,
+                      fontSize: 13,
+                      opacity: 0.85,
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {list.public_description}
+                  </div>
+                )
               )}
 
               <div style={{ display: 'grid', gap: 10 }}>
-                <label style={{ display: 'grid', gap: 4 }}>
-                  <span style={{ fontSize: 12, opacity: 0.75 }}>Slug (для публичного URL)</span>
-                  <input
-                    value={form.slug}
-                    onChange={(e) =>
-                      setForms((prev) => ({
-                        ...prev,
-                        [list.id]: { ...form, slug: e.target.value.toLowerCase() },
-                      }))
-                    }
-                    placeholder="Например, spisok-velikikh-rulerov"
-                    style={{
-                      padding: '6px 10px',
-                      borderRadius: 8,
-                      border: '1px solid rgba(139,69,19,0.4)',
-                      background: 'rgba(255,255,255,0.08)',
-                      color: '#f7f2eb',
-                    }}
-                  />
-                </label>
+                {list.moderation_status !== 'published' && (
+                  <label style={{ display: 'grid', gap: 4 }}>
+                    <span style={{ fontSize: 12, opacity: 0.75 }}>Slug (для публичного URL)</span>
+                    <input
+                      value={form.slug}
+                      onChange={(e) =>
+                        setForms((prev) => ({
+                          ...prev,
+                          [list.id]: { ...form, slug: e.target.value.toLowerCase() },
+                        }))
+                      }
+                      placeholder="Например, spisok-velikikh-rulerov"
+                      style={{
+                        padding: '6px 10px',
+                        borderRadius: 8,
+                        border: '1px solid rgba(139,69,19,0.4)',
+                        background: 'rgba(255,255,255,0.08)',
+                        color: '#f7f2eb',
+                      }}
+                    />
+                  </label>
+                )}
                 <label style={{ display: 'grid', gap: 4 }}>
                   <span style={{ fontSize: 12, opacity: 0.75 }}>Комментарий (для автора)</span>
                   <textarea
@@ -288,7 +338,9 @@ export function ListModerationModal({ isOpen, onClose, showToast }: Props) {
                     cursor: submittingId === list.id ? 'wait' : 'pointer',
                   }}
                 >
-                  {submittingId === list.id ? 'Публикация…' : 'Опубликовать'}
+                  {submittingId === list.id 
+                    ? (list.moderation_status === 'published' ? 'Обновление…' : 'Публикация…')
+                    : (list.moderation_status === 'published' ? 'Одобрить изменения' : 'Опубликовать')}
                 </button>
               </div>
             </div>
