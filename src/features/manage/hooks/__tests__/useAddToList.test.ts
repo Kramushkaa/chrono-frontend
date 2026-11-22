@@ -114,6 +114,180 @@ describe('useAddToList', () => {
     })
   })
 
+  describe('showAsGlobal', () => {
+    it('should default to false', () => {
+      const { result } = renderHook(() => useAddToList(defaultParams))
+
+      expect(result.current.showAsGlobal).toBe(false)
+    })
+
+    it('should be reset when opening for achievement', () => {
+      const { result } = renderHook(() => useAddToList(defaultParams))
+
+      act(() => {
+        result.current.setShowAsGlobal(true)
+      })
+      act(() => {
+        result.current.openForAchievement(42)
+      })
+
+      expect(result.current.showAsGlobal).toBe(false)
+    })
+
+    it('should be reset when opening for period', () => {
+      const { result } = renderHook(() => useAddToList(defaultParams))
+
+      act(() => {
+        result.current.setShowAsGlobal(true)
+      })
+      act(() => {
+        result.current.openForPeriod(99)
+      })
+
+      expect(result.current.showAsGlobal).toBe(false)
+    })
+
+    it('should be sent for achievement items', async () => {
+      mockApiFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ message: 'success' }),
+      })
+
+      const { result } = renderHook(() => useAddToList(defaultParams))
+
+      act(() => {
+        result.current.openForAchievement(42)
+        result.current.setShowAsGlobal(true)
+      })
+
+      await act(async () => {
+        await result.current.onAdd(10)
+      })
+
+      expect(mockApiFetch).toHaveBeenCalledWith(
+        '/api/lists/10/items',
+        expect.objectContaining({
+          body: JSON.stringify({
+            item_type: 'achievement',
+            achievement_id: 42,
+            show_as_global: true,
+          }),
+        })
+      )
+    })
+
+    it('should be sent for period items', async () => {
+      mockApiFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ message: 'success' }),
+      })
+
+      const { result } = renderHook(() => useAddToList(defaultParams))
+
+      act(() => {
+        result.current.openForPeriod(99)
+        result.current.setShowAsGlobal(true)
+      })
+
+      await act(async () => {
+        await result.current.onAdd(10)
+      })
+
+      expect(mockApiFetch).toHaveBeenCalledWith(
+        '/api/lists/10/items',
+        expect.objectContaining({
+          body: JSON.stringify({
+            item_type: 'period',
+            period_id: 99,
+            show_as_global: true,
+          }),
+        })
+      )
+    })
+
+    it('should not be sent for person items', async () => {
+      mockApiFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ message: 'success' }),
+      })
+
+      const { result } = renderHook(() => useAddToList(defaultParams))
+
+      act(() => {
+        result.current.openForPerson({ id: 'person-1' })
+        result.current.setShowAsGlobal(true)
+      })
+
+      await act(async () => {
+        await result.current.onAdd(10)
+      })
+
+      const [, init] = mockApiFetch.mock.calls[0]
+      expect(JSON.parse(init.body)).toEqual({
+        item_type: 'person',
+        person_id: 'person-1',
+      })
+    })
+
+    it('should be reset after a successful add', async () => {
+      mockApiFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ message: 'success' }),
+      })
+
+      const { result } = renderHook(() => useAddToList(defaultParams))
+
+      act(() => {
+        result.current.openForAchievement(42)
+        result.current.setShowAsGlobal(true)
+      })
+
+      await act(async () => {
+        await result.current.onAdd(10)
+      })
+
+      expect(result.current.showAsGlobal).toBe(false)
+    })
+  })
+
+  describe('targetType', () => {
+    it('should be null without a target', () => {
+      const { result } = renderHook(() => useAddToList(defaultParams))
+
+      expect(result.current.targetType).toBe(null)
+    })
+
+    it('should be person for a person target', () => {
+      const { result } = renderHook(() => useAddToList(defaultParams))
+
+      act(() => {
+        result.current.openForPerson({ id: 'person-1' })
+      })
+
+      expect(result.current.targetType).toBe('person')
+    })
+
+    it('should be achievement for an achievement target', () => {
+      const { result } = renderHook(() => useAddToList(defaultParams))
+
+      act(() => {
+        result.current.openForAchievement(42)
+      })
+
+      expect(result.current.targetType).toBe('achievement')
+    })
+
+    it('should be period for a period target', () => {
+      const { result } = renderHook(() => useAddToList(defaultParams))
+
+      act(() => {
+        result.current.openForPeriod(99)
+      })
+
+      expect(result.current.targetType).toBe('period')
+    })
+  })
+
   describe('onAdd', () => {
     it('should add person to list successfully', async () => {
       mockApiFetch.mockResolvedValue({
@@ -164,7 +338,11 @@ describe('useAddToList', () => {
       expect(mockApiFetch).toHaveBeenCalledWith(
         '/api/lists/10/items',
         expect.objectContaining({
-          body: JSON.stringify({ item_type: 'achievement', achievement_id: 42 }),
+          body: JSON.stringify({
+            item_type: 'achievement',
+            achievement_id: 42,
+            show_as_global: false,
+          }),
         })
       )
 
@@ -190,7 +368,11 @@ describe('useAddToList', () => {
       expect(mockApiFetch).toHaveBeenCalledWith(
         '/api/lists/10/items',
         expect.objectContaining({
-          body: JSON.stringify({ item_type: 'period', period_id: 99 }),
+          body: JSON.stringify({
+            item_type: 'period',
+            period_id: 99,
+            show_as_global: false,
+          }),
         })
       )
 
