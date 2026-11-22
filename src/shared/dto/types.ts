@@ -1,7 +1,7 @@
 // AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
 // This file is automatically copied from backend/shared-dto
 // Source: shared-dto/dist/types.d.ts
-// Generated: 2025-11-18T10:22:00.111Z
+// Generated: 2026-10-28T11:17:05.805Z
 
 import type { z } from 'zod';
 import type { UpsertPersonSchema, PersonLifePeriodInputSchema, LifePeriodItemSchema, LifePeriodsSchema, PersonEditPayloadSchema, AchievementGenericSchema, AchievementPersonSchema, ListPublicationRequestSchema, ListModerationActionSchema } from './schemas';

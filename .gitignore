@@ -33,3 +33,23 @@ yarn-error.log*
 fe.log
 *.log
 .env.local
+
+# Local artifacts
+.lighthouse-tmp/
+.tmp/
+
+# ==========================================
+# Deploy exclusions (Amvera deploy repo)
+# ==========================================
+# Tests
+src/**/__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+vitest.config.ts
+src/setupTests.ts
+src/test-utils/
+
+# Documentation
+*.md
