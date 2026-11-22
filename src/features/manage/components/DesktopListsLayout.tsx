@@ -1,5 +1,6 @@
 import React from 'react'
 import { apiFetch, apiData } from 'shared/api/core'
+import { downloadListExport } from 'shared/api/content'
 import { LeftMenuSelection } from './LeftMenu'
 import { LeftMenuLayout } from './LeftMenuLayout'
 import type { MenuSelection } from '../hooks/useManageState'
@@ -192,6 +193,21 @@ export function DesktopListsLayout(props: Props) {
         window.open(url, '_blank')
         showToast('Открываю на таймлайне', 'info')
       }}
+      onExportList={
+        isModerator
+          ? async (id) => {
+              try {
+                await downloadListExport(id, 'yaml')
+                showToast('Файл списка скачан', 'success')
+              } catch (error) {
+                showToast(
+                  error instanceof Error ? error.message : 'Не удалось экспортировать список',
+                  'error'
+                )
+              }
+            }
+          : undefined
+      }
     >
       {children}
     </LeftMenuLayout>

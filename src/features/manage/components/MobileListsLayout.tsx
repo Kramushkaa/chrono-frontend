@@ -1,5 +1,6 @@
 import React from 'react'
 import { apiFetch, apiData } from 'shared/api/core'
+import { downloadListExport } from 'shared/api/content'
 import { LeftMenuSelection } from './LeftMenu'
 import { MobileListsHeader } from './MobileListsHeader'
 // import { ListItemsView } from 'shared/ui/ListItemsView'
@@ -169,6 +170,18 @@ export function MobileListsLayout(props: Props) {
     showToast('Открываю на таймлайне', 'info')
   }
 
+  const handleExportList = async (id: number) => {
+    try {
+      await downloadListExport(id, 'yaml')
+      showToast('Файл списка скачан', 'success')
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : 'Не удалось экспортировать список',
+        'error'
+      )
+    }
+  }
+
   const handleCopySharedList = async (id: number) => {
     if (!isAuthenticated) { 
       showToast('Нужно войти', 'error')
@@ -245,6 +258,7 @@ export function MobileListsLayout(props: Props) {
         onDeleteList={handleDeleteList}
         onShareList={handleShareList}
         onShowOnTimeline={handleShowOnTimeline}
+        onExportList={isModerator ? handleExportList : undefined}
         readonlyListId={sharedList?.id}
         onCopySharedList={handleCopySharedList}
         filtersVisible={filtersVisible}

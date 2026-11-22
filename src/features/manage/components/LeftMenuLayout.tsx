@@ -23,6 +23,7 @@ type Props = {
 	onDeleteList?: (id: number) => void
 	onShareList?: (id: number) => void
 	onShowOnTimeline?: (id: number) => void
+	onExportList?: (id: number) => void
 	readonlyListId?: number
 	onCopySharedList?: (id: number) => void
 
@@ -46,6 +47,7 @@ export function LeftMenuLayout(props: Props) {
 		onDeleteList,
 		onShareList,
 		onShowOnTimeline,
+		onExportList,
 		readonlyListId,
 		onCopySharedList,
 		children
@@ -72,6 +74,7 @@ export function LeftMenuLayout(props: Props) {
 				onDeleteList={onDeleteList}
 				onShareList={onShareList}
 				onShowOnTimeline={onShowOnTimeline}
+				onExportList={onExportList}
 				readonlyListId={readonlyListId}
 				onCopySharedList={onCopySharedList}
 			/>

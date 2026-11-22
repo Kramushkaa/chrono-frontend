@@ -16,12 +16,14 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
   const [pendingAddAchievementId, setPendingAddAchievementId] = useState<number | null>(null)
   const [pendingAddPeriodId, setPendingAddPeriodId] = useState<number | null>(null)
   const [includeLinked, setIncludeLinked] = useState(false)
+  const [showAsGlobal, setShowAsGlobal] = useState(false)
 
   const openForPerson = useCallback((person: PersonRef) => {
     setPendingAddPersonId(person?.id || null)
     setPendingAddAchievementId(null)
     setPendingAddPeriodId(null)
     setIncludeLinked(false)
+    setShowAsGlobal(false)
     setIsOpen(true)
   }, [])
 
@@ -29,6 +31,7 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
     setPendingAddPeriodId(null)
     setPendingAddAchievementId(achievementId)
     setIncludeLinked(false)
+    setShowAsGlobal(false)
     setIsOpen(true)
   }, [])
 
@@ -36,6 +39,7 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
     setPendingAddAchievementId(null)
     setPendingAddPeriodId(periodId)
     setIncludeLinked(false)
+    setShowAsGlobal(false)
     setIsOpen(true)
   }, [])
 
@@ -48,9 +52,9 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
     if (!addingPersonId && !addingAchievementId && !addingPeriodId) return
     try {
       const payload = addingPeriodId
-        ? { item_type: 'period', period_id: addingPeriodId }
+        ? { item_type: 'period', period_id: addingPeriodId, show_as_global: showAsGlobal }
         : addingAchievementId
-        ? { item_type: 'achievement', achievement_id: addingAchievementId }
+        ? { item_type: 'achievement', achievement_id: addingAchievementId, show_as_global: showAsGlobal }
         : { item_type: 'person', person_id: addingPersonId! }
       const res = await apiFetch(`/api/lists/${listId}/items`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
@@ -89,6 +93,7 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
         setPendingAddAchievementId(null)
         setPendingAddPeriodId(null)
         setIncludeLinked(false)
+        setShowAsGlobal(false)
         await reloadLists?.(true)
       } else {
         const errorData = data as Record<string, unknown> | null
@@ -99,7 +104,15 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
       const errorMessage = e instanceof Error ? e.message : 'Ошибка'
       showToast(errorMessage, 'error')
     }
-  }, [pendingAddPersonId, pendingAddAchievementId, pendingAddPeriodId, getSelectedPerson, includeLinked, apiFetch, apiData, showToast, reloadLists, close])
+  }, [pendingAddPersonId, pendingAddAchievementId, pendingAddPeriodId, getSelectedPerson, includeLinked, showAsGlobal, apiFetch, apiData, showToast, reloadLists, close])
+
+  const targetType: 'person' | 'achievement' | 'period' | null = pendingAddPeriodId
+    ? 'period'
+    : pendingAddAchievementId
+    ? 'achievement'
+    : pendingAddPersonId
+    ? 'person'
+    : null
 
   return {
     isOpen,
@@ -109,6 +122,9 @@ export function useAddToList({ showToast, reloadLists, getSelectedPerson, apiFet
     close,
     includeLinked,
     setIncludeLinked,
+    showAsGlobal,
+    setShowAsGlobal,
+    targetType,
     onAdd
   }
 }

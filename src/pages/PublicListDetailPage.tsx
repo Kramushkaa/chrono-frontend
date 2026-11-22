@@ -33,6 +33,9 @@ function renderItem(item: PublicListItem) {
         <div style={{ fontWeight: 600, fontSize: 16 }}>{item.description}</div>
         <div style={{ fontSize: 13, opacity: 0.75 }}>
           {item.year ? `Год: ${item.year}` : 'Год неизвестен'}
+          {item.show_as_global && (
+            <span style={{ marginLeft: 12, color: '#d7b48a' }}>Глобальное</span>
+          )}
           {item.person_id && <span style={{ marginLeft: 12 }}>Личность: {item.person_id}</span>}
         </div>
       </div>
@@ -43,6 +46,9 @@ function renderItem(item: PublicListItem) {
     <div style={{ display: 'grid', gap: 4 }}>
       <div style={{ fontWeight: 600, fontSize: 16 }}>{item.period_type || 'Период'}</div>
       <div style={{ fontSize: 13, opacity: 0.75 }}>{formatYears(item.start_year, item.end_year)}</div>
+      {item.show_as_global && (
+        <div style={{ fontSize: 12, color: '#d7b48a' }}>Глобальный период</div>
+      )}
       {item.person_id && <div style={{ fontSize: 12, opacity: 0.7 }}>Личность: {item.person_id}</div>}
     </div>
   )

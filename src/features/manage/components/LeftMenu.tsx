@@ -20,6 +20,7 @@ type Props = {
   onDeleteList?: (id: number) => void
   onShareList?: (id: number) => void
   onShowOnTimeline?: (id: number) => void
+  onExportList?: (id: number) => void
   readonlyListId?: number
   onCopySharedList?: (id: number) => void
   id?: string
@@ -39,7 +40,7 @@ const statusColors: Record<ListModerationStatus, string> = {
   rejected: 'rgba(220,53,69,0.6)',
 }
 
-export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, mineCount, userLists, onAddList, labelAll = 'Все', onDeleteList, onShareList, onShowOnTimeline, readonlyListId, onCopySharedList, id }: Props) {
+export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, mineCount, userLists, onAddList, labelAll = 'Все', onDeleteList, onShareList, onShowOnTimeline, onExportList, readonlyListId, onCopySharedList, id }: Props) {
   const itemStyle = (active: boolean): React.CSSProperties => ({
     padding: '6px 8px',
     cursor: 'pointer',
@@ -106,6 +107,9 @@ export function LeftMenu({ selectedKey, onSelect, isModerator, pendingCount, min
                 ) : (
                   <>
                     <button title="Показать на таймлайне" style={actionBtn} onClick={(e) => { e.stopPropagation(); onShowOnTimeline?.(l.id) }}>⏱️</button>
+                    {onExportList && (
+                      <button title="Экспорт списка" style={actionBtn} onClick={(e) => { e.stopPropagation(); onExportList(l.id) }}>📤</button>
+                    )}
                     <button title="Поделиться" style={actionBtn} onClick={(e) => { e.stopPropagation(); onShareList?.(l.id) }}>🔗</button>
                     <button title="Удалить" style={actionBtn} onClick={(e) => { e.stopPropagation();
                       const ok = window.confirm('Удалить список и все его элементы?'); if (ok) onDeleteList?.(l.id)

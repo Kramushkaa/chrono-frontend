@@ -28,6 +28,7 @@ export interface PublicListItemAchievement {
   person_id: string | null
   year: number | null
   description: string
+  show_as_global?: boolean
 }
 
 export interface PublicListItemPeriod {
@@ -38,6 +39,7 @@ export interface PublicListItemPeriod {
   start_year: number | null
   end_year: number | null
   period_type: string | null
+  show_as_global?: boolean
 }
 
 export type PublicListItem =
@@ -52,6 +54,7 @@ export interface ListItem {
   person_id?: string | null
   achievement_id?: number | null
   period_id?: number | null
+  show_as_global?: boolean
   added_at: string
 }
 

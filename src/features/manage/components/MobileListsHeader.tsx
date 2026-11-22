@@ -15,6 +15,7 @@ type Props = {
   onDeleteList?: (id: number) => void
   onShareList?: (id: number) => void
   onShowOnTimeline?: (id: number) => void
+  onExportList?: (id: number) => void
   readonlyListId?: number
   onCopySharedList?: (id: number) => void
   // Filter toggle
@@ -36,6 +37,7 @@ export function MobileListsHeader({
   onDeleteList,
   onShareList,
   onShowOnTimeline,
+  onExportList,
   readonlyListId,
   onCopySharedList,
   filtersVisible,
@@ -121,6 +123,17 @@ export function MobileListsHeader({
               title="Поделиться"
             >
               🔗
+            </button>
+          )}
+
+          {/* Экспорт списка (только для модераторов) */}
+          {readonlyListId !== currentList.id && onExportList && (
+            <button
+              onClick={() => onExportList(currentList.id)}
+              className="lists-mobile-actions__action-button"
+              title="Экспорт списка"
+            >
+              📤
             </button>
           )}
 

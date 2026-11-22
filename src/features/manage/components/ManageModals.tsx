@@ -56,6 +56,12 @@ interface AddToListActions {
 
   setIncludeLinked: (value: boolean) => void
 
+  showAsGlobal: boolean
+
+  setShowAsGlobal: (value: boolean) => void
+
+  targetType: 'person' | 'achievement' | 'period' | null
+
   onAdd: (listId: number) => Promise<void>
 
 }
@@ -1055,25 +1061,49 @@ export function ManageModals({
 
         extraControls={
 
-          selected ? (
+          <>
 
-            <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {selected ? (
 
-              <input
+              <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
 
-                type="checkbox"
+                <input
 
-                checked={addToList.includeLinked}
+                  type="checkbox"
 
-                onChange={(e) => addToList.setIncludeLinked(e.target.checked)}
+                  checked={addToList.includeLinked}
 
-              />{' '}
+                  onChange={(e) => addToList.setIncludeLinked(e.target.checked)}
 
-              Добавить все связанные периоды и достижения
+                />{' '}
 
-            </label>
+                Добавить все связанные периоды и достижения
 
-          ) : null
+              </label>
+
+            ) : null}
+
+            {addToList.targetType && addToList.targetType !== 'person' ? (
+
+              <label style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8 }}>
+
+                <input
+
+                  type="checkbox"
+
+                  checked={addToList.showAsGlobal}
+
+                  onChange={(e) => addToList.setShowAsGlobal(e.target.checked)}
+
+                />{' '}
+
+                Показать как глобальный в этом списке
+
+              </label>
+
+            ) : null}
+
+          </>
 
         }
 
