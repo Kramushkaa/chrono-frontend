@@ -27,6 +27,7 @@ const QuizSessionDetailPage = React.lazy(() => import('features/quiz/pages/QuizS
 const TimelinePage = React.lazy(() => import('features/timeline/pages/TimelinePage').then(m => ({ default: m.default })))
 const PublicListsPage = React.lazy(() => import('./pages/PublicListsPage'))
 const PublicListDetailPage = React.lazy(() => import('./pages/PublicListDetailPage'))
+const ContentImportPage = React.lazy(() => import('features/manage/pages/ContentImportPage'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -64,6 +65,7 @@ function AppContent() {
             </>
           )}
           <Route path="/lists" element={<ManagePage />} />
+          <Route path="/admin/content-import" element={<ContentImportPage />} />
           <Route path="/manage" element={<Navigate to="/lists" replace />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/register" element={<RegisterPage />} />

@@ -174,10 +174,10 @@ function ManagePageContent() {
           }}
         >
           <div className="manage-page__content">
-            {isModerator && publicListsEnabled && (
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            {isModerator && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginBottom: 12 }}>
                 <button
-                  onClick={() => setShowListsModeration(true)}
+                  onClick={() => navigate('/admin/content-import')}
                   style={{
                     padding: '8px 14px',
                     borderRadius: 8,
@@ -187,8 +187,23 @@ function ManagePageContent() {
                     fontWeight: 600,
                   }}
                 >
-                  Модерация списков
+                  Импорт контента
                 </button>
+                {publicListsEnabled && (
+                  <button
+                    onClick={() => setShowListsModeration(true)}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: 8,
+                      border: '1px solid rgba(139,69,19,0.5)',
+                      background: 'rgba(139,69,19,0.2)',
+                      color: '#2c1810',
+                      fontWeight: 600,
+                    }}
+                  >
+                    Модерация списков
+                  </button>
+                )}
               </div>
             )}
             <AdaptiveTabs
