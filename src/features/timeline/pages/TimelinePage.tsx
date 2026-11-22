@@ -201,7 +201,11 @@ export default function TimelinePage() {
   const categoryDividers = useCategoryDividers(rowPlacement, groupingType)
 
   return (
-    <div className="app" id="chrononinja-app">
+    <main
+      className="app"
+      id="chrononinja-app"
+      aria-label="Хронониндзя — Интерактивная временная линия исторических личностей"
+    >
       <SEO
         title="Хронониндзя — Временная линия исторических личностей"
         description="Исследуйте биографии и достижения исторических личностей на интерактивной линии времени. Фильтры по странам и категориям."
@@ -240,8 +244,9 @@ export default function TimelinePage() {
                />
 
         <div className="timeline-wrapper">
-          <main
+          <div
             ref={timelineRef}
+            role="region"
             className={`timeline-container ${isDragging ? 'dragging' : ''}`}
             id="timeline-viewport"
             aria-label="Область просмотра временной линии"
@@ -346,10 +351,10 @@ export default function TimelinePage() {
                 </div>
               </div>
             )}
-          </main>
+          </div>
         </div>
 
-        <div className="tooltips-container" id="tooltips-aside" aria-label="Информационные подсказки">
+        <aside className="tooltips-container" id="tooltips-aside" aria-label="Информационные подсказки">
           <Tooltips
             hoveredPerson={hoveredPerson}
             showTooltip={showTooltip}
@@ -360,7 +365,7 @@ export default function TimelinePage() {
             getPersonGroup={(person) => getPersonGroup(person, groupingType)}
             getCategoryColor={getGroupColor}
           />
-        </div>
+        </aside>
 
         <PersonPanel
           selectedPerson={selectedPerson}
@@ -373,7 +378,7 @@ export default function TimelinePage() {
         {/* Кнопки прокрутки к началу и концу таймлайна */}
         <ScrollToEdgeButtons timelineRef={timelineRef} />
       </React.Suspense>
-    </div>
+    </main>
   )
 }
 

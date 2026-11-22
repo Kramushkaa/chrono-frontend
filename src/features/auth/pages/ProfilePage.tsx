@@ -102,7 +102,10 @@ export default function ProfilePage() {
         isDraggingSlider={false}
       />
       <Breadcrumbs />
-      <div style={{ maxWidth: 960, margin: '40px auto', padding: '0 16px' }}>
+      <main
+        aria-label="Хронониндзя — Личный кабинет"
+        style={{ maxWidth: 960, margin: '40px auto', padding: '0 16px' }}
+      >
         <h1 style={{ marginBottom: 16 }}>Личный кабинет</h1>
         {isAuthenticated ? (
           <Profile />
@@ -117,7 +120,7 @@ export default function ProfilePage() {
             Для регистрации используется подтверждение почты — письмо придёт с адреса profiles@chrononinja.app
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

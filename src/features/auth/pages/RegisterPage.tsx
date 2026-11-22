@@ -61,10 +61,13 @@ export default function RegisterPage() {
         isDraggingSlider={false}
       />
       <Breadcrumbs />
-      <div style={{ maxWidth: 960, margin: '40px auto', padding: '0 16px' }}>
+      <main
+        aria-label="Хронониндзя — Регистрация"
+        style={{ maxWidth: 960, margin: '40px auto', padding: '0 16px' }}
+      >
         <h1 style={{ marginBottom: 16 }}>Регистрация</h1>
         <RegisterForm onSuccess={() => navigate('/profile')} />
-      </div>
+      </main>
     </div>
   );
 }

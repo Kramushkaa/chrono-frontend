@@ -41,15 +41,5 @@ fe.log
 # ==========================================
 # Deploy exclusions (Amvera deploy repo)
 # ==========================================
-# Tests
-src/**/__tests__/
-*.test.ts
-*.test.tsx
-*.spec.ts
-*.spec.tsx
-vitest.config.ts
-src/setupTests.ts
-src/test-utils/
-
 # Documentation
 *.md
